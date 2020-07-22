@@ -1,11 +1,134 @@
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_table
 import pandas as pd
 
 import datasetinsights.data.simulation as sim
 import datasetinsights.visualization.constants as constants
 
 from .plots import histogram_plot, rotation_plot
+
+
+class ScaleFactor:
+    """
+
+    Generate scale factor distribution.
+
+    Scale Factor describes the ratio of original object to new object
+        arrangement in a capture. Higher the scale factor, larger would be
+        the object than originally captured and vice versa.
+
+    Atrributes:
+        captures(sim.Captures): a collection of capture records.
+
+    """
+
+    def __init__(self, data_root):
+        """
+
+        Args:
+            data_root(str): path to the dataset.
+
+        """
+        capture = sim.Captures(data_root)
+        self.captures = capture.filter(
+            def_id=constants.BOUNDING_BOX_2D_DEFINITION_ID
+        )
+
+    def _read_scale(self, sensor):
+        """ Method to extract scale parameter from sensor data".
+
+        Args:
+            sensor(dict): collection of sensor data.
+
+        Returns:
+            float: extracted 'scale' parameter from the sensor data.
+
+        """
+        return sensor["scale"]
+
+    def _generate_scale_factor_figures(self):
+        """ Method for generating plots for scale factor distribution.
+
+        Returns:
+            plotly.graph_objects.Figure: scale factor distribution.
+
+        """
+        self.captures["scale"] = self.captures["sensor"].apply(self._read_scale)
+
+        scale_factor_distribution_figure = histogram_plot(
+            self.captures,
+            x="scale",
+            x_title="Scale",
+            y_title="Capture count",
+            title="Distribution of Scale Factor",
+            range_x=[min(self.captures["scale"]), max(self.captures["scale"])],
+            max_samples=constants.MAX_SAMPLES,
+        )
+        return scale_factor_distribution_figure
+
+    def html(self):
+        scale_factor_distribution_figure = self._generate_scale_factor_figures()
+        html_layout = dcc.Graph(
+            id="scale_factor_distribution_figure",
+            figure=scale_factor_distribution_figure,
+        )
+        return html_layout
+
+
+class UserParameter:
+    """
+    Generate User Parameter
+
+    Generate User Parameter table to be displayed on the Dashboard.
+    Users parameters, such as ScaleFactors, MaxFrames,
+        MaxForegroundObjectsPerFrame are used to control the domain
+        randomization parameter used in the simulation.
+
+    Atrributes:
+        metrics(sim.Metrics): a collection of metrics records
+        user_parameter_table (pandas.DataFrame): dataframe containing user
+            parameters.
+
+    """
+
+    def __init__(self, data_root):
+        """
+
+        Args:
+            data_root(str): path to the dataset.
+
+        """
+        self.metrics = sim.Metrics(data_root=data_root)
+        self.user_parameter_table = self.metrics.filter_metrics(
+            constants.USER_PARAMETERS_DEFINITION_ID
+        )
+
+    def html(self):
+        html_layout = html.Div(
+            [
+                html.H3("User Input Parameters Table"),
+                dash_table.DataTable(
+                    id="user_parameter_table",
+                    columns=[
+                        {"name": i, "id": i}
+                        for i in self.user_parameter_table.columns
+                    ],
+                    data=self.user_parameter_table.to_dict("records"),
+                    style_table={"overflowX": "auto",},
+                    style_cell={
+                        "height": "auto",
+                        # all three widths are needed
+                        "minWidth": "180px",
+                        "width": "180px",
+                        "maxWidth": "400px",
+                        "whiteSpace": "normal",
+                        "text-align": "center",
+                    },
+                ),
+            ]
+        )
+        return html_layout
 
 
 class Lighting:
@@ -16,6 +139,7 @@ class Lighting:
         metrics(sim.Metrics): a collection of metrics records
         lighting (pandas.DataFrame): contains information about per-frame light
             color and orientation information.
+
     """
 
     X_Y_COLUMNS = ["x_rotation", "y_rotation"]
@@ -36,6 +160,7 @@ class Lighting:
         Returns:
             pandas.DataFrame: contains information about per-frame light color
                 and orientation information.
+
         """
         metrics = self.metrics
         filtered_metrics = metrics.filter_metrics(
@@ -59,6 +184,7 @@ class Lighting:
         Returns:
             plotly.graph_objects.Figure: chart to display light orientations,
                 rotations and color distribution.
+
         """
 
         lighting_fig = rotation_plot(
@@ -194,14 +320,17 @@ class ObjectPlacement:
         metrics(sim.Metrics): a collection of metrics records
         lighting (pandas.DataFrame): contains information about per-frame light
             color and orientation information.
+
     """
 
     OBJECT_ORIENTATION = ("x_rot", "y_rot", "z_rot")
 
     def __init__(self, data_root):
         """
+
         Args:
             data_root(str): path to the dataset.
+
         """
         self.metrics = sim.Metrics(data_root=data_root)
         self.rotation = self._read_foreground_placement_info()
@@ -212,6 +341,7 @@ class ObjectPlacement:
         Returns:
             pandas.DataFrame: contains information about foreground object
                 orientations.
+
         """
         metrics = self.metrics
         filtered_metrics = metrics.filter_metrics(
@@ -234,6 +364,7 @@ class ObjectPlacement:
         Returns:
             plotly.graph_objects.Figure: charts for object orientation
                 statistics.
+
         """
         orientation_rotation_plot_fig = rotation_plot(
             orientation,
@@ -338,14 +469,19 @@ def render_object_detection_layout(data_root):
     Returns:
         html layout: displays graphs for rotation and
             lighting statistics for the object.
+
     """
+    user_parameter = UserParameter(data_root)
     object_placement = ObjectPlacement(data_root)
     lighting = Lighting(data_root)
+    scale_factor = ScaleFactor(data_root)
     object_detection_layout = html.Div(
         [
             html.Div(id="object_detection"),
+            user_parameter.html(),
             object_placement.html(),
             lighting.html(),
+            scale_factor.html(),
         ]
     )
     return object_detection_layout
