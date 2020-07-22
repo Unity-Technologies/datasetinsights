@@ -1,0 +1,22 @@
+estimator: DeeplabV3
+backbone: resnet50
+num_classes: 35
+task: semantic_segmentation
+train:
+  dataset: Cityscapes
+  batch_size: 4
+  accumulation_steps: 8
+  crop_size: 769
+  epochs: 50
+val:
+  dataset: Cityscapes
+  batch_size: 4
+test:
+  dataset: Cityscapes
+  batch_size: 4
+metric: IoU
+optimizer:
+  name: Adam
+  args:
+    lr: 1.0e-2
+checkpoint_file: None

@@ -1,0 +1,52 @@
+estimator: FasterRCNN
+backbone: resnet50
+num_classes: 64
+task: object_detection
+train:
+  dataset:
+    name: SynDetection2D
+    args:
+      run_execution_id: zMvGEV0
+      version: 0.0.1
+      def_id: c31620e3-55ff-4af6-ae86-884aa0daa9b2
+      random_seed: 47
+      split: train
+  batch_size: 4
+  accumulation_steps: 8
+  epochs: 50
+  log_frequency: 10
+val:
+  dataset:
+    name: SynDetection2D
+    args:
+      run_execution_id: zMvGEV0
+      version: 0.0.1
+      def_id: c31620e3-55ff-4af6-ae86-884aa0daa9b2
+      random_seed: 47
+      split: val
+  batch_size: 4
+test:
+  dataset:
+    name: GroceriesReal
+    args:
+      version: v3
+      split: test
+  batch_size: 4
+metrics:
+  AP:
+    name: AveragePrecisionBBox2D
+    args:
+      iou_threshold: .50
+      interpolation: NPointInterpolatedAP
+  AR:
+    name: AverageRecallBBox2D
+    args:
+      iou_threshold: .50
+      max_detections: 100
+optimizer:
+  name: Adam
+  args:
+    lr: 2.0e-4
+pretrained: False
+pretrained_backbone: True
+checkpoint_file: None

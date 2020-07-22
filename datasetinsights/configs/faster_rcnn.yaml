@@ -1,0 +1,46 @@
+estimator: FasterRCNN
+backbone: resnet50
+num_classes: 91
+task: object_detection
+train:
+  epochs: 26
+  batch_size: 4
+  accumulation_steps: 8
+  log_frequency: 1000
+  dataset:
+    name: CocoDetection
+    args:
+      version: 2017
+      split: train
+val:
+  batch_size: 4
+  dataset:
+    name: CocoDetection
+    args:
+      version: 2017
+      split: val
+test:
+  batch_size: 4
+  dataset:
+    name: CocoDetection
+    args:
+      version: 2017
+      split: val
+metrics:
+  AP:
+    name: AveragePrecisionBBox2D
+    args:
+      iou_threshold: .50
+      interpolation: NPointInterpolatedAP
+  AR:
+    name: AverageRecallBBox2D
+    args:
+      iou_threshold: .50
+      max_detections: 100
+optimizer:
+  name: Adam
+  args:
+    lr: 2.0e-4
+pretrained: False
+pretrained_backbone: True
+synchronize_metrics: True

@@ -1,0 +1,17 @@
+estimator: DenseDepth
+task: depth_estimation
+train:
+  dataset: NyuDepth
+  accumulation_steps: 10
+  epochs: 100
+  batch_size: 7
+val:
+  dataset: NyuDepth
+  batch_size: 7
+test:
+  dataset: NyuDepth
+  batch_size: 5
+optimizer:
+  name: Adam
+  lr: 1.0e-4
+checkpoint_file: None
