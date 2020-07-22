@@ -2,6 +2,7 @@ import concurrent.futures
 import logging
 import os
 import re
+import zlib
 from pathlib import Path
 
 import numpy as np
@@ -13,6 +14,7 @@ from requests.packages.urllib3.util.retry import Retry
 from tqdm import tqdm
 
 import datasetinsights.constants as const
+from datasetinsights.data.simulation.exceptions import ChecksumError
 
 from .exceptions import DownloadError
 from .tables import DATASET_TABLES, FileType
@@ -215,7 +217,10 @@ class Downloader:
                 relative_path = row.file_name
                 dest_path = os.path.join(self.data_root, relative_path)
                 future = executor.submit(
-                    _download_file, source_uri, dest_path, self.use_cache
+                    download_file_from_url,
+                    source_uri,
+                    dest_path,
+                    self.use_cache,
                 )
                 future_downloaded.append(future)
 
@@ -248,7 +253,9 @@ class TimeoutHTTPAdapter(HTTPAdapter):
         return super().send(request, **kwargs)
 
 
-def _download_file(source_uri: str, dest_path: str, use_cache: bool = True):
+def download_file_from_url(
+    source_uri: str, dest_path: str, use_cache: bool = True
+):
     """Download a file specified from a source uri
 
     Args:
@@ -287,6 +294,58 @@ def _download_file(source_uri: str, dest_path: str, use_cache: bool = True):
                 f.write(response.content)
 
     return dest_path
+
+
+def compare_checksums(file_path, checksum_path):
+    """Compare checksums for source and destination file.
+    Will raise error if two checksums are different.
+
+    Args:
+        file_path (str): local path of the file
+        checksum_path (str): checksum file for the source file
+
+    """
+    source_file_checksum = _get_source_checksum(checksum_path)
+    local_file_checksum = _get_local_checksum(file_path)
+    os.remove(checksum_path)
+    if local_file_checksum != source_file_checksum:
+        os.remove(file_path)
+        raise ChecksumError(
+            f"Invalid hash value (expected {source_file_checksum},"
+            f"got {local_file_checksum})."
+            f"There are some errors during the dataset download. "
+            f"Please download it again."
+        )
+
+
+def _get_local_checksum(local_path):
+    """Calculate checksum (CRC32) for a local file
+
+    Args:
+        local_path (str): local path of the file
+
+    Returns:
+        str: checksum for the local file
+    """
+    with open(local_path, "rb") as f:
+        local_file_crc32 = zlib.crc32(f.read())
+
+    return str(local_file_crc32)
+
+
+def _get_source_checksum(checksum_path):
+    """Get the checksum for the source file
+
+    Args:
+        checksum_path (str): downloaded checksum file path
+
+    Returns:
+        str: checksum for the source file
+    """
+    with open(checksum_path, "r") as f:
+        source_checksum = f.read()
+
+    return source_checksum
 
 
 def download_manifest(

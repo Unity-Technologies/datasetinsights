@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import zipfile
+from collections import namedtuple
 from pathlib import Path
 
 import tensorflow as tf
@@ -16,6 +17,12 @@ from .base import Dataset
 from .protos import string_int_label_map_pb2
 
 logger = logging.getLogger(__name__)
+PUBLIC_GROCERIES_REAL_PATH = (
+    "https://storage.googleapis.com/datasetinsights_public/data/groceries"
+)
+GroceriesRealTable = namedtuple(
+    "GroceriesRealTable", ("version", "filename", "http_path", "checksum")
+)
 
 
 class GroceriesReal(Dataset):
@@ -79,10 +86,16 @@ class GroceriesReal(Dataset):
         "test_low_contrast": "groceries_real_test_low_contrast.txt",
         "test_high_contrast": "groceries_real_test_high_contrast.txt",
     }
-    VERSIONS = {
-        "v2": "v2.zip",
-        "v3": "v3.zip",
+
+    GROCERIES_REAL_DATASET_TABLES = {
+        "v3": GroceriesRealTable(
+            "v3",
+            "v3.zip",
+            f"{PUBLIC_GROCERIES_REAL_PATH}/v3.zip",
+            f"{PUBLIC_GROCERIES_REAL_PATH}/checksum_v3.txt",
+        ),
     }
+
     ANNOTATION_FILE = "annotations.json"
     DEFINITION_FILE = "annotation_definitions.json"
 
@@ -110,7 +123,7 @@ class GroceriesReal(Dataset):
             )
         self.split = split
 
-        valid_versions = tuple(self.VERSIONS.keys())
+        valid_versions = tuple(self.GROCERIES_REAL_DATASET_TABLES.keys())
         if version not in valid_versions:
             raise ValueError(
                 f"A valid dataset version should be set. "
@@ -173,7 +186,7 @@ class GroceriesReal(Dataset):
         """Download dataset from GCS
         """
         cloud_path = f"gs://{const.GCS_BUCKET}/{self.GCS_PATH}"
-        zip_file = self.VERSIONS.get(self.version)
+        zip_file = self.GROCERIES_REAL_DATASET_TABLES.get(self.version).filename
         local_zip_file = download_file_from_gcs(cloud_path, self.root, zip_file)
         with zipfile.ZipFile(local_zip_file, "r") as zip_dir:
             zip_dir.extractall(self.root)

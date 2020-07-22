@@ -61,3 +61,16 @@ python -m datasetinsights.scripts.usim_download \
 The `auth-token` can be generated using the Unity Simulation [CLI](https://github.com/Unity-Technologies/Unity-Simulation-Docs/blob/master/doc/cli.md#usim-inspect-auth). This script will download the synthetic dataset for the requested [run-execution-id](https://github.com/Unity-Technologies/Unity-Simulation-Docs/blob/master/doc/cli.md#argument-descriptions).
 
 If the `--include-binary` flag is present, the images will also be downloaded. This might take a long time, depending on the size of the generated dataset.
+
+### Download SynthDet Dataset
+
+Download SynthDet public dataset from GCS, including GroceriesReal and Synthetic dataset. You can use the provided cli script to download public dataset to reproduce our work.
+
+Here is the command line for GroceriesReal dataset download:
+
+```bash
+python -m datasetinsights.scripts.public_download \
+  --name=GroceriesReal \
+  --data-root=$HOME/data \
+  --verbose
+```
