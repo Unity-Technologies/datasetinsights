@@ -7,6 +7,8 @@ import sys
 import os
 
 sys.path.insert(0, os.path.abspath('../..'))
+
+autodoc_mock_imports = ["dash","numpy","torch","torchvision","pandas","google","dash_core_components","matplotlib"]
 # -- Project information -----------------------------------------------------
 
 project = "datasetinsights"
@@ -20,6 +22,8 @@ napoleon_google_docstring = True
 # -- General configuration ---------------------------------------------------
 
 master_doc = 'index'
+
+
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
