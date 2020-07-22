@@ -8,7 +8,7 @@ import os
 
 sys.path.insert(0, os.path.abspath('../..'))
 
-autodoc_mock_imports = ["dash","numpy","torch","torchvision","pandas","google","dash_core_components","matplotlib","dash_html_components","pyquaternion","dask","plotly","tensorflow","codetiming"]
+autodoc_mock_imports = ["dash","numpy","torch","torchvision","pandas","google","dash_core_components","matplotlib","dash_html_components","pyquaternion","dask","plotly","tensorflow","codetiming","tqdm"]
 # -- Project information -----------------------------------------------------
 
 project = "datasetinsights"
