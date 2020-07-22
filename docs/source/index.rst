@@ -64,8 +64,8 @@ To get started using a sample project to generate synthetic data and to explore 
 .. toctree::
    :maxdepth: 3
    :caption: Package Contents:
-
-   data
+   
+   datasetinsights
 
 .. toctree::
    :titlesonly:

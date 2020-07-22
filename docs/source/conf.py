@@ -5,7 +5,6 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 import sys
 
-import pkg_resources
 
 sys.path.insert(0, "../datasetinsights")
 # sys.path.insert(0, os.path.abspath('../'))
@@ -16,7 +15,7 @@ copyright = "2020, Unity Technologies"
 author = "Unity Technologies"
 
 # The full version, including alpha/beta/rc tags
-release = pkg_resources.get_distribution(project).version
+release = '0.1.0'
 napoleon_google_docstring = True
 
 # -- General configuration ---------------------------------------------------
