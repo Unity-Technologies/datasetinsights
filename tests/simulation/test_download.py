@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import responses
+from contextlib import contextmanager
 
 from datasetinsights.data.simulation.download import (
     compare_checksums,
@@ -161,11 +162,19 @@ def test_match_filetypes():
 def test_compare_checksums():
     parent_dir = pathlib.Path(__file__).parent.parent.absolute()
     file_path = str(parent_dir / "mock_data" / "calib000000.txt")
-    checksum_path = str(parent_dir / "mock_data" / "checksum_calib000000.txt")
+    checksum_path1 = str(parent_dir / "mock_data" / "checksum_calib000000.txt")
+    checksum_path2 = str(
+        parent_dir / "mock_data" / "wrong_checksum_calib000000.txt"
+    )
 
-    raise_error = False
+    with not_raises(ChecksumError):
+        pytest.raises(compare_checksums(file_path, checksum_path1))
+    pytest.raises(ChecksumError, compare_checksums, file_path, checksum_path2)
+
+
+@contextmanager
+def not_raises(exception):
     try:
-        compare_checksums(file_path, checksum_path)
-    except ChecksumError:
-        raise_error = True
-    assert raise_error is False
+        yield
+    except exception:
+        raise pytest.fail("DID RAISE {0}".format(exception))
