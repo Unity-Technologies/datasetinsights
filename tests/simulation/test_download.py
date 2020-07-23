@@ -1,3 +1,4 @@
+import argparse
 import os
 import pathlib
 import tempfile
@@ -17,6 +18,7 @@ from datasetinsights.data.simulation.download import (
     _filter_unsuccessful_attempts,
 )
 from datasetinsights.data.simulation.exceptions import ChecksumError
+from datasetinsights.scripts.public_download import run
 from datasetinsights.data.simulation.tables import FileType
 
 
@@ -178,3 +180,23 @@ def not_raises(exception):
         yield
     except exception:
         raise pytest.fail("DID RAISE {0}".format(exception))
+
+
+@patch("datasetinsights.data.simulation.download.download_file_from_url")
+@patch("datasetinsights.data.simulation.download.compare_checksums")
+def test_run(mocked_download, mocked_checksum):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--verbose", action="store_true", default=False)
+    parser.add_argument("--data-root", type=str, default="")
+    parser.add_argument(
+        "--name",
+        type=str,
+        default="GroceriesReal",
+        required=True,
+    )
+    parser.add_argument("--version", type=str, default="v3")
+
+    args = parser.parse_args()
+    run(args)
+    mocked_download.multiline_text.call_count == 2
+    mocked_checksum.multiline_text.call_count == 1
