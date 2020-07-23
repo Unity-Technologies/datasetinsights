@@ -20,7 +20,7 @@ class AveragePrecisionBBox2D(EvaluationMetric):
         ap_method (string): AP interoperation method name for AP calculation
         {"EveryPointInterpolation"| "NPointInterpolatedAP"}
         gt_bboxes_count (dict): ground truth box count for each label
-        iou_threshold (float): iou threshold
+        iou_thresholds (float): iou thresholds
 
     Args:
         iou_threshold (float): iou threshold (default: 0.5)
@@ -28,7 +28,11 @@ class AveragePrecisionBBox2D(EvaluationMetric):
     """
 
     def __init__(
-        self, iou_threshold=0.5, interpolation="EveryPointInterpolation"
+        self,
+        iou_start=0.5,
+        iou_end=0.95,
+        iou_step=0.05,
+        interpolation="EveryPointInterpolation",
     ):
         if interpolation == "EveryPointInterpolation":
             self.ap_method = self.every_point_interpolated_ap
@@ -37,17 +41,26 @@ class AveragePrecisionBBox2D(EvaluationMetric):
         else:
             raise ValueError(f"Unknown AP method name: {interpolation}!")
 
-        self.iou_threshold = iou_threshold
-        self.label_records = collections.defaultdict(
-            lambda: Records(iou_threshold=self.iou_threshold)
+        self.iou_thresholds = np.linspace(
+            iou_start,
+            iou_end,
+            np.round((iou_end - iou_start) / iou_step) + 1,
+            endpoint=True,
         )
+
+        self.label_records = {}
+        for iou in self.iou_thresholds:
+            self.label_records[iou] = collections.defaultdict(
+                lambda: Records(iou_threshold=iou)
+            )
         self.gt_bboxes_count = collections.defaultdict(int)
 
     def reset(self):
         """Reset AP metrics."""
-        self.label_records = collections.defaultdict(
-            lambda: Records(iou_threshold=self.iou_threshold)
-        )
+        for iou in self.iou_thresholds:
+            self.label_records[iou] = collections.defaultdict(
+                lambda: Records(iou_threshold=iou)
+            )
         self.gt_bboxes_count = collections.defaultdict(int)
 
     def update(self, mini_batch):
@@ -65,8 +78,9 @@ class AveragePrecisionBBox2D(EvaluationMetric):
             gt_bboxes, pred_bboxes = bboxes
 
             bboxes_per_label = self.label_bboxes(pred_bboxes)
-            for label, boxes in bboxes_per_label.items():
-                self.label_records[label].add_records(gt_bboxes, boxes)
+            for iou in self.iou_thresholds:
+                for label, boxes in bboxes_per_label.items():
+                    self.label_records[iou][label].add_records(gt_bboxes, boxes)
 
             for gt_bbox in gt_bboxes:
                 self.gt_bboxes_count[gt_bbox.label] += 1
@@ -77,31 +91,44 @@ class AveragePrecisionBBox2D(EvaluationMetric):
         Return:
             average_precision (dict): a dictionary of AP scores per label.
         """
-        average_precision = {}
+        ap_records = collections.defaultdict(dict)
         label_records = self.label_records
+        for iou in self.iou_thresholds:
+            average_precision = {}
 
-        for label in self.gt_bboxes_count:
-            # if there are no predicted boxes with this label
-            if label not in label_records:
-                average_precision[label] = 0
-                continue
-            pred_infos = label_records[label].pred_infos
-            gt_bboxes_count = self.gt_bboxes_count[label]
+            for label in self.gt_bboxes_count:
+                # if there are no predicted boxes with this label
+                if label not in label_records[iou]:
+                    average_precision[label] = 0
+                    continue
+                pred_infos = label_records[iou][label].pred_infos
+                gt_bboxes_count = self.gt_bboxes_count[label]
 
-            pred_infos = sorted(pred_infos, reverse=True)
-            true_pos = np.array(list(zip(*pred_infos))[1]).astype(int)
-            false_pos = 1 - true_pos
+                pred_infos = sorted(pred_infos, reverse=True)
+                true_pos = np.array(list(zip(*pred_infos))[1]).astype(int)
+                false_pos = 1 - true_pos
 
-            acc_tp = np.cumsum(true_pos)
-            acc_fp = np.cumsum(false_pos)
+                acc_tp = np.cumsum(true_pos)
+                acc_fp = np.cumsum(false_pos)
 
-            recall = acc_tp / gt_bboxes_count
-            precision = np.divide(acc_tp, (acc_fp + acc_tp))
-            ap = self.ap_method(recall, precision)
-            # add class result in the dictionary to be returned
-            average_precision[label] = ap
+                recall = acc_tp / gt_bboxes_count
+                precision = np.divide(acc_tp, (acc_fp + acc_tp))
+                ap = self.ap_method(recall, precision)
+                # add class result in the dictionary to be returned
+                average_precision[label] = ap
+            ap_records[iou] = average_precision
+        sum_ap = 0
+        for iou in self.iou_thresholds:
+            mean_result = np.mean(
+                [
+                    result_per_label
+                    for result_per_label in ap_records[iou].values()
+                ]
+            )
+            sum_ap += mean_result
+        mean_ap = sum_ap / len(self.iou_thresholds)
 
-        return average_precision
+        return mean_ap
 
     @staticmethod
     def label_bboxes(pred_bboxes):

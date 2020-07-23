@@ -524,25 +524,25 @@ def evaluate_per_epoch(
     for metric_name, metric in metrics.items():
         result = metric.compute()
         logger.debug(result)
-        mean_result = np.mean(
-            [result_per_label for result_per_label in result.values()]
-        )
-        logger.info(f"metric {metric_name} has mean result: {mean_result}")
-        writer.add_scalar(f"val/m{metric_name}", mean_result, epoch)
+        # mean_result = np.mean(
+        #     [result_per_label for result_per_label in result.values()]
+        # )
+        logger.info(f"metric {metric_name} has mean result: {result}")
+        writer.add_scalar(f"val/m{metric_name}", result, epoch)
 
-        kfp_writer.add_metric(name=metric_name, val=mean_result)
+        kfp_writer.add_metric(name=metric_name, val=result)
         # TODO (YC) This is hotfix to allow user map between label_id
         # to label_name during model evaluation. In ideal cases this mapping
         # should be available before training/evaluation dataset was loaded.
         # label_id that was missing from label_name should be removed from
         # dataset and the training procedure.
-        label_results = {
-            label_mappings.get(id, str(id)): value
-            for id, value in result.items()
-        }
-        writer.add_scalars(f"val/{metric_name}-per-class", label_results, epoch)
-        fig = metric_per_class_plot(metric_name, result, label_mappings)
-        writer.add_figure(f"{metric_name}-per-class", fig, epoch)
+        # label_results = {
+        #     label_mappings.get(id, str(id)): value
+        #     for id, value in result.items()
+        # }
+        # writer.add_scalars(f"val/{metric_name}-per-class", label_results, epoch)
+        # fig = metric_per_class_plot(metric_name, result, label_mappings)
+        # writer.add_figure(f"{metric_name}-per-class", fig, epoch)
 
     val_loss = loss_metric.compute()
     logger.info(f"validation loss is {val_loss}")

@@ -6,6 +6,8 @@ https://github.com/rafaelpadilla/Object-Detection-Metrics/issues/22
 """
 import collections
 
+import numpy as np
+
 from .base import EvaluationMetric
 from .records import Records
 
@@ -24,19 +26,29 @@ class AverageRecallBBox2D(EvaluationMetric):
         max_detections (int): max detections per image (default: 100)
     """
 
-    def __init__(self, iou_threshold=0.5, max_detections=100):
-        self.label_records = collections.defaultdict(
-            lambda: Records(iou_threshold=self.iou_threshold)
+    def __init__(
+        self, iou_start=0.5, iou_end=0.95, iou_step=0.05, max_detections=100
+    ):
+        self.iou_thresholds = np.linspace(
+            iou_start,
+            iou_end,
+            np.round((iou_end - iou_start) / iou_step) + 1,
+            endpoint=True,
         )
+        self.label_records = {}
+        for iou in self.iou_thresholds:
+            self.label_records[iou] = collections.defaultdict(
+                lambda: Records(iou_threshold=iou)
+            )
         self.gt_bboxes_count = collections.defaultdict(int)
-        self.iou_threshold = iou_threshold
         self.max_detections = max_detections
 
     def reset(self):
         """Reset AR metrics."""
-        self.label_records = collections.defaultdict(
-            lambda: Records(iou_threshold=self.iou_threshold)
-        )
+        for iou in self.iou_thresholds:
+            self.label_records[iou] = collections.defaultdict(
+                lambda: Records(iou_threshold=iou)
+            )
         self.gt_bboxes_count = collections.defaultdict(int)
 
     def update(self, mini_batch):
@@ -58,10 +70,11 @@ class AverageRecallBBox2D(EvaluationMetric):
             bboxes_per_label = self.label_bboxes(
                 pred_bboxes, self.max_detections
             )
-            for label in bboxes_per_label:
-                self.label_records[label].add_records(
-                    gt_bboxes, bboxes_per_label[label]
-                )
+            for iou in self.iou_thresholds:
+                for label in bboxes_per_label:
+                    self.label_records[iou][label].add_records(
+                        gt_bboxes, bboxes_per_label[label]
+                    )
 
     def compute(self):
         """Compute AR for each label.
@@ -69,25 +82,40 @@ class AverageRecallBBox2D(EvaluationMetric):
         Return:
             average_recall (dict): a dictionary of AR scores per label.
         """
-        average_recall = {}
+        ar_records = collections.defaultdict(dict)
         label_records = self.label_records
-        for label in self.gt_bboxes_count:
-            # if there are no predicted boxes with this label
-            if label not in label_records:
-                average_recall[label] = 0
-                continue
+        for iou in self.iou_thresholds:
+            average_recall = {}
 
-            pred_infos = label_records[label].pred_infos
-            gt_bboxes_count = self.gt_bboxes_count[label]
+            for label in self.gt_bboxes_count:
+                # if there are no predicted boxes with this label
+                if label not in label_records[iou]:
+                    average_recall[label] = 0
+                    continue
 
-            # The number of TP
-            sum_tp = sum(list(zip(*pred_infos))[1])
+                pred_infos = label_records[iou][label].pred_infos
+                gt_bboxes_count = self.gt_bboxes_count[label]
 
-            max_recall = sum_tp / gt_bboxes_count
+                # The number of TP
+                sum_tp = sum(list(zip(*pred_infos))[1])
 
-            average_recall[label] = max_recall
+                max_recall = sum_tp / gt_bboxes_count
 
-        return average_recall
+                average_recall[label] = max_recall
+            ar_records[iou] = average_recall
+
+        sum_ar = 0
+        for iou in self.iou_thresholds:
+            mean_result = np.mean(
+                [
+                    result_per_label
+                    for result_per_label in ar_records[iou].values()
+                ]
+            )
+            sum_ar += mean_result
+        mean_ar = sum_ar / len(self.iou_thresholds)
+
+        return mean_ar
 
     @staticmethod
     def label_bboxes(pred_bboxes, max_detections):
