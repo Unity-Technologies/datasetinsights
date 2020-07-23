@@ -5,11 +5,14 @@ Update algorithm from:
 https://github.com/rafaelpadilla/Object-Detection-Metrics/blob/master/lib/Evaluator.py
 """
 import collections
+import logging
 
 import numpy as np
 
 from .base import EvaluationMetric
 from .records import Records
+
+logger = logging.getLogger(__name__)
 
 
 class AveragePrecisionBBox2D(EvaluationMetric):
@@ -117,6 +120,7 @@ class AveragePrecisionBBox2D(EvaluationMetric):
                 # add class result in the dictionary to be returned
                 average_precision[label] = ap
             ap_records[iou] = average_precision
+        logger.info(f"AP: {ap_records}")
         sum_ap = 0
         for iou in self.iou_thresholds:
             mean_result = np.mean(

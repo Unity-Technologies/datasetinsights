@@ -5,11 +5,15 @@ https://arxiv.org/pdf/1502.05082.pdf
 https://github.com/rafaelpadilla/Object-Detection-Metrics/issues/22
 """
 import collections
+import logging
 
 import numpy as np
 
 from .base import EvaluationMetric
 from .records import Records
+
+
+logger = logging.getLogger(__name__)
 
 
 class AverageRecallBBox2D(EvaluationMetric):
@@ -103,7 +107,7 @@ class AverageRecallBBox2D(EvaluationMetric):
 
                 average_recall[label] = max_recall
             ar_records[iou] = average_recall
-
+        logger.info(f"AP: {ar_records}")
         sum_ar = 0
         for iou in self.iou_thresholds:
             mean_result = np.mean(
