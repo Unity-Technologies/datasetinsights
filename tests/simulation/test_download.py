@@ -9,11 +9,13 @@ import pytest
 import responses
 
 from datasetinsights.data.simulation.download import (
+    compare_checksums,
     Downloader,
     DownloadError,
     download_file_from_url,
     _filter_unsuccessful_attempts,
 )
+from datasetinsights.data.simulation.exceptions import ChecksumError
 from datasetinsights.data.simulation.tables import FileType
 
 
@@ -154,3 +156,16 @@ def test_match_filetypes():
     ]
 
     assert Downloader.match_filetypes(manifest) == expected_filetypes
+
+
+def test_compare_checksums():
+    parent_dir = pathlib.Path(__file__).parent.parent.absolute()
+    file_path = str(parent_dir / "mock_data" / "calib000000.txt")
+    checksum_path = str(parent_dir / "mock_data" / "checksum_calib000000.txt")
+
+    raise_error = False
+    try:
+        compare_checksums(file_path, checksum_path)
+    except ChecksumError:
+        raise_error = True
+    assert raise_error is False

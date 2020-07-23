@@ -307,8 +307,8 @@ def compare_checksums(file_path, checksum_path):
     """
     source_file_checksum = _get_source_checksum(checksum_path)
     local_file_checksum = _get_local_checksum(file_path)
-    os.remove(checksum_path)
     if local_file_checksum != source_file_checksum:
+        os.remove(checksum_path)
         os.remove(file_path)
         raise ChecksumError(
             f"Invalid hash value (expected {source_file_checksum},"
