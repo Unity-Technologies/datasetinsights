@@ -5,15 +5,11 @@ https://arxiv.org/pdf/1502.05082.pdf
 https://github.com/rafaelpadilla/Object-Detection-Metrics/issues/22
 """
 import collections
-import logging
 
 import numpy as np
 
 from .base import EvaluationMetric
 from .records import Records
-
-
-logger = logging.getLogger(__name__)
 
 
 class AverageRecallBBox2D(EvaluationMetric):
@@ -41,18 +37,14 @@ class AverageRecallBBox2D(EvaluationMetric):
         )
         self.label_records = {}
         for iou in self.iou_thresholds:
-            self.label_records[iou] = collections.defaultdict(
-                lambda: Records(iou_threshold=iou)
-            )
+            self.label_records[iou] = {}
         self.gt_bboxes_count = collections.defaultdict(int)
         self.max_detections = max_detections
 
     def reset(self):
         """Reset AR metrics."""
         for iou in self.iou_thresholds:
-            self.label_records[iou] = collections.defaultdict(
-                lambda: Records(iou_threshold=iou)
-            )
+            self.label_records[iou] = {}
         self.gt_bboxes_count = collections.defaultdict(int)
 
     def update(self, mini_batch):
@@ -76,6 +68,10 @@ class AverageRecallBBox2D(EvaluationMetric):
             )
             for iou in self.iou_thresholds:
                 for label in bboxes_per_label:
+                    if label not in self.label_records[iou]:
+                        self.label_records[iou][label] = Records(
+                            iou_threshold=iou
+                        )
                     self.label_records[iou][label].add_records(
                         gt_bboxes, bboxes_per_label[label]
                     )
@@ -107,7 +103,6 @@ class AverageRecallBBox2D(EvaluationMetric):
 
                 average_recall[label] = max_recall
             ar_records[iou] = average_recall
-        logger.info(f"AP: {ar_records}")
         sum_ar = 0
         for iou in self.iou_thresholds:
             mean_result = np.mean(

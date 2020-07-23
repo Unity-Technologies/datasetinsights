@@ -540,7 +540,9 @@ def evaluate_per_epoch(
         #     label_mappings.get(id, str(id)): value
         #     for id, value in result.items()
         # }
-        # writer.add_scalars(f"val/{metric_name}-per-class", label_results, epoch)
+        # writer.add_scalars(
+        #     f"val/{metric_name}-per-class", label_results, epoch
+        # )
         # fig = metric_per_class_plot(metric_name, result, label_mappings)
         # writer.add_figure(f"{metric_name}-per-class", fig, epoch)
 
