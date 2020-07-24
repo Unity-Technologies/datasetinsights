@@ -9,10 +9,8 @@ import datasetinsights.visualization.constants as constants
 from .plots import histogram_plot, rotation_plot
 
 
-class ScaleFactor:
-    """
-
-    Generate scale factor distribution.
+class ScaleFactor(object):
+    """Generate scale factor distribution.
 
     Scale Factor describes the ratio of original object to new object
         arrangement in a capture. Higher the scale factor, larger would be
@@ -35,17 +33,19 @@ class ScaleFactor:
             def_id=constants.BOUNDING_BOX_2D_DEFINITION_ID
         )
 
-    def _read_scale(self, sensor):
-        """ Method to extract scale parameter from sensor data".
-
-        Args:
-            sensor(dict): collection of sensor data.
+    @staticmethod
+    def generate_scale_data(captures):
+        """ Method to extract scale parameter from sensor data.
 
         Returns:
-            float: extracted 'scale' parameter from the sensor data.
+            list: extracted 'scale' parameter from the sensor data.
 
         """
-        return sensor["scale"]
+        df_scale_factor = pd.DataFrame(
+            [sensor_data.get("scale") for sensor_data in captures["sensor"]],
+            columns=["scale"],
+        )
+        return df_scale_factor
 
     def _generate_scale_factor_figures(self):
         """ Method for generating plots for scale factor distribution.
@@ -54,15 +54,17 @@ class ScaleFactor:
             plotly.graph_objects.Figure: scale factor distribution.
 
         """
-        self.captures["scale"] = self.captures["sensor"].apply(self._read_scale)
-
+        df_scale_factor = self.generate_scale_data(self.captures)
         scale_factor_distribution_figure = histogram_plot(
-            self.captures,
+            df_scale_factor,
             x="scale",
             x_title="Scale",
             y_title="Capture count",
             title="Distribution of Scale Factor",
-            range_x=[min(self.captures["scale"]), max(self.captures["scale"])],
+            range_x=[
+                min(df_scale_factor["scale"]),
+                max(df_scale_factor["scale"]),
+            ],
             max_samples=constants.MAX_SAMPLES,
         )
         return scale_factor_distribution_figure
@@ -77,28 +79,23 @@ class ScaleFactor:
 
 
 class UserParameter:
-    """
-    Generate User Parameter
+    """Generate User Parameter
 
     Generate User Parameter table to be displayed on the Dashboard.
     Users parameters, such as ScaleFactors, MaxFrames,
-        MaxForegroundObjectsPerFrame are used to control the domain
-        randomization parameter used in the simulation.
+    MaxForegroundObjectsPerFrame are used to control the domain
+    randomization parameter used in the simulation.
 
     Atrributes:
         metrics(sim.Metrics): a collection of metrics records
         user_parameter_table (pandas.DataFrame): dataframe containing user
             parameters.
 
+    Args:
+        data_root(str): path to the dataset.
     """
 
     def __init__(self, data_root):
-        """
-
-        Args:
-            data_root(str): path to the dataset.
-
-        """
         self.metrics = sim.Metrics(data_root=data_root)
         self.user_parameter_table = self.metrics.filter_metrics(
             constants.USER_PARAMETERS_DEFINITION_ID
@@ -115,7 +112,7 @@ class UserParameter:
                         for i in self.user_parameter_table.columns
                     ],
                     data=self.user_parameter_table.to_dict("records"),
-                    style_table={"overflowX": "auto",},
+                    style_table={"overflowX": "auto", },
                     style_cell={
                         "height": "auto",
                         # all three widths are needed
