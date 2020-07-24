@@ -10,6 +10,7 @@ from .tables import DATASET_TABLES, SCHEMA_VERSION, glob, load_table
 
 from memory_profiler import profile
 
+
 class Captures:
     """Load captures table
 
@@ -138,6 +139,9 @@ class Captures:
             return [annotation]
         keys = set(annotation.keys())
         keys.remove(Captures.VALUES_COLUMN)
+        # Maybe the json_narmalize was very expensive? Did it somehow not
+        # discard
+        # the memory used? Did it create extra copy of this json document?
         ann = pd.json_normalize(
             annotation, record_path=Captures.VALUES_COLUMN, meta=list(keys),
             record_prefix=f"{Captures.VALUES_COLUMN}."
@@ -176,6 +180,7 @@ class Captures:
             )
             raise DefinitionIDError(msg)
 
+        # How costly is this set_index operation?
         annotations = (
             annotations.to_dataframe().set_index(self.ANNOTATION_TABLE_INDEX)
         )
