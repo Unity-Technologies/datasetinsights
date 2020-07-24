@@ -1,14 +1,11 @@
 """Load Synthetic dataset Metrics
 """
-import json
-
 import dask.bag as db
 
 from datasetinsights.constants import DEFAULT_DATA_ROOT
 
 from .exceptions import DefinitionIDError
-from .tables import DATASET_TABLES, SCHEMA_VERSION, glob
-from .validation import verify_version
+from .tables import DATASET_TABLES, SCHEMA_VERSION, glob, load_table
 
 
 class Metrics:
@@ -55,7 +52,6 @@ class Metrics:
         """
         `:ref:`metrics`
 
-
         Args:
             data_root: (str): the root directory of the dataset containing
             metrics
@@ -66,7 +62,7 @@ class Metrics:
         """
         metrics_files = db.from_sequence(glob(data_root, self.FILE_PATTERN))
         metrics = metrics_files.map(
-            lambda path: Metrics._load_json(path, self.TABLE_NAME, version)
+            lambda path: load_table(path, self.TABLE_NAME, version)
         ).flatten()
 
         return metrics
@@ -74,7 +70,7 @@ class Metrics:
     @staticmethod
     def _normalize_values(metric):
         """ Filter unnecessary info from metric.
-        1-level faltten of metrics.values column.
+        1-level flatten of metrics.values column.
         """
         values = metric["values"]
         for value in values:
@@ -93,9 +89,9 @@ class Metrics:
         Raises:
             DefinitionIDError: raised if no metrics records match the given
             def_id
-        Returns (pd.DataFrame):
-        Columns: "label_id", "capture_id", "annotation_id", "sequence_id",
-        "step"
+        Returns:
+            A Dask dataframe with metrics. Columns: "capture_id",
+                "annotation_id", "sequence_id", "step", "label_id", ...
         """
         metrics = (
             self.metrics.filter(
@@ -112,13 +108,3 @@ class Metrics:
             raise DefinitionIDError(msg)
 
         return metrics.to_dataframe().compute()
-
-    @staticmethod
-    def _load_json(filename, table_name, version):
-        """Load records from json files into a dict
-        """
-        with open(filename, "r") as file:
-            data = json.load(file)
-        verify_version(data, version)
-
-        return data[table_name]

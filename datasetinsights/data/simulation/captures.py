@@ -1,12 +1,14 @@
 """ Load Synthetic dataset captures and annotations tables
 """
+import dask.bag as db
 import pandas as pd
 
 from datasetinsights.constants import DEFAULT_DATA_ROOT
 
-from .exceptions import DefinitionIDError
+from .exceptions import DefinitionIDError, NoCapturesError
 from .tables import DATASET_TABLES, SCHEMA_VERSION, glob, load_table
 
+from memory_profiler import profile
 
 class Captures:
     """Load captures table
@@ -18,24 +20,23 @@ class Captures:
     :ref:`captures`
 
     Examples:
-
-    .. code-block:: python
-
         >>> captures = Captures(data_root="/data")
-        #captures class automatically loads the captures (e.g. lidar scan,
+        # captures class automatically loads the captures (e.g. lidar scan,
         image, depth map) and the annotations (e.g semantic segmentation
         labels, bounding boxes, etc.)
-        >>> data = captures.filter(def_id="6716c783-1c0e-44ae-b1b5-7f068454b66e") # noqa E501 table command not be broken down into multiple lines
-        #return the captures and annotations filtered by the annotation
+        >>> data = captures.filter(def_id="6716c783-1c0e-44ae-b1b5-7f068454b66e")
+        # return the captures and annotations filtered by the annotation
         definition id
 
     Attributes:
         captures (pd.DataFrame): a collection of captures without annotations
         annotations (pd.DataFrame): a collection of annotations
-    """
+    """  # noqa: E501 table command not be broken down into multiple lines
 
     TABLE_NAME = "captures"
     FILE_PATTERN = DATASET_TABLES[TABLE_NAME].file
+    ANNOTATION_TABLE_INDEX = "capture.id"
+    VALUES_COLUMN = "values"
 
     def __init__(self, data_root=DEFAULT_DATA_ROOT, version=SCHEMA_VERSION):
         """ Initialize Captures
@@ -47,6 +48,7 @@ class Captures:
         self.captures = self._load_captures(data_root, version)
         self.annotations = self._load_annotations(data_root, version)
 
+    @profile
     def _load_captures(self, data_root, version):
         """Load captures except annotations.
         :ref:`captures`
@@ -56,42 +58,38 @@ class Captures:
             version (str): desired schema version
 
         Returns:
-            A pandas dataframe with combined capture records.
-            Columns: 'id' (UUID of the capture), 'sequence_id',
-            'step' (index of captures), 'timestamp' (Simulation timestamp in
-            milliseconds since the sequence started.), 'sensor'
-            (sensor attributes), 'ego' (ego pose of the simulation),
-            'filename' (single filename that stores captured data)
-
-        Example Captures DataFrame:
-         id(str)      sequence_id(str)  step(int)    timestamp(float) \
-         cdc8bc5c...  2954c...          300           4.979996
-
-        sensor (dict) \
-        {'sensor_id': 'da873b...', 'ego_id': '44ca9...', 'modality': 'camera',
-        'translation': [0.0, 0.0, 0.0], 'rotation': [0.0, 0.0, 0.0, 1.0],
-        'scale': 0.344577253}
-
-
-         ego (dict)  \
-        {'ego_id': '44ca9...', 'translation': [0.0, 0.0, -20.0],
-        'rotation': [0.0, 0.0, 0.0, 1.0], 'velocity': None,
-        'acceleration': None}
-
-        filename (str)          format (str)
-        RGB3/rgb_30...           PNG
-
+            A dask bag of captures except annotations
         """
-        captures = []
-        for c_file in glob(data_root, self.FILE_PATTERN):
-            capture = load_table(
-                c_file, self.TABLE_NAME, version, max_level=0
-            ).drop(columns="annotations")
-            captures.append(capture)
+        capture_files = glob(data_root, self.FILE_PATTERN)
+        captures = db.from_sequence(capture_files)
+        if captures.count().compute() == 0:
+            raise NoCapturesError(f"Can't find captures files in {data_root}")
 
-        # pd.concat might create memory bottleneck
-        return pd.concat(captures, axis=0)
+        def _remove_annotations(record):
+            del record["annotations"]
 
+            return record
+
+        captures = (
+            captures.map(
+                lambda path: load_table(path, self.TABLE_NAME, version)
+            )
+            .flatten()
+            .map(_remove_annotations)
+        )
+
+        return captures
+
+    @profile
+    def filter_captures(self, sensor_id=None, ego_id=None, modality=None):
+        """Filter captures by specific sensor, ego or modality
+
+        If None, no filter is applied
+        """
+        # TODO (YC) Implement filter here.
+        return self.captures.to_dataframe().compute()
+
+    @profile
     def _load_annotations(self, data_root, version):
         """Load annotations and capture IDs.
         :ref:`capture-annotation`
@@ -101,87 +99,85 @@ class Captures:
             version (str): desired schema version
 
         Returns:
-            A pandas dataframe with combined annotation records
-            Columns: 'id' (annotation id), 'annotation_definition' (annotation
-            definition ID),
-             'values'
-             (list of objects that store annotation data, e.g. 2d bounding
-             box), 'capture.id'
+            A Dask bag of annotations
+        """
+        capture_files = glob(data_root, self.FILE_PATTERN)
+        captures = db.from_sequence(capture_files)
 
-        Example Annotation Dataframe:
+        def _annotation_record(capture):
+            anns = []
+            for ann in capture["annotations"]:
+                ann[self.ANNOTATION_TABLE_INDEX] = capture["id"]
+                anns.append(ann)
 
-        id(str)	annotation_definition(str)	\
-        ace0...	6716c...
+            return anns
 
-        values (dict) \
-        [{'label_id': 34, 'label_name': 'snack_chips_pringles',
-        ...'height': 118.0}, {'label_id': 35, '... 'height': 91.0}...]
-
-        capture.id (str)
-        cdc8b...
-      """
-        annotations = []
-        for c_file in glob(data_root, self.FILE_PATTERN):
-            annotation = load_table(
-                c_file,
-                self.TABLE_NAME,
-                version,
-                record_path="annotations",
-                meta="id",
-                meta_prefix="capture.",
+        annotations = (
+            captures.map(
+                lambda path: load_table(path, self.TABLE_NAME, version)
             )
-            annotations.append(annotation)
+            .flatten()
+            .map(_annotation_record)
+            .flatten()
+        )
 
-        return pd.concat(annotations, axis=0)
+        return annotations
 
-    def filter(self, def_id):
-        """Get captures and annotations filtered by annotation definition id
-        :ref:`captures`
+    @staticmethod
+    def _normalize_annotation(annotation):
+        """Normalize annotation
+
+        Example:
+            >>> data = {"id": "36db0", "annotation_definition": 1,
+            ...         "filename": None, "values": [{"a": 10, "b":20}]}
+            >>> Captures._normalize_annotation(data)
+            # [{"id": "36db0", "annotation_definition": 1,
+            #   "filename": None, "values.a": 10, "values.b":20}]
+        """
+        if not annotation.get(Captures.VALUES_COLUMN):
+            return [annotation]
+        keys = set(annotation.keys())
+        keys.remove(Captures.VALUES_COLUMN)
+        ann = pd.json_normalize(
+            annotation, record_path=Captures.VALUES_COLUMN, meta=list(keys),
+            record_prefix=f"{Captures.VALUES_COLUMN}."
+        )
+
+        return ann.to_dict(orient="records")
+
+    @profile
+    def filter_annotations(self, def_id):
+        """Filter annotations by annotation definition id
+        :ref:`annotations`
 
         Args:
             def_id (int): annotation definition id used to filter results
 
         Returns:
-            A pandas dataframe with captures and annotations
-            Columns: 'id' (capture id), 'sequence_id', 'step', 'timestamp',
-            'sensor', 'ego',
-             'filename', 'format', 'annotation.id',
-             'annotation.annotation_definition','annotation.values'
+            A Dask dataframe with annotations. Columns: "capture.id", "id",
+            "annotation_definition", "values.xyz", "values.abc" ...
+            This dataframe is indexed by "capture.id" column to allow quick
+            annotation lookup.
 
         Raises:
             DefinitionIDError: Raised if none of the annotation records in the
-                combined annotation and captures dataframe match the def_id
-                specified as a parameter.
-
-        Example Returned Dataframe (first row):
-
-
-        +---------------+------------------+-----------+-------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+---------------+--------------+---------------------+---------------------------------------+-----------------------------------------------------------------------------------------------------------------------+
-        | label_id(int) | sequence_id(str) | step(int) | timestamp (float) | sensor (dict)                                                                                                                                                 | ego (dict) | filename(str) | format (str) | annotation.id (str) | annotation.annotation_definition(str) | annotation.values                                                                                                     |
-        +===============+==================+===========+===================+===============================================================================================================================================================+============+===============+==============+=====================+=======================================+=======================================================================================================================+
-        | 2             | None             | 50        | 4.9               | {'sensor_id': 'dDa873b...', 'ego_id': '44ca9...', 'modality': 'camera','translation': [0.0, 0.0, 0.0], 'rotation': [0.0, 0.0, 0.0, 1.0],'scale': 0.344577253} | ...        | RGB3/asd.png  | PNG          | ace0                | 6716c                                 | [{'label_id': 34, 'label_name': 'snack_chips_pringles',...'height': 118.0}, {'label_id': 35, '... 'height': 91.0}...] |
-        +---------------+------------------+-----------+-------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+---------------+--------------+---------------------+---------------------------------------+-----------------------------------------------------------------------------------------------------------------------+
-
-        """  # noqa: E501 table should not be broken down into multiple lines
-        mask = self.annotations.annotation_definition == def_id
+                annotations dataframe match the def_id specified as a parameter.
+        """
         annotations = (
-            self.annotations[mask]
-            .set_index("capture.id")
-            .add_prefix("annotation.")
+            self.annotations.filter(
+                lambda ann: ann["annotation_definition"] == def_id)
+            .map(self._normalize_annotation)
+            .flatten()
         )
-        captures = self.captures.set_index("id")
-
-        combined = (
-            captures.join(annotations, how="inner")
-            .reset_index()
-            .rename(columns={"index": "id"})
-        )
-
-        if combined.empty:
+        if annotations.count().compute() == 0:
             msg = (
-                f"Can't find annotations records associate with the given "
-                f"definition id {def_id}."
+                f"Can't find annotations records associated with the given "
+                f"definition id: {def_id}."
             )
             raise DefinitionIDError(msg)
 
-        return combined
+        annotations = (
+            annotations.to_dataframe().set_index(self.ANNOTATION_TABLE_INDEX)
+        )
+
+        return annotations.compute()

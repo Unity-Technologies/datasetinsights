@@ -133,7 +133,8 @@
         {
           "id": "3b7b2af7-4d9f-4f1d-a9f5-32365c5896c8",
           "annotation_definition": 3,
-          "filename": "annotations/lidar_semantic_segmentation_000.pcd"
+          "filename": "annotations/lidar_semantic_segmentation_000.pcd",
+          "values": null
         }
       ]
     }

@@ -50,6 +50,7 @@ class AnnotationDefinitions:
         definitions = []
         for def_file in glob(data_root, self.FILE_PATTERN):
             definition = load_table(def_file, self.TABLE_NAME, version)
+            definition = pd.json_normalize(definition)
             definitions.append(definition)
         combined = pd.concat(definitions, axis=0).drop_duplicates(subset="id")
 
@@ -119,6 +120,7 @@ class MetricDefinitions:
         definitions = []
         for def_file in glob(data_root, self.FILE_PATTERN):
             definition = load_table(def_file, self.TABLE_NAME, version)
+            definition = pd.json_normalize(definition)
             definitions.append(definition)
 
         combined = pd.concat(definitions, axis=0).drop_duplicates(subset="id")
@@ -188,6 +190,7 @@ class Egos:
         egos = []
         for ego_file in glob(data_root, self.FILE_PATTERN):
             ego = load_table(ego_file, self.TABLE_NAME, version)
+            ego = pd.json_normalize(ego)
             egos.append(ego)
         combined = pd.concat(egos, axis=0).drop_duplicates(subset="id")
 
@@ -241,6 +244,7 @@ class Sensors:
         sensors = []
         for sensor_file in glob(data_root, self.FILE_PATTERN):
             sensor = load_table(sensor_file, self.TABLE_NAME, version)
+            sensor = pd.json_normalize(sensor)
             sensors.append(sensor)
         combined = pd.concat(sensors, axis=0).drop_duplicates(subset="id")
 

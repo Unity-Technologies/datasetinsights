@@ -1,4 +1,4 @@
-""" Simulation Dataset Catalog
+""" Simulation Dataset captures
 """
 import logging
 import os
@@ -10,16 +10,11 @@ from sklearn.model_selection import train_test_split
 import datasetinsights.constants as const
 from datasetinsights.data.bbox import BBox2D
 from datasetinsights.data.simulation import AnnotationDefinitions, Captures
-from datasetinsights.data.simulation.download import (
-    Downloader,
-    download_manifest,
-)
 from datasetinsights.data.simulation.tables import SCHEMA_VERSION
 
 from .base import Dataset
 
 logger = logging.getLogger(__name__)
-SYNTHETIC_LOCAL_PATH = "synthetic"
 DEFAULT_TRAIN_SPLIT_RATIO = 0.9
 TRAIN = "train"
 VAL = "val"
@@ -27,41 +22,43 @@ ALL = "all"
 VALID_SPLITS = (TRAIN, VAL, ALL)
 
 
-def _get_split(*, split, catalog, train_percentage=0.9, random_seed=47):
+def _get_split(*, split, captures, train_percentage=0.9, random_seed=47):
     """
-
     Args:
         split (str): can be 'train', 'val' or 'all'
-        catalog (pandas Dataframe): dataframe which will be divided into splits
+        captures (Dask.Dataframe): dataframe which will be divided into splits
         train_percentage (float): percentage of dataframe to put in train split
         random_seed (int): random seed used for splitting dataset into train
         and val
 
-    Returns: catalog (dataframe) divided into correct split
+    Returns: captures (Dask.Dataframe) divided into correct split
 
+    TODO (YC) Should move train/val/test split as as seaprate step right after
+    synthetic dataset is download. The Dataset object should not have to handle
+    train/test splits here.
     """
     if split == ALL:
         logger.info(f"spit specified was 'all' using entire synthetic dataset")
-        return catalog
+        return captures
     train, val = train_test_split(
-        catalog, train_size=train_percentage, random_state=random_seed
+        captures, train_size=train_percentage, random_state=random_seed
     )
     if split == TRAIN:
-        catalog = train
-        catalog.index = [i for i in range(len(catalog))]
+        captures = train
+        captures.index = [i for i in range(len(captures))]
         logger.info(
             f"split specified was {TRAIN}, using "
             f"{train_percentage*100:.2f}% of the dataset"
         )
-        return catalog
+        return captures
     elif split == VAL:
-        catalog = val
-        catalog.index = [i for i in range(len(catalog))]
+        captures = val
+        captures.index = [i for i in range(len(captures))]
         logger.info(
             f"split specified was {VAL} using "
             f"{(1-train_percentage)*100:.2f}% of the dataset "
         )
-        return catalog
+        return captures
     else:
         raise ValueError(
             f"split provided was {split} but only valid "
@@ -69,39 +66,29 @@ def _get_split(*, split, catalog, train_percentage=0.9, random_seed=47):
         )
 
 
-def _download_captures(root, manifest_file):
-    """Download captures for synthetic dataset
-    Args:
-        root (str): root directory where the dataset should be downloaded
-        manifest_file (str): path to USim simulation manifest file
-    """
-    path = Path(root)
-    path.mkdir(parents=True, exist_ok=True)
+def read_bounding_box_2d(annotations, label_mappings=None):
+    """Read 2d bounding boxes into list of BBox2D objects
 
-    dl = Downloader(manifest_file, root)
-    dl.download_captures()
-    dl.download_references()
-    dl.download_binary_files()
-
-
-def read_bounding_box_2d(annotation, label_mappings=None):
-    """Convert dictionary representations of 2d bounding boxes into objects
-    of the BBox2D class
+    This method reads a table of 2D bounding box annotations store in
+    a Dask.DataFrame with the same capture.id. Each row represents a single
+    bounding box annotations. If the label_id of the given bounding box
+    are not defined in label_mappings, this bounding box will be ignored.
 
     Args:
-        annotation (List[dict]): 2D bounding box annotation
-        label_mappings (dict): a dict of {label_id: label_name} mapping
+        annotations (Dask.DataFrame): 2D bounding box annotations store in
+            DataFrame.
+        label_mappings (dict): A dict of {label_id: label_name} mappings
 
     Returns:
-        A list of 2D bounding box objects
+        A list of BBox2D objects.
     """
     bboxes = []
-    for b in annotation:
-        label_id = b["label_id"]
-        x = b["x"]
-        y = b["y"]
-        w = b["width"]
-        h = b["height"]
+    for _, box in annotations.iterrows():
+        label_id = box[f"{Captures.VALUES_COLUMN}.label_id"]
+        x = box[f"{Captures.VALUES_COLUMN}.x"]
+        y = box[f"{Captures.VALUES_COLUMN}.y"]
+        w = box[f"{Captures.VALUES_COLUMN}.width"]
+        h = box[f"{Captures.VALUES_COLUMN}.height"]
         if label_mappings and label_id not in label_mappings:
             continue
         box = BBox2D(label=label_id, x=x, y=y, w=w, h=h)
@@ -115,7 +102,8 @@ class SynDetection2D(Dataset):
 
     Attributes:
         root (str): root directory of the dataset
-        catalog (list): catalog of all captures in this dataset
+        captures (Dask.DataFrame): captures after filter in dataset
+        annotations (Dask.DataFrame): annotations after filter by definition id
         transforms: callable transformation that applies to a pair of
             capture, annotation. Capture is the information captured by the
             sensor, in this case an image, and annotations, which in this
@@ -130,76 +118,46 @@ class SynDetection2D(Dataset):
         data_root=const.DEFAULT_DATA_ROOT,
         split="all",
         transforms=None,
-        manifest_file=None,
-        run_execution_id=None,
-        auth_token=None,
         version=SCHEMA_VERSION,
+        run_execution_id=None,
         def_id=4,
         train_split_ratio=DEFAULT_TRAIN_SPLIT_RATIO,
         random_seed=47,
         **kwargs,
     ):
-        """
+        """ Initialize SynDetection2D
+
         Args:
             data_root (str): root directory prefix of dataset
-            manifest_file (str): path to a manifest file. Use this argument
-                if the synthetic data has already been downloaded. If the
-                synthetic dataset hasn't been downloaded, leave this argument
-                as None and provide the run_execution_id and auth_token and
-                this class will download the dataset. For more information
-                on Unity Simulations (USim) please see
-                https://github.com/Unity-Technologies/Unity-Simulation-Docs
             transforms: callable transformation that applies to a pair of
-            capture, annotation.
-            version(str): synthetic dataset schema version
-            def_id (int): annotation definition id used to filter results
+                capture, annotation.
+            version (str): synthetic dataset schema version
             run_execution_id (str): USim run execution id, if this argument
                 is provided then the class will attempt to download the data
                 from USim. If the data has already been downloaded locally,
                 then this argument should be None and the caller should pass
                 in the location of the manifest_file for the manifest arg.
-                For more information
-                on Unity Simulations (USim) please see
+                For more information on Unity Simulations please see
                 https://github.com/Unity-Technologies/Unity-Simulation-Docs
-            auth_token (str): usim authorization token that can be used to
-                interact with usim API to download manifest files. This token
-                is necessary to download the dataset form USim. If the data is
-                already stored locally, then this argument can be left as None.
-                For more information
-                on Unity Simulations (USim) please see
-                https://github.com/Unity-Technologies/Unity-Simulation-Docs
+            def_id (int): annotation definition id used to filter results
             random_seed (int): random seed used for splitting dataset into
                 train and val
         """
-        if run_execution_id:
-            manifest_file = os.path.join(
-                data_root, SYNTHETIC_LOCAL_PATH, f"{run_execution_id}.csv"
-            )
-            download_manifest(
-                run_execution_id,
-                manifest_file,
-                auth_token,
-                project_id=const.DEFAULT_PROJECT_ID,
-            )
-        if manifest_file:
-            subfolder = Path(manifest_file).stem
-            self.root = os.path.join(data_root, SYNTHETIC_LOCAL_PATH, subfolder)
-            self.download(manifest_file)
-        else:
-            logger.info(
-                f"No manifest file is provided. Assuming the data root "
-                f"directory {data_root} already contains synthetic dataset."
-            )
-            self.root = data_root
+        self.root = os.path.join(
+            data_root, const.SYNTHETIC_SUBFOLDER, run_execution_id
+        )
+        logger.info("Root directory of synthetic data: {self.root}")
+        self.label_mappings = self._load_label_mappings(version, def_id)
 
-        captures = Captures(self.root, version)
-        annotation_definition = AnnotationDefinitions(self.root, version)
-        catalog = captures.filter(def_id)
-        self.catalog = self._cleanup(catalog)
-        init_definition = annotation_definition.get_definition(def_id)
-        self.label_mappings = {
-            m["label_id"]: m["label_name"] for m in init_definition["spec"]
-        }
+        captures_table = Captures(self.root, version)
+        captures = captures_table.filter_captures()
+        captures = self._remove_captures_with_missing_files(
+            self.root, captures
+        )
+        self.annotations = captures_table.filter_annotations(def_id)
+        self.captures = self._remove_captures_without_bboxes(
+            captures, self.annotations
+        )
 
         if split not in VALID_SPLITS:
             raise ValueError(
@@ -208,9 +166,9 @@ class SynDetection2D(Dataset):
             )
         self.split = split
         self.transforms = transforms
-        self.catalog = _get_split(
+        self.captures = _get_split(
             split=split,
-            catalog=self.catalog,
+            captures=self.captures,
             train_percentage=train_split_ratio,
             random_seed=random_seed,
         )
@@ -225,67 +183,37 @@ class SynDetection2D(Dataset):
         bounding boxes found in that image with transforms applied.
 
         """
-        cap = self.catalog.iloc[index]
-        capture_file = cap.filename
-        ann = cap["annotation.values"]
-
-        capture = Image.open(os.path.join(self.root, capture_file))
+        cap = self.captures.iloc[index]
+        capture_file = os.path.join(self.root, cap.filename)
+        capture_id = cap.id
+        capture = Image.open(capture_file)
         capture = capture.convert("RGB")  # Remove alpha channel
-        annotation = read_bounding_box_2d(ann, self.label_mappings)
+
+        ann = self.annotations.loc[capture_id]
+        annotations = read_bounding_box_2d(ann, self.label_mappings)
 
         if self.transforms:
-            capture, annotation = self.transforms(capture, annotation)
+            capture, annotations = self.transforms(capture, annotations)
 
-        return capture, annotation
+        return capture, annotations
 
     def __len__(self):
-        return len(self.catalog)
-
-    def _cleanup(self, catalog):
-        """
-        remove rows with captures that having missing files and remove examples
-        which have no annotations i.e. an image without any objects
-        Args:
-            catalog (pandas dataframe):
-
-        Returns: dataframe without rows corresponding to captures that have
-        missing files and removes examples which have no annotations i.e. an
-        image without any objects.
-
-        """
-        catalog = self._remove_captures_with_missing_files(self.root, catalog)
-        catalog = self._remove_captures_without_bboxes(catalog)
-
-        return catalog
+        return len(self.captures)
 
     @staticmethod
-    def _remove_captures_without_bboxes(catalog):
-        """Remove captures without bounding boxes from catalog
-
-        Args:
-            catalog (pd.Dataframe): The loaded catalog of the dataset
-
-        Returns:
-            A pandas dataframe with empty bounding boxes removed
-        """
-        keep_mask = catalog["annotation.values"].apply(len) > 0
-
-        return catalog[keep_mask]
-
-    @staticmethod
-    def _remove_captures_with_missing_files(root, catalog):
+    def _remove_captures_with_missing_files(root, captures):
         """Remove captures where image files are missing
 
         During the synthetic dataset download process, some of the files might
         be missing due to temporary http request issues or url corruption.
-        We should remove these captures from catalog so that it does not
+        We should remove these captures from captures so that it does not
         stop the training pipeline.
 
         Args:
-            catalog (pd.Dataframe): The loaded catalog of the dataset
+            captures (Dask.Dataframe): The loaded captures of the dataset
 
         Returns:
-            A pandas dataframe of the catalog with missing files removed
+            A pandas dataframe of the captures with missing files removed
         """
 
         def exists(capture_file):
@@ -293,14 +221,43 @@ class SynDetection2D(Dataset):
 
             return path.exists()
 
-        keep_mask = catalog.filename.apply(exists)
+        keep_mask = captures.filename.apply(exists)
 
-        return catalog[keep_mask]
+        return captures[keep_mask]
 
-    def download(self, manifest_file):
-        """ Download captures of a given manifest file.
+    @staticmethod
+    def _remove_captures_without_bboxes(captures, annotations):
+        """Remove captures without bounding boxes from captures
 
         Args:
-            manifest_file (str): path to a manifest file
+            captures (Dask.Dataframe): The loaded captures of the dataset
+
+        Returns:
+            A pandas dataframe with empty bounding boxes removed
         """
-        _download_captures(self.root, manifest_file)
+        capture_ids = captures.id
+        capture_ids_with_annotations = set(annotations.index)
+        keep_mask = capture_ids.apply(
+            lambda x: x in capture_ids_with_annotations
+        )
+
+        return captures[keep_mask]
+
+    def _load_label_mappings(self, version, def_id):
+        """Load label mappings.
+
+        Args:
+            version (str): synthetic dataset schema version
+            def_id (str):
+
+        Returns:
+            dict: A dict containing {label_id: label_name} mappings.
+        """
+        annotation_definition = AnnotationDefinitions(self.root, version)
+
+        filtered_def = annotation_definition.get_definition(def_id)
+        label_mappings = {
+            m["label_id"]: m["label_name"] for m in filtered_def["spec"]
+        }
+
+        return label_mappings

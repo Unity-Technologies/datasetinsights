@@ -4,8 +4,6 @@ import pathlib
 from collections import namedtuple
 from enum import Enum
 
-import pandas as pd
-
 from .validation import verify_version
 
 logger = logging.getLogger(__name__)
@@ -61,11 +59,11 @@ def glob(data_root, pattern):
         yield fp
 
 
-def load_table(json_file, table_name, version, **kwargs):
+def load_table(json_file, table_name, version):
     """Load records from json files into a pandas table
 
     Args:
-        json_file (str): filename to json.
+        json_file (str): The json filename.
         table_name (str): table name in the json file to be loaded
         version (str): requested version of this table
         **kwargs: arbitrary keyword arguments to be passed to pandas'
@@ -79,8 +77,8 @@ def load_table(json_file, table_name, version, **kwargs):
         version.
     """
     logger.debug(f"Loading table {table_name} from {json_file}")
-    data = json.load(open(json_file, "r"))
+    with open(json_file, "r") as f:
+        data = json.load(f)
     verify_version(data, version)
-    table = pd.json_normalize(data[table_name], **kwargs)
 
-    return table
+    return data[table_name]
