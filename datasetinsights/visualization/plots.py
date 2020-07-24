@@ -1,12 +1,15 @@
+import cv2
 import logging
 import pathlib
+import os
+from hashlib import md5
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from PIL import ImageColor, ImageDraw, ImageFont
+from PIL import ImageColor, ImageDraw, ImageFont, Image
 
 from datasetinsights.data.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
 
@@ -43,7 +46,9 @@ def decode_segmap(labels, dataset="cityscapes"):
     return rgb
 
 
-def grid_plot(images, figsize=(3, 5), img_type="rgb", titles=None):
+def grid_plot(
+    images, figsize=(3, 5), img_type="rgb", titles=None, folder="sim2real"
+):
     """ Plot 2D array of images in grid.
 
     Args:
@@ -70,17 +75,45 @@ def grid_plot(images, figsize=(3, 5), img_type="rgb", titles=None):
             plt.xticks([])
             plt.yticks([])
             if titles:
-                plt.title(titles[k - 1])
+                # plt.title(titles[k - 1])
+                plt.title(titles)
+            plt.grid(False)
+            if img_type == "gray":
+                plt.imshow(img, cmap="gray")
+            else:
+                plt.imshow(img, plt.cm.binary)
+    if titles:
+        if not os.path.isdir(folder):
+            os.mkdir(folder)
+        figure.savefig(f"{folder}/{titles}.png")
+
+    figure = plt.figure(figsize=figsize, constrained_layout=True)
+    for i in range(n_rows):
+        for j in range(n_cols):
+            img = images[i][j]
+            k = i * n_cols + j + 1
+            plt.subplot(n_rows, n_cols, k)
+            plt.xticks([])
+            plt.yticks([])
             plt.grid(False)
             if img_type == "gray":
                 plt.imshow(img, cmap="gray")
             else:
                 plt.imshow(img, plt.cm.binary)
 
+    if titles:
+        if not os.path.isdir(f"{folder}_notitles"):
+            os.mkdir(f"{folder}_notitles")
+        figure.savefig(f"{folder}_notitles/{titles}.png")
+
+    plt.show()
+
     return figure
 
 
-def plot_bboxes(image, boxes, colors=None, box_line_width=1, font_scale=50):
+def plot_bboxes(
+    image, boxes, label_mappings, colors=None, box_line_width=1, font_scale=50
+):
     """ Plot an image with bounding boxes.
 
     Args:
@@ -96,29 +129,47 @@ def plot_bboxes(image, boxes, colors=None, box_line_width=1, font_scale=50):
         a PIL image with bounding boxes drawn.
     """
     combined = image.copy()
-    draw = ImageDraw.Draw(combined)
-    image_width = combined.size[0]
+    combined = np.array(combined)
+    # draw = ImageDraw.Draw(combined)
+    # image_width = combined.size[0]
 
     for i, box in enumerate(boxes):
 
-        x0y0 = (box.x, box.y)
-        x1y1 = (box.x + box.w, box.y + box.h)
-        xcyc = (
-            box.x + 0.5 * box.w - image_width // font_scale,
-            box.y + 0.5 * box.h - image_width // font_scale,
-        )
-        if not colors:
-            color_idx = i % len(COLORS)
-            color = COLORS[color_idx]
-        else:
-            color = colors[i]
-        draw.rectangle((x0y0, x1y1), outline=color, width=box_line_width)
-        font_file = str(CUR_DIR / "font" / "arial.ttf")
-        font = ImageFont.truetype(font_file, image_width // font_scale)
-        text = f"{box.label}\n{box.score:.2f}"
-        draw.multiline_text(xcyc, text, font=font, fill=color)
+        # x0y0 = (box.x, box.y)
+        # x1y1 = (box.x + box.w, box.y + box.h)
+        # xcyc = (
+        #     box.x + 0.5 * box.w - image_width // font_scale,
+        #     box.y + 0.5 * box.h - image_width // font_scale,
+        # )
+        # if not colors:
+        #     color_idx = i % len(COLORS)
+        #     color = COLORS[color_idx]
+        # else:
+        #     color = colors[i]
+        # draw.rectangle((x0y0, x1y1), outline=color, width=box_line_width)
+        # font_file = str(CUR_DIR / "font" / "arial.ttf")
+        # font = ImageFont.truetype(font_file, image_width // font_scale)
+        # text = f"{box.label}\n{box.score:.2f}"
+        # draw.multiline_text(xcyc, text, font=font, fill=color)
+        left, top = (box.x, box.y)
+        right, bottom = (box.x + box.w, box.y + box.h)
+        label = label_mappings.iloc[box.label]["Label Name"]
+        label = f"{label}: {box.score * 100: .2f}%"
 
-    return combined
+        if not colors:
+            add(combined, left, top, right, bottom, label=label, color=None)
+        else:
+            add(
+                combined,
+                left,
+                top,
+                right,
+                bottom,
+                label=label,
+                color=colors[i],
+            )
+
+    return Image.fromarray(combined)
 
 
 def bar_plot(
@@ -289,3 +340,120 @@ def rotation_plot(df, x, y, z=None, max_samples=None, title=None, **kwargs):
         )
     )
     return fig
+
+
+_LOC = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
+_COLOR_NAME_TO_RGB = dict(
+    navy=((0, 38, 63), (119, 193, 250)),
+    blue=((0, 120, 210), (173, 220, 252)),
+    aqua=((115, 221, 252), (0, 76, 100)),
+    teal=((15, 205, 202), (0, 0, 0)),
+    olive=((52, 153, 114), (25, 58, 45)),
+    green=((0, 204, 84), (15, 64, 31)),
+    lime=((1, 255, 127), (0, 102, 53)),
+    yellow=((255, 216, 70), (103, 87, 28)),
+    orange=((255, 125, 57), (104, 48, 19)),
+    red=((255, 47, 65), (131, 0, 17)),
+    maroon=((135, 13, 75), (239, 117, 173)),
+    fuchsia=((246, 0, 184), (103, 0, 78)),
+    purple=((179, 17, 193), (241, 167, 244)),
+    gray=((168, 168, 168), (0, 0, 0)),
+    silver=((220, 220, 220), (0, 0, 0)),
+)
+
+_COLOR_NAMES = list(_COLOR_NAME_TO_RGB)
+
+_DEFAULT_COLOR_NAME = "green"
+
+_FONT_PATH = str(CUR_DIR / "font" / "arial.ttf")
+_FONT_HEIGHT = 100
+_FONT = ImageFont.truetype(_FONT_PATH, _FONT_HEIGHT)
+
+
+def _rgb_to_bgr(color):
+    return list(color)
+
+
+def _color_image(image, font_color, background_color):
+    return background_color + (font_color - background_color) * image / 255
+
+
+def _get_label_image(text, font_color_tuple_bgr, background_color_tuple_bgr):
+    text_image = _FONT.getmask(text)
+    shape = list(reversed(text_image.size))
+    bw_image = np.array(text_image).reshape(shape)
+
+    image = [
+        _color_image(bw_image, font_color, background_color)[None, ...]
+        for font_color, background_color in zip(
+            font_color_tuple_bgr, background_color_tuple_bgr
+        )
+    ]
+
+    return np.concatenate(image).transpose(1, 2, 0)
+
+
+def add(image, left, top, right, bottom, label=None, color=None):
+    if type(image) is not np.ndarray:
+        raise TypeError("'image' parameter must be a numpy.ndarray")
+    try:
+        left, top, right, bottom = int(left), int(top), int(right), int(bottom)
+    except ValueError:
+        raise TypeError("'left', 'top', 'right' & 'bottom' must be a number")
+
+    if label and type(label) is not str:
+        raise TypeError("'label' must be a str")
+
+    if label and not color:
+        hex_digest = md5(label.encode()).hexdigest()
+        color_index = int(hex_digest, 16) % len(_COLOR_NAME_TO_RGB)
+        color = _COLOR_NAMES[color_index]
+
+    # if not color:
+    #     color = _DEFAULT_COLOR_NAME
+
+    if type(color) is not str:
+        raise TypeError("'color' must be a str")
+
+    if color not in _COLOR_NAME_TO_RGB:
+        msg = "'color' must be one of " + ", ".join(_COLOR_NAME_TO_RGB)
+        raise ValueError(msg)
+
+    colors = [_rgb_to_bgr(item) for item in _COLOR_NAME_TO_RGB[color]]
+    color, color_text = colors
+
+    cv2.rectangle(image, (left, top), (right, bottom), color, thickness=15)
+
+    if label:
+        _, image_width, _ = image.shape
+
+        label_image = _get_label_image(label, color_text, color)
+        label_height, label_width, _ = label_image.shape
+
+        rectangle_height, rectangle_width = 1 + label_height, 1 + label_width
+
+        rectangle_bottom = top
+        rectangle_left = max(0, min(left - 1, image_width - rectangle_width))
+
+        rectangle_top = rectangle_bottom - rectangle_height
+        rectangle_right = rectangle_left + rectangle_width
+
+        label_top = rectangle_top + 1
+
+        if rectangle_top < 0:
+            rectangle_top = top
+            rectangle_bottom = rectangle_top + label_height + 1
+
+            label_top = rectangle_top
+
+        label_left = rectangle_left + 1
+        label_bottom = label_top + label_height
+        label_right = label_left + label_width
+
+        rec_left_top = (rectangle_left, rectangle_top)
+        rec_right_bottom = (rectangle_right, rectangle_bottom)
+
+        cv2.rectangle(image, rec_left_top, rec_right_bottom, color, -1)
+
+        image[label_top:label_bottom, label_left:label_right, :] = label_image
