@@ -173,6 +173,11 @@ class Captures:
             .map(self._normalize_annotation)
             .flatten()
         )
+        # Need to understand if count() is making too much memory overhead?
+        # Does this duplicate computation? Maybe move this up after annotations
+        # is filtered?
+        # Can we do "any" instead of count? Maybe using take
+        # try to comment this out and look into dask profiling dashboard?
         if annotations.count().compute() == 0:
             msg = (
                 f"Can't find annotations records associated with the given "
@@ -180,7 +185,7 @@ class Captures:
             )
             raise DefinitionIDError(msg)
 
-        # How costly is this set_index operation?
+        # How costly is this set_index operation? Can we try removing index?
         annotations = (
             annotations.to_dataframe().set_index(self.ANNOTATION_TABLE_INDEX)
         )
