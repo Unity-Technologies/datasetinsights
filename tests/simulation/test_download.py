@@ -10,11 +10,11 @@ import pytest
 import responses
 from contextlib import contextmanager
 
+from datasetinsights.data.download import download_file
 from datasetinsights.data.simulation.download import (
     compare_checksums,
     Downloader,
     DownloadError,
-    download_file_from_url,
     _filter_unsuccessful_attempts,
 )
 from datasetinsights.data.simulation.exceptions import ChecksumError
@@ -42,7 +42,7 @@ def test_download_file_from_url():
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         dest_path = os.path.join(tmp_dir, "test.txt")
-        download_file_from_url(source_uri, dest_path, False)
+        download_file(source_uri, dest_path, False)
 
         assert os.path.exists(dest_path)
         assert open(dest_path, "rb").read() == body
@@ -54,22 +54,18 @@ def test_download_bad_request():
     responses.add(responses.GET, source_uri, status=403)
 
     with pytest.raises(DownloadError):
-        download_file_from_url(source_uri, dest_path, False)
+        download_file(source_uri, dest_path, False)
 
 
 def test_download_rows(downloader):
     n_rows = len(downloader.manifest)
-    with patch(
-        "datasetinsights.data.simulation.download.download_file_from_url"
-    ) as mocked_dl:
+    with patch("datasetinsights.data.download.download_file") as mocked_dl:
         matched_rows = pd.Series(np.zeros(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
         assert len(downloaded) == 0
         mocked_dl.assert_not_called()
 
-    with patch(
-        "datasetinsights.data.simulation.download.download_file_from_url"
-    ) as mocked_dl:
+    with patch("datasetinsights.data.download.download_file") as mocked_dl:
         matched_rows = pd.Series(np.ones(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
         assert len(downloaded) == n_rows
@@ -78,9 +74,7 @@ def test_download_rows(downloader):
 
 def test_download_all(downloader):
     n_rows = len(downloader.manifest)
-    with patch(
-        "datasetinsights.data.simulation.download.download_file_from_url"
-    ) as mocked_dl:
+    with patch("datasetinsights.data.download.download_file") as mocked_dl:
         downloader.download_references()
         downloader.download_captures()
         downloader.download_metrics()
