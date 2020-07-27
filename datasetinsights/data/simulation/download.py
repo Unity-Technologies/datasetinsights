@@ -8,13 +8,13 @@ import numpy as np
 import pandas as pd
 import requests
 from codetiming import Timer
-from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from tqdm import tqdm
 
 import datasetinsights.constants as const
+from datasetinsights.data.download import TimeoutHTTPAdapter, download_file
+from datasetinsights.data.exceptions import DownloadError
 
-from .exceptions import DownloadError
 from .tables import DATASET_TABLES, FileType
 
 logger = logging.getLogger(__name__)
@@ -215,7 +215,7 @@ class Downloader:
                 relative_path = row.file_name
                 dest_path = os.path.join(self.data_root, relative_path)
                 future = executor.submit(
-                    _download_file, source_uri, dest_path, self.use_cache
+                    download_file, source_uri, dest_path, self.use_cache
                 )
                 future_downloaded.append(future)
 
@@ -236,57 +236,6 @@ class Downloader:
             )
 
         return downloaded
-
-
-class TimeoutHTTPAdapter(HTTPAdapter):
-    def __init__(self, timeout, *args, **kwargs):
-        self.timeout = timeout
-        super().__init__(*args, **kwargs)
-
-    def send(self, request, **kwargs):
-        kwargs["timeout"] = self.timeout
-        return super().send(request, **kwargs)
-
-
-def _download_file(source_uri: str, dest_path: str, use_cache: bool = True):
-    """Download a file specified from a source uri
-
-    Args:
-        source_uri (str): source url where the file should be downloaded
-        dest_path (str): destination path of the file
-        use_cache (bool): use_cache (bool): use cache instead of
-                re-download if file exists
-
-    Returns:
-        String of destination path.
-    """
-    dest_path = Path(dest_path)
-    if dest_path.exists() and use_cache:
-        return dest_path
-
-    logger.debug(f"Trying to download file from {source_uri} -> {dest_path}")
-    adapter = TimeoutHTTPAdapter(
-        timeout=DEFAULT_TIMEOUT, max_retries=Retry(total=DEFAULT_MAX_RETRIES)
-    )
-    with requests.Session() as http:
-        http.mount("https://", adapter)
-        try:
-            response = http.get(source_uri)
-            response.raise_for_status()
-        except requests.exceptions.RequestException as ex:
-            logger.error(ex)
-            err_msg = (
-                f"The request download from {source_uri} -> {dest_path} can't "
-                f"be completed."
-            )
-
-            raise DownloadError(err_msg)
-        else:
-            dest_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(dest_path, "wb") as f:
-                f.write(response.content)
-
-    return dest_path
 
 
 def download_manifest(
