@@ -30,6 +30,7 @@ def evaluate_pipeline(
             "datasetinsights.cli",
             "evaluate",
             "--verbose",
+            "--metricsdir=/",
             "--config=datasetinsights/configs/faster_rcnn_synthetic.yaml",
             f"--logdir={logdir}",
             f"checkpoint_file",
@@ -37,6 +38,7 @@ def evaluate_pipeline(
             f"test.dataset.args.split",
             test_split,
         ],
+        file_outputs={"mlpipeline-metrics": "/mlpipeline-metrics.json"},
     )
     # GPU limit here has to be hard coded integer instead of derived from
     # num_proc, otherwise it will fail kubeflow validation as it will create
