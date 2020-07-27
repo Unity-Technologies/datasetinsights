@@ -154,11 +154,11 @@ def plot_bboxes(
         left, top = (box.x, box.y)
         right, bottom = (box.x + box.w, box.y + box.h)
         label = label_mappings.iloc[box.label]["Label Name"]
-        label = f"{label}: {box.score * 100: .2f}%"
 
         if not colors:
             add(combined, left, top, right, bottom, label=label, color=None)
         else:
+            label = f"{label}: {box.score * 100: .2f}%"
             add(
                 combined,
                 left,
