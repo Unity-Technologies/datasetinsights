@@ -6,11 +6,11 @@ from .nyudepth import NyuDepth
 from .synthetic import SynDetection2D
 
 __all__ = [
-    Cityscapes,
-    CocoDetection,
-    Dataset,
-    GroceriesReal,
-    GoogleGroceriesReal,
-    NyuDepth,
-    SynDetection2D,
+    'Cityscapes',
+    'CocoDetection',
+    'Dataset',
+    'GroceriesReal',
+    'GoogleGroceriesReal',
+    'NyuDepth',
+    'SynDetection2D'
 ]

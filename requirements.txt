@@ -1,3 +1,4 @@
+sklearn
 dash
 numpy
 torch
@@ -13,3 +14,7 @@ plotly
 tensorflow
 codetiming
 tqdm
+toolz
+fsspec>=0.3.3
+google-cloud
+google-cloud-storage
