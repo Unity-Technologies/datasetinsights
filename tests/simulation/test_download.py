@@ -2,21 +2,21 @@ import os
 import pathlib
 import tempfile
 from unittest.mock import patch
-from yacs.config import CfgNode as CN
 
 import numpy as np
 import pandas as pd
 import pytest
 import responses
+from yacs.config import CfgNode as CN
 
-from datasetinsights.data.download import download_file, compare_checksums
+from datasetinsights.data.download import compare_checksums, download_file
 from datasetinsights.data.simulation.download import (
     Downloader,
     DownloadError,
     _filter_unsuccessful_attempts,
 )
-from datasetinsights.scripts.public_download import run
 from datasetinsights.data.simulation.tables import FileType
+from datasetinsights.scripts.public_download import run
 
 
 @pytest.fixture

@@ -4,13 +4,10 @@ import argparse
 import logging
 import os
 
-from datasetinsights.data.datasets import GroceriesReal
-from datasetinsights.data.download import (
-    download_file,
-    compare_checksums,
-)
-from datasetinsights.data.exceptions import DownloadError
 import datasetinsights.constants as const
+from datasetinsights.data.datasets import GroceriesReal
+from datasetinsights.data.download import compare_checksums, download_file
+from datasetinsights.data.exceptions import DownloadError
 
 LOCAL_PATH = "groceries"
 
