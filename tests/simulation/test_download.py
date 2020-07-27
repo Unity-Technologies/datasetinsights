@@ -164,7 +164,7 @@ def test_compare_checksums(os_remove):
     file_path = str(parent_dir / "mock_data" / "calib000000.txt")
     checksum_path1 = str(parent_dir / "mock_data" / "checksum_calib000000.txt")
     checksum_path2 = str(
-        parent_dir / "mock_data" / "wrong_checksum_calib000000.txt"
+        parent_dir / "mock_data" / "checksum_another_file.txt"
     )
 
     assert compare_checksums(file_path, checksum_path1) is True
