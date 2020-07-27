@@ -133,7 +133,7 @@ class LocalEstimatorWriter:
 
 
 class GCSEstimatorWriter:
-    """ Writes (saves) estimator checkpoints on GCS
+    """ Writes (saves) estimator checkpoints on GCS.
 
     Args:
         cloud_path (str): GCS cloud path (e.g. gs://bucket/path/to/directoy)
