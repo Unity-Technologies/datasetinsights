@@ -12,9 +12,9 @@ import responses
 from datasetinsights.data.download import download_file, compare_checksums
 from datasetinsights.data.simulation.download import (
     Downloader,
+    DownloadError,
     _filter_unsuccessful_attempts,
 )
-from datasetinsights.data.exceptions import DownloadError
 from datasetinsights.scripts.public_download import run
 from datasetinsights.data.simulation.tables import FileType
 
