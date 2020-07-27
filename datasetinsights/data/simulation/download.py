@@ -2,7 +2,6 @@ import concurrent.futures
 import logging
 import os
 import re
-import zlib
 from pathlib import Path
 
 import numpy as np
@@ -13,7 +12,6 @@ from requests.packages.urllib3.util.retry import Retry
 from tqdm import tqdm
 
 import datasetinsights.constants as const
-from datasetinsights.data.simulation.exceptions import ChecksumError
 
 from datasetinsights.data.download import TimeoutHTTPAdapter, download_file
 from datasetinsights.data.exceptions import DownloadError

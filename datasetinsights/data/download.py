@@ -1,4 +1,6 @@
 import logging
+import os
+import zlib
 from pathlib import Path
 
 import requests
@@ -64,3 +66,53 @@ def download_file(source_uri: str, dest_path: str, use_cache: bool = True):
                 f.write(response.content)
 
     return dest_path
+
+
+def compare_checksums(file_path, checksum_path):
+    """Compare checksums for source and destination file.
+    Will raise error if two checksums are different.
+
+    Args:
+        file_path (str): local path of the file
+        checksum_path (str): checksum file for the source file
+
+    Returns:
+        bool: whether it passes or fails
+    """
+    source_file_checksum = _get_source_checksum(checksum_path)
+    local_file_checksum = _get_local_checksum(file_path)
+    if local_file_checksum != source_file_checksum:
+        os.remove(checksum_path)
+        os.remove(file_path)
+        return False
+    return True
+
+
+def _get_local_checksum(local_path):
+    """Calculate checksum (CRC32) for a local file
+
+    Args:
+        local_path (str): local path of the file
+
+    Returns:
+        str: checksum for the local file
+    """
+    with open(local_path, "rb") as f:
+        local_file_crc32 = zlib.crc32(f.read())
+
+    return str(local_file_crc32)
+
+
+def _get_source_checksum(checksum_path):
+    """Get the checksum for the source file
+
+    Args:
+        checksum_path (str): downloaded checksum file path
+
+    Returns:
+        str: checksum for the source file
+    """
+    with open(checksum_path, "r") as f:
+        source_checksum = f.read()
+
+    return source_checksum

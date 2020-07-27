@@ -5,10 +5,11 @@ import logging
 import os
 
 from datasetinsights.data.datasets import GroceriesReal
-from datasetinsights.data.simulation.download import (
-    download_file_from_url,
+from datasetinsights.data.download import (
+    download_file,
     compare_checksums,
 )
+from datasetinsights.data.exceptions import DownloadError
 import datasetinsights.constants as const
 
 LOCAL_PATH = "groceries"
@@ -69,19 +70,22 @@ def run(args):
         args.version
     ].http_path
     file_dest_path = os.path.join(data_root, LOCAL_PATH, f"{args.version}.zip")
-    download_file_from_url(source_uri=file_cloud_path, dest_path=file_dest_path)
+    download_file(source_uri=file_cloud_path, dest_path=file_dest_path)
     checksum_path = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[
         args.version
     ].checksum
     checksum_dest_path = os.path.join(
         data_root, LOCAL_PATH, f"{args.version}.txt"
     )
-    download_file_from_url(
-        source_uri=checksum_path, dest_path=checksum_dest_path
-    )
-    compare_checksums(
+    download_file(source_uri=checksum_path, dest_path=checksum_dest_path)
+    if not compare_checksums(
         file_path=file_dest_path, checksum_path=checksum_dest_path
-    )
+    ):
+        raise DownloadError(
+            f"Invalid hash value."
+            f"There are some errors during the dataset download. "
+            f"Please download it again."
+        )
 
 
 if __name__ == "__main__":

@@ -1,23 +1,20 @@
-import argparse
 import os
 import pathlib
 import tempfile
 from unittest.mock import patch
+from yacs.config import CfgNode as CN
 
 import numpy as np
 import pandas as pd
 import pytest
 import responses
-from contextlib import contextmanager
 
-from datasetinsights.data.download import download_file
+from datasetinsights.data.download import download_file, compare_checksums
 from datasetinsights.data.simulation.download import (
-    compare_checksums,
     Downloader,
-    DownloadError,
     _filter_unsuccessful_attempts,
 )
-from datasetinsights.data.simulation.exceptions import ChecksumError
+from datasetinsights.data.exceptions import DownloadError
 from datasetinsights.scripts.public_download import run
 from datasetinsights.data.simulation.tables import FileType
 
@@ -59,13 +56,17 @@ def test_download_bad_request():
 
 def test_download_rows(downloader):
     n_rows = len(downloader.manifest)
-    with patch("datasetinsights.data.download.download_file") as mocked_dl:
+    with patch(
+        "datasetinsights.data.simulation.download.download_file"
+    ) as mocked_dl:
         matched_rows = pd.Series(np.zeros(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
         assert len(downloaded) == 0
         mocked_dl.assert_not_called()
 
-    with patch("datasetinsights.data.download.download_file") as mocked_dl:
+    with patch(
+        "datasetinsights.data.simulation.download.download_file"
+    ) as mocked_dl:
         matched_rows = pd.Series(np.ones(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
         assert len(downloaded) == n_rows
@@ -74,7 +75,9 @@ def test_download_rows(downloader):
 
 def test_download_all(downloader):
     n_rows = len(downloader.manifest)
-    with patch("datasetinsights.data.download.download_file") as mocked_dl:
+    with patch(
+        "datasetinsights.data.simulation.download.download_file"
+    ) as mocked_dl:
         downloader.download_references()
         downloader.download_captures()
         downloader.download_metrics()
@@ -155,7 +158,8 @@ def test_match_filetypes():
     assert Downloader.match_filetypes(manifest) == expected_filetypes
 
 
-def test_compare_checksums():
+@patch("datasetinsights.data.download.os.remove")
+def test_compare_checksums(os_remove):
     parent_dir = pathlib.Path(__file__).parent.parent.absolute()
     file_path = str(parent_dir / "mock_data" / "calib000000.txt")
     checksum_path1 = str(parent_dir / "mock_data" / "checksum_calib000000.txt")
@@ -163,34 +167,22 @@ def test_compare_checksums():
         parent_dir / "mock_data" / "wrong_checksum_calib000000.txt"
     )
 
-    with not_raises(ChecksumError):
-        pytest.raises(compare_checksums(file_path, checksum_path1))
-    pytest.raises(ChecksumError, compare_checksums, file_path, checksum_path2)
+    assert compare_checksums(file_path, checksum_path1) is True
+    assert compare_checksums(file_path, checksum_path2) is False
+    os_remove.multiline_text.call_count == 2
 
 
-@contextmanager
-def not_raises(exception):
-    try:
-        yield
-    except exception:
-        raise pytest.fail("DID RAISE {0}".format(exception))
+@patch("datasetinsights.scripts.public_download.download_file")
+@patch("datasetinsights.scripts.public_download.compare_checksums")
+@patch("datasetinsights.data.download.os.remove")
+def test_run(mocked_df, mocked_checksums, mocked_os_remove):
+    args = CN()
+    args.data_root = ""
+    args.name = "GroceriesReal"
+    args.version = "v3"
+    args.verbose = False
 
-
-@patch("datasetinsights.data.simulation.download.download_file_from_url")
-@patch("datasetinsights.data.simulation.download.compare_checksums")
-def test_run(mocked_download, mocked_checksum):
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--verbose", action="store_true", default=False)
-    parser.add_argument("--data-root", type=str, default="")
-    parser.add_argument(
-        "--name",
-        type=str,
-        default="GroceriesReal",
-        required=True,
-    )
-    parser.add_argument("--version", type=str, default="v3")
-
-    args = parser.parse_args()
     run(args)
-    mocked_download.multiline_text.call_count == 2
-    mocked_checksum.multiline_text.call_count == 1
+    mocked_df.download_file.multiline_text.call_count == 2
+    mocked_checksums.multiline_text.call_count == 1
+    mocked_os_remove.multiline_text.call_count == 2
