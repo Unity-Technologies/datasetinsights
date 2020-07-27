@@ -9,12 +9,11 @@ import datasetinsights.visualization.constants as constants
 from .plots import histogram_plot, rotation_plot
 
 
-class ScaleFactor(object):
+class ScaleFactor:
     """Generate scale factor distribution.
 
-    Scale Factor describes the ratio of original object to new object
-        arrangement in a capture. Higher the scale factor, larger would be
-        the object than originally captured and vice versa.
+    Scale Factor describes the size of the rendered object in a capture.
+    Higher the scale factor, higher would be the visible pixels.
 
     Atrributes:
         captures(sim.Captures): a collection of capture records.
@@ -37,12 +36,15 @@ class ScaleFactor(object):
     def generate_scale_data(captures):
         """ Method to extract scale parameter from sensor data.
 
+        Args:
+            captures(sim.Captures): a collection of capture records.
+
         Returns:
             list: extracted 'scale' parameter from the sensor data.
 
         """
         df_scale_factor = pd.DataFrame(
-            [sensor_data.get("scale") for sensor_data in captures["sensor"]],
+            [sensor_data["scale"] for sensor_data in captures["sensor"]],
             columns=["scale"],
         )
         return df_scale_factor
@@ -70,6 +72,12 @@ class ScaleFactor(object):
         return scale_factor_distribution_figure
 
     def html(self):
+        """ Method for generating plots for scale factor distribution.
+
+        Returns:
+            html layout: displays scale factor distribution.
+
+        """
         scale_factor_distribution_figure = self._generate_scale_factor_figures()
         html_layout = dcc.Graph(
             id="scale_factor_distribution_figure",
@@ -102,6 +110,13 @@ class UserParameter:
         )
 
     def html(self):
+        """ Method for generating html layout for the
+            user input parameter table.
+
+        Returns:
+            html layout: displays user input parameter table.
+
+        """
         html_layout = html.Div(
             [
                 html.H3("User Input Parameters Table"),
@@ -249,6 +264,13 @@ class Lighting:
         }
 
     def html(self):
+        """ Method for generating html layout for the
+            lighting statistics.
+
+        Returns:
+            html layout: displays lighting graphs.
+
+        """
         lighting_figures = self._generate_figures_lighting()
 
         html_layout = html.Div(
@@ -407,6 +429,13 @@ class ObjectPlacement:
         }
 
     def html(self):
+        """ Method for generating html layout for the object
+            orientation statistics.
+
+        Returns:
+            html layout: displays object orientation graphs.
+
+        """
         orientation_figures = self._generate_figures_orientation(self.rotation)
 
         html_layout = html.Div(
