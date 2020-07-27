@@ -11,7 +11,6 @@ repos:
     hooks:
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
-        exclude: ^mock_data/
     -   id: check-yaml
     -   id: check-added-large-files
     -   id: check-merge-conflict
