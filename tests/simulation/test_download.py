@@ -54,13 +54,17 @@ def test_download_bad_request():
 
 def test_download_rows(downloader):
     n_rows = len(downloader.manifest)
-    with patch("datasetinsights.data.download.download_file") as mocked_dl:
+    with patch(
+        "datasetinsights.data.simulation.download.download_file"
+    ) as mocked_dl:
         matched_rows = pd.Series(np.zeros(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
         assert len(downloaded) == 0
         mocked_dl.assert_not_called()
 
-    with patch("datasetinsights.data.download.download_file") as mocked_dl:
+    with patch(
+        "datasetinsights.data.simulation.download.download_file"
+    ) as mocked_dl:
         matched_rows = pd.Series(np.ones(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
         assert len(downloaded) == n_rows
@@ -69,7 +73,9 @@ def test_download_rows(downloader):
 
 def test_download_all(downloader):
     n_rows = len(downloader.manifest)
-    with patch("datasetinsights.data.download.download_file") as mocked_dl:
+    with patch(
+        "datasetinsights.data.simulation.download.download_file"
+    ) as mocked_dl:
         downloader.download_references()
         downloader.download_captures()
         downloader.download_metrics()
