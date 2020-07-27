@@ -12,9 +12,9 @@ from requests.packages.urllib3.util.retry import Retry
 from tqdm import tqdm
 
 import datasetinsights.constants as const
-
 from datasetinsights.data.download import TimeoutHTTPAdapter, download_file
 from datasetinsights.data.exceptions import DownloadError
+
 from .tables import DATASET_TABLES, FileType
 
 logger = logging.getLogger(__name__)
