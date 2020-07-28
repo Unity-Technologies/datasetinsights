@@ -6,10 +6,13 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
+import datasetinsights.data.datasets.statistics as stat
+import datasetinsights.visualization.constants as constants
+import datasetinsights.visualization.overview as overview
 from datasetinsights.visualization.object_detection import (
     render_object_detection_layout,
 )
-from datasetinsights.visualization.overview import overview
+from datasetinsights.visualization.plots import histogram_plot
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 css_file = os.path.join(this_dir, "stylesheet.css")
@@ -66,9 +69,60 @@ def main_layout(data_root):
 )
 def render_content(tab):
     if tab == "dataset_overview":
-        return overview(data_root)
+        return overview.html_overview(data_root)
     elif tab == "object_detection":
         return render_object_detection_layout(data_root)
+
+
+@app.callback(
+    Output("pixels_visible_per_object", "figure"),
+    [Input("pixels_visible_filter", "value")],
+)
+def update_visible_pixels_figure(label_value):
+    roinfo = stat.RenderedObjectInfo(
+        data_root=data_root, def_id=constants.RENDERED_OBJECT_INFO_DEFINITION_ID
+    )
+    filtered_roinfo = roinfo.raw_table[
+        roinfo.raw_table["label_name"] == label_value
+    ][["visible_pixels"]]
+    filtered_figure = histogram_plot(
+        filtered_roinfo,
+        x="visible_pixels",
+        x_title="Visible Pixels For " + str(label_value),
+        y_title="Frequency",
+        title="Distribution of Visible Pixels For " + str(label_value),
+        max_samples=constants.MAX_SAMPLES,
+    )
+    return filtered_figure
+
+
+@app.callback(
+    Output("per_object_count", "figure"),
+    [Input("object_count_filter", "value")],
+)
+def update_object_counts_capture_figure(label_value):
+    roinfo = stat.RenderedObjectInfo(
+        data_root=data_root, def_id=constants.RENDERED_OBJECT_INFO_DEFINITION_ID
+    )
+    filtered_object_count = roinfo.raw_table[
+        roinfo.raw_table["label_name"] == label_value
+    ]
+    filtered_object_count = (
+        filtered_object_count.groupby(["capture_id"])
+        .size()
+        .to_frame(name="count")
+        .reset_index()
+    )
+    filtered_figure = histogram_plot(
+        filtered_object_count,
+        x="count",
+        x_title="Object Counts Per Capture For " + str(label_value),
+        y_title="Frequency",
+        title="Distribution of Object Counts Per Capture For "
+        + str(label_value),
+        max_samples=constants.MAX_SAMPLES,
+    )
+    return filtered_figure
 
 
 def check_path(path):

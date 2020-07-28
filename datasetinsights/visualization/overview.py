@@ -7,12 +7,10 @@ import datasetinsights.visualization.constants as constants
 from .plots import bar_plot, histogram_plot
 
 
-def generate_total_counts_figure(max_samples, roinfo):
+def generate_total_counts_figure(roinfo):
     """ Method for generating total object count bar plot using ploty.
 
     Args:
-        max_samples(int): maximum number of samples that will be included
-            in the plot.
         roinfo(datasetinsights.data.datasets.statistics.RenderedObjectInfo):
             Rendered Object Info in Captures.
 
@@ -32,12 +30,10 @@ def generate_total_counts_figure(max_samples, roinfo):
     return total_counts_fig
 
 
-def generate_per_capture_count_figure(max_samples, roinfo):
+def generate_per_capture_count_figure(roinfo):
     """ Method for generating object count per capture histogram using ploty.
 
     Args:
-        max_samples(int): maximum number of samples that will be included
-            in the plot.
         roinfo(datasetinsights.data.datasets.statistics.RenderedObjectInfo):
             Rendered Object Info in Captures.
 
@@ -51,17 +47,15 @@ def generate_per_capture_count_figure(max_samples, roinfo):
         x_title="Object Counts Per Capture",
         y_title="Frequency",
         title="Distribution of Object Counts Per Capture",
-        max_samples=max_samples,
+        max_samples=constants.MAX_SAMPLES,
     )
     return per_capture_count_fig
 
 
-def generate_pixels_visible_per_object_figure(max_samples, roinfo):
+def generate_pixels_visible_per_object_figure(roinfo):
     """ Method for generating pixels visible per object histogram using ploty.
 
     Args:
-        max_samples(int): maximum number of samples that will be included
-            in the plot.
         roinfo(datasetinsights.data.datasets.statistics.RenderedObjectInfo):
             Rendered Object Info in Captures.
 
@@ -75,13 +69,13 @@ def generate_pixels_visible_per_object_figure(max_samples, roinfo):
         x_title="Visible Pixels Per Object",
         y_title="Frequency",
         title="Distribution of Visible Pixels Per Object",
-        max_samples=max_samples,
+        max_samples=constants.MAX_SAMPLES,
     )
 
     return pixels_visible_per_object_fig
 
 
-def overview(data_root):
+def html_overview(data_root):
     """ Method for displaying overview statistics.
 
     Args:
@@ -94,15 +88,12 @@ def overview(data_root):
     roinfo = stat.RenderedObjectInfo(
         data_root=data_root, def_id=constants.RENDERED_OBJECT_INFO_DEFINITION_ID
     )
+    label_names = roinfo.total_counts()["label_name"].unique()
 
-    total_counts_fig = generate_total_counts_figure(
-        constants.MAX_SAMPLES, roinfo
-    )
-    per_capture_count_fig = generate_per_capture_count_figure(
-        constants.MAX_SAMPLES, roinfo
-    )
+    total_counts_fig = generate_total_counts_figure(roinfo)
+    per_capture_count_fig = generate_per_capture_count_figure(roinfo)
     pixels_visible_per_object_fig = generate_pixels_visible_per_object_figure(
-        constants.MAX_SAMPLES, roinfo
+        roinfo
     )
 
     overview_layout = html.Div(
@@ -111,8 +102,16 @@ def overview(data_root):
             dcc.Graph(id="total_count", figure=total_counts_fig,),
             html.Div(
                 [
+                    dcc.Dropdown(
+                        id="object_count_filter",
+                        options=[{"label": i, "value": i} for i in label_names],
+                    ),
                     dcc.Graph(
                         id="per_object_count", figure=per_capture_count_fig,
+                    ),
+                    dcc.Dropdown(
+                        id="pixels_visible_filter",
+                        options=[{"label": i, "value": i} for i in label_names],
                     ),
                     dcc.Graph(
                         id="pixels_visible_per_object",
