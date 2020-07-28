@@ -40,7 +40,7 @@ class ScaleFactor:
             captures(sim.Captures): a collection of capture records.
 
         Returns:
-            list: extracted 'scale' parameter from the sensor data.
+            pandas.DataFrame: contains 'scale' parameter from the sensor data.
 
         """
         df_scale_factor = pd.DataFrame(
