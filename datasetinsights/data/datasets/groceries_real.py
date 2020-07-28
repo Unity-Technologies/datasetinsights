@@ -140,9 +140,10 @@ class GroceriesReal(Dataset):
         self.version = version
         self.root = os.path.join(data_root, self.LOCAL_PATH)
         self.transforms = transforms
-        self.annotations = []
-        self.split_indices = []
-        self.label_mappings = {}
+        self.download()
+        self.annotations = self._load_annotations()
+        self.split_indices = self._load_split_indices()
+        self.label_mappings = self._load_label_mappings()
 
     def __getitem__(self, idx):
         """
@@ -232,7 +233,6 @@ class GroceriesReal(Dataset):
                 extract_folder = os.path.join(self.root, f"{self.version}")
                 if not os.path.exists(extract_folder):
                     self._extract_file(dest_path, self.root)
-                self._load_infos()
                 return
             else:
                 logger.info(
@@ -243,12 +243,6 @@ class GroceriesReal(Dataset):
         source_uri = self.GROCERIES_REAL_DATASET_TABLES[self.version].source_uri
         self._download_http(source_uri, dest_path)
         self._extract_file(dest_path, self.root)
-        self._load_infos()
-
-    def _load_infos(self):
-        self.annotations = self._load_annotations()
-        self.split_indices = self._load_split_indices()
-        self.label_mappings = self._load_label_mappings()
 
     def _load_annotations(self):
         """Load annotation from annotations.json file
