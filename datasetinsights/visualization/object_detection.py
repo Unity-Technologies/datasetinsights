@@ -127,7 +127,7 @@ class UserParameter:
                         for i in self.user_parameter_table.columns
                     ],
                     data=self.user_parameter_table.to_dict("records"),
-                    style_table={"overflowX": "auto", },
+                    style_table={"overflowX": "auto"},
                     style_cell={
                         "height": "auto",
                         # all three widths are needed

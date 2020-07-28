@@ -7,11 +7,11 @@ def test_generate_scale_data():
     captures = [
         {
             "id": "4521949a- 2a71-4c03-beb0-4f6362676639",
-            "sensor": {"scale": 1.0, },
+            "sensor": {"scale": 1.0},
         },
         {
             "id": "4b35a47a-3f63-4af3-b0e8-e68cb384ad75",
-            "sensor": {"scale": 2.0, },
+            "sensor": {"scale": 2.0},
         },
     ]
 
