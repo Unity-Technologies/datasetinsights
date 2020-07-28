@@ -1,2 +1,2 @@
 google
-sphinx-autodoc
+sphinx-autoapi
