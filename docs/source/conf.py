@@ -9,7 +9,7 @@ import os
 sys.path.insert(0, os.path.abspath('../..'))
 
 #autodoc_warningiserror = False
-autodoc_mock_imports = ["dash","numpy","torch","torchvision","pandas","dash_core_components","matplotlib","dash_html_components","pyquaternion","dask","plotly","tensorflow","codetiming","tqdm"]
+#autodoc_mock_imports = ["dash","numpy","torch","torchvision","pandas","dash_core_components","matplotlib","dash_html_components","pyquaternion","dask","plotly","tensorflow","codetiming","tqdm"]
 # -- Project information -----------------------------------------------------
 
 project = "datasetinsights"
@@ -33,11 +33,10 @@ extensions = [
     "recommonmark",
     "sphinx.ext.autosectionlabel",
     "sphinx_rtd_theme",
-    "sphinx.ext.napoleon",
-    "autoapi.extension"
+    "sphinx.ext.napoleon"
 ]
 
-autoapi_dirs = ['../../datasetinsights']
+#autoapi_dirs = ['../../datasetinsights']
 
 source_suffix = {
     ".rst": "restructuredtext",

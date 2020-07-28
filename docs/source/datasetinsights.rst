@@ -5,11 +5,21 @@ datasetinsights
 .. toctree::
    :maxdepth: 4
 
+   datasetinsights.configs
    datasetinsights.data
+   datasetinsights.estimators
+   datasetinsights.evaluation_metrics
    datasetinsights.scripts
    datasetinsights.storage
-   datasetinsights.visualization
 
+
+datasetinsights.cli
+-------------------
+
+.. automodule:: datasetinsights.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 datasetinsights.constants
 -------------------------
@@ -19,10 +29,10 @@ datasetinsights.constants
    :undoc-members:
    :show-inheritance:
 
-datasetinsights.dashboard
--------------------------
+datasetinsights.torch\_distributed
+----------------------------------
 
-.. automodule:: datasetinsights.dashboard
+.. automodule:: datasetinsights.torch_distributed
    :members:
    :undoc-members:
    :show-inheritance:
