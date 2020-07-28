@@ -1,14 +1,17 @@
 import os
+import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-import datasetinsights.constants as const
 from datasetinsights.storage.checkpoint import (
     EstimatorCheckpoint,
     GCSEstimatorWriter,
     LocalEstimatorWriter,
+    load_from_gcs,
+    load_from_http,
+    load_local,
 )
 
 
@@ -20,9 +23,11 @@ def create_empty_file(path):
 
 def test_local_estimator_writer_creates_dir():
     prefix = "good_model"
-    dirname = os.path.join(const.PROJECT_ROOT, prefix)
-    LocalEstimatorWriter(prefix)
-    assert os.path.exists(dirname)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        dirname = os.path.join(tmp_dir, "some_dir_name")
+        LocalEstimatorWriter(dirname, prefix)
+
+        assert os.path.exists(dirname)
 
 
 def test_local_writer_checkpoint_save():
@@ -30,22 +35,25 @@ def test_local_writer_checkpoint_save():
     suffix = "ckpt"
     estimator = Mock()
 
-    dirname = os.path.join(const.PROJECT_ROOT, prefix)
-    path = os.path.join(dirname, f"{prefix}.{suffix}")
-    estimator.save = MagicMock(side_effect=create_empty_file(path))
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        dirname = os.path.join(tmp_dir, "some_dir_name")
+        path = os.path.join(dirname, f"{prefix}.{suffix}")
+        estimator.save = MagicMock(side_effect=create_empty_file(path))
 
-    ckpt = LocalEstimatorWriter(prefix, suffix=suffix)
-    ckpt.save(estimator)
+        ckpt = LocalEstimatorWriter(dirname, prefix, suffix=suffix)
+        ckpt.save(estimator)
 
-    assert os.path.exists(path)
+        assert os.path.exists(path)
 
-    epoch = 12
-    path_with_epoch = os.path.join(dirname, f"{prefix}.ep{epoch}.{suffix}")
-    estimator.save = MagicMock(side_effect=create_empty_file(path_with_epoch))
+        epoch = 12
+        path_with_epoch = os.path.join(dirname, f"{prefix}.ep{epoch}.{suffix}")
+        estimator.save = MagicMock(
+            side_effect=create_empty_file(path_with_epoch)
+        )
 
-    ckpt.save(estimator, epoch)
+        ckpt.save(estimator, epoch)
 
-    assert os.path.exists(path_with_epoch)
+        assert os.path.exists(path_with_epoch)
 
 
 def test_gcs_estimator_checkpoint_save():
@@ -99,21 +107,18 @@ def test_create_writer():
         assert writer == mock_gcs_writer
 
 
-@patch("datasetinsights.storage.checkpoint.load_from_http")
-@patch("datasetinsights.storage.checkpoint.load_from_gcs")
-@patch("datasetinsights.storage.checkpoint.load_local")
-def test_get_loader_from_path(mock_local, mock_gcs, mock_http):
+def test_get_loader_from_path():
     loader = EstimatorCheckpoint._get_loader_from_path("gs://some/path")
-    assert loader == mock_gcs
+    assert loader == load_from_gcs
 
     loader = EstimatorCheckpoint._get_loader_from_path("http://some/path")
-    assert loader == mock_http
+    assert loader == load_from_http
 
     loader = EstimatorCheckpoint._get_loader_from_path("https://some/path")
-    assert loader == mock_http
+    assert loader == load_from_http
 
     loader = EstimatorCheckpoint._get_loader_from_path("/path/to/folder")
-    assert loader == mock_local
+    assert loader == load_local
 
     with pytest.raises(ValueError, match=r"Given path:"):
         EstimatorCheckpoint._get_loader_from_path("dfdge")

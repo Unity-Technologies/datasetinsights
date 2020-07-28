@@ -16,17 +16,17 @@ DEFAULT_SUFFIX = "estimator"
 
 
 class EstimatorCheckpoint:
-    """
-    For loading and saving estimator checkpoints
+    """For loading and saving estimator checkpoints
 
     Args:
         estimator_name (str): name of the estimator
         log_dir (str): log directory
         distributed (bool): boolean to determine distributed training
+
     Attributes:
-        estimator_name (str): name of the estimator
         log_dir (str): log directory
         distributed (bool): boolean to determine distributed training
+
     """
 
     def __init__(self, estimator_name, log_dir, distributed):
@@ -38,7 +38,7 @@ class EstimatorCheckpoint:
         if log_dir.startswith(const.GCS_BASE_STR):
             writer = GCSEstimatorWriter(log_dir, estimator_name)
         else:
-            writer = LocalEstimatorWriter(estimator_name)
+            writer = LocalEstimatorWriter(log_dir, estimator_name)
 
         return writer
 
@@ -52,27 +52,28 @@ class EstimatorCheckpoint:
             method = load_local
         else:
             raise ValueError(
-                f"Given path: {0}, is either invalid or not "
-                "supported".format(path)
+                f"Given path: {path}, is either invalid or not supported."
+                f"Currently supported path are local path (/path/to/file), "
+                f"GCS path (gs://) and HTTP url (http:// or https://) path"
             )
 
         return method
 
     def save(self, estimator, epoch):
-        """
-        Saves estimator to log directory
+        """Saves estimator to log directory
 
         Args:
             estimator (datasetinsights.estimators.Estimator):
             datasetinsights estimator object
             epoch (int): epoch number
+
         """
         if self.distributed and not is_master():
             return
         self._writer.save(estimator=estimator, epoch=epoch)
 
     def load(self, estimator, path):
-        """ Loads estimator from given path
+        """Loads estimator from given path
 
         Path can be either a local path or GCS path or HTTP url
 
@@ -80,6 +81,7 @@ class EstimatorCheckpoint:
             estimator (datasetinsights.estimators.Estimator):
             datasetinsights estimator object
             path (str): path of estimator
+
         """
         if self.distributed and not is_master():
             return
@@ -89,7 +91,7 @@ class EstimatorCheckpoint:
 
 
 class LocalEstimatorWriter:
-    """ Writes (saves) estimator checkpoints locally
+    """Writes (saves) estimator checkpoints locally
 
     Args:
         prefix (str): filename prefix of the checkpoint files
@@ -99,18 +101,25 @@ class LocalEstimatorWriter:
         dirname (str): directory name of where checkpoint files are stored
         prefix (str): filename prefix of the checkpoint files
         suffix (str): filename suffix of the checkpoint files
+
     """
 
-    def __init__(self, prefix, *, suffix=DEFAULT_SUFFIX):
-        self.dirname = os.path.join(const.PROJECT_ROOT, prefix)
+    def __init__(
+        self, dirname, prefix, *, suffix=DEFAULT_SUFFIX, create_dir=True
+    ):
+        self.dirname = dirname
         self.prefix = prefix
         self.suffix = suffix
+        self.is_master = is_master()
+        if create_dir:
+            if not os.path.exists(dirname):
+                os.makedirs(dirname)
 
-        if not os.path.exists(self.dirname):
-            os.makedirs(self.dirname)
+        if not os.path.exists(dirname):
+            raise ValueError(f"Directory path '{dirname}' is not found.")
 
     def save(self, estimator, epoch=None):
-        """ Save estimator to checkpoint files.
+        """Save estimator to checkpoint files.
 
         Args:
             estimator (datasetinsights.estimators.Estimator):
@@ -119,6 +128,7 @@ class LocalEstimatorWriter:
 
         Returns:
             full path to the saved checkpoint file
+
         """
         if epoch:
             filename = ".".join([self.prefix, f"ep{epoch}", self.suffix])
@@ -133,7 +143,7 @@ class LocalEstimatorWriter:
 
 
 class GCSEstimatorWriter:
-    """ Writes (saves) estimator checkpoints on GCS.
+    """Writes (saves) estimator checkpoints on GCS.
 
     Args:
         cloud_path (str): GCS cloud path (e.g. gs://bucket/path/to/directoy)
@@ -143,12 +153,15 @@ class GCSEstimatorWriter:
     """
 
     def __init__(self, cloud_path, prefix, *, suffix=DEFAULT_SUFFIX):
+        self._tempdir = tempfile.TemporaryDirectory().name
         self._client = GCSClient()
         self._bucket, self._gcs_path = gcs_bucket_and_path(cloud_path)
-        self._writer = LocalEstimatorWriter(prefix, suffix=suffix)
+        self._writer = LocalEstimatorWriter(
+            self._tempdir, prefix, create_dir=True, suffix=suffix
+        )
 
     def save(self, estimator, epoch=None):
-        """ Save estimator to checkpoint files on GCS
+        """Save estimator to checkpoint files on GCS
 
         Args:
             estimator (datasetinsights.estimators.Estimator):
@@ -157,6 +170,7 @@ class GCSEstimatorWriter:
 
         Returns:
             full GCS cloud path to the saved checkpoint file
+
         """
         path = self._writer.save(estimator, epoch)
         filename = os.path.basename(path)
@@ -171,19 +185,20 @@ class GCSEstimatorWriter:
 
 
 def load_local(estimator, path):
-    """ loads estimator checkpoints from a local path """
+    """Loads estimator checkpoints from a local path."""
     estimator.load(path)
 
     return path
 
 
 def load_from_gcs(estimator, full_cloud_path):
-    """ Load estimator from checkpoint files on GCS
+    """Load estimator from checkpoint files on GCS
 
     Args:
         estimator (datasetinsights.estimators.Estimator):
             datasetinsights estimator object.
         full_cloud_path: full path to the checkpoint file
+
     """
     bucket, object_key = gcs_bucket_and_path(full_cloud_path)
     filename = os.path.basename(object_key)
@@ -198,12 +213,13 @@ def load_from_gcs(estimator, full_cloud_path):
 
 
 def load_from_http(estimator, url):
-    """ Load estimator from checkpoint files on GCS
+    """Load estimator from checkpoint files on GCS
 
     Args:
         estimator (datasetinsights.estimators.Estimator):
             datasetinsights estimator object.
         url: URL of the checkpoint file
+
     """
     temp_dir = tempfile.TemporaryDirectory().name
     path = os.path.join(temp_dir, "filename")
