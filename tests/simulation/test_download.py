@@ -7,16 +7,19 @@ import numpy as np
 import pandas as pd
 import pytest
 import responses
-from yacs.config import CfgNode as CN
 
-from datasetinsights.data.download import compare_checksums, download_file
+from datasetinsights.data.download import (
+    compute_checksum,
+    download_file,
+    validate_checksum,
+)
 from datasetinsights.data.simulation.download import (
     Downloader,
     DownloadError,
     _filter_unsuccessful_attempts,
 )
+from datasetinsights.data.exceptions import ChecksumError
 from datasetinsights.data.simulation.tables import FileType
-from datasetinsights.scripts.public_download import run
 
 
 @pytest.fixture
@@ -158,29 +161,21 @@ def test_match_filetypes():
     assert Downloader.match_filetypes(manifest) == expected_filetypes
 
 
-@patch("datasetinsights.data.download.os.remove")
-def test_compare_checksums(os_remove):
-    parent_dir = pathlib.Path(__file__).parent.parent.absolute()
-    file_path = str(parent_dir / "mock_data" / "calib000000.txt")
-    checksum_path1 = str(parent_dir / "mock_data" / "checksum_calib000000.txt")
-    checksum_path2 = str(parent_dir / "mock_data" / "checksum_another_file.txt")
+def test_compute_checksum():
+    expected_checksum = 123456
+    with patch("datasetinsights.data.download._crc32_checksum") as mocked:
+        mocked.return_value = expected_checksum
+        computed = compute_checksum("filepath/not/important", "CRC32")
+        assert computed == expected_checksum
 
-    assert compare_checksums(file_path, checksum_path1) is True
-    assert compare_checksums(file_path, checksum_path2) is False
-    os_remove.multiline_text.call_count == 2
+    with pytest.raises(ValueError):
+        compute_checksum("filepath/not/important", "UNSUPPORTED_ALGORITHM")
 
 
-@patch("datasetinsights.scripts.public_download.download_file")
-@patch("datasetinsights.scripts.public_download.compare_checksums")
-@patch("datasetinsights.data.download.os.remove")
-def test_run(mocked_df, mocked_checksums, mocked_os_remove):
-    args = CN()
-    args.data_root = ""
-    args.name = "GroceriesReal"
-    args.version = "v3"
-    args.verbose = False
-
-    run(args)
-    mocked_df.download_file.multiline_text.call_count == 2
-    mocked_checksums.multiline_text.call_count == 1
-    mocked_os_remove.multiline_text.call_count == 2
+def test_validate_checksum():
+    expected_checksum = 123456
+    wrong_checksum = 123455
+    with patch("datasetinsights.data.download.compute_checksum") as mocked:
+        mocked.return_value = wrong_checksum
+        with pytest.raises(ChecksumError):
+            validate_checksum("filepath/not/important", expected_checksum)
