@@ -1,5 +1,4 @@
 import logging
-import os
 import zlib
 from pathlib import Path
 
@@ -7,7 +6,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-from .exceptions import DownloadError
+from .exceptions import DownloadError, ChecksumError
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +33,7 @@ def download_file(source_uri: str, dest_path: str, use_cache: bool = True):
         source_uri (str): source url where the file should be downloaded
         dest_path (str): destination path of the file
         use_cache (bool): use_cache (bool): use cache instead of
-                re-download if file exists
+        re-download if file exists
 
     Returns:
         String of destination path.
@@ -68,51 +67,45 @@ def download_file(source_uri: str, dest_path: str, use_cache: bool = True):
     return dest_path
 
 
-def compare_checksums(file_path, checksum_path):
-    """Compare checksums for source and destination file.
-    Will raise error if two checksums are different.
+def validate_checksum(filepath, expected_checksum, algorithm="CRC32"):
+    """ Validate checksum of the downloaded file.
 
     Args:
-        file_path (str): local path of the file
-        checksum_path (str): checksum file for the source file
+        filepath (str): the doaloaded file path
+        expected_checksum (int): expected checksum of the file
+        algorithm (str): checksum algorithm. Defaults to CRC32
 
-    Returns:
-        bool: whether it passes or fails
+    Raises:
+        ChecksumError if the file checksum does not match.
     """
-    source_file_checksum = _get_source_checksum(checksum_path)
-    local_file_checksum = _get_local_checksum(file_path)
-    if local_file_checksum != source_file_checksum:
-        os.remove(checksum_path)
-        os.remove(file_path)
-        return False
-    return True
+    computed = compute_checksum(filepath, algorithm)
+    if computed != expected_checksum:
+        raise ChecksumError
 
 
-def _get_local_checksum(local_path):
-    """Calculate checksum (CRC32) for a local file
+def compute_checksum(filepath, algorithm="CRC32"):
+    """ Compute the checksum of a file.
 
     Args:
-        local_path (str): local path of the file
+        filepath (str): the doaloaded file path
+        algorithm (str): checksum algorithm. Defaults to CRC32
 
     Returns:
-        str: checksum for the local file
+        int: the checksum value
     """
-    with open(local_path, "rb") as f:
-        local_file_crc32 = zlib.crc32(f.read())
+    chs = -1
+    if algorithm == "CRC32":
+        chs = _crc32_checksum(filepath)
+    else:
+        raise ValueError("Unsupported checksum algorithm!")
 
-    return str(local_file_crc32)
+    return chs
 
 
-def _get_source_checksum(checksum_path):
-    """Get the checksum for the source file
-
-    Args:
-        checksum_path (str): downloaded checksum file path
-
-    Returns:
-        str: checksum for the source file
+def _crc32_checksum(filepath):
+    """ Calculate the checksum of a file using CRC32.
     """
-    with open(checksum_path, "r") as f:
-        source_checksum = f.read()
+    with open(filepath, "rb") as f:
+        checksum = zlib.crc32(f.read())
 
-    return source_checksum
+    return checksum

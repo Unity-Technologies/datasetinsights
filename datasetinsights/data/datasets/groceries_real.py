@@ -12,6 +12,12 @@ from PIL import Image
 import datasetinsights.constants as const
 from datasetinsights.data.bbox import BBox2D
 from datasetinsights.storage.gcs import download_file_from_gcs
+from datasetinsights.data.download import (
+    validate_checksum,
+    download_file,
+    compute_checksum,
+)
+from datasetinsights.data.exceptions import ChecksumError, DownloadError
 
 from .base import Dataset
 from .protos import string_int_label_map_pb2
@@ -21,7 +27,7 @@ PUBLIC_GROCERIES_REAL_PATH = (
     "https://storage.googleapis.com/datasetinsights_public/data/groceries"
 )
 GroceriesRealTable = namedtuple(
-    "GroceriesRealTable", ("version", "filename", "http_path", "checksum")
+    "GroceriesRealTable", ("version", "filename", "source_uri", "checksum")
 )
 
 
@@ -89,10 +95,7 @@ class GroceriesReal(Dataset):
 
     GROCERIES_REAL_DATASET_TABLES = {
         "v3": GroceriesRealTable(
-            "v3",
-            "v3.zip",
-            f"{PUBLIC_GROCERIES_REAL_PATH}/v3.zip",
-            f"{PUBLIC_GROCERIES_REAL_PATH}/checksum_v3.txt",
+            "v3", "v3.zip", f"{PUBLIC_GROCERIES_REAL_PATH}/v3.zip", 2322380006,
         ),
     }
 
@@ -136,11 +139,10 @@ class GroceriesReal(Dataset):
 
         self.version = version
         self.root = os.path.join(data_root, self.LOCAL_PATH)
-        self.download()
-        self.annotations = self._load_annotations()
-        self.split_indices = self._load_split_indices()
         self.transforms = transforms
-        self.label_mappings = self._load_label_mappings()
+        self.annotations = []
+        self.split_indices = []
+        self.label_mappings = {}
 
     def __getitem__(self, idx):
         """
@@ -154,7 +156,9 @@ class GroceriesReal(Dataset):
         image_data = self.annotations[data_idx]
         image_filename = image_data["file_name"]
         annotations = image_data["annotations"]
-        image_filename = self._filepath(os.path.join("images", image_filename))
+        image_filename = self._filepath(
+            os.path.join("images", image_filename)
+        )
         image = Image.open(image_filename)
         bboxes = [self._convert_to_bbox2d(ann) for ann in annotations]
         if self.transforms:
@@ -170,6 +174,82 @@ class GroceriesReal(Dataset):
         """
         return os.path.join(self.root, self.version, filename)
 
+    def _download_http(self, source_uri, dest_path):
+        """ Download dataset from Public HTTP URL.
+
+        Args:
+            source_uri (str): source url where the file should be downloaded
+            dest_path (str): destination path of the file
+
+        Raises:
+            DownloadError if a given definition path can't be found
+            ChecksumError if the downloaded file checksum does not match
+        """
+
+        try:
+            logger.info("Downloading the dataset.")
+            download_file(source_uri=source_uri, dest_path=dest_path)
+        except DownloadError as e:
+            logger.info(
+                f"The request download from {source_uri} -> {dest_path} can't "
+                f"be completed."
+            )
+            raise e
+        expected_checksum = self.GROCERIES_REAL_DATASET_TABLES[
+            self.version
+        ].checksum
+        try:
+            validate_checksum(dest_path, expected_checksum)
+        except ChecksumError as e:
+            logger.info("Checksum mismatch. Delete the downloaded files.")
+            os.remove(dest_path)
+            raise e
+
+    @staticmethod
+    def _extract_file(dest_path, root_dir):
+        """ Unzip the downloaded file.
+        """
+        logger.info("Unzipping the dataset file.")
+        with zipfile.ZipFile(dest_path, "r") as zip_dir:
+            zip_dir.extractall(root_dir)
+
+    def download(self):
+        """ Download dataset from Public HTTP URL.
+
+        If the file already exists and the checksum matches, it will skip the
+        download step. If not, it would delete the previous file and download
+        it again. If the file doesn't exist, it would download the file.
+        """
+
+        dest_path = os.path.join(self.root, f"{self.version}.zip")
+        expected_checksum = self.GROCERIES_REAL_DATASET_TABLES[
+            self.version
+        ].checksum
+        if os.path.exists(dest_path):
+            logger.info("The dataset file exists. Skip download.")
+            computed_checksum = compute_checksum(dest_path)
+            if computed_checksum == expected_checksum:
+                extract_folder = os.path.join(self.root, f"{self.version}")
+                if not os.path.exists(extract_folder):
+                    self._extract_file(dest_path, self.root)
+                self._load_infos()
+                return
+            else:
+                logger.info(
+                    "The previous downloaded dataset file is wrong. "
+                    "Remove previous file."
+                )
+                os.remove(dest_path)
+        source_uri = self.GROCERIES_REAL_DATASET_TABLES[self.version].source_uri
+        self._download_http(source_uri, dest_path)
+        self._extract_file(dest_path, self.root)
+        self._load_infos()
+
+    def _load_infos(self):
+        self.annotations = self._load_annotations()
+        self.split_indices = self._load_split_indices()
+        self.label_mappings = self._load_label_mappings()
+
     def _load_annotations(self):
         """Load annotation from annotations.json file
 
@@ -181,15 +261,6 @@ class GroceriesReal(Dataset):
             json_data = json.load(f)
 
         return json_data
-
-    def download(self):
-        """Download dataset from GCS
-        """
-        cloud_path = f"gs://{const.GCS_BUCKET}/{self.GCS_PATH}"
-        zip_file = self.GROCERIES_REAL_DATASET_TABLES.get(self.version).filename
-        local_zip_file = download_file_from_gcs(cloud_path, self.root, zip_file)
-        with zipfile.ZipFile(local_zip_file, "r") as zip_dir:
-            zip_dir.extractall(self.root)
 
     def _load_split_indices(self):
         """Load the data indices txt file.

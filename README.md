@@ -72,5 +72,4 @@ Here is the command line for GroceriesReal dataset download:
 python -m datasetinsights.scripts.public_download \
   --name=GroceriesReal \
   --data-root=$HOME/data \
-  --verbose
 ```
