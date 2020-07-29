@@ -4,9 +4,9 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 import os
-import pkg_resources
 import sys
 
+import pkg_resources
 
 sys.path.insert(0, os.path.abspath("../.."))
 
