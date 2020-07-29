@@ -2,8 +2,8 @@ name: Publish to pypi
 
 on:
   push:
-    branches:
-      - github-actions
+    tags:
+      - '*.*.*'
 
 env:
   PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
