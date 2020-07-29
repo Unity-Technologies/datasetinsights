@@ -45,7 +45,6 @@ tqdm = "^4.45.0"
 dask = {extras = ["complete"], version = "^2.14.0"}
 dash = "1.12.0"
 tensorflow = "^2.2.0"
-sphinx-autoapi = "^1.4.0"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
@@ -89,6 +88,7 @@ exclude = '''
 
 [tool.poetry.extras]
 docs = ["sphinx-rtd-theme", "recommonmark"]
+
 [build-system]
 requires = ["poetry>=1.0.5"]
 build-backend = "poetry.masonry.api"

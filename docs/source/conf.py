@@ -4,7 +4,9 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 import os
+import pkg_resources
 import sys
+
 
 sys.path.insert(0, os.path.abspath("../.."))
 
@@ -16,7 +18,7 @@ copyright = "2020, Unity Technologies"
 author = "Unity Technologies"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1.0"
+release = pkg_resources.get_distribution(project).version
 napoleon_google_docstring = True
 
 # -- General configuration ---------------------------------------------------
@@ -33,8 +35,6 @@ extensions = [
     "sphinx_rtd_theme",
     "sphinx.ext.napoleon",
 ]
-
-# autoapi_dirs = ['../../datasetinsights']
 
 source_suffix = {
     ".rst": "restructuredtext",
