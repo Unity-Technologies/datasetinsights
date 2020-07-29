@@ -16,7 +16,7 @@ from datasetinsights.data.exceptions import ChecksumError, DownloadError
 from datasetinsights.storage.gcs import download_file_from_gcs
 
 from .base import Dataset
-from .exceptions import DatasetError
+from .exceptions import DatasetNotFoundError
 from .protos import string_int_label_map_pb2
 
 logger = logging.getLogger(__name__)
@@ -141,7 +141,7 @@ class GroceriesReal(Dataset):
         self.root = os.path.join(data_root, self.LOCAL_PATH)
         self.transforms = transforms
         if not os.path.isdir(os.path.join(self.root, f"{version}")):
-            raise DatasetError(
+            raise DatasetNotFoundError(
                 "Cannot find the dataset. Please download it first."
             )
         self.annotations = self._load_annotations()
@@ -185,8 +185,8 @@ class GroceriesReal(Dataset):
             dest_path (str): destination path of the file
 
         Raises:
-            DownloadError if a given definition path can't be found
-            ChecksumError if the downloaded file checksum does not match
+            DownloadError if the download file failed
+            ChecksumError if the download file checksum does not match
         """
 
         try:
@@ -223,14 +223,20 @@ class GroceriesReal(Dataset):
         If the file already exists and the checksum matches, it will skip the
         download step. If not, it would delete the previous file and download
         it again. If the file doesn't exist, it would download the file.
+
+        Args:
+            data_root (str): Root directory prefix of datasets
+            version (str): version of GroceriesReal dataset, e.g. "v3"
+
+        Raises:
+            ValueError if the dataset version is not supported
+            ChecksumError if the download file checksum does not match
+            DownloadError if the download file failed
         """
-        valid_versions = tuple(
-            GroceriesReal.GROCERIES_REAL_DATASET_TABLES.keys()
-        )
-        if version not in valid_versions:
+        if version not in GroceriesReal.GROCERIES_REAL_DATASET_TABLES.keys():
             raise ValueError(
-                f"A valid dataset version should be set. "
-                f"Available versions are: {valid_versions}"
+                f"A valid dataset version is required. Available versions are:"
+                f"{GroceriesReal.GROCERIES_REAL_DATASET_TABLES.keys()}"
             )
         dest_path = os.path.join(
             data_root, GroceriesReal.LOCAL_PATH, f"{version}.zip"

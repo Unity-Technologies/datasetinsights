@@ -93,7 +93,6 @@ def compute_checksum(filepath, algorithm="CRC32"):
     Returns:
         int: the checksum value
     """
-    chs = -1
     if algorithm == "CRC32":
         chs = _crc32_checksum(filepath)
     else:
