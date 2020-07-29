@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "datasetinsights-test"
+name = "datasetinsights"
 version = "0.1.0"
 description = "Synthetic dataset insights."
 license = "Apache-2.0"
