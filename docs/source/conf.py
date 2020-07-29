@@ -6,7 +6,7 @@
 import sys
 import os
 
-sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath("../.."))
 
 
 # -- Project information -----------------------------------------------------
@@ -16,12 +16,12 @@ copyright = "2020, Unity Technologies"
 author = "Unity Technologies"
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = "0.1.0"
 napoleon_google_docstring = True
 
 # -- General configuration ---------------------------------------------------
 
-master_doc = 'index'
+master_doc = "index"
 
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -31,10 +31,10 @@ extensions = [
     "recommonmark",
     "sphinx.ext.autosectionlabel",
     "sphinx_rtd_theme",
-    "sphinx.ext.napoleon"
+    "sphinx.ext.napoleon",
 ]
 
-#autoapi_dirs = ['../../datasetinsights']
+# autoapi_dirs = ['../../datasetinsights']
 
 source_suffix = {
     ".rst": "restructuredtext",
