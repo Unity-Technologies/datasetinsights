@@ -46,7 +46,3 @@ class Dataset(metaclass=ABCMeta):
     @abstractmethod
     def __len__(self):
         raise NotImplementedError("Subclass needs to implement this method")
-
-    @abstractmethod
-    def download(self, cloud_path):
-        raise NotImplementedError("Subclass needs to implement this method")
