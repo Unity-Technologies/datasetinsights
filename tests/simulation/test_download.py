@@ -13,12 +13,12 @@ from datasetinsights.data.download import (
     download_file,
     validate_checksum,
 )
+from datasetinsights.data.exceptions import ChecksumError
 from datasetinsights.data.simulation.download import (
     Downloader,
     DownloadError,
     _filter_unsuccessful_attempts,
 )
-from datasetinsights.data.exceptions import ChecksumError
 from datasetinsights.data.simulation.tables import FileType
 
 

@@ -39,11 +39,11 @@ def parse_args():
     return args
 
 
-def download(name, data_root, **kwargs):
+def download(name, data_root, version):
     # TODO this method should be refactored once we have clean download
     # CLI interface.
-    dataset = Dataset.create(name, data_root=data_root, **kwargs)
-    dataset.download()
+    dataset = Dataset.find(name)
+    dataset.download(data_root, version)
 
 
 if __name__ == "__main__":

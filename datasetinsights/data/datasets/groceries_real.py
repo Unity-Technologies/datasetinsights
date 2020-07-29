@@ -11,15 +11,12 @@ from PIL import Image
 
 import datasetinsights.constants as const
 from datasetinsights.data.bbox import BBox2D
-from datasetinsights.storage.gcs import download_file_from_gcs
-from datasetinsights.data.download import (
-    validate_checksum,
-    download_file,
-    compute_checksum,
-)
+from datasetinsights.data.download import download_file, validate_checksum
 from datasetinsights.data.exceptions import ChecksumError, DownloadError
+from datasetinsights.storage.gcs import download_file_from_gcs
 
 from .base import Dataset
+from .exceptions import DatasetError
 from .protos import string_int_label_map_pb2
 
 logger = logging.getLogger(__name__)
@@ -33,6 +30,10 @@ GroceriesRealTable = namedtuple(
 
 class GroceriesReal(Dataset):
     """Unity's Groceries Real Dataset.
+
+    During the class instantiation, it would check whehter the data is
+    downloaded or not. If there is no dataset, it would raise an error.
+    Please make sure you download the dataset before use this class.
 
     The dataset contain the following structures:
 
@@ -71,11 +72,10 @@ class GroceriesReal(Dataset):
             and 2D bounding box annotations.
         split_indices (list): A list of indices for this dataset split.
         label_mappings (dict): a dict of {label_id: label_name} mapping
-        version (str): version of GroceriesReal dataset, e.g. "v2", "v3".
+        version (str): version of GroceriesReal dataset, e.g. "v3".
         default version="v3".
     """
 
-    GCS_PATH = "data/groceries"
     LOCAL_PATH = "groceries"
     SPLITS = {
         "train": "groceries_real_train.txt",
@@ -140,7 +140,10 @@ class GroceriesReal(Dataset):
         self.version = version
         self.root = os.path.join(data_root, self.LOCAL_PATH)
         self.transforms = transforms
-        self.download()
+        if not os.path.isdir(os.path.join(self.root, f"{version}")):
+            raise DatasetError(
+                "Cannot find the dataset. Please download it first."
+            )
         self.annotations = self._load_annotations()
         self.split_indices = self._load_split_indices()
         self.label_mappings = self._load_label_mappings()
@@ -157,9 +160,7 @@ class GroceriesReal(Dataset):
         image_data = self.annotations[data_idx]
         image_filename = image_data["file_name"]
         annotations = image_data["annotations"]
-        image_filename = self._filepath(
-            os.path.join("images", image_filename)
-        )
+        image_filename = self._filepath(os.path.join("images", image_filename))
         image = Image.open(image_filename)
         bboxes = [self._convert_to_bbox2d(ann) for ann in annotations]
         if self.transforms:
@@ -175,7 +176,8 @@ class GroceriesReal(Dataset):
         """
         return os.path.join(self.root, self.version, filename)
 
-    def _download_http(self, source_uri, dest_path):
+    @staticmethod
+    def _download_http(source_uri, dest_path, version):
         """ Download dataset from Public HTTP URL.
 
         Args:
@@ -196,8 +198,8 @@ class GroceriesReal(Dataset):
                 f"be completed."
             )
             raise e
-        expected_checksum = self.GROCERIES_REAL_DATASET_TABLES[
-            self.version
+        expected_checksum = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[
+            version
         ].checksum
         try:
             validate_checksum(dest_path, expected_checksum)
@@ -214,35 +216,45 @@ class GroceriesReal(Dataset):
         with zipfile.ZipFile(dest_path, "r") as zip_dir:
             zip_dir.extractall(root_dir)
 
-    def download(self):
+    @staticmethod
+    def download(data_root, version):
         """ Download dataset from Public HTTP URL.
 
         If the file already exists and the checksum matches, it will skip the
         download step. If not, it would delete the previous file and download
         it again. If the file doesn't exist, it would download the file.
         """
-
-        dest_path = os.path.join(self.root, f"{self.version}.zip")
-        expected_checksum = self.GROCERIES_REAL_DATASET_TABLES[
-            self.version
+        valid_versions = tuple(
+            GroceriesReal.GROCERIES_REAL_DATASET_TABLES.keys()
+        )
+        if version not in valid_versions:
+            raise ValueError(
+                f"A valid dataset version should be set. "
+                f"Available versions are: {valid_versions}"
+            )
+        dest_path = os.path.join(
+            data_root, GroceriesReal.LOCAL_PATH, f"{version}.zip"
+        )
+        expected_checksum = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[
+            version
         ].checksum
+        extract_folder = os.path.join(data_root, GroceriesReal.LOCAL_PATH)
         if os.path.exists(dest_path):
             logger.info("The dataset file exists. Skip download.")
-            computed_checksum = compute_checksum(dest_path)
-            if computed_checksum == expected_checksum:
-                extract_folder = os.path.join(self.root, f"{self.version}")
-                if not os.path.exists(extract_folder):
-                    self._extract_file(dest_path, self.root)
-                return
-            else:
+            try:
+                validate_checksum(dest_path, expected_checksum)
+            except ChecksumError:
                 logger.info(
-                    "The previous downloaded dataset file is wrong. "
-                    "Remove previous file."
+                    "The checksum of the previous dataset mismatches. "
+                    "Delete the previously downloaded dataset."
                 )
                 os.remove(dest_path)
-        source_uri = self.GROCERIES_REAL_DATASET_TABLES[self.version].source_uri
-        self._download_http(source_uri, dest_path)
-        self._extract_file(dest_path, self.root)
+        if not os.path.exists(dest_path):
+            source_uri = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[
+                version
+            ].source_uri
+            GroceriesReal._download_http(source_uri, dest_path, version)
+        GroceriesReal._extract_file(dest_path, extract_folder)
 
     def _load_annotations(self):
         """Load annotation from annotations.json file
