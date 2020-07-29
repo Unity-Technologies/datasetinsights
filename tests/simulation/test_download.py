@@ -8,10 +8,10 @@ import pandas as pd
 import pytest
 import responses
 
+from datasetinsights.data.download import download_file
 from datasetinsights.data.simulation.download import (
     Downloader,
     DownloadError,
-    _download_file,
     _filter_unsuccessful_attempts,
 )
 from datasetinsights.data.simulation.tables import FileType
@@ -37,7 +37,7 @@ def test_download_file():
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         dest_path = os.path.join(tmp_dir, "test.txt")
-        _download_file(source_uri, dest_path, False)
+        download_file(source_uri, dest_path, False)
 
         assert os.path.exists(dest_path)
         assert open(dest_path, "rb").read() == body
@@ -49,13 +49,13 @@ def test_download_bad_request():
     responses.add(responses.GET, source_uri, status=403)
 
     with pytest.raises(DownloadError):
-        _download_file(source_uri, dest_path, False)
+        download_file(source_uri, dest_path, False)
 
 
 def test_download_rows(downloader):
     n_rows = len(downloader.manifest)
     with patch(
-        "datasetinsights.data.simulation.download._download_file"
+        "datasetinsights.data.simulation.download.download_file"
     ) as mocked_dl:
         matched_rows = pd.Series(np.zeros(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
@@ -63,7 +63,7 @@ def test_download_rows(downloader):
         mocked_dl.assert_not_called()
 
     with patch(
-        "datasetinsights.data.simulation.download._download_file"
+        "datasetinsights.data.simulation.download.download_file"
     ) as mocked_dl:
         matched_rows = pd.Series(np.ones(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
@@ -74,7 +74,7 @@ def test_download_rows(downloader):
 def test_download_all(downloader):
     n_rows = len(downloader.manifest)
     with patch(
-        "datasetinsights.data.simulation.download._download_file"
+        "datasetinsights.data.simulation.download.download_file"
     ) as mocked_dl:
         downloader.download_references()
         downloader.download_captures()

@@ -64,3 +64,7 @@ class KubeflowPipelineWriter(object):
             os.makedirs(self.filepath)
         with open(os.path.join(self.filepath, self.filename), "w") as f:
             json.dump(self.data, f)
+
+        logger.debug(
+            f"Metrics file {self.filename} saved at path:" f" {self.filepath}"
+        )
