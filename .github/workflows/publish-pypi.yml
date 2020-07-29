@@ -33,7 +33,7 @@ jobs:
         run: echo ::set-env name=RELEASE_VERSION::${GITHUB_REF#refs/*/}
       - name : Configure poetry
         shell: bash
-        run: poetry config pypitoken.testpypi $PYPI_TOKEN
+        run: poetry config pypi-token.testpypi $PYPI_TOKEN
       - name: Set poetry version
         shell: bash
         run: poetry version $RELEASE_VERSION
