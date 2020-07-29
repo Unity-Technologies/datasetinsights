@@ -11,7 +11,7 @@ import datasetinsights.constants as const
 from .configs import system
 from .data.datasets import Dataset
 from .estimators import Estimator
-from .storage.checkpoint import create_checkpointer
+from .storage.checkpoint import EstimatorCheckpoint
 from .storage.kfp_output import KubeflowPipelineWriter
 from .torch_distributed import get_world_size, init_distributed_mode, is_master
 
@@ -182,7 +182,11 @@ def run(command, cfg):
     kfp_writer = KubeflowPipelineWriter(
         filename=cfg.system.metricsfilename, filepath=cfg.system.metricsdir
     )
-    checkpointer = create_checkpointer(logdir=writer.logdir, config=cfg)
+    checkpointer = EstimatorCheckpoint(
+        estimator_name=cfg.estimator,
+        log_dir=writer.logdir,
+        distributed=cfg.system.distributed,
+    )
     estimator = Estimator.create(
         cfg.estimator,
         config=cfg,
