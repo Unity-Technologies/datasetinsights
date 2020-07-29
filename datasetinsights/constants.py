@@ -6,6 +6,9 @@ METRICS_DIR = os.path.join(PROJECT_ROOT, "metrics")
 METRICS_FILE_NAME = "mlpipeline-metrics.json"
 
 GCS_BUCKET = "thea-dev"
+GCS_BASE_STR = "gs://"
+HTTP_URL_BASE_STR = "http://"
+HTTPS_URL_BASE_STR = "https://"
 
 # This is a hack on yacs config system, as it does not allow null values
 # in configs. They are working on supporting null values in config
