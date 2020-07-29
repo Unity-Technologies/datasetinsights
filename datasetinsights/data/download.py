@@ -1,11 +1,12 @@
 import logging
+import zlib
 from pathlib import Path
 
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-from .exceptions import DownloadError
+from .exceptions import ChecksumError, DownloadError
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ def download_file(source_uri: str, dest_path: str, use_cache: bool = True):
         source_uri (str): source url where the file should be downloaded
         dest_path (str): destination path of the file
         use_cache (bool): use_cache (bool): use cache instead of
-                re-download if file exists
+        re-download if file exists
 
     Returns:
         String of destination path.
@@ -64,3 +65,46 @@ def download_file(source_uri: str, dest_path: str, use_cache: bool = True):
                 f.write(response.content)
 
     return dest_path
+
+
+def validate_checksum(filepath, expected_checksum, algorithm="CRC32"):
+    """ Validate checksum of the downloaded file.
+
+    Args:
+        filepath (str): the doaloaded file path
+        expected_checksum (int): expected checksum of the file
+        algorithm (str): checksum algorithm. Defaults to CRC32
+
+    Raises:
+        ChecksumError if the file checksum does not match.
+    """
+    computed = compute_checksum(filepath, algorithm)
+    if computed != expected_checksum:
+        raise ChecksumError
+
+
+def compute_checksum(filepath, algorithm="CRC32"):
+    """ Compute the checksum of a file.
+
+    Args:
+        filepath (str): the doaloaded file path
+        algorithm (str): checksum algorithm. Defaults to CRC32
+
+    Returns:
+        int: the checksum value
+    """
+    if algorithm == "CRC32":
+        chs = _crc32_checksum(filepath)
+    else:
+        raise ValueError("Unsupported checksum algorithm!")
+
+    return chs
+
+
+def _crc32_checksum(filepath):
+    """ Calculate the checksum of a file using CRC32.
+    """
+    with open(filepath, "rb") as f:
+        checksum = zlib.crc32(f.read())
+
+    return checksum
