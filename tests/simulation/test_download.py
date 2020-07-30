@@ -8,10 +8,15 @@ import pandas as pd
 import pytest
 import responses
 
+from datasetinsights.data.download import (
+    compute_checksum,
+    download_file,
+    validate_checksum,
+)
+from datasetinsights.data.exceptions import ChecksumError
 from datasetinsights.data.simulation.download import (
     Downloader,
     DownloadError,
-    _download_file,
     _filter_unsuccessful_attempts,
 )
 from datasetinsights.data.simulation.tables import FileType
@@ -28,7 +33,7 @@ def downloader():
 
 
 @responses.activate
-def test_download_file():
+def test_download_file_from_url():
     source_uri = "https://mock.uri"
     body = b"some test string here"
     responses.add(
@@ -37,7 +42,7 @@ def test_download_file():
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         dest_path = os.path.join(tmp_dir, "test.txt")
-        _download_file(source_uri, dest_path, False)
+        download_file(source_uri, dest_path, False)
 
         assert os.path.exists(dest_path)
         assert open(dest_path, "rb").read() == body
@@ -49,13 +54,13 @@ def test_download_bad_request():
     responses.add(responses.GET, source_uri, status=403)
 
     with pytest.raises(DownloadError):
-        _download_file(source_uri, dest_path, False)
+        download_file(source_uri, dest_path, False)
 
 
 def test_download_rows(downloader):
     n_rows = len(downloader.manifest)
     with patch(
-        "datasetinsights.data.simulation.download._download_file"
+        "datasetinsights.data.simulation.download.download_file"
     ) as mocked_dl:
         matched_rows = pd.Series(np.zeros(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
@@ -63,7 +68,7 @@ def test_download_rows(downloader):
         mocked_dl.assert_not_called()
 
     with patch(
-        "datasetinsights.data.simulation.download._download_file"
+        "datasetinsights.data.simulation.download.download_file"
     ) as mocked_dl:
         matched_rows = pd.Series(np.ones(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
@@ -74,7 +79,7 @@ def test_download_rows(downloader):
 def test_download_all(downloader):
     n_rows = len(downloader.manifest)
     with patch(
-        "datasetinsights.data.simulation.download._download_file"
+        "datasetinsights.data.simulation.download.download_file"
     ) as mocked_dl:
         downloader.download_references()
         downloader.download_captures()
@@ -154,3 +159,23 @@ def test_match_filetypes():
     ]
 
     assert Downloader.match_filetypes(manifest) == expected_filetypes
+
+
+def test_compute_checksum():
+    expected_checksum = 123456
+    with patch("datasetinsights.data.download._crc32_checksum") as mocked:
+        mocked.return_value = expected_checksum
+        computed = compute_checksum("filepath/not/important", "CRC32")
+        assert computed == expected_checksum
+
+    with pytest.raises(ValueError):
+        compute_checksum("filepath/not/important", "UNSUPPORTED_ALGORITHM")
+
+
+def test_validate_checksum():
+    expected_checksum = 123456
+    wrong_checksum = 123455
+    with patch("datasetinsights.data.download.compute_checksum") as mocked:
+        mocked.return_value = wrong_checksum
+        with pytest.raises(ChecksumError):
+            validate_checksum("filepath/not/important", expected_checksum)
