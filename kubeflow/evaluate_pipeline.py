@@ -39,9 +39,7 @@ def evaluate_pipeline(
         name="groceriesreal download",
         image=docker_image,
         command=["python", "-m", "datasetinsights.scripts.public_download"],
-        arguments=[
-            f"--name={data_name}",
-        ],
+        arguments=[f"--name={data_name}"],
         pvolumes={"/data": vop.volume},
     )
     # Memory limit of download run
