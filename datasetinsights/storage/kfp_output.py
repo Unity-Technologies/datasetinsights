@@ -66,7 +66,5 @@ class KubeflowPipelineWriter(object):
             json.dump(self.data, f)
 
         logger.debug(
-            "Metrics file {0} saved at path: {1}".format(
-                self.filename, self.filepath
-            )
+            f"Metrics file {self.filename} saved at path:" f" {self.filepath}"
         )
