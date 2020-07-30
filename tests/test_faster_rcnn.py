@@ -24,7 +24,7 @@ from datasetinsights.estimators.faster_rcnn import (
     create_dryrun_dataset,
     dataloader_creator,
 )
-from datasetinsights.storage.checkpoint import create_checkpointer
+from datasetinsights.storage.checkpoint import EstimatorCheckpoint
 
 tmp_dir = tempfile.TemporaryDirectory()
 tmp_name = tmp_dir.name
@@ -142,7 +142,11 @@ def test_faster_rcnn_train(mock_create, mock_loss, config, dataset):
     writer.add_scalars = MagicMock()
     writer.add_figure = MagicMock()
 
-    checkpointer = create_checkpointer(logdir=log_dir, config=config)
+    checkpointer = EstimatorCheckpoint(
+        estimator_name=config.estimator,
+        log_dir=log_dir,
+        distributed=config.system["distributed"],
+    )
     estimator = FasterRCNN(
         config=config,
         writer=writer,
@@ -253,7 +257,11 @@ def test_faster_rcnn_save(mock_create, config, dataset):
     config.system.logdir = log_dir
     kfp_writer = MagicMock()
     writer = MagicMock()
-    checkpointer = create_checkpointer(logdir=log_dir, config=config)
+    checkpointer = EstimatorCheckpoint(
+        estimator_name=config.estimator,
+        log_dir=log_dir,
+        distributed=config.system["distributed"],
+    )
     estimator = FasterRCNN(
         config=config,
         writer=writer,
@@ -278,7 +286,11 @@ def test_faster_rcnn_load(mock_create, config, dataset):
     config.system.logdir = log_dir
     kfp_writer = MagicMock()
     writer = SummaryWriter(config.system.logdir, write_to_disk=True)
-    checkpointer = create_checkpointer(logdir=writer.logdir, config=config)
+    checkpointer = EstimatorCheckpoint(
+        estimator_name=config.estimator,
+        log_dir=log_dir,
+        distributed=config.system["distributed"],
+    )
     estimator = FasterRCNN(
         config=config,
         writer=writer,
@@ -395,8 +407,10 @@ def test_faster_rcnn_predict(mock_create, config, dataset):
     config.checkpoint_file = ckpt_dir
     kfp_writer = MagicMock()
     writer = MagicMock()
-    checkpointer = create_checkpointer(
-        logdir=config.system.logdir, config=config
+    checkpointer = EstimatorCheckpoint(
+        estimator_name=config.estimator,
+        log_dir=config.system.logdir,
+        distributed=config.system["distributed"],
     )
     estimator = FasterRCNN(
         config=config,
