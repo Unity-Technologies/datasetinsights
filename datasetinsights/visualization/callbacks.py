@@ -1,6 +1,6 @@
-from datasetinsights.dashboard import app
 import datasetinsights.data.datasets.statistics as stat
 import datasetinsights.visualization.constants as constants
+from datasetinsights.dashboard import app
 from datasetinsights.visualization.plots import histogram_plot
 
 
