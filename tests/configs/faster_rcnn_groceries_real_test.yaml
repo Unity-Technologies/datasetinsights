@@ -1,0 +1,59 @@
+estimator: FasterRCNN
+backbone: resnet50
+num_classes: 64
+ut_num_classes: 2
+task: object_detection
+train:
+  epochs: 1
+  batch_size: 2
+  accumulation_steps: 2
+  log_frequency: 1
+  dataset:
+    name: GroceriesReal
+    args:
+      version: v3
+      split: train
+val:
+  batch_size: 8
+  dataset:
+    name: GroceriesReal
+    args:
+      version: v3
+      split: val
+test:
+  batch_size: 8
+  dataset:
+    name: GroceriesReal
+    args:
+      version: v3
+      split: test
+metrics:
+  AP:
+    name: AveragePrecisionBBox2D
+    args:
+      iou_threshold: .50
+      interpolation: NPointInterpolatedAP
+  AR:
+    name: AverageRecallBBox2D
+    args:
+      iou_threshold: .50
+      max_detections: 100
+optimizer:
+  name: Adam
+  args:
+    lr: 2.0e-4
+pretrained: False
+pretrained_backbone: True
+synchronize_metrics: True
+checkpoint_file: None
+system:
+  auth_token: None
+  data_root: /tmp
+  distributed: False
+  dryrun: True
+  gpus_per_node: 1
+  logdir: /tmp
+  no_cuda: False
+  val_interval: 1
+  verbose: False
+  workers: 0
