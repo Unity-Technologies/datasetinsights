@@ -11,6 +11,8 @@ MAX_MEMORY = "16Gi"
 )
 def evaluate_pipeline(
     num_proc: int = 1,
+    volume_size: str = "20G",
+    data_name: str = "GroceriesReal",
     test_split="test",
     logdir: str = "gs://thea-dev/runs/yyyymmdd-hhmm",
     docker_image: str = (
@@ -18,8 +20,35 @@ def evaluate_pipeline(
     ),
     checkpoint_file: str = "",
 ):
-    """Eval Pipeline
+    """Evaluate Pipeline
+
+    This is currently configured as a three-step pipeline. 1) Create
+    a persistent volume that can be used to store data. 2) Download
+    data for the pipeline. 3) Kick off evaluation jobs.s
     """
+    # Create large persistant volume to store training data.
+    vop = dsl.VolumeOp(
+        name="evaluate-pvc",
+        resource_name="evaluate-pvc",
+        size=volume_size,
+        modes=dsl.VOLUME_MODE_RWO,
+    )
+
+    # Dataset Download
+    download = dsl.ContainerOp(
+        name="groceriesreal download",
+        image=docker_image,
+        command=["python", "-m", "datasetinsights.scripts.public_download"],
+        arguments=[
+            f"--name={data_name}",
+        ],
+        pvolumes={"/data": vop.volume},
+    )
+    # Memory limit of download run
+    download.set_memory_limit(MAX_MEMORY)
+    # Use GCP Service Accounts to allow access to GCP resources
+    download.apply(gcp.use_gcp_secret("user-gcp-sa"))
+
     evaluate = dsl.ContainerOp(
         name="evaluate",
         image=docker_image,
@@ -39,6 +68,8 @@ def evaluate_pipeline(
             test_split,
         ],
         file_outputs={"mlpipeline-metrics": "/mlpipeline-metrics.json"},
+        # Refer to pvloume in previous step to explicitly call out dependency
+        pvolumes={"/data": download.pvolumes["/data"]},
     )
     # GPU limit here has to be hard coded integer instead of derived from
     # num_proc, otherwise it will fail kubeflow validation as it will create
