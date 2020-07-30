@@ -1,11 +1,13 @@
 import argparse
 import os
+
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
-from datasetinsights.visualization.app import app
+
 import datasetinsights.visualization.callbacks
 import datasetinsights.visualization.overview as overview
+from datasetinsights.visualization.app import app
 from datasetinsights.visualization.object_detection import (
     render_object_detection_layout,
 )

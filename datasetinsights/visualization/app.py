@@ -1,8 +1,10 @@
-import dash
 import os
+
+import dash
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 css_file = os.path.join(this_dir, "stylesheet.css")
-app = dash.Dash(__name__, external_stylesheets=[css_file],
-                suppress_callback_exceptions=True)
+app = dash.Dash(
+    __name__, external_stylesheets=[css_file], suppress_callback_exceptions=True
+)
 server = app.server

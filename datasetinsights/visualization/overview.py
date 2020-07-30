@@ -3,6 +3,7 @@ import dash_html_components as html
 
 import datasetinsights.data.datasets.statistics as stat
 import datasetinsights.visualization.constants as constants
+
 from .plots import bar_plot, histogram_plot
 
 
@@ -111,16 +112,16 @@ def html_overview(data_root):
                 ],
                 style={"columnCount": 2},
             ),
-            html.Div([
-                dcc.Dropdown(
-                    id="object_count_filter",
-                    options=[{"label": i, "value": i} for i in label_names],
-                    value=label_names[0],
-                ),
-                dcc.Graph(
-                    id="per_object_count_filter_graph",
-                ),
-            ])
+            html.Div(
+                [
+                    dcc.Dropdown(
+                        id="object_count_filter",
+                        options=[{"label": i, "value": i} for i in label_names],
+                        value=label_names[0],
+                    ),
+                    dcc.Graph(id="per_object_count_filter_graph",),
+                ]
+            ),
         ],
     )
     return overview_layout

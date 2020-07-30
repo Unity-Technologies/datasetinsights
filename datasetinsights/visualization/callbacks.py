@@ -1,11 +1,10 @@
+import __main__
+from dash.dependencies import Input, Output
+
 import datasetinsights.data.datasets.statistics as stat
 import datasetinsights.visualization.constants as constants
-import __main__
-
-from datasetinsights.visualization.plots import histogram_plot
-from dash.dependencies import Input, Output
 from datasetinsights.visualization.app import app
-
+from datasetinsights.visualization.plots import histogram_plot
 
 # @app.callback(
 #     Output("pixels_visible_filter_graph", "figure"),
@@ -37,7 +36,7 @@ from datasetinsights.visualization.app import app
 def update_object_counts_capture_figure(label_value):
     roinfo = stat.RenderedObjectInfo(
         data_root=__main__.data_root,
-        def_id=constants.RENDERED_OBJECT_INFO_DEFINITION_ID
+        def_id=constants.RENDERED_OBJECT_INFO_DEFINITION_ID,
     )
     filtered_object_count = roinfo.raw_table[
         roinfo.raw_table["label_name"] == label_value
