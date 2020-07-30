@@ -1,22 +1,14 @@
 import argparse
 import os
-
-import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
-
+from datasetinsights.visualization.app import app
 import datasetinsights.visualization.callbacks
 import datasetinsights.visualization.overview as overview
 from datasetinsights.visualization.object_detection import (
     render_object_detection_layout,
 )
-
-this_dir = os.path.dirname(os.path.abspath(__file__))
-css_file = os.path.join(this_dir, "stylesheet.css")
-
-app = dash.Dash(__name__, external_stylesheets=[css_file],)
-app.config.suppress_callback_exceptions = True
 
 
 def main_layout(data_root):
