@@ -1,49 +1,42 @@
 estimator: FasterRCNN
 backbone: resnet50
-num_classes: 65
+num_classes: 64
+ut_num_classes: 2
 task: object_detection
 train:
-  epochs: 50
-  batch_size: 8
-  accumulation_steps: 8
-  log_frequency: 30
+  epochs: 1
+  batch_size: 2
+  accumulation_steps: 2
+  log_frequency: 1
   dataset:
-    name: GoogleGroceriesReal
+    name: GroceriesReal
     args:
+      version: v3
       split: train
 val:
   batch_size: 8
   dataset:
-    name: GoogleGroceriesReal
+    name: GroceriesReal
     args:
-      split: test
+      version: v3
+      split: val
 test:
   batch_size: 8
   dataset:
-    name: GoogleGroceriesReal
+    name: GroceriesReal
     args:
+      version: v3
       split: test
 metrics:
-  mAP:
+  AP:
     name: AveragePrecisionBBox2D
     args:
-      iou_start: .50
-      iou_end: .95
-      iou_step: .05
+      iou_threshold: .50
       interpolation: NPointInterpolatedAP
-  AP_50IOU:
-    name: AveragePrecisionBBox2D
-    args:
-      iou_start: .50
-      iou_end: .50
-      iou_step: .05
-      interpolation: NPointInterpolatedAP
-  mAR:
+  AR:
     name: AverageRecallBBox2D
     args:
-      iou_start: .50
-      iou_end: .95
-      iou_step: .05
+      iou_threshold: .50
       max_detections: 100
 optimizer:
   name: Adam
@@ -53,3 +46,14 @@ pretrained: False
 pretrained_backbone: True
 synchronize_metrics: True
 checkpoint_file: None
+system:
+  auth_token: None
+  data_root: /tmp
+  distributed: False
+  dryrun: True
+  gpus_per_node: 1
+  logdir: /tmp
+  no_cuda: False
+  val_interval: 1
+  verbose: False
+  workers: 0
