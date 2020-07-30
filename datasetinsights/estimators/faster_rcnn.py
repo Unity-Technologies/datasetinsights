@@ -1,3 +1,5 @@
+"""faster rcnn pytorch train and evaluate."""
+
 import copy
 import logging
 import math
@@ -29,18 +31,23 @@ TEST = "test"
 
 class FasterRCNN(Estimator):
     """
+    Faster-RCNN train/evaluate implementation for object detection.
+
     https://github.com/pytorch/vision/tree/master/references/detection
     https://arxiv.org/abs/1506.01497
     Args:
         config (CfgNode): estimator config
         writer: Tensorboard writer object
+        kfp_writer: KubeflowPipelineWriter object to write logs
         checkpointer: Model checkpointer callback to save models
         device: model training on device (cpu|cuda)
-        local_rank (int): (optional) rank of process executing code
+        box_score_thresh: (optional) default threshold is 0.05
         gpu (int): (optional) gpu id on which code will execute
+        rank (int): (optional) rank of process executing code
     Attributes:
         model: pytorch model
         writer: Tensorboard writer object
+        kfp_writer: KubeflowPipelineWriter object
         checkpointer: Model checkpointer callback to save models
         device: model training on device (cpu|cuda)
     """
@@ -58,6 +65,7 @@ class FasterRCNN(Estimator):
         rank=0,
         **kwargs,
     ):
+        """initiate estimator."""
         logger.info(f"initializing faster rcnn")
         self.config = config
         self.device = device
@@ -96,9 +104,10 @@ class FasterRCNN(Estimator):
             self.model_without_ddp = self.model.module
 
     def train(self, **kwargs):
+        """start training, save trained model per epoch."""
         config = self.config
-        train_dataset = download_data(config, TRAIN)
-        val_dataset = download_data(config, VAL)
+        train_dataset = create_dataset(config, TRAIN)
+        val_dataset = create_dataset(config, VAL)
         label_mappings = train_dataset.label_mappings
         if self.config.system.dryrun:
             train_dataset = create_dryrun_dataset(config, train_dataset, TRAIN)
@@ -107,17 +116,17 @@ class FasterRCNN(Estimator):
         logger.info(f"length of train dataset is {len(train_dataset)}")
         logger.info(f"length of validation dataset is {len(val_dataset)}")
         is_distributed = config.system.distributed
-        train_sampler = create_sampler(
+        train_sampler = FasterRCNN.create_sampler(
             is_distributed=is_distributed, dataset=train_dataset, is_train=True
         )
-        val_sampler = create_sampler(
+        val_sampler = FasterRCNN.create_sampler(
             is_distributed=is_distributed, dataset=val_dataset, is_train=False
         )
 
-        train_loader = create_dataloader(
+        train_loader = dataloader_creator(
             config, train_dataset, train_sampler, TRAIN
         )
-        val_loader = create_dataloader(config, val_dataset, val_sampler, VAL)
+        val_loader = dataloader_creator(config, val_dataset, val_sampler, VAL)
         self.train_loop(
             train_dataloader=train_loader,
             label_mappings=label_mappings,
@@ -133,7 +142,8 @@ class FasterRCNN(Estimator):
         val_dataloader,
         train_sampler=None,
     ):
-        """ train on whole range of epochs
+        """train on whole range of epochs.
+
         Args:
             train_dataloader (torch.utils.data.DataLoader):
             label_mappings (dict): a dict of {label_id: label_name} mapping
@@ -141,7 +151,10 @@ class FasterRCNN(Estimator):
             train_sampler: (torch.utils.data.Sampler)
         """
         model = self.model.to(self.device)
-        optimizer, lr_scheduler = create_optimizer_lrs(self.config, model)
+        params = [p for p in model.parameters() if p.requires_grad]
+        optimizer, lr_scheduler = FasterRCNN.create_optimizer_lrs(
+            self.config, params
+        )
         accumulation_steps = self.config.train.get(
             "accumulation_steps", DEFAULT_ACCUMULATION_STEPS
         )
@@ -187,7 +200,7 @@ class FasterRCNN(Estimator):
         lr_scheduler,
         accumulation_steps,
     ):
-        """ train per epoch
+        """train per epoch.
 
         Args:
             optimizer: pytorch optimizer
@@ -248,21 +261,22 @@ class FasterRCNN(Estimator):
         loss_metric.reset()
 
     def evaluate(self, **kwargs):
+        """evaluate given dataset."""
         config = self.config
-        test_dataset = download_data(config, TEST)
+        test_dataset = create_dataset(config, TEST)
         label_mappings = test_dataset.label_mappings
         if self.config.system.dryrun:
             test_dataset = create_dryrun_dataset(config, test_dataset, TEST)
 
         is_distributed = config.system.distributed
-        test_sampler = create_sampler(
+        test_sampler = FasterRCNN.create_sampler(
             is_distributed=is_distributed, dataset=test_dataset, is_train=False
         )
 
         logger.info(f"length of test dataset is {len(test_dataset)}")
         logger.info("Start evaluating estimator: %s", type(self).__name__)
 
-        test_loader = create_dataloader(
+        test_loader = dataloader_creator(
             config, test_dataset, test_sampler, TEST
         )
         self.model.to(self.device)
@@ -285,8 +299,9 @@ class FasterRCNN(Estimator):
         is_distributed=False,
         synchronize_metrics=True,
     ):
-        """
-        Evaluate model performance. Note, torchvision's implementation of faster
+        """Evaluate model performance per epoch.
+
+        Note, torchvision's implementation of faster
         rcnn requires input and gt data for training mode and returns a
         dictionary of losses (which we need to record the loss). We also need to
         get the raw predictions, which is only possible in model.eval() mode,
@@ -349,7 +364,7 @@ class FasterRCNN(Estimator):
         torch.set_num_threads(n_threads)
 
     def log_metric_val(self, label_mappings, epoch):
-        """ log metric values
+        """log metric values.
 
         Args:
             label_mappings (dict): a dict of {label_id: label_name} mapping
@@ -381,7 +396,7 @@ class FasterRCNN(Estimator):
             self.writer.add_figure(f"{metric_name}-per-class", fig, epoch)
 
     def save(self, path):
-        """ Serialize Estimator to path
+        """Serialize Estimator to path.
 
         Args:
             path (str): full path to save serialized estimator
@@ -398,7 +413,7 @@ class FasterRCNN(Estimator):
         return path
 
     def load(self, path):
-        """ Load Estimator from path
+        """Load Estimator from path.
 
         Args:
             path (str): full path to the serialized estimator
@@ -419,7 +434,7 @@ class FasterRCNN(Estimator):
         self.model_without_ddp.eval()
 
     def predict(self, pil_img, box_score_thresh=0.5):
-        """ Get prediction from one image using loaded model
+        """Get prediction from one image using loaded model.
 
         Args:
             pil_img (PIL Image): PIL image from dataset.
@@ -439,16 +454,97 @@ class FasterRCNN(Estimator):
         ]
         return filtered_pred_annotations
 
+    @staticmethod
+    def create_sampler(is_distributed, *, dataset, is_train):
+        """create sample of data.
+
+        Args:
+            is_distributed: whether or not the model is distributed
+            dataset: dataset obj must have len and __get_item__
+            is_train: whether or not the sampler is for training data
+
+        Returns:
+            data_sampler: (torch.utils.data.Sampler)
+
+        """
+        if is_distributed:
+            sampler = torch.utils.data.distributed.DistributedSampler(
+                dataset, shuffle=is_train
+            )
+        elif is_train:
+            sampler = torch.utils.data.RandomSampler(dataset)
+        else:
+            sampler = torch.utils.data.SequentialSampler(dataset)
+
+        return sampler
+
+    @staticmethod
+    def create_optimizer_lrs(config, params):
+        """create optimizer and learning rate scheduler.
+
+        Args:
+            config: (CfgNode): estimator config:
+            params: model parameters
+        Returns:
+            optimizer: pytorch optimizer
+            lr_scheduler: pytorch LR scheduler
+
+        """
+        if config.optimizer.name == "Adam":
+            optimizer = torch.optim.Adam(params, **config.optimizer.args)
+
+            # use fixed learning rate when using Adam
+            lr_scheduler = torch.optim.lr_scheduler.LambdaLR(
+                optimizer, lambda x: 1.0
+            )
+        elif config.optimizer.name == "SGD":
+            optimizer = torch.optim.SGD(
+                params,
+                lr=config.optimizer.args.lr,
+                momentum=config.optimizer.args.momentum,
+                weight_decay=float(config.optimizer.args.weight_decay),
+            )
+            lr_scheduler = torch.optim.lr_scheduler.StepLR(
+                optimizer,
+                step_size=config.optimizer.args.lr_step_size,
+                gamma=config.optimizer.args.lr_gamma,
+            )
+        else:
+            raise ValueError(
+                f"only valid optimizers are 'SGD' and 'Adam' but "
+                f"received paramater {config.optimizer.name}"
+            )
+        return optimizer, lr_scheduler
+
+    @staticmethod
+    def get_transform():
+        """transform bounding box and tesnor."""
+        transforms = [BoxListToTensor(), ToTensor()]
+        return Compose(transforms)
+
+    @staticmethod
+    def collate_fn(batch):
+        """Prepare batch to be format Faster RCNN expects.
+
+        Args:
+            batch: mini batch of the form ((x0,x1,x2...xn),(y0,y1,y2...yn))
+
+        Returns:
+            mini batch in the form [(x0,y0), (x1,y2), (x2,y2)... (xn,yn)]
+        """
+        return tuple(zip(*batch))
+
 
 def create_dryrun_dataset(config, dataset, split):
-    """
-    create dataset with very small no of images
+    """create dataset with very small no of images.
+
     Args:
         config: (CfgNode): estimator config:
         dataset: dataset obj must have len and __get_item__
         split: train, val, test
 
-    Returns dataset: Subset dataset
+    Returns:
+        Subset dataset
 
     """
     r = np.random.default_rng()
@@ -457,9 +553,9 @@ def create_dryrun_dataset(config, dataset, split):
     return dataset
 
 
-def download_data(config, split):
-    """
-    download dataset from source
+def create_dataset(config, split):
+    """download dataset from source.
+
     Args:
         config: (CfgNode): estimator config:
         split: train, val, test
@@ -470,37 +566,13 @@ def download_data(config, split):
     dataset = Dataset.create(
         config[split].dataset.name,
         data_root=config.system.data_root,
-        transforms=get_transform(),
+        transforms=FasterRCNN.get_transform(),
         **config[split].dataset.args,
     )
     return dataset
 
 
-def create_sampler(is_distributed, *, dataset, is_train):
-    """ create sample of data
-    Args:
-        is_distributed: whether or not the model is distributed
-        dataset: dataset obj must have len and __get_item__
-        is_train: whether or not the sampler is for training data
-
-    Returns:
-        data_sampler: (torch.utils.data.Sampler)
-
-    """
-    if is_distributed:
-        sampler = torch.utils.data.distributed.DistributedSampler(
-            dataset, shuffle=is_train
-        )
-
-    else:
-        if is_train:
-            sampler = torch.utils.data.RandomSampler(dataset)
-        else:
-            sampler = torch.utils.data.SequentialSampler(dataset)
-    return sampler
-
-
-def load_data(
+def create_dataloader(
     config,
     dataset,
     sampler,
@@ -510,8 +582,8 @@ def load_data(
     num_workers=0,
     collate_fn=None,
 ):
-    """
-    load dataset and create dataloader
+    """load dataset and create dataloader.
+
     Args:
         config: (CfgNode): estimator config:
         dataset: dataset obj must have len and __get_item__
@@ -520,7 +592,8 @@ def load_data(
         batch_size: batch_size
         num_workers: num_workers
         collate_fn: Prepare batch to be format Faster RCNN expects
-    Returns data_loader: torch.utils.data.DataLoader
+    Returns data_loader:
+        torch.utils.data.DataLoader
 
     """
     if config.system.distributed:
@@ -559,96 +632,60 @@ def load_data(
         return data_loader
 
 
-def create_dataloader(config, dataset, sampler, split):
-    """
-    initiate data loading
+def dataloader_creator(config, dataset, sampler, split):
+    """initiate data loading.
+
     Args:
         config: (CfgNode): estimator config:
         dataset: dataset obj must have len and __get_item__
         sampler: (torch.utils.data.Sampler)
         split: train, val, test
-    Returns data_loader: torch.utils.data.DataLoader
+    Returns data_loader:
+        torch.utils.data.DataLoader
 
     """
     is_train = False
     if split == TRAIN:
         is_train = True
-    dataloader = load_data(
+    dataloader = create_dataloader(
         config=config,
         dataset=dataset,
         batch_size=config[split].batch_size,
         sampler=sampler,
-        collate_fn=collate_fn,
+        collate_fn=FasterRCNN.collate_fn,
         train=is_train,
     )
     return dataloader
 
 
-def create_optimizer_lrs(config, model):
-    """
-    creates optimizer and learning rate scheduler
-    Args:
-        config: (CfgNode): estimator config:
-        model: pytorch model
-    Returns:
-        optimizer: pytorch optimizer
-        lr_scheduler: pytorch LR scheduler
-
-    """
-    params = [p for p in model.parameters() if p.requires_grad]
-    if config.optimizer.name == "Adam":
-        optimizer = torch.optim.Adam(params, **config.optimizer.args)
-
-        # use fixed learning rate when using Adam
-        lr_scheduler = torch.optim.lr_scheduler.LambdaLR(
-            optimizer, lambda x: 1.0
-        )
-    elif config.optimizer.name == "SGD":
-        optimizer = torch.optim.SGD(
-            params,
-            lr=config.optimizer.args.lr,
-            momentum=config.optimizer.args.momentum,
-            weight_decay=float(config.optimizer.args.weight_decay),
-        )
-        lr_scheduler = torch.optim.lr_scheduler.StepLR(
-            optimizer,
-            step_size=config.optimizer.args.lr_step_size,
-            gamma=config.optimizer.args.lr_gamma,
-        )
-    else:
-        raise ValueError(
-            f"only valid optimizers are 'SGD' and 'Adam' but "
-            f"received paramater {config.optimizer.name}"
-        )
-    return optimizer, lr_scheduler
-
-
 class BadLoss(Exception):
+    """pass the exception."""
+
     pass
 
 
 class Loss:
-    """
-    Record Loss during epoch
-    """
+    """Record Loss during epoch."""
 
     def __init__(self):
+        """initiate loss."""
         self._sum = 0
         self.num_examples = 0
 
     def reset(self):
+        """reset loss."""
         self._sum = 0
         self.num_examples = 0
 
     def update(self, avg_loss, batch_size):
+        """update loss."""
         self._sum += avg_loss * batch_size
         self.num_examples += batch_size
 
     def compute(self):
-        """
+        """compute avg loss.
 
         Returns (float): avg. loss
-
         """
         if self.num_examples == 0:
             raise ValueError(
@@ -659,13 +696,13 @@ class Loss:
 
 
 def convert_bboxes2canonical(bboxes):
-    """
+    """convert bounding boxes to canonical.
+
     convert bounding boxes from the format used by pytorch torchvision's
     faster rcnn model into our canonical format, a list of list of BBox2Ds.
     Faster RCNN format:
     https://github.com/pytorch/vision/blob/master/torchvision/models/
     detection/faster_rcnn.py#L45
-
     Args:
         bboxes (List[Dict[str, torch.Tensor()): A list of dictionaries. Each
         item in the list corresponds to the bounding boxes for one example.
@@ -677,8 +714,9 @@ def convert_bboxes2canonical(bboxes):
         `scores` then these values are used for the confidence score of the
         BBox2D, otherwise the score is set to 1.
 
-    Returns (list[List[BBox2D]]): Each element in the list corresponds to the
-    list of bounding boxes for an example.
+    Returns (list[List[BBox2D]]):
+        Each element in the list corresponds to the
+        list of bounding boxes for an example.
 
     """
     bboxes_batch = []
@@ -708,14 +746,16 @@ def convert_bboxes2canonical(bboxes):
 
 
 def reduce_dict(input_dict, average=True):
-    """
+    """Reduce the values in dictionary.
+
     Reduce the values in the dictionary from all processes so that all processes
     have the averaged results.
     Args:
         input_dict (dict): all the values will be reduced
         average (bool): whether to do average or sum
 
-    Return: dict with the same fields as input_dict, after reduction.
+    Return:
+        dict with the same fields as input_dict, after reduction.
     """
     world_size = get_world_size()
     if world_size < 2:
@@ -746,7 +786,8 @@ def prepare_bboxes(bboxes: List[BBox2D]) -> Dict[str, torch.Tensor]:
         'boxes': [[xleft, ytop, xright, ybottom of box1],
         [xleft, ytop, xright, ybottom of box2]...]
 
-    Returns: bounding boxes in the form that Faster RCNN expects
+    Returns:
+        bounding boxes in the form that Faster RCNN expects
     """
     labels = []
     box_list = []
@@ -765,24 +806,26 @@ def prepare_bboxes(bboxes: List[BBox2D]) -> Dict[str, torch.Tensor]:
 
 
 def canonical2list(bbox: BBox2D):
-    """
-    convert a BBox2d into a single list
+    """convert a BBox2d into a single list.
+
     Args:
         bbox:
 
-    Returns: attribute list of BBox2D
+    Returns:
+        attribute list of BBox2D
 
     """
     return [bbox.label, bbox.score, bbox.x, bbox.y, bbox.w, bbox.h]
 
 
 def list2canonical(box_list):
-    """
-    convert a list into a Bbox2d
+    """convert a list into a Bbox2d.
+
     Args:
         box_list: box represented in list format
 
-    Returns (BBox2d):
+    Returns:
+        BBox2d
 
     """
     return BBox2D(
@@ -796,11 +839,12 @@ def list2canonical(box_list):
 
 
 def list3d_2canonical(batch):
-    """
+    """convert 3d list to canonical.
+
     convert a list of list of padded targets and predictions per examples where
     bounding boxes are represented by lists into the same format except
     the boxes are represented by the BBox2d class and the padded boxes are
-    removed
+    removed.
     Args:
         batch: [[[gt], [prds]], [[gt], [prds]], ] where gt and prds are list
         of lists
@@ -831,9 +875,10 @@ def pad_box_lists(
     gt_preds: List[Tuple[List[BBox2D], List[BBox2D]]],
     max_boxes_per_img=MAX_BOXES_PER_IMAGE,
 ):
-    """
+    """Pad the list of boxes.
+
     Pad the list of boxes and targets with place holder boxes so that all
-    targets and predictions have the same number of elements
+    targets and predictions have the same number of elements.
     Args:
         gt_preds (list(tuple(list(BBox2d), (Bbox2d)))): A list of tuples where
         the first element in each tuple is a list of bounding boxes
@@ -872,7 +917,7 @@ def pad_box_lists(
 
 
 def _gt_preds2tensor(gt_preds, max_boxes=MAX_BOXES_PER_IMAGE):
-    """
+    """convert prediction result to tensor.
 
     Args:
         gt_preds (list(tuple(list(BBox2d), (Bbox2d)))): A list of tuples where
@@ -900,7 +945,7 @@ def _gt_preds2tensor(gt_preds, max_boxes=MAX_BOXES_PER_IMAGE):
 
 
 def gather_gt_preds(*, gt_preds, device, max_boxes=MAX_BOXES_PER_IMAGE):
-    """
+    """gather list of prediction.
 
     Args:
         gt_preds (list(tuple(list(BBox2d), (Bbox2d)))): A list of tuples where
@@ -918,7 +963,6 @@ def gather_gt_preds(*, gt_preds, device, max_boxes=MAX_BOXES_PER_IMAGE):
     function will return [([box_0], []), ([box_1], [box_2, box_2.5]), ([],
     [box_3]), ([box_4, box_5], [])] the returned list is consistent across all
     processes
-
     """
     gt_preds_tensor = _gt_preds2tensor(gt_preds, max_boxes)
 
@@ -932,9 +976,10 @@ def gather_gt_preds(*, gt_preds, device, max_boxes=MAX_BOXES_PER_IMAGE):
 
 
 def tensorlist2canonical(tensor_list):
-    """
+    """convert tensorlist to canonical.
+
     Converts the gt and predictions into the canonical format and removes
-    the boxes with nan values that were added for padding
+    the boxes with nan values that were added for padding.
     Args:
         tensor_list: [tensor([[gt, prds]), tensor([gt, prds])], ...]
 
@@ -951,15 +996,16 @@ def tensorlist2canonical(tensor_list):
 
 
 def metric_per_class_plot(metric_name, data, label_mappings, figsize=(20, 10)):
-    """
-    Bar plot for metric per class.
+    """Bar plot for metric per class.
+
     Args:
         metric_name (str): metric name.
         data (dict): a dictionary of metric per label.
         label_mappings (dict): a dict of {label_id: label_name} mapping
         figsize (tuple): figure size of the plot. Default is (20, 10)
 
-    Returns (matplotlib.pyplot.figure): a bar plot for metric per class.
+    Returns (matplotlib.pyplot.figure):
+        a bar plot for metric per class.
     """
     label_id = [k for k in sorted(data.keys()) if k in label_mappings]
     metric_values = [data[i] for i in label_id]
@@ -977,30 +1023,19 @@ def metric_per_class_plot(metric_name, data, label_mappings, figsize=(20, 10)):
     return fig
 
 
-class PrepBoxes:
+class BoxListToTensor:
+    """transform to bboxes to Tensor."""
+
     def __call__(self, image, target):
+        """transform target to bboxes."""
         target = prepare_bboxes(target)
         return image, target
 
 
 class ToTensor:
+    """transform to tesnor."""
+
     def __call__(self, image, target):
+        """transform image to tesnor."""
         image = torchvision.transforms.functional.to_tensor(image)
         return image, target
-
-
-def get_transform():
-    transforms = [PrepBoxes(), ToTensor()]
-    return Compose(transforms)
-
-
-def collate_fn(batch):
-    """
-    Prepare batch to be format Faster RCNN expects
-    Args:
-        batch: mini batch of the form ((x0,x1,x2...xn),(y0,y1,y2...yn))
-
-    Returns:
-        mini batch in the form [(x0,y0), (x1,y2), (x2,y2)... (xn,yn)]
-    """
-    return tuple(zip(*batch))

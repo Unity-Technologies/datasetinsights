@@ -1,3 +1,5 @@
+"""unit test case for frcnn util."""
+
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -5,9 +7,9 @@ import torch
 
 from datasetinsights.data.bbox import BBox2D
 from datasetinsights.estimators.faster_rcnn import (
+    FasterRCNN,
     _gt_preds2tensor,
     canonical2list,
-    collate_fn,
     convert_bboxes2canonical,
     gather_gt_preds,
     list2canonical,
@@ -25,6 +27,7 @@ padding_box = BBox2D(
 
 
 def test_pad_box_lists():
+    """test pad box lists."""
     box_a, box_b = (
         BBox2D(label=0, x=10, y=10, w=10, h=10),
         BBox2D(label=1, x=20, y=20, w=10, h=10),
@@ -62,6 +65,7 @@ def test_pad_box_lists():
 
 
 def test_list3d_2canonical():
+    """test list 3d  to canonical."""
     box_a, box_b = (
         BBox2D(label=0, x=10, y=10, w=10, h=10),
         BBox2D(label=1, x=20, y=20, w=10, h=10),
@@ -127,6 +131,7 @@ def test_list3d_2canonical():
 
 
 def test_gt_preds2tensor():
+    """test prediction to tensor conversion."""
     box_a, box_b = (
         BBox2D(label=0, x=10, y=10, w=10, h=10),
         BBox2D(label=1, x=20, y=20, w=10, h=10),
@@ -194,11 +199,13 @@ def test_gt_preds2tensor():
 
 
 def test_convert_empty():
+    """test convert empty."""
     targets = prepare_bboxes([])
     assert len(targets["boxes"]) < 1
 
 
 def _same_dict(expected, actual):
+    """test same dict."""
     assert len(expected.keys()) == len(actual.keys())
     for k in expected.keys():
         expected_tensor = expected[k]
@@ -208,6 +215,7 @@ def _same_dict(expected, actual):
 
 
 def _same_dict_list(expected, actual):
+    """test same dict list."""
     assert len(expected) == len(actual)
     for i in range(len(expected)):
         _same_dict(expected[i], actual[i])
@@ -215,6 +223,7 @@ def _same_dict_list(expected, actual):
 
 
 def test_convert2torchvision_format():
+    """test convert  to torchvision format."""
     boxes = [
         BBox2D(label=0, x=10, y=10, w=10, h=10),
         BBox2D(label=1, x=20, y=20, w=10, h=10),
@@ -230,6 +239,7 @@ def test_convert2torchvision_format():
 
 
 def same_list_of_list_of_bboxes(l_1, l_2):
+    """test same list of list of bboxes."""
     assert len(l_1) == len(l_2)
     for i in range(len(l_1)):
         assert len(l_1[i]) == len(l_2[i])
@@ -239,6 +249,7 @@ def same_list_of_list_of_bboxes(l_1, l_2):
 
 
 def test_convert2canonical():
+    """test convert to canonical."""
     boxes_rcnn_format = [
         {
             "boxes": torch.Tensor(
@@ -259,6 +270,7 @@ def test_convert2canonical():
 
 
 def test_convert2canonical_batch():
+    """test convert to canonical batch."""
     boxes_rcnn_format = [
         {
             "boxes": torch.Tensor([[10.0, 10, 20, 20], [20, 20, 30, 30]]),
@@ -285,6 +297,7 @@ def test_convert2canonical_batch():
 
 @patch("datasetinsights.estimators.faster_rcnn.get_world_size")
 def test_reduce_dict_non_dist(test_patch):
+    """test reduce dict non dist."""
     input_dict = {
         "loss_classifier": np.nan,
         "loss_box_reg": np.nan,
@@ -299,6 +312,7 @@ def test_reduce_dict_non_dist(test_patch):
 @patch("datasetinsights.estimators.faster_rcnn.get_world_size")
 @patch("datasetinsights.estimators.faster_rcnn.dist.all_reduce")
 def test_reduce_dict_dist(mock_all_reduce, mock_get_world_size):
+    """test reduce dict dist."""
     input_dict = {
         "loss_classifier": torch.Tensor([0.4271]),
         "loss_box_reg": torch.Tensor([0.4271]),
@@ -333,6 +347,7 @@ def test_reduce_dict_dist(mock_all_reduce, mock_get_world_size):
 
 
 def test_canonical2list():
+    """test canonical to list."""
     bbox = BBox2D(label=0, x=10, y=10, w=10, h=10)
     actual_result = canonical2list(bbox)
     expected_result = [0, 1.0, 10, 10, 10, 10]
@@ -340,6 +355,7 @@ def test_canonical2list():
 
 
 def test_list2canonical():
+    """test list to canonical."""
     input_list = [0, 1.0, 10, 10, 10, 10]
     actual_result = list2canonical(input_list)
 
@@ -358,6 +374,7 @@ def test_list2canonical():
 @patch("datasetinsights.estimators.faster_rcnn.get_world_size")
 @patch("datasetinsights.estimators.faster_rcnn.dist.all_gather")
 def test_gather_gt_preds(mock_all_gather, mock_get_world_size):
+    """test gather preds."""
     box_a, box_b = (
         BBox2D(label=0, x=10, y=10, w=10, h=10),
         BBox2D(label=1, x=20, y=20, w=10, h=10),
@@ -377,6 +394,7 @@ def test_gather_gt_preds(mock_all_gather, mock_get_world_size):
 
 
 def test_tensorlist2canonical():
+    """test tensor list to canonical."""
     input_tensor = torch.Tensor(
         [
             [
@@ -437,6 +455,7 @@ def test_tensorlist2canonical():
 
 @patch("datasetinsights.estimators.faster_rcnn.plt")
 def test_metric_per_class_plot(mock_plt):
+    """test metric per class plot."""
     label_mappings = {
         "0": "",
         "1": "book_dorkdiaries_aladdin",
@@ -465,7 +484,8 @@ def test_metric_per_class_plot(mock_plt):
 
 
 def test_collate_fn():
+    """test collate fn."""
     input_tupple = (("x0", "x1", "x2", "xn"), ("y0", "y1", "y2", "yn"))
-    actual_result = collate_fn(input_tupple)
+    actual_result = FasterRCNN.collate_fn(input_tupple)
     expected_result = (("x0", "y0"), ("x1", "y1"), ("x2", "y2"), ("xn", "yn"))
     assert actual_result == expected_result
