@@ -94,12 +94,10 @@ class AveragePrecisionBBox2D(EvaluationMetric):
         ap_records = collections.defaultdict(dict)
         label_records = self.label_records
         for iou in self.iou_thresholds:
-            average_precision = {}
-
             for label in self.gt_bboxes_count:
                 # if there are no predicted boxes with this label
                 if label not in label_records[iou]:
-                    average_precision[label] = 0
+                    ap_records[label][iou] = 0
                     continue
                 pred_infos = label_records[iou][label].pred_infos
                 gt_bboxes_count = self.gt_bboxes_count[label]
@@ -114,21 +112,20 @@ class AveragePrecisionBBox2D(EvaluationMetric):
                 recall = acc_tp / gt_bboxes_count
                 precision = np.divide(acc_tp, (acc_fp + acc_tp))
                 ap = self.ap_method(recall, precision)
-                # add class result in the dictionary to be returned
-                average_precision[label] = ap
-            ap_records[iou] = average_precision
-        sum_ap = 0
-        for iou in self.iou_thresholds:
+
+                ap_records[label][iou] = ap
+
+        results = collections.defaultdict(float)
+        for label in ap_records:
             mean_result = np.mean(
                 [
                     result_per_label
-                    for result_per_label in ap_records[iou].values()
+                    for result_per_label in ap_records[label].values()
                 ]
             )
-            sum_ap += mean_result
-        mean_ap = sum_ap / len(self.iou_thresholds)
+            results[label] = mean_result
 
-        return mean_ap
+        return results
 
     @staticmethod
     def label_bboxes(pred_bboxes):

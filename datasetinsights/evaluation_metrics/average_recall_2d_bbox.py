@@ -85,12 +85,10 @@ class AverageRecallBBox2D(EvaluationMetric):
         ar_records = collections.defaultdict(dict)
         label_records = self.label_records
         for iou in self.iou_thresholds:
-            average_recall = {}
-
             for label in self.gt_bboxes_count:
                 # if there are no predicted boxes with this label
                 if label not in label_records[iou]:
-                    average_recall[label] = 0
+                    ar_records[label][iou] = 0
                     continue
 
                 pred_infos = label_records[iou][label].pred_infos
@@ -98,23 +96,21 @@ class AverageRecallBBox2D(EvaluationMetric):
 
                 # The number of TP
                 sum_tp = sum(list(zip(*pred_infos))[1])
-
                 max_recall = sum_tp / gt_bboxes_count
 
-                average_recall[label] = max_recall
-            ar_records[iou] = average_recall
-        sum_ar = 0
-        for iou in self.iou_thresholds:
+                ar_records[label][iou] = max_recall
+
+        results = collections.defaultdict(float)
+        for label in ar_records:
             mean_result = np.mean(
                 [
                     result_per_label
-                    for result_per_label in ar_records[iou].values()
+                    for result_per_label in ar_records[label].values()
                 ]
             )
-            sum_ar += mean_result
-        mean_ar = sum_ar / len(self.iou_thresholds)
+            results[label] = mean_result
 
-        return mean_ar
+        return results
 
     @staticmethod
     def label_bboxes(pred_bboxes, max_detections):
