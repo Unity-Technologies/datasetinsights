@@ -1,6 +1,6 @@
+import __main__
 from dash.dependencies import Input, Output
 
-import __main__
 import datasetinsights.data.datasets.statistics as stat
 import datasetinsights.visualization.constants as constants
 from datasetinsights.visualization.app import app
