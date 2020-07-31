@@ -3,8 +3,12 @@ import dash_html_components as html
 
 import datasetinsights.data.datasets.statistics as stat
 import datasetinsights.visualization.constants as constants
-
+from .app import get_app
 from .plots import bar_plot, histogram_plot
+
+
+app = get_app()
+RENDERED_OBJECT_INFO_DEFINITION_ID = "659c6e36-f9f8-4dd6-9651-4a80e51eabc4"
 
 
 def generate_total_counts_figure(roinfo):
@@ -144,3 +148,75 @@ def html_overview(data_root):
         ],
     )
     return overview_layout
+
+
+@app.callback(
+    Output("pixels_visible_filter_graph", "figure"),
+    [Input("pixels_visible_filter", "value")],
+)
+def update_visible_pixels_figure(label_value):
+    """ Method for generating pixels visible histogram for selected object.
+
+    Args:
+        label_value (str): value selected by user using drop-down
+
+    Returns:
+        plotly.graph_objects.Figure: displays visible pixels distribution.
+
+    """
+    roinfo = stat.RenderedObjectInfo(
+        data_root=__main__.data_root,
+        def_id=constants.RENDERED_OBJECT_INFO_DEFINITION_ID,
+    )
+    filtered_roinfo = roinfo.raw_table[
+        roinfo.raw_table["label_name"] == label_value
+    ][["visible_pixels"]]
+    filtered_figure = histogram_plot(
+        filtered_roinfo,
+        x="visible_pixels",
+        x_title="Visible Pixels For " + str(label_value),
+        y_title="Frequency",
+        title="Distribution of Visible Pixels For " + str(label_value),
+        max_samples=constants.MAX_SAMPLES,
+    )
+    return filtered_figure
+
+
+@app.callback(
+    Output("per_object_count_filter_graph", "figure"),
+    [Input("object_count_filter", "value")],
+)
+def update_object_counts_capture_figure(label_value):
+    """ Method for generating object count per capture histogram for selected
+        object.
+
+    Args:
+        label_value (str): value selected by user using drop-down
+
+    Returns:
+        plotly.graph_objects.Figure: displays object count distribution.
+
+    """
+    roinfo = stat.RenderedObjectInfo(
+        data_root=__main__.data_root,
+        def_id=constants.RENDERED_OBJECT_INFO_DEFINITION_ID,
+    )
+    filtered_object_count = roinfo.raw_table[
+        roinfo.raw_table["label_name"] == label_value
+    ]
+    filtered_object_count = (
+        filtered_object_count.groupby(["capture_id"])
+        .size()
+        .to_frame(name="count")
+        .reset_index()
+    )
+    filtered_figure = histogram_plot(
+        filtered_object_count,
+        x="count",
+        x_title="Object Counts Per Capture For " + str(label_value),
+        y_title="Frequency",
+        title="Distribution of Object Counts Per Capture For "
+        + str(label_value),
+        max_samples=constants.MAX_SAMPLES,
+    )
+    return filtered_figure

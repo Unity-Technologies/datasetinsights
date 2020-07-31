@@ -7,12 +7,13 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 
 import datasetinsights.visualization.overview as overview
-from datasetinsights.visualization.app import app
+from datasetinsights.visualization.app import get_app
 from datasetinsights.visualization.object_detection import (
     render_object_detection_layout,
 )
 
-import datasetinsights.visualization.callbacks  # isort:skip
+
+app = get_app()
 
 
 def main_layout(data_root):
