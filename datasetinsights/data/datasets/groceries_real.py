@@ -21,7 +21,7 @@ from .protos import string_int_label_map_pb2
 
 logger = logging.getLogger(__name__)
 PUBLIC_GROCERIES_REAL_PATH = (
-    "https://storage.googleapis.com/datasetinsights_public/data/groceries"
+    "https://storage.googleapis.com/datasetinsights/data/groceries"
 )
 GroceriesRealTable = namedtuple(
     "GroceriesRealTable", ("version", "filename", "source_uri", "checksum")
