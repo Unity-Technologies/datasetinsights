@@ -51,7 +51,11 @@ class AnnotationDefinitions:
         for def_file in glob(data_root, self.FILE_PATTERN):
             definition = load_table(def_file, self.TABLE_NAME, version)
             definitions.append(definition)
-        combined = pd.concat(definitions, axis=0).drop_duplicates(subset="id")
+
+        if definitions:
+            combined = pd.concat(definitions, axis=0).drop_duplicates(subset="id")
+        else:
+            combined = pd.DataFrame({})
 
         return combined
 
