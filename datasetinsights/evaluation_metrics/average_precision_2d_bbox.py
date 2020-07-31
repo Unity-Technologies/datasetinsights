@@ -20,10 +20,12 @@ class AveragePrecisionBBox2D(EvaluationMetric):
         ap_method (string): AP interoperation method name for AP calculation
         {"EveryPointInterpolation"| "NPointInterpolatedAP"}
         gt_bboxes_count (dict): ground truth box count for each label
-        iou_thresholds (float): iou thresholds
+        iou_thresholds (numpy.array): iou thresholds
 
     Args:
-        iou_threshold (float): iou threshold (default: 0.5)
+        iou_start (float): iou range starting point (default: 0.5)
+        iou_end (float): iou range ending point (default: 0.95)
+        iou_step (float): iou step size (default: 0.05)
         interpolation (string): AP interoperation method name for AP calculation
     """
 
@@ -54,7 +56,7 @@ class AveragePrecisionBBox2D(EvaluationMetric):
         self.gt_bboxes_count = collections.defaultdict(int)
 
     def reset(self):
-        """Reset AP metrics."""
+        """Reset metrics."""
         for iou in self.iou_thresholds:
             self.label_records[iou] = {}
         self.gt_bboxes_count = collections.defaultdict(int)

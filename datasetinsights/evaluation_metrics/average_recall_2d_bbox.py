@@ -18,11 +18,13 @@ class AverageRecallBBox2D(EvaluationMetric):
     Attributes:
         label_records (dict): save prediction records for each label
         gt_bboxes_count (dict): ground truth box count for each label
-        iou_threshold (float): iou threshold
+        iou_thresholds (numpy.array): iou thresholds
         max_detections (int): max detections per image
 
     Args:
-        iou_threshold (float): iou threshold (default: 0.5)
+        iou_start (float): iou range starting point (default: 0.5)
+        iou_end (float): iou range ending point (default: 0.95)
+        iou_step (float): iou step size (default: 0.05)
         max_detections (int): max detections per image (default: 100)
     """
 
@@ -42,7 +44,7 @@ class AverageRecallBBox2D(EvaluationMetric):
         self.max_detections = max_detections
 
     def reset(self):
-        """Reset AR metrics."""
+        """Reset metrics."""
         for iou in self.iou_thresholds:
             self.label_records[iou] = {}
         self.gt_bboxes_count = collections.defaultdict(int)
