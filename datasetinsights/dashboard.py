@@ -1,3 +1,4 @@
+# flake8: noqa: F401
 import argparse
 import os
 
@@ -11,7 +12,7 @@ from datasetinsights.visualization.object_detection import (
     render_object_detection_layout,
 )
 
-import datasetinsights.visualization.callbacks  # noqa: F401 # isort:skip
+import datasetinsights.visualization.callbacks  # isort:skip
 
 
 def main_layout(data_root):
