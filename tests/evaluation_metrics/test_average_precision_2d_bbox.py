@@ -44,6 +44,6 @@ def test_average_precision_2d_bbox(get_gt_pred_bbox):
     ap_metrics.update(mini_batch3)
 
     res = ap_metrics.compute()
-    assert approx(res["car"], rel=1e-3) == 0.0897
-    assert approx(res["pedestrian"], rel=1e-3) == 0.2667
-    assert approx(res["bike"], rel=1e-3) == 0
+    assert approx(res["car"], rel=1e-4) == 0.08971
+    assert approx(res["pedestrian"], rel=1e-4) == 0.26667
+    assert approx(res["bike"], rel=1e-4) == 0
