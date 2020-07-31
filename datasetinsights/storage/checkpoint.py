@@ -231,7 +231,7 @@ def load_from_gcs(estimator, full_cloud_path):
         logger.debug(f"Downloading estimator from {full_cloud_path} to {path}")
         client = GCSClient()
         client.download(bucket, object_key, path)
-        estimator.load(path)
+        estimator.load(estimator, path)
 
 
 def load_from_http(estimator, url):
