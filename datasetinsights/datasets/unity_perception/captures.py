@@ -84,10 +84,8 @@ class Captures:
         """
         captures = []
         for c_file in glob(data_root, self.FILE_PATTERN):
-            capture = load_table(
-                c_file, self.TABLE_NAME, version, max_level=0
-            )
-            if 'annotations' in capture.columns:
+            capture = load_table(c_file, self.TABLE_NAME, version, max_level=0)
+            if "annotations" in capture.columns:
                 capture.drop(columns="annotations")
 
             captures.append(capture)
@@ -135,8 +133,10 @@ class Captures:
                     meta_prefix="capture.",
                 )
             except KeyError:
-                annotation = pd.DataFrame({'annotation_definition': [], 'capture.id': []})
-            
+                annotation = pd.DataFrame(
+                    {"annotation_definition": [], "capture.id": []}
+                )
+
             annotations.append(annotation)
 
         return pd.concat(annotations, axis=0)

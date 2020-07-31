@@ -53,7 +53,9 @@ class AnnotationDefinitions:
             definitions.append(definition)
 
         if definitions:
-            combined = pd.concat(definitions, axis=0).drop_duplicates(subset="id")
+            combined = pd.concat(definitions, axis=0).drop_duplicates(
+                subset="id"
+            )
         else:
             combined = pd.DataFrame({})
 
