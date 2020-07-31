@@ -46,7 +46,7 @@ def generate_per_capture_count_figure(roinfo):
         x="count",
         x_title="Object Counts Per Capture",
         y_title="Frequency",
-        title="Distribution of Object Counts Per Capture",
+        title="Distribution of Object Counts Per Capture: Overall",
         max_samples=constants.MAX_SAMPLES,
     )
     return per_capture_count_fig
@@ -68,7 +68,7 @@ def generate_pixels_visible_per_object_figure(roinfo):
         x="visible_pixels",
         x_title="Visible Pixels Per Object",
         y_title="Frequency",
-        title="Distribution of Visible Pixels Per Object",
+        title="Distribution of Visible Pixels Per Object: Overall",
         max_samples=constants.MAX_SAMPLES,
     )
 
@@ -102,25 +102,44 @@ def html_overview(data_root):
             dcc.Graph(id="total_count", figure=total_counts_fig,),
             html.Div(
                 [
-                    dcc.Graph(
-                        id="per_object_count", figure=per_capture_count_fig,
-                    ),
-                    dcc.Graph(
-                        id="pixels_visible_per_object",
-                        figure=pixels_visible_per_object_fig,
-                    ),
-                ],
-                style={"columnCount": 2},
-            ),
-            html.Div(
-                [
+                    dcc.Markdown(""" ## Object Count Distribution """),
                     dcc.Dropdown(
                         id="object_count_filter",
                         options=[{"label": i, "value": i} for i in label_names],
                         value=label_names[0],
                     ),
+                ],
+                style={"columnCount": 2, "text-align": "center"},
+            ),
+            html.Div(
+                [
+                    dcc.Graph(
+                        id="per_object_count", figure=per_capture_count_fig,
+                    ),
                     dcc.Graph(id="per_object_count_filter_graph",),
-                ]
+                ],
+                style={"columnCount": 2},
+            ),
+            html.Div(
+                [
+                    dcc.Markdown("""## Visible Pixels Distribution """),
+                    dcc.Dropdown(
+                        id="pixels_visible_filter",
+                        options=[{"label": i, "value": i} for i in label_names],
+                        value=label_names[0],
+                    ),
+                ],
+                style={"columnCount": 2, "text-align": "center"},
+            ),
+            html.Div(
+                [
+                    dcc.Graph(
+                        id="pixels_visible_per_object",
+                        figure=pixels_visible_per_object_fig,
+                    ),
+                    dcc.Graph(id="pixels_visible_filter_graph",),
+                ],
+                style={"columnCount": 2},
             ),
         ],
     )
