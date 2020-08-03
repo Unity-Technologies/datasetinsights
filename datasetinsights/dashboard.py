@@ -1,29 +1,23 @@
 import argparse
 import os
 
-import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
+import datasetinsights.visualization.overview as overview
+from datasetinsights.visualization.app import get_app
 from datasetinsights.visualization.object_detection import (
     render_object_detection_layout,
 )
-from datasetinsights.visualization.overview import overview
 
-this_dir = os.path.dirname(os.path.abspath(__file__))
-css_file = os.path.join(this_dir, "stylesheet.css")
-
-app = dash.Dash(__name__, external_stylesheets=[css_file],)
-app.config.suppress_callback_exceptions = True
+app = get_app()
 
 
 def main_layout(data_root):
     """ Method for generating main app layout.
-
     Args:
         data_root(str): path to the dataset.
-
     Returns:
         html layout: main layout design with tabs for overview statistics
             and object detection.
@@ -66,7 +60,7 @@ def main_layout(data_root):
 )
 def render_content(tab):
     if tab == "dataset_overview":
-        return overview(data_root)
+        return overview.html_overview(data_root)
     elif tab == "object_detection":
         return render_object_detection_layout(data_root)
 
