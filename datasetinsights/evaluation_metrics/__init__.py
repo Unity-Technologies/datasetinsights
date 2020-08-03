@@ -1,6 +1,8 @@
 from .average_log10_error import AverageLog10Error
 from .average_precision_2d_bbox import AveragePrecisionBBox2D
 from .average_recall_2d_bbox import AverageRecallBBox2D
+from .mean_average_precision_2d_bbox import MeanAveragePrecisionBBox2D
+from .mean_average_recall_2d_bbox import MeanAverageRecallBBox2D
 from .average_relative_error import AverageRelativeError
 from .base import EvaluationMetric
 from .iou import IoU
@@ -14,6 +16,8 @@ __all__ = [
     AverageLog10Error,
     AveragePrecisionBBox2D,
     AverageRecallBBox2D,
+    MeanAveragePrecisionBBox2D,
+    MeanAverageRecallBBox2D,
     RootMeanSquareError,
     ThresholdAccuracy,
 ]

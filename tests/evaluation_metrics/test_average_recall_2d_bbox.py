@@ -1,6 +1,9 @@
 from pytest import approx
 
-from datasetinsights.evaluation_metrics import AverageRecallBBox2D
+from datasetinsights.evaluation_metrics import (
+    AverageRecallBBox2D,
+    MeanAverageRecallBBox2D,
+)
 
 
 def test_average_recall_2d_bbox(get_gt_pred_bbox):
@@ -16,9 +19,7 @@ def test_average_recall_2d_bbox(get_gt_pred_bbox):
     mini_batch3 = [[gt_bboxes[4], pred_bboxes[4]]]
 
     # iou_threshold=0.5, max_detections=100
-    ar_metrics = AverageRecallBBox2D(
-        iou_start=0.5, iou_end=0.5, iou_step=0.05, max_detections=100
-    )
+    ar_metrics = AverageRecallBBox2D(iou_threshold=0.5, max_detections=100)
     ar_metrics.update(mini_batch1)
     ar_metrics.update(mini_batch2)
     ar_metrics.update(mini_batch3)
@@ -45,3 +46,32 @@ def test_average_recall_2d_bbox(get_gt_pred_bbox):
     assert approx(res["bike"], rel=1e-4) == 0
 
     ar_metrics.reset()
+
+
+def test_mean_average_recall_2d_bbox(get_gt_pred_bbox):
+    gt_bboxes, pred_bboxes = get_gt_pred_bbox
+    mini_batch1 = [
+        [gt_bboxes[0], pred_bboxes[0]],
+        [gt_bboxes[1], pred_bboxes[1]],
+    ]
+    mini_batch2 = [
+        [gt_bboxes[2], pred_bboxes[2]],
+        [gt_bboxes[3], pred_bboxes[3]],
+    ]
+    mini_batch3 = [[gt_bboxes[4], pred_bboxes[4]]]
+
+    # iou_threshold=0.5, max_detections=100
+    ar_metrics = MeanAverageRecallBBox2D(max_detections=100)
+    ar_metrics.update(mini_batch1)
+    ar_metrics.update(mini_batch2)
+    ar_metrics.update(mini_batch3)
+    res = ar_metrics.compute()
+
+    assert approx(res["car"], rel=1e-4) == 0.15
+    assert approx(res["pedestrian"], rel=1e-4) == 0.3333
+    assert approx(res["bike"], rel=1e-4) == 0
+
+    # test reset function
+    ar_metrics.reset()
+    res = ar_metrics.compute()
+    assert res == {}
