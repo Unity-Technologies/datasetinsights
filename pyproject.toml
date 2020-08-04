@@ -22,6 +22,7 @@ include = [
     "LICENSE",
 ]
 
+
 [tool.poetry.dependencies]
 python = "^3.7"
 cython = "^0.29.14"
@@ -34,8 +35,8 @@ plotly = "^4.4.1"
 pyquaternion = "^0.9.5"
 pytorch-ignite = "^0.3.0"
 tensorboardx = "^2.0"
-torch = "^1.4.0"
-torchvision = "^0.5"
+torch = "~1.4.0"
+torchvision = "~0.5"
 yacs = "^0.1.6"
 pycocotools = "^2.0.0"
 codetiming = "^1.2.0"
@@ -85,6 +86,9 @@ exclude = '''
   )/
 )
 '''
+
+[tool.poetry.extras]
+docs = ["sphinx-rtd-theme", "recommonmark"]
 
 [build-system]
 requires = ["poetry>=1.0.5"]
