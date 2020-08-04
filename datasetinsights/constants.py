@@ -51,6 +51,5 @@ CONTEXT_SETTINGS = {
     "show_default": True,
     "ignore_unknown_options": True,
     "allow_extra_args": True,
-
 }
 DEFAULT_DATASET_VERSION = "latest"

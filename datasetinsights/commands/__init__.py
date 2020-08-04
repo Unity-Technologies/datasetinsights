@@ -6,6 +6,7 @@ import click
 class Entrypoint(click.MultiCommand):
     """ Click MultiCommand Entrypoint For Datasetinsights CLI
     """
+
     def list_commands(self, ctx):
         """Dynamically get the list of commands."""
         rv = []

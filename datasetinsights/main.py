@@ -5,7 +5,6 @@ import click
 from .commands import Entrypoint
 from .constants import CONTEXT_SETTINGS
 
-
 logging.basicConfig(
     level=logging.INFO,
     format=(
@@ -18,9 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 @click.command(
-    cls=Entrypoint,
-    help="Dataset Insights.",
-    context_settings=CONTEXT_SETTINGS,
+    cls=Entrypoint, help="Dataset Insights.", context_settings=CONTEXT_SETTINGS,
 )
 @click.option(
     "-v",

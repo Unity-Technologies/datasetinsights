@@ -4,7 +4,6 @@ import click
 
 import datasetinsights.constants as const
 
-
 logger = logging.getLogger(__name__)
 
 
