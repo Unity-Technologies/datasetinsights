@@ -30,7 +30,6 @@ logger = logging.getLogger(__name__)
     help="Enables verbose mode.",
 )
 def entrypoint(verbose):
-    """Dataset Insights"""
     if verbose:
         root_logger = logging.getLogger()
         root_logger.setLevel(logging.DEBUG)
