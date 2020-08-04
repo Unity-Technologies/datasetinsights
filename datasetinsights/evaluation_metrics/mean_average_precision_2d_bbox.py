@@ -10,6 +10,7 @@ import numpy as np
 
 from .base import EvaluationMetric
 from .records import Records
+from .average_precision import AveragePrecisionBBox2D
 
 
 class MeanAveragePrecisionBBox2D(EvaluationMetric):
@@ -39,30 +40,27 @@ class MeanAveragePrecisionBBox2D(EvaluationMetric):
         iou_step=0.05,
         interpolation="EveryPointInterpolation",
     ):
-        if interpolation == "EveryPointInterpolation":
-            self.ap_method = self.every_point_interpolated_ap
-        elif interpolation == "NPointInterpolatedAP":
-            self.ap_method = self.n_point_interpolated_ap
-        else:
-            raise ValueError(f"Unknown AP method name: {interpolation}!")
-
+        self.interpolation = interpolation
         self.iou_thresholds = np.linspace(
             iou_start,
             iou_end,
             np.round((iou_end - iou_start) / iou_step) + 1,
             endpoint=True,
         )
-
-        self.label_records = {}
-        for iou in self.iou_thresholds:
-            self.label_records[iou] = {}
-        self.gt_bboxes_count = collections.defaultdict(int)
+        self.label_records = [
+            AveragePrecisionBBox2D(iou, interpolation)
+            for iou in self.iou_thresholds
+        ]
+        # self.gt_bboxes_count = collections.defaultdict(int)
 
     def reset(self):
         """Reset metrics."""
         for iou in self.iou_thresholds:
-            self.label_records[iou] = {}
-        self.gt_bboxes_count = collections.defaultdict(int)
+            self.label_records = [
+                AveragePrecisionBBox2D(iou, self.interpolation)
+                for iou in self.iou_thresholds
+            ]
+        # self.gt_bboxes_count = collections.defaultdict(int)
 
     def update(self, mini_batch):
         """Update records per mini batch
@@ -75,20 +73,8 @@ class MeanAveragePrecisionBBox2D(EvaluationMetric):
             where gt_bboxes1, pred_bboxes1 contain gt bboxes and pred bboxes
             in one image
         """
-        for bboxes in mini_batch:
-            gt_bboxes, pred_bboxes = bboxes
-
-            bboxes_per_label = self.label_bboxes(pred_bboxes)
-            for iou in self.iou_thresholds:
-                for label, boxes in bboxes_per_label.items():
-                    if label not in self.label_records[iou]:
-                        self.label_records[iou][label] = Records(
-                            iou_threshold=iou
-                        )
-                    self.label_records[iou][label].add_records(gt_bboxes, boxes)
-
-            for gt_bbox in gt_bboxes:
-                self.gt_bboxes_count[gt_bbox.label] += 1
+        for mean_ap in self.label_records:
+            mean_ap.update(mini_batch)
 
     def compute(self):
         """Compute AP for each label.
@@ -130,6 +116,10 @@ class MeanAveragePrecisionBBox2D(EvaluationMetric):
             )
             results[label] = mean_result
 
+        return results
+
+        results["car"] = 0.2 # iou=0.5:0.05:0.95
+        results["tree"] = 0.3 # iou=0.5:0.05:0.95
         return results
 
     @staticmethod
