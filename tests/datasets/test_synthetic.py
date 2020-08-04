@@ -5,9 +5,9 @@ from unittest.mock import patch
 
 import pandas as pd
 
+import datasetinsights.constants as const
 from datasetinsights.data.bbox import BBox2D
 from datasetinsights.data.datasets.synthetic import (
-    SYNTHETIC_LOCAL_PATH,
     SynDetection2D,
     _get_split,
     read_bounding_box_2d,
@@ -22,7 +22,7 @@ def test_syn_detection_2d(mock_data):
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         dest_path = str(
-            Path(tmp_dir) / SYNTHETIC_LOCAL_PATH / Path(manifest_file).stem
+            Path(tmp_dir) / const.SYNTHETIC_SUBFOLDER / Path(manifest_file).stem
         )
         shutil.copytree(mock_data_dir, dest_path)
         syn_det_2d = SynDetection2D(
