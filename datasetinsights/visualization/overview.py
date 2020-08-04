@@ -1,4 +1,3 @@
-import __main__
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
@@ -171,7 +170,7 @@ def update_visible_pixels_figure(label_value):
         plotly.graph_objects.Figure: displays visible pixels distribution.
     """
     roinfo = stat.RenderedObjectInfo(
-        data_root=__main__.data_root,
+        data_root=app.data_root,
         def_id=constants.RENDERED_OBJECT_INFO_DEFINITION_ID,
     )
     filtered_roinfo = roinfo.raw_table[
@@ -201,7 +200,7 @@ def update_object_counts_capture_figure(label_value):
         plotly.graph_objects.Figure: displays object count distribution.
     """
     roinfo = stat.RenderedObjectInfo(
-        data_root=__main__.data_root,
+        data_root=app.data_root,
         def_id=constants.RENDERED_OBJECT_INFO_DEFINITION_ID,
     )
     filtered_object_count = roinfo.raw_table[

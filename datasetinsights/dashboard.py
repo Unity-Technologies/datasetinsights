@@ -60,9 +60,9 @@ def main_layout(data_root):
 )
 def render_content(tab):
     if tab == "dataset_overview":
-        return overview.html_overview(data_root)
+        return overview.html_overview(app.data_root)
     elif tab == "object_detection":
-        return render_object_detection_layout(data_root)
+        return render_object_detection_layout(app.data_root)
 
 
 def check_path(path):
@@ -76,6 +76,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-root", help="Path to the data root")
     args = parser.parse_args()
-    data_root = check_path(args.data_root)
-    app.layout = main_layout(data_root)
+    app.data_root = check_path(args.data_root)
+    app.layout = main_layout(app.data_root)
     app.run_server(debug=True)
