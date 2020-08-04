@@ -19,7 +19,6 @@ from datasetinsights.data.simulation.tables import SCHEMA_VERSION
 from .base import Dataset
 
 logger = logging.getLogger(__name__)
-SYNTHETIC_LOCAL_PATH = "synthetic"
 DEFAULT_TRAIN_SPLIT_RATIO = 0.9
 TRAIN = "train"
 VAL = "val"
@@ -133,6 +132,7 @@ class SynDetection2D(Dataset):
         manifest_file=None,
         run_execution_id=None,
         auth_token=None,
+        load_local=False,
         version=SCHEMA_VERSION,
         def_id=4,
         train_split_ratio=DEFAULT_TRAIN_SPLIT_RATIO,
@@ -171,26 +171,34 @@ class SynDetection2D(Dataset):
             random_seed (int): random seed used for splitting dataset into
                 train and val
         """
-        if run_execution_id:
-            manifest_file = os.path.join(
-                data_root, SYNTHETIC_LOCAL_PATH, f"{run_execution_id}.csv"
-            )
-            download_manifest(
-                run_execution_id,
-                manifest_file,
-                auth_token,
-                project_id=const.DEFAULT_PROJECT_ID,
-            )
-        if manifest_file:
-            subfolder = Path(manifest_file).stem
-            self.root = os.path.join(data_root, SYNTHETIC_LOCAL_PATH, subfolder)
-            self.download(manifest_file)
-        else:
-            logger.info(
-                f"No manifest file is provided. Assuming the data root "
-                f"directory {data_root} already contains synthetic dataset."
-            )
+        if load_local:
+            logger.info(f"Loading dataset locally from {data_root}.")
             self.root = data_root
+        else:
+            if run_execution_id:
+                manifest_file = os.path.join(
+                    data_root,
+                    const.SYNTHETIC_SUBFOLDER,
+                    f"{run_execution_id}.csv",
+                )
+                download_manifest(
+                    run_execution_id,
+                    manifest_file,
+                    auth_token,
+                    project_id=const.DEFAULT_PROJECT_ID,
+                )
+            if manifest_file:
+                subfolder = Path(manifest_file).stem
+                self.root = os.path.join(
+                    data_root, const.SYNTHETIC_SUBFOLDER, subfolder
+                )
+                self.download(manifest_file)
+            else:
+                logger.info(
+                    f"No manifest file is provided. Assuming the data root "
+                    f"directory {data_root} already contains synthetic dataset."
+                )
+                self.root = data_root
 
         captures = Captures(self.root, version)
         annotation_definition = AnnotationDefinitions(self.root, version)
