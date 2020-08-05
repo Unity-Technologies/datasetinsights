@@ -92,9 +92,7 @@ class FasterRCNN(Estimator):
 
         self.metrics = {}
         for metric_key, metric in config.metrics.items():
-            self.metrics[metric_key] = EvaluationMetric.create(
-                metric.name, **metric.args
-            )
+            self.metrics[metric_key] = EvaluationMetric.create(metric.name)
         self.model.to(self.device)
 
         if self.config.system.distributed:
@@ -373,27 +371,25 @@ class FasterRCNN(Estimator):
         for metric_name, metric in self.metrics.items():
             result = metric.compute()
             logger.debug(result)
-            mean_result = np.mean(
-                [result_per_label for result_per_label in result.values()]
-            )
-            logger.info(f"metric {metric_name} has mean result: {mean_result}")
-            self.writer.add_scalar(f"val/{metric_name}", mean_result, epoch)
-
-            self.kfp_writer.add_metric(name=metric_name, val=mean_result)
+            logger.info(f"metric {metric_name} has result: {result}")
+            if not isinstance(result, dict):
+                self.writer.add_scalar(f"val/{metric_name}", result, epoch)
+                self.kfp_writer.add_metric(name=metric_name, val=result)
             # TODO (YC) This is hotfix to allow user map between label_id
             # to label_name during model evaluation. In ideal cases this mapping
             # should be available before training/evaluation dataset was loaded.
             # label_id that was missing from label_name should be removed from
             # dataset and the training procedure.
-            label_results = {
-                label_mappings.get(id, str(id)): value
-                for id, value in result.items()
-            }
-            self.writer.add_scalars(
-                f"val/{metric_name}-per-class", label_results, epoch
-            )
-            fig = metric_per_class_plot(metric_name, result, label_mappings)
-            self.writer.add_figure(f"{metric_name}-per-class", fig, epoch)
+            else:
+                label_results = {
+                    label_mappings.get(id, str(id)): value
+                    for id, value in result.items()
+                }
+                self.writer.add_scalars(
+                    f"val/{metric_name}-per-class", label_results, epoch
+                )
+                fig = metric_per_class_plot(metric_name, result, label_mappings)
+                self.writer.add_figure(f"{metric_name}-per-class", fig, epoch)
 
     def save(self, path):
         """Serialize Estimator to path.
