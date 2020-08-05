@@ -7,8 +7,8 @@ import datasetinsights.constants as const
 system = CN()
 
 system.logdir = const.NULL_STRING
-system.metricsdir = const.METRICS_DIR
-system.metricsfilename = const.METRICS_FILE_NAME
+system.metricsdir = const.DEFAULT_KFP_METRICS_DIR
+system.metricsfilename = const.DEFAULT_KFP_METRICS_FILENAME
 system.data_root = const.DEFAULT_DATA_ROOT
 system.verbose = False
 system.dryrun = False
