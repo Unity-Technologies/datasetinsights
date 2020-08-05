@@ -193,7 +193,7 @@ class SynDetection2D(Dataset):
                 self.root = os.path.join(
                     data_root, const.SYNTHETIC_SUBFOLDER, subfolder
                 )
-                self.download_manifest(manifest_file)
+                self.download_captures_from_manifest(manifest_file)
             else:
                 logger.info(
                     f"Cannot find dataset locally and no manifest file is "
@@ -307,7 +307,7 @@ class SynDetection2D(Dataset):
 
         return catalog[keep_mask]
 
-    def download_manifest(self, manifest_file):
+    def download_captures_from_manifest(self, manifest_file):
         """ Download captures of a given manifest file.
 
         Args:
