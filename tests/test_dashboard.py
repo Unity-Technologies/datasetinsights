@@ -1,9 +1,11 @@
+"""test dashboard."""
 import pandas as pd
 
-from datasetinsights.visualization.object_detection import ScaleFactor
+from datasetinsights.stats.visualization.object_detection import ScaleFactor
 
 
 def test_generate_scale_data():
+    """test generate scale data."""
     captures = [
         {
             "id": "4521949a- 2a71-4c03-beb0-4f6362676639",

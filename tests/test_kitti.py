@@ -1,3 +1,4 @@
+"""test kitti dataset."""
 import os
 
 import numpy as np
@@ -5,7 +6,7 @@ import torch
 from pyquaternion import Quaternion
 
 from datasetinsights.data.bbox import BBox3d
-from datasetinsights.data.datasets.kitti import (
+from datasetinsights.datasets.kitti import (
     KittiBox3d,
     KittiTransforms,
     convert_kitti2nu,
@@ -15,7 +16,8 @@ CUR_FILE = os.path.dirname(os.path.abspath(__file__))
 
 
 def test_convertpreds2nuscenes():
-    """
+    """test convertpreds2nuscenes.
+
     in decode batch dimensions are: heatmaps, torch.Size([4, 1, 159, 159])
     pos_offsets,  torch.Size([4, 1, 3, 159, 159])
      dim_offsets, torch.Size([4, 1, 3, 159, 159]) ang_offsets,

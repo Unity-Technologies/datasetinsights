@@ -1,13 +1,16 @@
+"""test references."""
 import json
 
-from datasetinsights.data.simulation import (
+from datasetinsights.datasets.simulation import (
+    SCHEMA_VERSION,
     AnnotationDefinitions,
     MetricDefinitions,
+    glob,
 )
-from datasetinsights.data.simulation.tables import SCHEMA_VERSION, glob
 
 
 def test_annotation_definitions(mock_data_dir):
+    """test annotation definitions."""
     definition = AnnotationDefinitions(
         str(mock_data_dir), version=SCHEMA_VERSION
     )
@@ -23,6 +26,7 @@ def test_annotation_definitions(mock_data_dir):
 
 
 def test_metric_definitions(mock_data_dir):
+    """test metric definitions."""
     definition = MetricDefinitions(str(mock_data_dir), version=SCHEMA_VERSION)
 
     json_file = next(glob(mock_data_dir, MetricDefinitions.FILE_PATTERN))

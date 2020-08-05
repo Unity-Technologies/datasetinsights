@@ -1,3 +1,4 @@
+"""conftest."""
 from pathlib import Path
 
 import pytest
@@ -5,6 +6,7 @@ import pytest
 
 @pytest.fixture
 def mock_data_dir():
+    """mock data dir."""
     parent_dir = Path(__file__).parent.parent.absolute()
     mock_data_dir = parent_dir / "mock_data" / "simrun"
 

@@ -1,3 +1,4 @@
+"""test synthetic."""
 import shutil
 import tempfile
 from pathlib import Path
@@ -6,7 +7,7 @@ from unittest.mock import patch
 import pandas as pd
 
 from datasetinsights.data.bbox import BBox2D
-from datasetinsights.data.datasets.synthetic import (
+from datasetinsights.datasets.synthetic import (
     SYNTHETIC_LOCAL_PATH,
     SynDetection2D,
     _get_split,
@@ -14,8 +15,9 @@ from datasetinsights.data.datasets.synthetic import (
 )
 
 
-@patch("datasetinsights.data.datasets.synthetic._download_captures")
+@patch("datasetinsights.datasets.synthetic._download_captures")
 def test_syn_detection_2d(mock_data):
+    """test syn detection 2d."""
     parent_dir = Path(__file__).parent.parent.absolute()
     mock_data_dir = str(parent_dir / "mock_data" / "simrun")
     manifest_file = "manifest.csv"
@@ -36,6 +38,7 @@ def test_syn_detection_2d(mock_data):
 
 
 def test_read_bounding_box_2d():
+    """test read bounding box 2d."""
     annotation = [
         {
             "instance_id": "...",
@@ -63,6 +66,7 @@ def test_read_bounding_box_2d():
 
 
 def test_get_split():
+    """test get split."""
     mock_catalog = pd.DataFrame({"id": [i for i in range(10)]})
     actual_train = _get_split(
         split="train", catalog=mock_catalog, train_percentage=0.6

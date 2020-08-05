@@ -6,10 +6,10 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
-from datasetinsights.visualization.object_detection import (
+from datasetinsights.stats.visualization import overview
+from datasetinsights.stats.visualization.object_detection import (
     render_object_detection_layout,
 )
-from datasetinsights.visualization.overview import overview
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 css_file = os.path.join(this_dir, "stylesheet.css")

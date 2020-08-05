@@ -1,14 +1,19 @@
+"""test captures."""
 import collections
 import json
 
 import pytest
 
-from datasetinsights.data.simulation import Captures
-from datasetinsights.data.simulation.exceptions import DefinitionIDError
-from datasetinsights.data.simulation.tables import SCHEMA_VERSION, glob
+from datasetinsights.datasets.simulation import (
+    SCHEMA_VERSION,
+    Captures,
+    DefinitionIDError,
+    glob,
+)
 
 
 def test_get_captures_and_annotations(mock_data_dir):
+    """test get captures and annotations."""
     captures = Captures(str(mock_data_dir), version=SCHEMA_VERSION)
 
     captures_per_definition = collections.defaultdict(int)

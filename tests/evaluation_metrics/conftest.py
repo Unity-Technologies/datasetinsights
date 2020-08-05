@@ -1,3 +1,4 @@
+"""conftest."""
 import pytest
 
 from datasetinsights.data.bbox import BBox2D
@@ -5,6 +6,7 @@ from datasetinsights.data.bbox import BBox2D
 
 @pytest.fixture
 def get_gt_pred_bbox():
+    """get gt pred bbox."""
     gt_bbox1 = BBox2D(label="car", x=1, y=1, w=2, h=3)
     gt_bbox2 = BBox2D(label="car", x=7, y=6, w=3, h=4)
     gt_bbox11 = BBox2D(label="pedestrian", x=1, y=6, w=2, h=4)

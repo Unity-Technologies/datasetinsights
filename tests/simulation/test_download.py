@@ -1,3 +1,4 @@
+"""test download."""
 import os
 import pathlib
 import tempfile
@@ -13,17 +14,17 @@ from datasetinsights.data.download import (
     download_file,
     validate_checksum,
 )
-from datasetinsights.data.exceptions import ChecksumError
-from datasetinsights.data.simulation.download import (
+from datasetinsights.data.exceptions import ChecksumError, DownloadError
+from datasetinsights.datasets.simulation import (
     Downloader,
-    DownloadError,
+    FileType,
     _filter_unsuccessful_attempts,
 )
-from datasetinsights.data.simulation.tables import FileType
 
 
 @pytest.fixture
 def downloader():
+    """downloader."""
     parent_dir = pathlib.Path(__file__).parent.parent.absolute()
     manifest_file = str(parent_dir / "mock_data" / "simrun_manifest.csv")
 
@@ -34,6 +35,7 @@ def downloader():
 
 @responses.activate
 def test_download_file_from_url():
+    """test download file from url."""
     source_uri = "https://mock.uri"
     body = b"some test string here"
     responses.add(
@@ -49,6 +51,7 @@ def test_download_file_from_url():
 
 
 def test_download_bad_request():
+    """test download bad request."""
     source_uri = "https://mock.uri"
     dest_path = "file/path/does/not/matter"
     responses.add(responses.GET, source_uri, status=403)
@@ -58,9 +61,10 @@ def test_download_bad_request():
 
 
 def test_download_rows(downloader):
+    """test download rows."""
     n_rows = len(downloader.manifest)
     with patch(
-        "datasetinsights.data.simulation.download.download_file"
+        "datasetinsights.datasets.simulation.download.download_file"
     ) as mocked_dl:
         matched_rows = pd.Series(np.zeros(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
@@ -68,7 +72,7 @@ def test_download_rows(downloader):
         mocked_dl.assert_not_called()
 
     with patch(
-        "datasetinsights.data.simulation.download.download_file"
+        "datasetinsights.datasets.simulation.download.download_file"
     ) as mocked_dl:
         matched_rows = pd.Series(np.ones(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
@@ -77,9 +81,10 @@ def test_download_rows(downloader):
 
 
 def test_download_all(downloader):
+    """test download all."""
     n_rows = len(downloader.manifest)
     with patch(
-        "datasetinsights.data.simulation.download.download_file"
+        "datasetinsights.datasets.simulation.download.download_file"
     ) as mocked_dl:
         downloader.download_references()
         downloader.download_captures()
@@ -89,6 +94,7 @@ def test_download_all(downloader):
 
 
 def test_filter_unsuccessful_attempts_multiple_ids():
+    """test filter unsuccessful attempts multiple ids."""
     manifest_df = pd.DataFrame(
         {
             "run_execution_id": ["a"] * 8,
@@ -110,6 +116,7 @@ def test_filter_unsuccessful_attempts_multiple_ids():
 
 
 def test_filter_unsuccessful_attempts_single_attempt_id():
+    """test filter unsuccessful attempts single attempt id."""
     manifest_df = pd.DataFrame(
         {
             "run_execution_id": ["a", "a"],
@@ -131,6 +138,7 @@ def test_filter_unsuccessful_attempts_single_attempt_id():
 
 
 def test_match_filetypes():
+    """test match filetypes."""
     manifest = pd.DataFrame(
         {
             "file_name": [
@@ -162,6 +170,7 @@ def test_match_filetypes():
 
 
 def test_compute_checksum():
+    """test compute checksum."""
     expected_checksum = 123456
     with patch("datasetinsights.data.download._crc32_checksum") as mocked:
         mocked.return_value = expected_checksum
@@ -173,6 +182,7 @@ def test_compute_checksum():
 
 
 def test_validate_checksum():
+    """test validate checksum."""
     expected_checksum = 123456
     wrong_checksum = 123455
     with patch("datasetinsights.data.download.compute_checksum") as mocked:

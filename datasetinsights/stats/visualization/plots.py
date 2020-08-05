@@ -8,7 +8,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from PIL import ImageColor, ImageDraw, ImageFont
 
-from datasetinsights.data.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
+from datasetinsights.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
 
 logger = logging.getLogger(__name__)
 COLORS = list(ImageColor.colormap.values())

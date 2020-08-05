@@ -1,3 +1,4 @@
+"""test visualization."""
 import pathlib
 from unittest.mock import MagicMock, Mock, patch
 
@@ -7,8 +8,8 @@ from PIL import Image, ImageColor
 from pytest import approx
 
 from datasetinsights.data.bbox import BBox2D
-from datasetinsights.data.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
-from datasetinsights.visualization.plots import (
+from datasetinsights.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
+from datasetinsights.stats.visualization.plots import (
     _convert_euler_rotations_to_scatter_points,
     bar_plot,
     decode_segmap,
@@ -18,6 +19,7 @@ from datasetinsights.visualization.plots import (
 
 
 def test_decode_segmap():
+    """test decode segmap."""
     ids = list(CITYSCAPES_COLOR_MAPPING.keys())
     colors = list(CITYSCAPES_COLOR_MAPPING.values())
     img = np.array([ids] * 2)
@@ -27,6 +29,7 @@ def test_decode_segmap():
 
 
 def test_histogram_plot():
+    """test histogram plot."""
     df = pd.DataFrame({"x": [1, 2, 3]})
     mock_figure = Mock()
     mock_layout = Mock()
@@ -34,25 +37,30 @@ def test_histogram_plot():
     mock_histogram_plot = MagicMock(return_value=mock_figure)
 
     with patch(
-        "datasetinsights.visualization.plots.px.histogram", mock_histogram_plot
+        "datasetinsights.stats.visualization.plots.px.histogram",
+        mock_histogram_plot,
     ):
         fig = histogram_plot(df, x="x")
         assert fig == mock_layout
 
 
 def test_bar_plot():
+    """test bar plot."""
     df = pd.DataFrame({"x": ["a", "b", "c"], "y": [1, 2, 3]})
     mock_figure = Mock()
     mock_layout = Mock()
     mock_figure.update_layout = MagicMock(return_value=mock_layout)
     mock_bar_plot = MagicMock(return_value=mock_figure)
 
-    with patch("datasetinsights.visualization.plots.px.bar", mock_bar_plot):
+    with patch(
+        "datasetinsights.stats.visualization.plots.px.bar", mock_bar_plot
+    ):
         fig = bar_plot(df, x="x", y="y")
         assert fig == mock_layout
 
 
 def test_convert_euler_rotations_to_scatter_points():
+    """test convert euler rotations to scatter points."""
     df = pd.DataFrame({"x": [0, 90, 0], "y": [0, 0, 90]})
     expected = [
         [0, 1, 0, "x: 0°  y: 0°"],
@@ -72,6 +80,7 @@ def test_convert_euler_rotations_to_scatter_points():
 
 
 def test_convert_euler_rotations_to_scatter_points_with_z():
+    """test convert euler rotations to scatter points with z."""
     df = pd.DataFrame(
         {"x": [0, 90, 0, 0], "y": [0, 0, 90, 0], "z": [0, 0, 0, 90]}
     )
@@ -94,6 +103,7 @@ def test_convert_euler_rotations_to_scatter_points_with_z():
 
 
 def test_plot_bboxes():
+    """test plot bboxes."""
     cur_dir = pathlib.Path(__file__).parent.absolute()
     img = Image.open(
         str(cur_dir / "mock_data" / "simrun" / "captures" / "camera_000.png")
@@ -109,7 +119,9 @@ def test_plot_bboxes():
         ImageColor.getcolor("green", "RGB"),
     ]
 
-    with patch("datasetinsights.visualization.plots.ImageDraw.Draw") as mock:
+    with patch(
+        "datasetinsights.stats.visualization.plots.ImageDraw.Draw"
+    ) as mock:
         instance = mock.return_value
         plot_bboxes(img, boxes, colors)
         assert instance.rectangle.call_count == len(boxes)

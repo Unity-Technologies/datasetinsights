@@ -1,15 +1,20 @@
+"""test metrics."""
 import collections
 import json
 
 import pandas as pd
 import pytest
 
-from datasetinsights.data.simulation import Metrics
-from datasetinsights.data.simulation.exceptions import DefinitionIDError
-from datasetinsights.data.simulation.tables import SCHEMA_VERSION, glob
+from datasetinsights.datasets.simulation import (
+    SCHEMA_VERSION,
+    DefinitionIDError,
+    Metrics,
+    glob,
+)
 
 
 def test_filter_metrics(mock_data_dir):
+    """test filter metrics."""
     metrics = Metrics(str(mock_data_dir), version=SCHEMA_VERSION)
 
     expected_rows = collections.defaultdict(int)
@@ -44,6 +49,7 @@ def test_filter_metrics(mock_data_dir):
 
 
 def test_normalize_values(mock_data_dir):
+    """test normalize values."""
     metrics = {
         "capture_id": "1234",
         "annotation_id": None,

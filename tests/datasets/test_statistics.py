@@ -1,9 +1,11 @@
+"""test statistics."""
 import pandas as pd
 
-from datasetinsights.data.datasets.statistics import RenderedObjectInfo
+from datasetinsights.stats.statistics import RenderedObjectInfo
 
 
 def test_read_filtered_metrics():
+    """test read filtered metrics."""
     metrics = pd.DataFrame(
         {
             "capture_id": [

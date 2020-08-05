@@ -13,7 +13,7 @@ from PIL import Image
 from tensorboardX import SummaryWriter
 from yacs.config import CfgNode as CN
 
-from datasetinsights.data.dummy.dummy_object_detection import DummyDetection2D
+from datasetinsights.datasets.dummy import DummyDetection2D
 from datasetinsights.estimators.faster_rcnn import (
     TEST,
     TRAIN,
