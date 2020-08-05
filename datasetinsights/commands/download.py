@@ -1,4 +1,5 @@
 import logging
+import re
 
 import click
 
@@ -7,11 +8,34 @@ import datasetinsights.constants as const
 logger = logging.getLogger(__name__)
 
 
-def validate_source_uri(ctx, param, value):
-    # TODO: validate "value" and raise click.BadParameter exceptions
-    # the input value is not valid.
-    # https://click.palletsprojects.com/en/7.x/options/#callbacks-for-validation
-    return value
+class SourceURI(click.ParamType):
+    """Source URI Parameter.
+
+    Args:
+        click ([type]): [description]
+
+    Raises:
+        click.BadParameter: [description]
+
+    Returns:
+        [type]: [description]
+    """
+
+    name = "source_uri"
+    PREFIX_PATTERN = r"^gs://|^http(s)?://|^usim://"
+
+    def convert(self, value, param, ctx):
+        """ Validate source URI and Converts the value.
+        """
+        match = re.search(self.PREFIX_PATTERN, value)
+        if not match:
+            message = (
+                f"The source uri {value} is not supported. "
+                f"Pattern: {self.PREFIX_PATTERN}"
+            )
+            self.fail(message, param, ctx)
+
+        return value
 
 
 @click.command(
@@ -28,19 +52,19 @@ def validate_source_uri(ctx, param, value):
 @click.option(
     "-d",
     "--data-root",
-    type=click.STRING,
+    type=click.Path(exists=True, file_okay=False, writable=True),
     default=const.DEFAULT_DATA_ROOT,
     help="Root directory on localhost where datasets should be downloaded.",
 )
 @click.option(
     "-s",
     "--source-uri",
-    type=click.STRING,
+    type=SourceURI(),
     default=None,
-    callback=validate_source_uri,
     help=(
         "URI of where this data should be downloaded. "
-        "If not supplied, default path from the dataset registry will be used."
+        "If not supplied, default path from the dataset registry will be used. "
+        f"Supported source uri patterns {SourceURI.PREFIX_PATTERN}"
     ),
 )
 @click.option(
