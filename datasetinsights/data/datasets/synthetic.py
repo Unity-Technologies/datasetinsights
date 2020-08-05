@@ -2,6 +2,7 @@
 """
 import logging
 import os
+import zipfile
 from pathlib import Path
 
 from PIL import Image
@@ -9,6 +10,7 @@ from sklearn.model_selection import train_test_split
 
 import datasetinsights.constants as const
 from datasetinsights.data.bbox import BBox2D
+from datasetinsights.data.download import download_file
 from datasetinsights.data.simulation import AnnotationDefinitions, Captures
 from datasetinsights.data.simulation.download import (
     Downloader,
@@ -132,7 +134,6 @@ class SynDetection2D(Dataset):
         manifest_file=None,
         run_execution_id=None,
         auth_token=None,
-        load_local=False,
         version=SCHEMA_VERSION,
         def_id=4,
         train_split_ratio=DEFAULT_TRAIN_SPLIT_RATIO,
@@ -171,9 +172,9 @@ class SynDetection2D(Dataset):
             random_seed (int): random seed used for splitting dataset into
                 train and val
         """
-        if load_local:
-            logger.info(f"Loading dataset locally from {data_root}.")
-            self.root = data_root
+        if os.path.isdir(os.path.join(data_root, const.SYNTHETIC_SUBFOLDER)):
+            self.root = os.path.join(data_root, const.SYNTHETIC_SUBFOLDER)
+
         else:
             if run_execution_id:
                 manifest_file = os.path.join(
@@ -192,11 +193,12 @@ class SynDetection2D(Dataset):
                 self.root = os.path.join(
                     data_root, const.SYNTHETIC_SUBFOLDER, subfolder
                 )
-                self.download(manifest_file)
+                self.download_manifest(manifest_file)
             else:
                 logger.info(
-                    f"No manifest file is provided. Assuming the data root "
-                    f"directory {data_root} already contains synthetic dataset."
+                    f"Cannot find dataset locally and no manifest file is "
+                    f"provided. Assuming the data root directory {data_root} "
+                    f"already contains synthetic dataset."
                 )
                 self.root = data_root
 
@@ -305,10 +307,57 @@ class SynDetection2D(Dataset):
 
         return catalog[keep_mask]
 
-    def download(self, manifest_file):
+    def download_manifest(self, manifest_file):
         """ Download captures of a given manifest file.
 
         Args:
             manifest_file (str): path to a manifest file
         """
         _download_captures(self.root, manifest_file)
+
+    @staticmethod
+    def download(source_uri, destination):
+        """Downloads dataset zip file and unzips it.
+
+        Args:
+            source_uri (str): URL to download dataset from.
+            destination (destination): Path where to download the dataset.
+
+        Note: Synthetic dataset is downloaded and unzipped to
+        destination/synthetic.
+        """
+
+        if source_uri.startswith(
+            (const.HTTP_URL_BASE_STR, const.HTTPS_URL_BASE_STR)
+        ):
+            destination = os.path.join(destination, const.SYNTHETIC_SUBFOLDER)
+            logger.info(f"Downloading dataset to {destination}.")
+            dataset_path = download_file(
+                source_uri, os.path.join(destination, "dataset.zip")
+            )
+            SynDetection2D.unzip_file(
+                filepath=dataset_path, destination=destination
+            )
+
+        else:
+            raise ValueError(
+                f"Given URL: {source_uri}, is either invalid or not supported."
+                f"Currently supported path is HTTP url (http:// or https://) "
+                f"path"
+            )
+
+    @staticmethod
+    def unzip_file(filepath, destination):
+        """Unzips a zip file to the destination and delete the zip file.
+
+        Args:
+            filepath (str): File path of the zip file.
+            destination (str): Path where to unzip contents of zipped file.
+        """
+        try:
+            with zipfile.ZipFile(filepath) as file:
+                logger.info(f"Unzipping file from {filepath} to {destination}")
+                file.extractall(destination)
+            os.remove(filepath)
+        except zipfile.BadZipFile:
+            logger.error("Zip file is corrupted.")
