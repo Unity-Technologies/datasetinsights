@@ -178,7 +178,7 @@ def run(command, cfg):
 
     # todo this makes it so that we lose the tensorboard writer of non-master
     # processes which could make debugging harder
-    writer = SummaryWriter(logdir, write_to_disk=is_master())
+    writer = SummaryWriter(logdir, write_to_disk=True, max_queue=100, flush_secs=30)
     kfp_writer = KubeflowPipelineWriter(
         filename=cfg.system.metricsfilename, filepath=cfg.system.metricsdir
     )
