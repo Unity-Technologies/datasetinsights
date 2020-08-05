@@ -13,7 +13,7 @@ from .data.datasets import Dataset
 from .estimators import Estimator
 from .storage.checkpoint import EstimatorCheckpoint
 from .storage.kfp_output import KubeflowPipelineWriter
-from .torch_distributed import get_world_size, init_distributed_mode, is_master
+from .torch_distributed import init_distributed_mode, is_master
 
 logging.basicConfig(
     level=logging.INFO,
@@ -40,30 +40,11 @@ def parse_args():
         description="Datasetinsights Modeling Interface"
     )
     parser.add_argument(
-        "--local_rank",
-        help="the local rank of the subprocess excecuting the code. "
-        "If sequential, this should be 0."
-        "Otherwise torch.distributed.launch will specify this arg.",
-        type=int,
-    )
-    parser.add_argument(
-        "--gpus-per-node",
-        action="store_true",
-        default=get_world_size(),
-        help="number of gpus per node to use for training/evaluating",
-    )
-    parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
         default=system.verbose,
         help="turn on verbose mode to enable debug logging",
-    )
-    parser.add_argument(
-        "--dryrun",
-        action="store_true",
-        default=system.dryrun,
-        help="dry run with only a small subset of the dataset",
     )
     parser.add_argument(
         "--no-cuda",
@@ -90,21 +71,13 @@ def parse_args():
         help="path where to save metrics",
     )
     parser.add_argument(
-        "--auth-token",
-        type=str,
-        default=system.auth_token,
-        help=(
-            "authorization token to fetch USim manifest file that speficed "
-            "signed URLs for the simulation dataset files."
-        ),
-    )
-    parser.add_argument(
         "--data-root",
         type=str,
         default=system.data_root,
         help="root directory of all datasets",
     )
-    parser.add_argument(
+
+    parser.add_argument(  # This has to be moved to estimator config
         "--val-interval",
         type=int,
         default=system.val_interval,
@@ -125,7 +98,7 @@ def parse_args():
         required=True,
         help="config file for this model",
     )
-    parser.add_argument(
+    parser.add_argument(  # stretch goal to support override
         "opts",
         default=None,
         nargs=argparse.REMAINDER,
@@ -142,20 +115,6 @@ def parse_config(args):
     cfg = CN.load_cfg(open(args.config, "r"))
     cfg.merge_from_list(args.opts)
 
-    system.logdir = args.logdir
-    system.metricsdir = args.metricsdir
-    system.metricsfilename = args.metricsfilename
-    system.data_root = args.data_root
-    system.verbose = args.verbose
-    system.dryrun = args.dryrun
-    system.no_cuda = args.no_cuda
-    system.workers = args.workers
-    system.val_interval = args.val_interval
-    system.auth_token = args.auth_token
-    system.distributed = args.distributed
-    system.gpus_per_node = args.gpus_per_node
-    cfg.system = system
-    cfg.freeze()
     return cfg
 
 

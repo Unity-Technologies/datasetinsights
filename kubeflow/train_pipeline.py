@@ -37,7 +37,7 @@ def train_pipeline(
     download = dsl.ContainerOp(
         name="usim download",
         image=docker_image,
-        command=["python", "-m", "datasetinsights.scripts.usim_download"],
+        command=["datasetinsights"],
         arguments=[
             f"--run-execution-id={run_execution_id}",
             f"--include-binary",
@@ -54,20 +54,18 @@ def train_pipeline(
     train = dsl.ContainerOp(
         name="train",
         image=docker_image,
-        command=["python", "-m", "torch.distributed.launch"],
-        arguments=[
-            f"--nproc_per_node={num_proc}",
+        command=[
+            "python",
             "-m",
-            "datasetinsights.cli",
+            "torch.distributed.launch",
+            f"--nproc_per_node={num_proc}",
+        ],
+        arguments=[
+            "datasetinsights",
             "train",
             "--config=datasetinsights/configs/faster_rcnn_synthetic.yaml",
-            f"--logdir={logdir}",
-            "train.epochs",
-            epochs,
-            "train.dataset.args.run_execution_id",
-            run_execution_id,
-            "val.dataset.args.run_execution_id",
-            run_execution_id,
+            f"--tb-logdir={logdir}",
+            "...",
         ],
         # Refer to pvloume in previous step to explicitly call out dependency
         pvolumes={"/data": download.pvolumes["/data"]},
