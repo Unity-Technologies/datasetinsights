@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 @click.option(
     "-d",
     "--data-root",
-    type=click.STRING,
+    type=click.Path(exists=True, file_okay=False),
     default=const.DEFAULT_DATA_ROOT,
     help="Root directory on localhost where datasets are located.",
 )

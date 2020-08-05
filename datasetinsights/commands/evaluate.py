@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 @click.option(
     "-d",
     "--data-root",
-    type=click.STRING,
+    type=click.Path(exists=True, file_okay=False),
     default=const.DEFAULT_DATA_ROOT,
     help="Root directory on localhost where datasets are located.",
 )
@@ -56,7 +56,7 @@ logger = logging.getLogger(__name__)
 )
 @click.option(
     "--kfp-metrics-dir",
-    type=click.STRING,
+    type=click.Path(file_okay=False, writable=True),
     default=const.DEFAULT_KFP_METRICS_DIR,
     help="Path to the directory where Kubeflow Metrics files are stored.",
 )
