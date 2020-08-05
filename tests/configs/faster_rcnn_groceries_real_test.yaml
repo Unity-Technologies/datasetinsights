@@ -29,18 +29,13 @@ test:
       split: test
 metrics:
   mAP:
-    name: MeanAveragePrecisionBBox2D
-    args:
-      interpolation: NPointInterpolatedAP
-  AP_50IOU:
-    name: AveragePrecisionBBox2D
-    args:
-      iou_threshold: .50
-      interpolation: NPointInterpolatedAP
+    name: MeanAveragePrecision
+  mAP50IOU:
+    name: MeanAveragePrecision50IOU
   mAR:
-    name: MeanAverageRecallBBox2D
-    args:
-      max_detections: 100
+    name: MeanAverageRecall
+  AP50IOU:
+    name: AveragePrecision50IOU
 optimizer:
   name: Adam
   args:

@@ -15,11 +15,11 @@ class MeanAverageRecall(EvaluationMetric):
     """2D Bounding Box Mean Average Recall metrics.
 
     Implementation of classic mAR metrics. We use 10 IoU thresholds
-    of .50:.05:.95.
+    of .50:.05:.95. This is the same metrics in cocoEval.summarize():
+    Average Recall (AR) @[IoU=0.50:0.95 | area = all | maxDets=100]
 
     Attributes:
-        label_records (dict): save prediction records for each label
-        gt_bboxes_count (dict): ground truth box count for each label
+        mar_records (dict): save prediction records for each label
         iou_thresholds (numpy.array): iou thresholds
         max_detections (int): max detections per image
 

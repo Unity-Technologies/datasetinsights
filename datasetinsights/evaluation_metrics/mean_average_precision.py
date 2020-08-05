@@ -16,30 +16,21 @@ class MeanAveragePrecision(EvaluationMetric):
 
     Implementation of classic mAP metrics. We use 10 IoU thresholds
     of .50:.05:.95. This is the same metrics in cocoEval.summarize():
-    Average Precision (AP) @[IoU=0.50:0.95 | area=   all | maxDets=100]
+    Average Precision (AP) @[IoU=0.50:0.95 | area = all | maxDets=100]
 
     Attributes:
-        label_records (dict): save prediction records for each label
-        ap_method (string): AP interoperation method name for AP calculation
-        {"EveryPointInterpolation"| "NPointInterpolatedAP"}
-        gt_bboxes_count (dict): ground truth box count for each label
+        map_records (dict): save prediction records for each ious
         iou_thresholds (numpy.array): iou thresholds
 
     Args:
         iou_start (float): iou range starting point (default: 0.5)
         iou_end (float): iou range ending point (default: 0.95)
         iou_step (float): iou step size (default: 0.05)
-        interpolation (string): AP interoperation method name for AP calculation
     """
 
     def __init__(
-        self,
-        iou_start=0.5,
-        iou_end=0.95,
-        iou_step=0.05,
-        interpolation="EveryPointInterpolation",
+        self, iou_start=0.5, iou_end=0.95, iou_step=0.05,
     ):
-        self.interpolation = interpolation
         self.iou_thresholds = np.linspace(
             iou_start,
             iou_end,
@@ -47,15 +38,13 @@ class MeanAveragePrecision(EvaluationMetric):
             endpoint=True,
         )
         self.map_records = [
-            AveragePrecisionBBox2D(iou, interpolation)
-            for iou in self.iou_thresholds
+            AveragePrecisionBBox2D(iou) for iou in self.iou_thresholds
         ]
 
     def reset(self):
         """Reset metrics."""
         self.map_records = [
-            AveragePrecisionBBox2D(iou, self.interpolation)
-            for iou in self.iou_thresholds
+            AveragePrecisionBBox2D(iou) for iou in self.iou_thresholds
         ]
 
     def update(self, mini_batch):
@@ -80,10 +69,8 @@ class MeanAveragePrecision(EvaluationMetric):
         """
         mean_sum = 0
         for mean_ap in self.map_records:
+            result = mean_ap.compute()
             mean_sum += np.mean(
-                [
-                    result_per_label
-                    for result_per_label in mean_ap.compute().values()
-                ]
+                [result_per_label for result_per_label in result.values()]
             )
         return mean_sum / len(self.map_records)
