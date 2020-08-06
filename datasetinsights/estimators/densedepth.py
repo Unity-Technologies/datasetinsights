@@ -149,18 +149,8 @@ class DenseDepthModel(nn.Module):
         return self.decoder(self.encoder(x))
 
 
-class DenseDepth(Estimator):
-    """
-    Attributes:
-        config: estimator config
-        writer: Tensorboard writer object
-        model: tensorflow or pytorch graph
-        checkpointer: Model checkpointer callback to save models
-        device: model training on device (cpu|cuda)
-        optimizer: pytorch optimizer
-    """
-
-    def __init__(self, config, writer, checkpointer, device, **kwargs):
+class DenseDepthDependencies:
+    def __init__(self, config, writer, checkpointer, device):
         """
         Args:
         config: estimator config
@@ -174,14 +164,32 @@ class DenseDepth(Estimator):
         self.device = device
         self.writer = writer
 
+
+class DenseDepth(Estimator):
+    """
+    Attributes:
+        config: estimator config
+        writer: Tensorboard writer object
+        model: tensorflow or pytorch graph
+        checkpointer: Model checkpointer callback to save models
+        device: model training on device (cpu|cuda)
+        optimizer: pytorch optimizer
+    """
+
+    def __init__(self, estimator_dependencies, **kwargs):
+        self.config = estimator_dependencies.config
+        self.checkpointer = estimator_dependencies.checkpointer
+        self.device = estimator_dependencies.device
+        self.writer = estimator_dependencies.writer
+
         self.model = DenseDepthModel()
         logger.info("DenseDepth model is created.")
 
-        opname = config.optimizer.name
+        opname = self.config.optimizer.name
 
         if opname == "Adam":
             optimizer = torch.optim.Adam(
-                self.model.parameters(), config.optimizer.lr
+                self.model.parameters(), self.config.optimizer.lr
             )
         else:
             raise ValueError(f"Unsupported optimizer type {opname}")
@@ -189,9 +197,9 @@ class DenseDepth(Estimator):
         self.optimizer = optimizer
 
         # load estimators from file if checkpoint_file exists
-        ckpt_file = config.checkpoint_file
+        ckpt_file = self.config.checkpoint_file
         if ckpt_file != const.NULL_STRING:
-            checkpointer.load(self, ckpt_file)
+            self.checkpointer.load(self, ckpt_file)
 
     @staticmethod
     def _NYU_transforms(is_train=True):

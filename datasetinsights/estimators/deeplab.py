@@ -75,6 +75,14 @@ class Normalize:
         return image, target
 
 
+class DeepLabV3Depedencies:
+    def __init__(self, config, writer, checkpointer, device):
+        self.config = config
+        self.writer = writer
+        self.checkpointer = checkpointer
+        self.device = device
+
+
 class DeeplabV3(Estimator):
     """ DeeplabV3 Model https://arxiv.org/abs/1706.05587
 
@@ -94,25 +102,24 @@ class DeeplabV3(Estimator):
         lr_scheduler: pytorch learning rate scheduler
     """
 
-    def __init__(self, *, config, writer, checkpointer, device, **kwargs):
-        self.config = config
+    def __init__(self, *, estimator_dependencies, **kwargs):
+        self.config = estimator_dependencies.config
+        self.writer = estimator_dependencies.writer
+        self.checkpointer = estimator_dependencies.checkpointer
+        self.device = estimator_dependencies.device
 
-        self.backbone = config.backbone
-        self.num_classes = config.num_classes
+        self.backbone = self.config.backbone
+        self.num_classes = self.config.num_classes
 
         model_name = "deeplabv3_" + self.backbone
         self.model = torchvision.models.segmentation.__dict__[model_name](
             num_classes=self.num_classes
         )
 
-        self.writer = writer
-        self.checkpointer = checkpointer
-        self.device = device
-
-        opname = config.optimizer.name
+        opname = self.config.optimizer.name
         if opname == "Adam":
             optimizer = torch.optim.Adam(
-                self.model.parameters(), **config.optimizer.args
+                self.model.parameters(), **self.config.optimizer.args
             )
 
             # use fixed learning rate when using Adam
@@ -126,9 +133,9 @@ class DeeplabV3(Estimator):
         self.lr_scheduler = lr_scheduler
 
         # load estimators from file if checkpoint_file exists
-        ckpt_file = config.checkpoint_file
+        ckpt_file = self.config.checkpoint_file
         if ckpt_file != const.NULL_STRING:
-            checkpointer.load(self, ckpt_file)
+            self.checkpointer.load(self, ckpt_file)
 
     @staticmethod
     def _transforms(is_train=True, crop_size=769):

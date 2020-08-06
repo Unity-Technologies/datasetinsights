@@ -29,33 +29,7 @@ VAL = "val"
 TEST = "test"
 
 
-class FasterRCNN(Estimator):
-    """
-    Faster-RCNN train/evaluate implementation for object detection.
-
-    https://github.com/pytorch/vision/tree/master/references/detection
-    https://arxiv.org/abs/1506.01497
-    Args:
-        config (CfgNode): estimator config
-        writer: Tensorboard writer object
-        kfp_writer: KubeflowPipelineWriter object to write logs
-        checkpointer: Model checkpointer callback to save models
-        device: model training on device (cpu|cuda)
-        box_score_thresh: (optional) default threshold is 0.05
-        gpu (int): (optional) gpu id on which code will execute
-        rank (int): (optional) rank of process executing code
-        distributed:
-        data_root:
-        checkpoint_file:
-        checkpoint_dir:
-    Attributes:
-        model: pytorch model
-        writer: Tensorboard writer object
-        kfp_writer: KubeflowPipelineWriter object
-        checkpointer: Model checkpointer callback to save models
-        device: model training on device (cpu|cuda)
-    """
-
+class FasterRCNNDepedencies:
     def __init__(
         self,
         *,
@@ -69,9 +43,22 @@ class FasterRCNN(Estimator):
         rank=0,
         distributed=None,
         data_root=None,
-        **kwargs,
     ):
-        """initiate estimator."""
+        """
+            Args:
+        config (CfgNode): estimator config
+        writer: Tensorboard writer object
+        kfp_writer: KubeflowPipelineWriter object to write logs
+        checkpointer: Model checkpointer callback to save models
+        device: model training on device (cpu|cuda)
+        box_score_thresh: (optional) default threshold is 0.05
+        gpu (int): (optional) gpu id on which code will execute
+        rank (int): (optional) rank of process executing code
+        distributed:
+        data_root:
+        checkpoint_file:
+        checkpoint_dir:
+        """
         logger.info(f"initializing faster rcnn")
         self.config = config
         self.device = device
@@ -88,6 +75,7 @@ class FasterRCNN(Estimator):
         self.model_without_ddp = self.model
         self.gpu = gpu
         self.rank = rank
+        logger.info(f"gpu: {self.gpu}, rank: {self.rank}")
         self.sync_metrics = config.get("synchronize_metrics", True)
         self.distributed = distributed
         self.data_root = data_root
@@ -95,10 +83,6 @@ class FasterRCNN(Estimator):
         logger.info(f"gpu: {self.gpu}, rank: {self.rank}")
 
         self.checkpointer = checkpointer
-        checkpoint_file = config.get("checkpoint_file", const.NULL_STRING)
-        if checkpoint_file != const.NULL_STRING:
-            checkpointer.load(self, config.checkpoint_file)
-
         self.metrics = {}
         for metric_key, metric in config.metrics.items():
             self.metrics[metric_key] = EvaluationMetric.create(
@@ -111,6 +95,46 @@ class FasterRCNN(Estimator):
                 self.model, device_ids=[self.gpu]
             )
             self.model_without_ddp = self.model.module
+
+
+class FasterRCNN(Estimator):
+    """
+    Faster-RCNN train/evaluate implementation for object detection.
+
+    https://github.com/pytorch/vision/tree/master/references/detection
+    https://arxiv.org/abs/1506.01497
+
+    Attributes:
+        model: pytorch model
+        writer: Tensorboard writer object
+        kfp_writer: KubeflowPipelineWriter object
+        checkpointer: Model checkpointer callback to save models
+        device: model training on device (cpu|cuda)
+    """
+
+    def __init__(
+        self, estimator_dependencies, **kwargs,
+    ):
+        """initiate estimator."""
+
+        self.config = estimator_dependencies.config
+        self.device = estimator_dependencies.device
+        self.writer = estimator_dependencies.writer
+        self.kfp_writer = estimator_dependencies.kfp_writer
+        self.model = estimator_dependencies.model
+        self.model_without_ddp = self.model
+        self.gpu = estimator_dependencies.gpu
+        self.rank = estimator_dependencies.rank
+        self.metrics = estimator_dependencies.metrics
+        self.sync_metrics = self.config.get("synchronize_metrics", True)
+        self.checkpointer = estimator_dependencies.checkpointer
+        self.data_root = estimator_dependencies.data_root
+        self.distributed = estimator_dependencies.distributed
+        self.checkpoint_file = self.config.get(
+            "checkpoint_file", const.NULL_STRING
+        )
+        if self.checkpoint_file != const.NULL_STRING:
+            self.checkpointer.load(self, self.config.checkpoint_file)
 
     def train(self, **kwargs):
         """start training, save trained model per epoch."""
@@ -647,6 +671,7 @@ def dataloader_creator(config, dataset, sampler, split, distributed):
         dataset: dataset obj must have len and __get_item__
         sampler: (torch.utils.data.Sampler)
         split: train, val, test
+        distributed:
     Returns data_loader:
         torch.utils.data.DataLoader
 
