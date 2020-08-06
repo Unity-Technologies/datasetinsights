@@ -18,16 +18,11 @@ from datasetinsights.data.datasets.synthetic import (
 def test_syn_detection_2d(mock_data):
     parent_dir = Path(__file__).parent.parent.absolute()
     mock_data_dir = str(parent_dir / "mock_data" / "simrun")
-    manifest_file = "manifest.csv"
 
     with tempfile.TemporaryDirectory() as tmp_dir:
-        dest_path = str(
-            Path(tmp_dir) / const.SYNTHETIC_SUBFOLDER / Path(manifest_file).stem
-        )
+        dest_path = str(Path(tmp_dir) / const.SYNTHETIC_SUBFOLDER)
         shutil.copytree(mock_data_dir, dest_path)
-        syn_det_2d = SynDetection2D(
-            data_root=tmp_dir, manifest_file=manifest_file, def_id=4,
-        )
+        syn_det_2d = SynDetection2D(data_root=tmp_dir)
 
         # From mock data, only one of the capture has 2D bounding box
         # annotations.

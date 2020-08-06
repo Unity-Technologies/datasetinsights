@@ -1,8 +1,10 @@
 """ Simulation Dataset Catalog
 """
+import glob
 import logging
 import os
 import zipfile
+from collections import namedtuple
 from pathlib import Path
 
 from PIL import Image
@@ -10,7 +12,8 @@ from sklearn.model_selection import train_test_split
 
 import datasetinsights.constants as const
 from datasetinsights.data.bbox import BBox2D
-from datasetinsights.data.download import download_file
+from datasetinsights.data.download import download_file, validate_checksum
+from datasetinsights.data.exceptions import ChecksumError
 from datasetinsights.data.simulation import AnnotationDefinitions, Captures
 from datasetinsights.data.simulation.download import (
     Downloader,
@@ -19,8 +22,16 @@ from datasetinsights.data.simulation.download import (
 from datasetinsights.data.simulation.tables import SCHEMA_VERSION
 
 from .base import Dataset
+from .exceptions import DatasetNotFoundError
 
 logger = logging.getLogger(__name__)
+PUBLIC_SYNTHETIC_PATH = (
+    "https://storage.googleapis.com/datasetinsights/data/synthetic"
+)
+SyntheticTable = namedtuple(
+    "SyntheticTable", ("version", "filename", "source_uri", "checksum")
+)
+
 DEFAULT_TRAIN_SPLIT_RATIO = 0.9
 TRAIN = "train"
 VAL = "val"
@@ -114,6 +125,14 @@ def read_bounding_box_2d(annotation, label_mappings=None):
 class SynDetection2D(Dataset):
     """Synthetic dataset for 2D object detection.
 
+    During the class instantiation, it would check whehter the data is
+    downloaded or not or if USIM run-execution-id or manifest file is
+    provided. If there is no dataset and USIM run-execution-id or manifest file
+    it would raise an error.
+
+    Current public synthdet version are as follows:
+        v1: Subset SynthDet dataset containing around 5k images.
+
     Attributes:
         root (str): root directory of the dataset
         catalog (list): catalog of all captures in this dataset
@@ -124,6 +143,15 @@ class SynDetection2D(Dataset):
         split (str): indicate split type of the dataset (train|val|test)
         label_mappings (dict): a dict of {label_id: label_name} mapping
     """
+
+    SYNTHETIC_DATASET_TABLES = {
+        "v1": SyntheticTable(
+            "v1",
+            "SynthDet.zip",
+            f"{PUBLIC_SYNTHETIC_PATH}/SynthDet.zip",
+            390326588,
+        ),
+    }
 
     def __init__(
         self,
@@ -172,8 +200,14 @@ class SynDetection2D(Dataset):
             random_seed (int): random seed used for splitting dataset into
                 train and val
         """
-        if os.path.isdir(os.path.join(data_root, const.SYNTHETIC_SUBFOLDER)):
-            self.root = os.path.join(data_root, const.SYNTHETIC_SUBFOLDER)
+        dataset_directory = os.path.join(data_root, const.SYNTHETIC_SUBFOLDER)
+        if (
+            os.path.isdir(dataset_directory)
+            and glob.glob(f"{dataset_directory}/**/*.png")
+            and glob.glob(f"{dataset_directory}/**/*.json")
+        ):
+            logger.info(f"Found dataset locally at {dataset_directory}")
+            self.root = dataset_directory
 
         else:
             if run_execution_id:
@@ -195,12 +229,11 @@ class SynDetection2D(Dataset):
                 )
                 self.download_captures_from_manifest(manifest_file)
             else:
-                logger.info(
-                    f"Cannot find dataset locally and no manifest file is "
-                    f"provided. Assuming the data root directory {data_root} "
-                    f"already contains synthetic dataset."
+
+                raise DatasetNotFoundError(
+                    "Cannot find the dataset. Please download it first or "
+                    "provide USIM run execution id or manifest file."
                 )
-                self.root = data_root
 
         captures = Captures(self.root, version)
         annotation_definition = AnnotationDefinitions(self.root, version)
@@ -316,35 +349,55 @@ class SynDetection2D(Dataset):
         _download_captures(self.root, manifest_file)
 
     @staticmethod
-    def download(source_uri, destination):
+    def download(data_root, version):
         """Downloads dataset zip file and unzips it.
 
         Args:
-            source_uri (str): URL to download dataset from.
-            destination (destination): Path where to download the dataset.
+            data_root (str): Path where to download the dataset.
+            version (str): version of GroceriesReal dataset, e.g. "v1"
 
         Note: Synthetic dataset is downloaded and unzipped to
-        destination/synthetic.
+        data_root/synthetic.
         """
-
-        if source_uri.startswith(
-            (const.HTTP_URL_BASE_STR, const.HTTPS_URL_BASE_STR)
-        ):
-            destination = os.path.join(destination, const.SYNTHETIC_SUBFOLDER)
-            logger.info(f"Downloading dataset to {destination}.")
-            dataset_path = download_file(
-                source_uri, os.path.join(destination, "dataset.zip")
-            )
-            SynDetection2D.unzip_file(
-                filepath=dataset_path, destination=destination
-            )
-
-        else:
+        if version not in SynDetection2D.SYNTHETIC_DATASET_TABLES.keys():
             raise ValueError(
-                f"Given URL: {source_uri}, is either invalid or not supported."
-                f"Currently supported path is HTTP url (http:// or https://) "
-                f"path"
+                f"A valid dataset version is required. Available versions are:"
+                f"{SynDetection2D.SYNTHETIC_DATASET_TABLES.keys()}"
             )
+
+        source_uri = SynDetection2D.SYNTHETIC_DATASET_TABLES[version].source_uri
+        expected_checksum = SynDetection2D.SYNTHETIC_DATASET_TABLES[
+            version
+        ].checksum
+        dataset_file = SynDetection2D.SYNTHETIC_DATASET_TABLES[version].filename
+
+        extract_folder = os.path.join(data_root, const.SYNTHETIC_SUBFOLDER)
+        dataset_path = os.path.join(extract_folder, dataset_file)
+
+        if os.path.exists(dataset_path):
+            logger.info("The dataset file exists. Skip download.")
+            try:
+                validate_checksum(dataset_path, expected_checksum)
+            except ChecksumError:
+                logger.info(
+                    "The checksum of the previous dataset mismatches. "
+                    "Delete the previously downloaded dataset."
+                )
+                os.remove(dataset_path)
+
+        if not os.path.exists(dataset_path):
+            logger.info(f"Downloading dataset to {extract_folder}.")
+            download_file(source_uri, dataset_path)
+            try:
+                validate_checksum(dataset_path, expected_checksum)
+            except ChecksumError as e:
+                logger.info("Checksum mismatch. Delete the downloaded files.")
+                os.remove(dataset_path)
+                raise e
+
+        SynDetection2D.unzip_file(
+            filepath=dataset_path, destination=extract_folder
+        )
 
     @staticmethod
     def unzip_file(filepath, destination):

@@ -4,7 +4,7 @@ import argparse
 import logging
 
 import datasetinsights.constants as const
-from datasetinsights.data.datasets import Dataset, SynDetection2D
+from datasetinsights.data.datasets import Dataset
 
 LOCAL_PATH = "groceries"
 
@@ -42,7 +42,10 @@ def parse_args():
         help="root directory of datasets",
     )
     parser.add_argument(
-        "--source-uri", default="None", help="URL of synthdet dataset.",
+        "--version",
+        type=str,
+        default="v3",
+        help="version of the public dataset to use.",
     )
 
     args = parser.parse_args()
@@ -50,14 +53,11 @@ def parse_args():
     return args
 
 
-def download(name, source_uri, data_root, version):
+def download(name, data_root, version):
     # TODO this method should be refactored once we have clean download
     # CLI interface.
-    if name.lower() == "Synthetic".lower():
-        SynDetection2D.download(source_uri, data_root)
-    else:
-        dataset = Dataset.find(name)
-        dataset.download(data_root, version)
+    dataset = Dataset.find(name)
+    dataset.download(data_root, version)
 
 
 def run(args):
@@ -68,7 +68,7 @@ def run(args):
         root_logger.setLevel(logging.DEBUG)
     logger.info("Run command with args: %s\n", args)
 
-    download(args.name, args.source_uri, args.data_root, version="v3")
+    download(args.name, args.data_root, args.version)
 
 
 if __name__ == "__main__":
