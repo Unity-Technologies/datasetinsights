@@ -1,4 +1,4 @@
-from .base import Dataset
+from .base import Dataset, Downloader
 from .cityscapes import Cityscapes
 from .coco import CocoDetection
 from .groceries_real import GoogleGroceriesReal, GroceriesReal
@@ -9,6 +9,7 @@ __all__ = [
     "Cityscapes",
     "CocoDetection",
     "Dataset",
+    "Downloader",
     "GroceriesReal",
     "GoogleGroceriesReal",
     "NyuDepth",

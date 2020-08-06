@@ -4,6 +4,7 @@ import re
 import click
 
 import datasetinsights.constants as const
+from datasetinsights.data.datasets import Downloader
 
 logger = logging.getLogger(__name__)
 
@@ -127,4 +128,13 @@ def cli(
 ):
     ctx = click.get_current_context()
     logger.debug(f"Called download command with parameters: {ctx.params}")
-    # TODO: Call download dataset command here.
+    downloader = Downloader.create(
+        name,
+        data_root=data_root,
+        source_uri=source_uri,
+        project_id=project_id,
+        run_execution_id=run_execution_id,
+        auth_token=auth_token,
+        version=dataset_version,
+    )
+    downloader.download(include_binary=include_binary)
