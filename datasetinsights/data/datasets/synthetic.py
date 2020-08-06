@@ -407,10 +407,7 @@ class SynDetection2D(Dataset):
             filepath (str): File path of the zip file.
             destination (str): Path where to unzip contents of zipped file.
         """
-        try:
-            with zipfile.ZipFile(filepath) as file:
-                logger.info(f"Unzipping file from {filepath} to {destination}")
-                file.extractall(destination)
-            os.remove(filepath)
-        except zipfile.BadZipFile:
-            logger.error("Zip file is corrupted.")
+        with zipfile.ZipFile(filepath) as file:
+            logger.info(f"Unzipping file from {filepath} to {destination}")
+            file.extractall(destination)
+        os.remove(filepath)
