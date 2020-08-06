@@ -1,10 +1,11 @@
 import json
 
-from datasetinsights.data.simulation import (
+from datasetinsights.datasets.simulation import (
+    SCHEMA_VERSION,
     AnnotationDefinitions,
     MetricDefinitions,
+    glob,
 )
-from datasetinsights.data.simulation.tables import SCHEMA_VERSION, glob
 
 
 def test_annotation_definitions(mock_data_dir):

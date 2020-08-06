@@ -82,7 +82,7 @@ exclude = '''
     | buck-out
     | build
     | dist
-    | datasetinsights/data/datasets/protos
+    | datasetinsights/datasets/protos
   )/
 )
 '''

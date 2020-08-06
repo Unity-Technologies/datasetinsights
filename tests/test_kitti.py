@@ -5,7 +5,7 @@ import torch
 from pyquaternion import Quaternion
 
 from datasetinsights.data.bbox import BBox3d
-from datasetinsights.data.datasets.kitti import (
+from datasetinsights.datasets.kitti import (
     KittiBox3d,
     KittiTransforms,
     convert_kitti2nu,

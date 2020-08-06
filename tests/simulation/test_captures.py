@@ -3,9 +3,12 @@ import json
 
 import pytest
 
-from datasetinsights.data.simulation import Captures
-from datasetinsights.data.simulation.exceptions import DefinitionIDError
-from datasetinsights.data.simulation.tables import SCHEMA_VERSION, glob
+from datasetinsights.datasets.simulation import (
+    SCHEMA_VERSION,
+    Captures,
+    DefinitionIDError,
+    glob,
+)
 
 
 def test_get_captures_and_annotations(mock_data_dir):
