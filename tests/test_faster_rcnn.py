@@ -60,13 +60,13 @@ def test_faster_rcnn_train_one_epoch(mock_create, config, dataset):
         checkpointer=checkpointer,
         kfp_writer=kfp_writer,
     )
-    train_dataset = create_dataset(config, TRAIN)
-    is_distributed = config.system.distributed
+    train_dataset = create_dataset(config, "/tmp", TRAIN)
+    is_distributed = False
     train_sampler = FasterRCNN.create_sampler(
         is_distributed=is_distributed, dataset=train_dataset, is_train=True
     )
     train_loader = dataloader_creator(
-        config, train_dataset, train_sampler, TRAIN
+        config, train_dataset, train_sampler, TRAIN, is_distributed
     )
     params = [p for p in estimator.model.parameters() if p.requires_grad]
     optimizer, lr_scheduler = FasterRCNN.create_optimizer_lrs(config, params)
@@ -102,10 +102,10 @@ def test_faster_rcnn_train_all(mock_create, mock_loss, config, dataset):
         kfp_writer=kfp_writer,
     )
     checkpointer.save = MagicMock()
-    train_dataset = create_dataset(config, TRAIN)
-    val_dataset = create_dataset(config, VAL)
+    train_dataset = create_dataset(config, "/tmp", TRAIN)
+    val_dataset = create_dataset(config, "/tmp", VAL)
     label_mappings = train_dataset.label_mappings
-    is_distributed = config.system.distributed
+    is_distributed = False
     train_sampler = FasterRCNN.create_sampler(
         is_distributed=is_distributed, dataset=train_dataset, is_train=True
     )
@@ -114,9 +114,9 @@ def test_faster_rcnn_train_all(mock_create, mock_loss, config, dataset):
     )
 
     train_loader = dataloader_creator(
-        config, train_dataset, train_sampler, TRAIN
+        config, train_dataset, train_sampler, TRAIN, is_distributed
     )
-    val_loader = dataloader_creator(config, val_dataset, val_sampler, VAL)
+    val_loader = dataloader_creator(config, val_dataset, val_sampler, VAL, is_distributed)
     epoch = 0
     estimator.train_loop(
         train_dataloader=train_loader,
@@ -145,7 +145,7 @@ def test_faster_rcnn_train(mock_create, mock_loss, config, dataset):
     checkpointer = EstimatorCheckpoint(
         estimator_name=config.estimator,
         log_dir=log_dir,
-        distributed=config.system["distributed"],
+        distributed=False,
     )
     estimator = FasterRCNN(
         config=config,
@@ -181,21 +181,21 @@ def test_faster_rcnn_evaluate_per_epoch(
         device=torch.device("cpu"),
         checkpointer=checkpointer,
         kfp_writer=kfp_writer,
+        distributed=False
     )
-    test_dataset = create_dataset(config, TEST)
+    test_dataset = create_dataset(config, "/tmp", TEST)
     label_mappings = test_dataset.label_mappings
-    is_distributed = config.system.distributed
+    is_distributed = False
     test_sampler = FasterRCNN.create_sampler(
         is_distributed=is_distributed, dataset=test_dataset, is_train=False
     )
-    test_loader = dataloader_creator(config, test_dataset, test_sampler, TEST)
+    test_loader = dataloader_creator(config, test_dataset, test_sampler, TEST, is_distributed)
     sync_metrics = config.get("synchronize_metrics", True)
     epoch = 0
     estimator.evaluate_per_epoch(
         data_loader=test_loader,
         epoch=epoch,
         label_mappings=label_mappings,
-        is_distributed=config.system.distributed,
         synchronize_metrics=sync_metrics,
     )
     writer.add_scalar.assert_called_with("val/loss", loss_val, epoch)
@@ -260,7 +260,7 @@ def test_faster_rcnn_save(mock_create, config, dataset):
     checkpointer = EstimatorCheckpoint(
         estimator_name=config.estimator,
         log_dir=log_dir,
-        distributed=config.system["distributed"],
+        distributed=False,
     )
     estimator = FasterRCNN(
         config=config,
@@ -289,7 +289,7 @@ def test_faster_rcnn_load(mock_create, config, dataset):
     checkpointer = EstimatorCheckpoint(
         estimator_name=config.estimator,
         log_dir=log_dir,
-        distributed=config.system["distributed"],
+        distributed=False,
     )
     estimator = FasterRCNN(
         config=config,
@@ -306,7 +306,7 @@ def test_faster_rcnn_load(mock_create, config, dataset):
 def test_create_dataset(mock_create, config, dataset):
     """test download data."""
     mock_create.return_value = dataset
-    train_dataset = create_dataset(config, TRAIN)
+    train_dataset = create_dataset(config, "/tmp", TRAIN)
     assert len(dataset.images) == len(train_dataset)
 
 
@@ -314,7 +314,7 @@ def test_create_dataset(mock_create, config, dataset):
 def test_create_dryrun_dataset(mock_create, config, dataset):
     """test create dryrun dataset."""
     mock_create.return_value = dataset
-    train_dataset = create_dataset(config, TRAIN)
+    train_dataset = create_dataset(config, "/tmp", TRAIN)
     train_dataset = create_dryrun_dataset(config, train_dataset, TRAIN)
     assert config.train.batch_size * 2 == len(train_dataset)
 
@@ -323,8 +323,8 @@ def test_create_dryrun_dataset(mock_create, config, dataset):
 def test_create_sampler(mock_create, config, dataset):
     """test create sampler."""
     mock_create.return_value = dataset
-    train_dataset = create_dataset(config, TRAIN)
-    is_distributed = config.system.distributed
+    train_dataset = create_dataset(config, "/tmp", TRAIN)
+    is_distributed = False
     train_sampler = FasterRCNN.create_sampler(
         is_distributed=is_distributed, dataset=train_dataset, is_train=True
     )
@@ -337,13 +337,13 @@ def test_dataloader_creator(mock_create, mock_loader, config, dataset):
     """test create dataloader."""
     mock_create.return_value = dataset
     mock_loader.return_value = MagicMock()
-    train_dataset = create_dataset(config, TRAIN)
-    is_distributed = config.system.distributed
+    train_dataset = create_dataset(config, "/tmp", TRAIN)
+    is_distributed = False
     train_sampler = FasterRCNN.create_sampler(
         is_distributed=is_distributed, dataset=train_dataset, is_train=True
     )
     train_loader = dataloader_creator(
-        config, train_dataset, train_sampler, TRAIN
+        config, train_dataset, train_sampler, TRAIN, is_distributed
     )
     assert isinstance(train_loader, MagicMock)
 
@@ -354,13 +354,13 @@ def test_create_dataloader(mock_create, mock_loader, config, dataset):
     """test load data."""
     mock_create.return_value = dataset
     mock_loader.return_value = MagicMock()
-    train_dataset = create_dataset(config, TRAIN)
-    is_distributed = config.system.distributed
+    train_dataset = create_dataset(config, "/tmp", TRAIN)
+    is_distributed = False
     train_sampler = FasterRCNN.create_sampler(
         is_distributed=is_distributed, dataset=train_dataset, is_train=True
     )
     dataloader = create_dataloader(
-        config=config,
+        distributed=is_distributed,
         dataset=train_dataset,
         batch_size=config.train.batch_size,
         sampler=train_sampler,
@@ -410,7 +410,7 @@ def test_faster_rcnn_predict(mock_create, config, dataset):
     checkpointer = EstimatorCheckpoint(
         estimator_name=config.estimator,
         log_dir=config.system.logdir,
-        distributed=config.system["distributed"],
+        distributed=False,
     )
     estimator = FasterRCNN(
         config=config,

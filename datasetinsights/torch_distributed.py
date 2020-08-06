@@ -27,7 +27,7 @@ def get_world_size():
     return dist.get_world_size()
 
 
-def init_distributed_mode(args):
+def init_distributed_mode():
     """
     This method assumes that the module has been launched using
     torch.distributed.launch which sets the proper environment variables.
@@ -39,37 +39,38 @@ def init_distributed_mode(args):
     """
     if "RANK" in os.environ and "WORLD_SIZE" in os.environ:
         logger.info(f"found RANK and WORLD_SIZE in environment")
-        args.rank = int(os.environ["RANK"])
-        args.world_size = int(os.environ["WORLD_SIZE"])
-        args.gpu = int(os.environ["LOCAL_RANK"])
+        rank = int(os.environ["RANK"])
+        world_size = int(os.environ["WORLD_SIZE"])
+        gpu = int(os.environ["LOCAL_RANK"])
     elif "SLURM_PROCID" in os.environ:
         logger.info(f"found 'SLURM_PROCID' in environment")
-        args.rank = int(os.environ["SLURM_PROCID"])
-        args.gpu = args.rank % torch.cuda.device_count()
+        rank = int(os.environ["SLURM_PROCID"])
+        gpu = rank % torch.cuda.device_count()
     else:
-        args.gpu = 0
-        args.rank = 0
+        gpu = 0
+        rank = 0
         logger.info("Not using distributed mode")
-        args.distributed = False
-        return
+        distributed = False
+        return gpu, rank, distributed
     device_count = torch.cuda.device_count()
     logger.info(f"device count: {torch.cuda.device_count()}")
-    logger.info(f"world size: {args.world_size}")
-    logger.info(f"gpu: {args.gpu}")
-    logger.info(f"local rank {args.rank}")
+    logger.info(f"world size: {world_size}")
+    logger.info(f"gpu: {gpu}")
+    logger.info(f"local rank {rank}")
     if device_count == 0:
         logger.info("No cuda devices found, will not parallelize")
-        args.distributed = False
-        return
+        distributed = False
+        return gpu, rank, distributed
     if not is_master():
         logging.disable(logging.ERROR)
-    args.distributed = True
-    torch.cuda.set_device(args.gpu)
+    distributed = True
+    torch.cuda.set_device(gpu)
 
     torch.distributed.init_process_group(
         backend="nccl",
         init_method="env://",
-        world_size=args.world_size,
-        rank=args.rank,
+        world_size=world_size,
+        rank=rank,
     )
     torch.distributed.barrier()
+    return gpu, rank, distributed

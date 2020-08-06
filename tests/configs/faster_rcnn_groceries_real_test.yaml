@@ -48,8 +48,6 @@ synchronize_metrics: True
 checkpoint_file: None
 system:
   auth_token: None
-  data_root: /tmp
-  distributed: False
   dryrun: True
   gpus_per_node: 1
   logdir: /tmp

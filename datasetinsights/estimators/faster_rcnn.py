@@ -44,6 +44,10 @@ class FasterRCNN(Estimator):
         box_score_thresh: (optional) default threshold is 0.05
         gpu (int): (optional) gpu id on which code will execute
         rank (int): (optional) rank of process executing code
+        distributed:
+        data_root:
+        checkpoint_file:
+        checkpoint_dir:
     Attributes:
         model: pytorch model
         writer: Tensorboard writer object
@@ -63,6 +67,8 @@ class FasterRCNN(Estimator):
         box_score_thresh=0.05,
         gpu=0,
         rank=0,
+        distributed=None,
+        data_root=None,
         **kwargs,
     ):
         """initiate estimator."""
@@ -83,6 +89,9 @@ class FasterRCNN(Estimator):
         self.gpu = gpu
         self.rank = rank
         self.sync_metrics = config.get("synchronize_metrics", True)
+        self.distributed = distributed
+        self.data_root = data_root
+
         logger.info(f"gpu: {self.gpu}, rank: {self.rank}")
 
         self.checkpointer = checkpointer
@@ -97,7 +106,7 @@ class FasterRCNN(Estimator):
             )
         self.model.to(self.device)
 
-        if self.config.system.distributed:
+        if self.distributed:
             self.model = torch.nn.parallel.DistributedDataParallel(
                 self.model, device_ids=[self.gpu]
             )
@@ -106,27 +115,24 @@ class FasterRCNN(Estimator):
     def train(self, **kwargs):
         """start training, save trained model per epoch."""
         config = self.config
-        train_dataset = create_dataset(config, TRAIN)
-        val_dataset = create_dataset(config, VAL)
+        train_dataset = create_dataset(config, self.data_root,  TRAIN)
+        val_dataset = create_dataset(config, self.data_root, VAL)
         label_mappings = train_dataset.label_mappings
-        if self.config.system.dryrun:
-            train_dataset = create_dryrun_dataset(config, train_dataset, TRAIN)
-            val_dataset = create_dryrun_dataset(config, val_dataset, VAL)
 
         logger.info(f"length of train dataset is {len(train_dataset)}")
         logger.info(f"length of validation dataset is {len(val_dataset)}")
-        is_distributed = config.system.distributed
+
         train_sampler = FasterRCNN.create_sampler(
-            is_distributed=is_distributed, dataset=train_dataset, is_train=True
+            is_distributed=self.distributed, dataset=train_dataset, is_train=True
         )
         val_sampler = FasterRCNN.create_sampler(
-            is_distributed=is_distributed, dataset=val_dataset, is_train=False
+            is_distributed=self.distributed, dataset=val_dataset, is_train=False
         )
 
         train_loader = dataloader_creator(
-            config, train_dataset, train_sampler, TRAIN
+            config, train_dataset, train_sampler, TRAIN, self.distributed
         )
-        val_loader = dataloader_creator(config, val_dataset, val_sampler, VAL)
+        val_loader = dataloader_creator(config, val_dataset, val_sampler, VAL, self.distributed)
         self.train_loop(
             train_dataloader=train_loader,
             label_mappings=label_mappings,
@@ -176,7 +182,7 @@ class FasterRCNN(Estimator):
                     lr_scheduler=lr_scheduler,
                     accumulation_steps=accumulation_steps,
                 )
-            if self.config.system.distributed:
+            if self.distributed:
                 train_sampler.set_epoch(epoch)
             self.checkpointer.save(self, epoch=epoch)
             with Timer(
@@ -263,28 +269,23 @@ class FasterRCNN(Estimator):
     def evaluate(self, **kwargs):
         """evaluate given dataset."""
         config = self.config
-        test_dataset = create_dataset(config, TEST)
+        test_dataset = create_dataset(config,self.data_root, TEST)
         label_mappings = test_dataset.label_mappings
-        if self.config.system.dryrun:
-            test_dataset = create_dryrun_dataset(config, test_dataset, TEST)
-
-        is_distributed = config.system.distributed
         test_sampler = FasterRCNN.create_sampler(
-            is_distributed=is_distributed, dataset=test_dataset, is_train=False
+            is_distributed=self.distributed, dataset=test_dataset, is_train=False
         )
 
         logger.info(f"length of test dataset is {len(test_dataset)}")
         logger.info("Start evaluating estimator: %s", type(self).__name__)
 
         test_loader = dataloader_creator(
-            config, test_dataset, test_sampler, TEST
+            config, test_dataset, test_sampler, TEST, self.distributed
         )
         self.model.to(self.device)
         self.evaluate_per_epoch(
             data_loader=test_loader,
             epoch=0,
             label_mappings=label_mappings,
-            is_distributed=self.config.system.distributed,
             synchronize_metrics=self.sync_metrics,
         )
 
@@ -296,7 +297,6 @@ class FasterRCNN(Estimator):
         epoch,
         label_mappings,
         max_detections_per_img=MAX_BOXES_PER_IMAGE,
-        is_distributed=False,
         synchronize_metrics=True,
     ):
         """Evaluate model performance per epoch.
@@ -338,7 +338,7 @@ class FasterRCNN(Estimator):
             preds_raw = self.model(images)
             converted_preds = convert_bboxes2canonical(preds_raw)
             gt_preds = list(zip(targets_converted, converted_preds))
-            if is_distributed and synchronize_metrics:
+            if self.distributed and synchronize_metrics:
                 all_preds_gt_canonical = gather_gt_preds(
                     gt_preds=gt_preds,
                     device=self.device,
@@ -553,11 +553,12 @@ def create_dryrun_dataset(config, dataset, split):
     return dataset
 
 
-def create_dataset(config, split):
+def create_dataset(config, data_root, split):
     """download dataset from source.
 
     Args:
         config: (CfgNode): estimator config:
+        data_root: Root directory on localhost where datasets are located.
         split: train, val, test
 
     Returns dataset: dataset obj must have len and __get_item__
@@ -565,7 +566,7 @@ def create_dataset(config, split):
     """
     dataset = Dataset.create(
         config[split].dataset.name,
-        data_root=config.system.data_root,
+        data_root=data_root,
         transforms=FasterRCNN.get_transform(),
         **config[split].dataset.args,
     )
@@ -573,7 +574,7 @@ def create_dataset(config, split):
 
 
 def create_dataloader(
-    config,
+    distributed,
     dataset,
     sampler,
     train,
@@ -585,7 +586,7 @@ def create_dataloader(
     """load dataset and create dataloader.
 
     Args:
-        config: (CfgNode): estimator config:
+        distributed: wether or not the dataloader is distributed
         dataset: dataset obj must have len and __get_item__
         sampler: (torch.utils.data.Sampler)
         train: whether or not the sampler is for training data
@@ -596,7 +597,7 @@ def create_dataloader(
         torch.utils.data.DataLoader
 
     """
-    if config.system.distributed:
+    if distributed:
         if train:
             batch_sampler = torch.utils.data.BatchSampler(
                 sampler, batch_size, drop_last=False
@@ -632,7 +633,7 @@ def create_dataloader(
         return data_loader
 
 
-def dataloader_creator(config, dataset, sampler, split):
+def dataloader_creator(config, dataset, sampler, split, distributed):
     """initiate data loading.
 
     Args:
@@ -648,7 +649,7 @@ def dataloader_creator(config, dataset, sampler, split):
     if split == TRAIN:
         is_train = True
     dataloader = create_dataloader(
-        config=config,
+        distributed=distributed,
         dataset=dataset,
         batch_size=config[split].batch_size,
         sampler=sampler,
