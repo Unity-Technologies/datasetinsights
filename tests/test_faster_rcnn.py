@@ -246,7 +246,7 @@ def test_faster_rcnn_log_metric_val(mock_create, config, dataset):
     epoch = 0
     estimator.log_metric_val(dataset.label_mappings, epoch)
 
-    writer.add_scalars.assert_called_with("val/mAR-per-class", {}, epoch)
+    writer.add_scalars.assert_called_with("val/AP50IOU-per-class", {}, epoch)
 
 
 @patch("datasetinsights.estimators.faster_rcnn.Dataset.create")

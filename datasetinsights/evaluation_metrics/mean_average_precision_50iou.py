@@ -22,7 +22,7 @@ class MeanAveragePrecision50IOU(AveragePrecisionBBox2D):
         super().__init__(iou_threshold=0.5)
 
     def compute(self):
-        """Compute mAP at iou range.
+        """Compute mAP in the iou range.
         """
         average_precision = super().compute()
         mean_ap = np.mean(

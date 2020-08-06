@@ -29,7 +29,11 @@ class MeanAveragePrecision(EvaluationMetric):
     """
 
     def __init__(
-        self, iou_start=0.5, iou_end=0.95, iou_step=0.05,
+        self,
+        iou_start=0.5,
+        iou_end=0.95,
+        iou_step=0.05,
+        interpolation="EveryPointInterpolation",
     ):
         self.iou_thresholds = np.linspace(
             iou_start,
@@ -37,14 +41,17 @@ class MeanAveragePrecision(EvaluationMetric):
             np.round((iou_end - iou_start) / iou_step) + 1,
             endpoint=True,
         )
+        self.interpolation = interpolation
         self.map_records = [
-            AveragePrecisionBBox2D(iou) for iou in self.iou_thresholds
+            AveragePrecisionBBox2D(iou, interpolation)
+            for iou in self.iou_thresholds
         ]
 
     def reset(self):
         """Reset metrics."""
         self.map_records = [
-            AveragePrecisionBBox2D(iou) for iou in self.iou_thresholds
+            AveragePrecisionBBox2D(iou, self.interpolation)
+            for iou in self.iou_thresholds
         ]
 
     def update(self, mini_batch):
