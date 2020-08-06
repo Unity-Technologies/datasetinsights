@@ -14,7 +14,5 @@ class AveragePrecision50IOU(AveragePrecisionBBox2D):
     This would calculate AP@50IOU for each label.
     """
 
-    def __init__(
-        self,
-    ):
+    def __init__(self):
         super().__init__(iou_threshold=0.5)

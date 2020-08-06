@@ -74,10 +74,8 @@ class MeanAverageRecall(EvaluationMetric):
         """
         mean_sum = 0
         for mean_ar in self.mar_records:
+            result = mean_ar.compute()
             mean_sum += np.mean(
-                [
-                    result_per_label
-                    for result_per_label in mean_ar.compute().values()
-                ]
+                [result_per_label for result_per_label in result.values()]
             )
         return mean_sum / len(self.mar_records)
