@@ -116,7 +116,9 @@ def test_faster_rcnn_train_all(mock_create, mock_loss, config, dataset):
     train_loader = dataloader_creator(
         config, train_dataset, train_sampler, TRAIN, is_distributed
     )
-    val_loader = dataloader_creator(config, val_dataset, val_sampler, VAL, is_distributed)
+    val_loader = dataloader_creator(
+        config, val_dataset, val_sampler, VAL, is_distributed
+    )
     epoch = 0
     estimator.train_loop(
         train_dataloader=train_loader,
@@ -143,9 +145,7 @@ def test_faster_rcnn_train(mock_create, mock_loss, config, dataset):
     writer.add_figure = MagicMock()
 
     checkpointer = EstimatorCheckpoint(
-        estimator_name=config.estimator,
-        log_dir=log_dir,
-        distributed=False,
+        estimator_name=config.estimator, log_dir=log_dir, distributed=False,
     )
     estimator = FasterRCNN(
         config=config,
@@ -181,7 +181,7 @@ def test_faster_rcnn_evaluate_per_epoch(
         device=torch.device("cpu"),
         checkpointer=checkpointer,
         kfp_writer=kfp_writer,
-        distributed=False
+        distributed=False,
     )
     test_dataset = create_dataset(config, "/tmp", TEST)
     label_mappings = test_dataset.label_mappings
@@ -189,7 +189,9 @@ def test_faster_rcnn_evaluate_per_epoch(
     test_sampler = FasterRCNN.create_sampler(
         is_distributed=is_distributed, dataset=test_dataset, is_train=False
     )
-    test_loader = dataloader_creator(config, test_dataset, test_sampler, TEST, is_distributed)
+    test_loader = dataloader_creator(
+        config, test_dataset, test_sampler, TEST, is_distributed
+    )
     sync_metrics = config.get("synchronize_metrics", True)
     epoch = 0
     estimator.evaluate_per_epoch(
@@ -258,9 +260,7 @@ def test_faster_rcnn_save(mock_create, config, dataset):
     kfp_writer = MagicMock()
     writer = MagicMock()
     checkpointer = EstimatorCheckpoint(
-        estimator_name=config.estimator,
-        log_dir=log_dir,
-        distributed=False,
+        estimator_name=config.estimator, log_dir=log_dir, distributed=False,
     )
     estimator = FasterRCNN(
         config=config,
@@ -287,9 +287,7 @@ def test_faster_rcnn_load(mock_create, config, dataset):
     kfp_writer = MagicMock()
     writer = SummaryWriter(config.system.logdir, write_to_disk=True)
     checkpointer = EstimatorCheckpoint(
-        estimator_name=config.estimator,
-        log_dir=log_dir,
-        distributed=False,
+        estimator_name=config.estimator, log_dir=log_dir, distributed=False,
     )
     estimator = FasterRCNN(
         config=config,

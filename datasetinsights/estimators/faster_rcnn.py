@@ -115,7 +115,7 @@ class FasterRCNN(Estimator):
     def train(self, **kwargs):
         """start training, save trained model per epoch."""
         config = self.config
-        train_dataset = create_dataset(config, self.data_root,  TRAIN)
+        train_dataset = create_dataset(config, self.data_root, TRAIN)
         val_dataset = create_dataset(config, self.data_root, VAL)
         label_mappings = train_dataset.label_mappings
 
@@ -123,7 +123,9 @@ class FasterRCNN(Estimator):
         logger.info(f"length of validation dataset is {len(val_dataset)}")
 
         train_sampler = FasterRCNN.create_sampler(
-            is_distributed=self.distributed, dataset=train_dataset, is_train=True
+            is_distributed=self.distributed,
+            dataset=train_dataset,
+            is_train=True,
         )
         val_sampler = FasterRCNN.create_sampler(
             is_distributed=self.distributed, dataset=val_dataset, is_train=False
@@ -132,7 +134,9 @@ class FasterRCNN(Estimator):
         train_loader = dataloader_creator(
             config, train_dataset, train_sampler, TRAIN, self.distributed
         )
-        val_loader = dataloader_creator(config, val_dataset, val_sampler, VAL, self.distributed)
+        val_loader = dataloader_creator(
+            config, val_dataset, val_sampler, VAL, self.distributed
+        )
         self.train_loop(
             train_dataloader=train_loader,
             label_mappings=label_mappings,
@@ -269,10 +273,12 @@ class FasterRCNN(Estimator):
     def evaluate(self, **kwargs):
         """evaluate given dataset."""
         config = self.config
-        test_dataset = create_dataset(config,self.data_root, TEST)
+        test_dataset = create_dataset(config, self.data_root, TEST)
         label_mappings = test_dataset.label_mappings
         test_sampler = FasterRCNN.create_sampler(
-            is_distributed=self.distributed, dataset=test_dataset, is_train=False
+            is_distributed=self.distributed,
+            dataset=test_dataset,
+            is_train=False,
         )
 
         logger.info(f"length of test dataset is {len(test_dataset)}")

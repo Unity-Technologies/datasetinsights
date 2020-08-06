@@ -6,12 +6,10 @@ from tensorboardX import SummaryWriter
 from yacs.config import CfgNode as CN
 
 import datasetinsights.constants as const
-
 from datasetinsights.estimators import Estimator
 from datasetinsights.storage.checkpoint import EstimatorCheckpoint
 from datasetinsights.storage.kfp_output import KubeflowPipelineWriter
 from datasetinsights.torch_distributed import init_distributed_mode, is_master
-
 
 logger = logging.getLogger(__name__)
 
@@ -112,9 +110,9 @@ def cli(
     cfg.merge_from_list(ctx.args)
 
     if torch.cuda.is_available() and not no_cuda:
-         device = torch.device("cuda")
+        device = torch.device("cuda")
     else:
-         device = torch.device("cpu")
+        device = torch.device("cpu")
     logdir = tb_log_dir
     if logdir == const.NULL_STRING:
         # Use logdir=None to force using SummaryWriter default logdir,
@@ -123,12 +121,15 @@ def cli(
     #
     # # todo this makes it so that we lose the tensorboard writer of non-master
     # # processes which could make debugging harder
-    writer = SummaryWriter(logdir,
-                           write_to_disk=is_master(),
-                           max_queue=const.SUMMARY_WRITER_MAX_QUEUE,
-                           flush_secs=const.SUMMARY_WRITER_FLUSH_SECS)
+    writer = SummaryWriter(
+        logdir,
+        write_to_disk=is_master(),
+        max_queue=const.SUMMARY_WRITER_MAX_QUEUE,
+        flush_secs=const.SUMMARY_WRITER_FLUSH_SECS,
+    )
     kfp_writer = KubeflowPipelineWriter(
-        filename=const.DEFAULT_KFP_METRICS_FILENAME, filepath=const.DEFAULT_KFP_METRICS_DIR
+        filename=const.DEFAULT_KFP_METRICS_FILENAME,
+        filepath=const.DEFAULT_KFP_METRICS_DIR,
     )
     checkpointer = EstimatorCheckpoint(
         estimator_name=cfg.estimator,
@@ -146,7 +147,6 @@ def cli(
         rank=rank,
         distributed=distributed,
         data_root=data_root,
-
     )
 
     estimator.train()
