@@ -32,3 +32,6 @@ USIM_API_ENDPOINT = "https://api.simulation.unity3d.com"
 
 # Default Timing text for codetiming.Timer decorator
 TIMING_TEXT = "[{name}] elapsed time: {:0.4f} seconds."
+
+SUMMARY_WRITER_MAX_QUEUE = 100
+SUMMARY_WRITER_FLUSH_SECS = 30
