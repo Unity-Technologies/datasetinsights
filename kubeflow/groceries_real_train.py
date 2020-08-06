@@ -24,8 +24,9 @@ def train_pipeline(
     config_file: str = (
         "datasetinsights/configs/faster_rcnn_groceries_real.yaml"
     ),
-    epochs: int = 50,
+    extra_options: str = "",
 ):
+
     # Create large persistant volume to store training data.
     vop = dsl.VolumeOp(
         name="train-pvc",
@@ -47,14 +48,12 @@ def train_pipeline(
     train = dsl.ContainerOp(
         name="train",
         image=docker_image,
-        command=["python", "-m", "datasetinsights.cli"],
+        command=["datasetinsights"],
         arguments=[
-            "--local_rank=0",
             "train",
             f"--config={config_file}",
-            f"--logdir={logdir}",
-            "train.epochs",
-            epochs,
+            f"--tb-log-dir={logdir}",
+            extra_options,
         ],
         pvolumes={"/data": download.pvolumes["/data"]},
     )

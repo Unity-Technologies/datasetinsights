@@ -15,9 +15,10 @@ def train_pipeline(
     docker_image: str = (
         "gcr.io/unity-ai-thea-test/datasetinsights:<git-comit-sha>"
     ),
+    config_file: str = "datasetinsights/configs/faster_rcnn_synthetic.yaml",
     auth_token: str = "xxxxxx",
     run_execution_id: str = "EjPQYAN",
-    epochs: int = 10,
+    extra_options: str = "",
 ):
     """Train Pipeline
 
@@ -37,7 +38,7 @@ def train_pipeline(
     download = dsl.ContainerOp(
         name="usim download",
         image=docker_image,
-        command=["datasetinsights"],
+        command=["python", "-m", "datasetinsights.scripts.usim_download"],
         arguments=[
             f"--run-execution-id={run_execution_id}",
             f"--include-binary",
@@ -63,9 +64,9 @@ def train_pipeline(
         arguments=[
             "datasetinsights",
             "train",
-            "--config=datasetinsights/configs/faster_rcnn_synthetic.yaml",
+            f"--config={config_file}",
             f"--tb-logdir={logdir}",
-            "...",
+            extra_options,
         ],
         # Refer to pvloume in previous step to explicitly call out dependency
         pvolumes={"/data": download.pvolumes["/data"]},

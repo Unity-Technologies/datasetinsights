@@ -100,7 +100,7 @@ def cli(
 
     from datasetinsights.estimators.builder import EstimatorBuilder
 
-    model_config = CN.load_cfg(open(ctx.paras["config"], "r"))
+    model_config = CN.load_cfg(open(ctx.params["config"], "r"))
 
     estimator = EstimatorBuilder.create(
         name=model_config.estimator, ctx=ctx, model_config=model_config

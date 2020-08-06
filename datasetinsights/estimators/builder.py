@@ -53,7 +53,10 @@ class EstimatorBuilder:
 
 def create_estomator_depedencies(ctx, model_config):
 
-    model_config.merge_from_list(ctx.args)
+    if len(ctx.args) == 1:
+        model_config.merge_from_list(ctx.args[0].split(" "))
+    else:
+        model_config.merge_from_list(ctx.args)
 
     gpu, rank, distributed = init_distributed_mode()
     if torch.cuda.is_available() and not ctx.params["no_cuda"]:

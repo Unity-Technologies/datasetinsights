@@ -14,11 +14,13 @@ def evaluate_pipeline(
     volume_size: str = "20G",
     data_name: str = "GroceriesReal",
     test_split="test",
+    config_file: str = "datasetinsights/configs/faster_rcnn_synthetic.yaml",
     logdir: str = "gs://thea-dev/runs/yyyymmdd-hhmm",
     docker_image: str = (
         "gcr.io/unity-ai-thea-test/datasetinsights:<git-comit-sha>"
     ),
     checkpoint_file: str = "",
+    extra_options: str = "",
 ):
     """Evaluate Pipeline
 
@@ -59,9 +61,10 @@ def evaluate_pipeline(
         arguments=[
             "datasetinsights",
             "evaluate",
-            "--config=datasetinsights/configs/faster_rcnn_synthetic.yaml",
+            f"--config={config_file}",
             f"--logdir={logdir}",
-            f"--checkpoint-file={checkpoint_file}" "...",
+            f"--checkpoint-file={checkpoint_file}",
+            extra_options,
         ],
         file_outputs={"mlpipeline-metrics": "/mlpipeline-metrics.json"},
         # Refer to pvloume in previous step to explicitly call out dependency
