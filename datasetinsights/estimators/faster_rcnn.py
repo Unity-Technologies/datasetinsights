@@ -242,7 +242,7 @@ class FasterRCNN(Estimator):
                     f"{intermediate_loss}"
                 )
                 self.writer.add_scalar(
-                    "training/running_loss", intermediate_loss, examples_seen
+                    "training/intermediate_loss", intermediate_loss, examples_seen
                 )
             losses_grad.backward()
             if (i + 1) % accumulation_steps == 0:
