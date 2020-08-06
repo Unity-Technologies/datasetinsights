@@ -98,11 +98,11 @@ def cli(
     logger.debug(f"Called train command with parameters: {ctx.params}")
     logger.debug(f"Override estimator config with args: {ctx.args}")
 
-    from datasetinsights.estimators.builder import EstimatorBuilder
+    from datasetinsights.estimators.factory import EstimatorFactory
 
     model_config = CN.load_cfg(open(ctx.params["config"], "r"))
 
-    estimator = EstimatorBuilder.create(
+    estimator = EstimatorFactory.create(
         name=model_config.estimator, ctx=ctx, model_config=model_config
     )
     estimator.train()

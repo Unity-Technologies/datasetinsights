@@ -4,12 +4,14 @@ from tensorboardX import SummaryWriter
 import datasetinsights.constants as const
 from datasetinsights.estimators import Estimator
 from datasetinsights.estimators.faster_rcnn import FasterRCNNDepedencies
+from datasetinsights.estimators.densedepth import DenseDepthDependencies
+from datasetinsights.estimators.deeplab import DeepLabV3Depedencies
 from datasetinsights.storage.checkpoint import EstimatorCheckpoint
 from datasetinsights.storage.kfp_output import KubeflowPipelineWriter
 from datasetinsights.torch_distributed import init_distributed_mode, is_master
 
 
-class EstimatorBuilder:
+class EstimatorFactory:
     @staticmethod
     def create(name, **kwargs):
         """Create a new instance of the estimators subclass
@@ -23,7 +25,7 @@ class EstimatorBuilder:
             an instance of the specified estimators subclass
         """
 
-        estimators_cls = EstimatorBuilder.find(name)
+        estimators_cls = EstimatorFactory.find(name)
         estimator_dependencies = create_estomator_depedencies(
             kwargs["ctx"], kwargs["model_config"]
         )
@@ -86,16 +88,29 @@ def create_estomator_depedencies(ctx, model_config):
         log_dir=writer.logdir,
         distributed=distributed,
     )
-    estimator_depedencies = FasterRCNNDepedencies(
-        config=model_config,
-        writer=writer,
-        kfp_writer=kfp_writer,
-        device=device,
-        checkpointer=checkpointer,
-        gpu=gpu,
-        rank=rank,
-        distributed=distributed,
-        data_root=ctx.params["data_root"],
-    )
+    if model_config.estimator == "FasterRCNN":
+        estimator_depedencies = FasterRCNNDepedencies(
+            config=model_config,
+            writer=writer,
+            kfp_writer=kfp_writer,
+            device=device,
+            checkpointer=checkpointer,
+            gpu=gpu,
+            rank=rank,
+            distributed=distributed,
+            data_root=ctx.params["data_root"],
+        )
+    elif model_config.estimator == "DeeplabV3":
+        estimator_depedencies = DeepLabV3Depedencies(config=model_config,
+                                                     writer=writer,
+                                                     checkpointer=checkpointer,
+                                                     device=device)
+    elif model_config.estimator == "DenseDepth":
+        estimator_depedencies = DenseDepthDependencies(config=model_config,
+                                                       writer=writer,
+                                                       checkpointer=checkpointer,
+                                                       device=device)
+    else:
+        raise ValueError(f"Model {model_config.estimator} estimator not supported")
 
     return estimator_depedencies
