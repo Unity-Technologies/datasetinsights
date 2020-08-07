@@ -4,9 +4,9 @@ import json
 import pandas as pd
 import pytest
 
-from datasetinsights.data.simulation import Metrics
-from datasetinsights.data.simulation.exceptions import DefinitionIDError
-from datasetinsights.data.simulation.tables import SCHEMA_VERSION, glob
+from datasetinsights.datasets.simulation import Metrics
+from datasetinsights.datasets.simulation.exceptions import DefinitionIDError
+from datasetinsights.datasets.simulation.tables import SCHEMA_VERSION, glob
 
 
 def test_filter_metrics(mock_data_dir):
