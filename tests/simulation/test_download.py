@@ -14,7 +14,7 @@ from datasetinsights.data.download import (
     validate_checksum,
 )
 from datasetinsights.data.exceptions import ChecksumError, DownloadError
-from datasetinsights.datasets.simulation import (
+from datasetinsights.datasets.simulation.download import (
     Downloader,
     FileType,
     _filter_unsuccessful_attempts,

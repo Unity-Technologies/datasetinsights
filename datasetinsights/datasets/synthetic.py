@@ -9,13 +9,12 @@ from sklearn.model_selection import train_test_split
 
 import datasetinsights.constants as const
 from datasetinsights.data.bbox import BBox2D
-from datasetinsights.datasets.simulation import (
-    SCHEMA_VERSION,
-    AnnotationDefinitions,
-    Captures,
+from datasetinsights.datasets.simulation import AnnotationDefinitions, Captures
+from datasetinsights.datasets.simulation.download import (
     Downloader,
     download_manifest,
 )
+from datasetinsights.datasets.simulation.tables import SCHEMA_VERSION
 
 from .base import Dataset
 

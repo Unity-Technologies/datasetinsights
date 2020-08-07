@@ -2,12 +2,9 @@ import logging
 from pathlib import Path
 
 import datasetinsights.constants as const
-from datasetinsights.datasets.simulation import (
-    SCHEMA_VERSION,
-    Downloader,
-    MetricDefinitions,
-    Metrics,
-)
+from datasetinsights.datasets.simulation import MetricDefinitions, Metrics
+from datasetinsights.datasets.simulation.download import Downloader
+from datasetinsights.datasets.simulation.tables import SCHEMA_VERSION
 
 logger = logging.getLogger(__name__)
 
