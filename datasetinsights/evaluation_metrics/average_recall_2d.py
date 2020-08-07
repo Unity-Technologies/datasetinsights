@@ -124,9 +124,7 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
     Average Recall (AR) @[IoU=0.50:0.95 | area = all | maxDets=100]
 
     Attributes:
-        mar_records (dict): save prediction records for each label
-        iou_thresholds (numpy.array): iou thresholds
-        max_detections (int): max detections per image
+        mar_per_iou (dict): save prediction records for each label
 
     Args:
         iou_start (float): iou range starting point (default: 0.5)
@@ -141,16 +139,13 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
 
     def __init__(self):
         self.mar_per_iou = [
-            AverageRecall()
+            AverageRecall(iou)
             for iou in MeanAverageRecallAverageOverIOU.IOU_THRESHOULDS
         ]
 
     def reset(self):
         """Reset metrics."""
-        self.mar_per_iou = [
-            AverageRecall(iou, self.max_detections)
-            for iou in self.iou_thresholds
-        ]
+        [mean_ar.reset() for mean_ar in self.mar_per_iou]
 
     def update(self, mini_batch):
         """Update records per mini batch.
@@ -169,8 +164,8 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
     def compute(self):
         """Compute AR for each label.
 
-        Return:
-            average_recall (dict): a dictionary of AR scores per label.
+        Returns:
+            mean AR over ious.
         """
         mean_sum = 0
         for mean_ar in self.mar_per_iou:

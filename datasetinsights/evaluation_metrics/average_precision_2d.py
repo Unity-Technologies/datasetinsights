@@ -253,7 +253,6 @@ class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
 
     Attributes:
         map_per_iou (dict): save prediction records for each ious
-        iou_thresholds (numpy.array): iou thresholds
 
     Args:
         iou_start (float): iou range starting point (default: 0.5)
@@ -273,8 +272,7 @@ class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
 
     def reset(self):
         """Reset metrics."""
-        for mean_ap in self.map_per_iou:
-            mean_ap.reset()
+        [mean_ap.reset() for mean_ap in self.map_per_iou]
 
     def update(self, mini_batch):
         """Update records per mini batch
