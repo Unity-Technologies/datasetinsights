@@ -356,6 +356,11 @@ class SynDetection2D(Dataset):
             data_root (str): Path where to download the dataset.
             version (str): version of GroceriesReal dataset, e.g. "v1"
 
+        Raises:
+             ValueError if the dataset version is not supported
+             ChecksumError if the download file checksum does not match
+             DownloadError if the download file failed
+
         Note: Synthetic dataset is downloaded and unzipped to
         data_root/synthetic.
         """

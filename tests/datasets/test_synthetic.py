@@ -1,9 +1,11 @@
+import os
 import shutil
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
+import pytest
 
 import datasetinsights.constants as const
 from datasetinsights.data.bbox import BBox2D
@@ -12,6 +14,7 @@ from datasetinsights.data.datasets.synthetic import (
     _get_split,
     read_bounding_box_2d,
 )
+from datasetinsights.data.exceptions import ChecksumError
 
 
 @patch("datasetinsights.data.datasets.synthetic._download_captures")
@@ -69,3 +72,26 @@ def test_get_split():
     expected_val = pd.DataFrame({"id": [2, 1, 4, 5]})
     pd.testing.assert_frame_equal(expected_train, actual_train)
     pd.testing.assert_frame_equal(expected_val, actual_val)
+
+
+@patch("datasetinsights.data.datasets.synthetic.os.path.exists")
+@patch("datasetinsights.data.datasets.synthetic.os.remove")
+@patch("datasetinsights.data.datasets.synthetic.validate_checksum")
+@patch("datasetinsights.data.datasets.synthetic.SynDetection2D.unzip_file")
+def test_synthetic_download_raises_exception(
+    mocked_unzip, mocked_validate, mocked_remove, mocked_exists
+):
+    bad_version = "v_bad"
+    version = "v1"
+    filename = SynDetection2D.SYNTHETIC_DATASET_TABLES[version].filename
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        extract_folder = os.path.join(tmp_dir, const.SYNTHETIC_SUBFOLDER)
+        dataset_path = os.path.join(extract_folder, filename)
+
+        with pytest.raises(ValueError):
+            SynDetection2D.download(data_root=tmp_dir, version=bad_version)
+
+    mocked_exists.return_value = True
+    mocked_validate.side_effect = ChecksumError()
+    SynDetection2D.download(tmp_dir, version)
+    mocked_remove.assert_called_with(dataset_path)
