@@ -1,9 +1,21 @@
 import os
+from datetime import datetime
 
+TIMESTAMP_SUFFIX = datetime.now().strftime("%Y%m%d-%H%M%S")
 PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 
-METRICS_DIR = os.path.join(PROJECT_ROOT, "metrics")
-METRICS_FILE_NAME = "mlpipeline-metrics.json"
+# Default for tensorboard logs, checkpoints and metrics
+DEFAULT_KFP_METRICS_DIR = os.path.join(
+    PROJECT_ROOT, "metrics", TIMESTAMP_SUFFIX
+)
+DEFAULT_KFP_METRICS_FILENAME = "mlpipeline-metrics.json"
+
+DEFAULT_TENSORBOARD_LOG_DIR = os.path.join(
+    PROJECT_ROOT, "runs", TIMESTAMP_SUFFIX
+)
+DEFAULT_CHECKPOINT_DIR = os.path.join(
+    PROJECT_ROOT, "checkpoints", TIMESTAMP_SUFFIX
+)
 
 GCS_BUCKET = "thea-dev"
 GCS_BASE_STR = "gs://"
@@ -33,3 +45,12 @@ USIM_API_ENDPOINT = "https://api.simulation.unity3d.com"
 
 # Default Timing text for codetiming.Timer decorator
 TIMING_TEXT = "[{name}] elapsed time: {:0.4f} seconds."
+
+# Click CLI context settings
+CONTEXT_SETTINGS = {
+    "help_option_names": ["-h", "--help"],
+    "show_default": True,
+    "ignore_unknown_options": True,
+    "allow_extra_args": True,
+}
+DEFAULT_DATASET_VERSION = "latest"

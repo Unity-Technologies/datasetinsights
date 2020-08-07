@@ -9,15 +9,15 @@ import pytest
 
 import datasetinsights.constants as const
 from datasetinsights.data.bbox import BBox2D
-from datasetinsights.data.datasets.synthetic import (
+from datasetinsights.data.exceptions import ChecksumError
+from datasetinsights.datasets.synthetic import (
     SynDetection2D,
     _get_split,
     read_bounding_box_2d,
 )
-from datasetinsights.data.exceptions import ChecksumError
 
 
-@patch("datasetinsights.data.datasets.synthetic._download_captures")
+@patch("datasetinsights.datasets.synthetic._download_captures")
 def test_syn_detection_2d(mock_data):
     parent_dir = Path(__file__).parent.parent.absolute()
     mock_data_dir = str(parent_dir / "mock_data" / "simrun")
