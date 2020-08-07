@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 
 from datasetinsights.data.bbox import BBox2D
-from datasetinsights.data.datasets import Dataset
+from datasetinsights.datasets import Dataset
 
 
 class DummyDetection2D(Dataset):

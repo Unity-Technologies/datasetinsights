@@ -4,7 +4,7 @@ import argparse
 import logging
 
 import datasetinsights.constants as const
-from datasetinsights.data.datasets import Dataset
+from datasetinsights.datasets import Dataset
 
 LOCAL_PATH = "groceries"
 
