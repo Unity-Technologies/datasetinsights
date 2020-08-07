@@ -31,25 +31,13 @@ class EvaluationMetric(metaclass=ABCMeta):
         Returns:
             a label of the specified metric subclass
         """
-        metric_classes = EvaluationMetric.get_all_subclasses(EvaluationMetric)
+        metric_classes = EvaluationMetric.__subclasses__()
         metric_names = [d.__name__ for d in metric_classes]
         if name in metric_names:
             metric_cls = metric_classes[metric_names.index(name)]
             return metric_cls
         else:
             raise NotImplementedError(f"Unknown Metric class {name}!")
-
-    @staticmethod
-    def get_all_subclasses(cls):
-        """Find EvaluationMetric all subclasses, subclasses of subclasses, and so on
-        """
-        all_subclasses = []
-
-        for subclass in cls.__subclasses__():
-            all_subclasses.append(subclass)
-            all_subclasses.extend(EvaluationMetric.get_all_subclasses(subclass))
-
-        return all_subclasses
 
     @abstractmethod
     def reset(self):
