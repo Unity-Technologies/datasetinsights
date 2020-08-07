@@ -74,10 +74,10 @@ def test_get_split():
     pd.testing.assert_frame_equal(expected_val, actual_val)
 
 
-@patch("datasetinsights.data.datasets.synthetic.os.path.exists")
-@patch("datasetinsights.data.datasets.synthetic.os.remove")
-@patch("datasetinsights.data.datasets.synthetic.validate_checksum")
-@patch("datasetinsights.data.datasets.synthetic.SynDetection2D.unzip_file")
+@patch("datasetinsights.datasets.synthetic.os.path.exists")
+@patch("datasetinsights.datasets.synthetic.os.remove")
+@patch("datasetinsights.datasets.synthetic.validate_checksum")
+@patch("datasetinsights.datasets.synthetic.SynDetection2D.unzip_file")
 def test_synthetic_download_raises_exception(
     mocked_unzip, mocked_validate, mocked_remove, mocked_exists
 ):
