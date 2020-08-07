@@ -9,6 +9,7 @@ import collections
 import numpy as np
 
 from .base import EvaluationMetric
+from .metrics_utils import mean_metrics_over_iou
 from .records import Records
 
 
@@ -275,7 +276,7 @@ class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
         [mean_ap.reset() for mean_ap in self.map_per_iou]
 
     def update(self, mini_batch):
-        """Update records per mini batch
+        """Update records per mini batch.
 
         Args:
             mini_batch (list(list)): a list which contains batch_size of
@@ -291,13 +292,7 @@ class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
     def compute(self):
         """Compute AP for each label.
 
-        Return:
-            mAP (float): mean average precision across all ious
+        Returns (float):
+            mean average precision over ious
         """
-        mean_sum = 0
-        for mean_ap in self.map_per_iou:
-            result = mean_ap.compute()
-            mean_sum += np.mean(
-                [result_per_label for result_per_label in result.values()]
-            )
-        return mean_sum / len(self.map_per_iou)
+        return mean_metrics_over_iou(self.map_per_iou)

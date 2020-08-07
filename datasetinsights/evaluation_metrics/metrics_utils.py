@@ -2,13 +2,13 @@ import numpy as np
 
 
 def mean_metrics_over_iou(metric_per_iou):
-    """Calculate mean value over ious.
+    """Calculate mean value over IOUs.
 
     Args:
         metric_per_iou (dict): metric records for each iou
 
-    Returns:
-        mean metric values over ious
+    Returns (float):
+        mean metric values over IOUs
     """
     mean_sum = 0
     for mean_ap in metric_per_iou:

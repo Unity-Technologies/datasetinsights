@@ -28,13 +28,13 @@ test:
       split: test
 metrics:
   mAP:
-    name: MeanAveragePrecision
+    name: MeanAveragePrecisionAverageOverIOU
   mAP50IOU:
-    name: MeanAveragePrecision50IOU
+    name: MeanAveragePrecisionIOU50
   mAR:
-    name: MeanAverageRecall
+    name: MeanAverageRecallAverageOverIOU
   AP50IOU:
-    name: AveragePrecision50IOU
+    name: AveragePrecisionIOU50
 optimizer:
   name: Adam
   args:

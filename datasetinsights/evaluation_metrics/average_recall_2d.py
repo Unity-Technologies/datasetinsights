@@ -9,6 +9,7 @@ import collections
 import numpy as np
 
 from .base import EvaluationMetric
+from .metrics_utils import mean_metrics_over_iou
 from .records import Records
 
 
@@ -164,13 +165,7 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
     def compute(self):
         """Compute AR for each label.
 
-        Returns:
-            mean AR over ious.
+        Returns (float):
+            mean average recall over ious
         """
-        mean_sum = 0
-        for mean_ar in self.mar_per_iou:
-            result = mean_ar.compute()
-            mean_sum += np.mean(
-                [result_per_label for result_per_label in result.values()]
-            )
-        return mean_sum / len(self.mar_per_iou)
+        return mean_metrics_over_iou(self.mar_per_iou)

@@ -4,7 +4,7 @@ from datasetinsights.data.bbox import BBox2D
 
 
 @pytest.fixture
-def get_gt_pred_bbox():
+def get_mini_batches():
     gt_bbox1 = BBox2D(label="car", x=1, y=1, w=2, h=3)
     gt_bbox2 = BBox2D(label="car", x=7, y=6, w=3, h=4)
     gt_bbox11 = BBox2D(label="pedestrian", x=1, y=6, w=2, h=4)
@@ -52,5 +52,16 @@ def get_gt_pred_bbox():
         [pred_bbox9, pred_bbox10],
         [pred_bbox11, pred_bbox12, pred_bbox14, pred_bbox15],
     ]
+
+    mini_batch1 = [
+        [gt_bboxes[0], pred_bboxes[0]],
+        [gt_bboxes[1], pred_bboxes[1]],
+    ]
+    mini_batch2 = [
+        [gt_bboxes[2], pred_bboxes[2]],
+        [gt_bboxes[3], pred_bboxes[3]],
+    ]
+    mini_batch3 = [[gt_bboxes[4], pred_bboxes[4]]]
+    return [mini_batch1, mini_batch2, mini_batch3]
 
     return gt_bboxes, pred_bboxes
