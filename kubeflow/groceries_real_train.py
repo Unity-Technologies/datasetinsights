@@ -16,15 +16,33 @@ DEFAULT_TIMEOUT = 259200  # Timeout in 3 days (seconds)
 def train_pipeline(
     num_proc: int = 1,
     volume_size: str = "50Gi",
+    data_name: str = "GroceriesReal",
     logdir: str = "gs://thea-dev/runs/yyyymmdd-hhmm",
     docker_image: str = (
         "gcr.io/unity-ai-thea-test/datasetinsights:<git-comit-sha>"
     ),
     config_file: str = (
-        "datasetinsights/configs/faster_rcnn_google_groceries_real.yaml"
+        "datasetinsights/configs/faster_rcnn_groceries_real.yaml"
     ),
     epochs: int = 50,
 ):
+    # Create large persistant volume to store training data.
+    vop = dsl.VolumeOp(
+        name="train-pvc",
+        resource_name="train-pvc",
+        size=volume_size,
+        modes=dsl.VOLUME_MODE_RWO,
+    )
+
+    # Dataset Download
+    download = dsl.ContainerOp(
+        name="groceriesreal download",
+        image=docker_image,
+        command=["python", "-m", "datasetinsights.scripts.public_download"],
+        arguments=[f"--name={data_name}"],
+        pvolumes={"/data": vop.volume},
+    )
+
     # Train
     train = dsl.ContainerOp(
         name="train",
@@ -38,6 +56,7 @@ def train_pipeline(
             "train.epochs",
             epochs,
         ],
+        pvolumes={"/data": download.pvolumes["/data"]},
     )
     # Request GPU
     train.set_gpu_limit(NUM_GPU)
