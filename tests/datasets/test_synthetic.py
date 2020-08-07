@@ -5,13 +5,13 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from datasetinsights.data.bbox import BBox2D
 from datasetinsights.datasets.synthetic import (
     SYNTHETIC_LOCAL_PATH,
     SynDetection2D,
     _get_split,
     read_bounding_box_2d,
 )
+from datasetinsights.io.bbox import BBox2D
 
 
 @patch("datasetinsights.datasets.synthetic._download_captures")

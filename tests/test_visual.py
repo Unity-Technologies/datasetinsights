@@ -6,8 +6,8 @@ import pandas as pd
 from PIL import Image, ImageColor
 from pytest import approx
 
-from datasetinsights.data.bbox import BBox2D
 from datasetinsights.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
+from datasetinsights.io.bbox import BBox2D
 from datasetinsights.stats.visualization.plots import (
     _convert_euler_rotations_to_scatter_points,
     bar_plot,
