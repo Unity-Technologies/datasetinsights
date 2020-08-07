@@ -198,7 +198,7 @@ class AveragePrecision(EvaluationMetric):
         return ap
 
 
-class AveragePrecision50IOU(EvaluationMetric):
+class AveragePrecisionIOU50(EvaluationMetric):
     """2D Bounding Box Average Precision at IOU = 50%.
 
     This would calculate AP@50IOU for each label.
@@ -217,7 +217,7 @@ class AveragePrecision50IOU(EvaluationMetric):
         return self.ap.compute()
 
 
-class MeanAveragePrecision50IOU(EvaluationMetric):
+class MeanAveragePrecisionIOU50(EvaluationMetric):
     """2D Bounding Box Mean Average Precision metrics at IOU=50%.
 
     Implementation of classic mAP metrics. We use 10 IoU thresholds
@@ -244,7 +244,7 @@ class MeanAveragePrecision50IOU(EvaluationMetric):
         return mean_ap
 
 
-class MeanAveragePrecision(EvaluationMetric):
+class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
     """2D Bounding Box Mean Average Precision metrics.
 
     Implementation of classic mAP metrics. We use 10 IoU thresholds
@@ -268,7 +268,7 @@ class MeanAveragePrecision(EvaluationMetric):
     def __init__(self):
         self.map_per_iou = [
             AveragePrecision(iou)
-            for iou in MeanAveragePrecision.IOU_THRESHOULDS
+            for iou in MeanAveragePrecisionAverageOverIOU.IOU_THRESHOULDS
         ]
 
     def reset(self):

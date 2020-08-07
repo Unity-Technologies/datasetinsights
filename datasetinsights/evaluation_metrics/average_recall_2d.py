@@ -116,7 +116,7 @@ class AverageRecall(EvaluationMetric):
         return labels
 
 
-class MeanAverageRecall(EvaluationMetric):
+class MeanAverageRecallAverageOverIOU(EvaluationMetric):
     """2D Bounding Box Mean Average Recall metrics.
 
     Implementation of classic mAR metrics. We use 10 IoU thresholds
@@ -141,7 +141,8 @@ class MeanAverageRecall(EvaluationMetric):
 
     def __init__(self):
         self.mar_per_iou = [
-            AverageRecall() for iou in MeanAverageRecall.IOU_THRESHOULDS
+            AverageRecall()
+            for iou in MeanAverageRecallAverageOverIOU.IOU_THRESHOULDS
         ]
 
     def reset(self):
