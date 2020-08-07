@@ -149,8 +149,18 @@ class DenseDepthModel(nn.Module):
         return self.decoder(self.encoder(x))
 
 
-class DenseDepthDependencies:
-    def __init__(self, config, writer, checkpointer, device):
+class DenseDepth(Estimator):
+    """
+    Attributes:
+        config: estimator config
+        writer: Tensorboard writer object
+        model: tensorflow or pytorch graph
+        checkpointer: Model checkpointer callback to save models
+        device: model training on device (cpu|cuda)
+        optimizer: pytorch optimizer
+    """
+
+    def __init__(self, config, writer, checkpointer, device, **kwargs):
         """
         Args:
         config: estimator config
@@ -163,24 +173,6 @@ class DenseDepthDependencies:
         self.checkpointer = checkpointer
         self.device = device
         self.writer = writer
-
-
-class DenseDepth(Estimator):
-    """
-    Attributes:
-        config: estimator config
-        writer: Tensorboard writer object
-        model: tensorflow or pytorch graph
-        checkpointer: Model checkpointer callback to save models
-        device: model training on device (cpu|cuda)
-        optimizer: pytorch optimizer
-    """
-
-    def __init__(self, estimator_dependencies, **kwargs):
-        self.config = estimator_dependencies.config
-        self.checkpointer = estimator_dependencies.checkpointer
-        self.device = estimator_dependencies.device
-        self.writer = estimator_dependencies.writer
 
         self.model = DenseDepthModel()
         logger.info("DenseDepth model is created.")

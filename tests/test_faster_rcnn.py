@@ -19,7 +19,6 @@ from datasetinsights.estimators.faster_rcnn import (
     TRAIN,
     VAL,
     FasterRCNN,
-    FasterRCNNDepedencies,
     create_dataloader,
     create_dataset,
     create_dryrun_dataset,
@@ -54,15 +53,12 @@ def test_faster_rcnn_train_one_epoch(mock_create, config, dataset):
     writer = MagicMock()
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
-    depedencies = FasterRCNNDepedencies(
-        config=config,
+    estimator = FasterRCNN(config=config,
         writer=writer,
-        device=torch.device("cpu"),
         checkpointer=checkpointer,
-        kfp_writer=kfp_writer,
-    )
+        kfp_writer=kfp_writer)
 
-    estimator = FasterRCNN(estimator_dependencies=depedencies)
+    estimator.device = torch.device("cpu")
     train_dataset = create_dataset(config, "/tmp", TRAIN)
     is_distributed = False
     train_sampler = FasterRCNN.create_sampler(
@@ -97,15 +93,12 @@ def test_faster_rcnn_train_all(mock_create, mock_loss, config, dataset):
     writer = MagicMock()
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
-    depedencies = FasterRCNNDepedencies(
-        config=config,
-        writer=writer,
-        device=torch.device("cpu"),
-        checkpointer=checkpointer,
-        kfp_writer=kfp_writer,
-    )
+    estimator = FasterRCNN(config=config,
+                           writer=writer,
+                           checkpointer=checkpointer,
+                           kfp_writer=kfp_writer)
 
-    estimator = FasterRCNN(estimator_dependencies=depedencies)
+    estimator.device = torch.device("cpu")
     checkpointer.save = MagicMock()
     train_dataset = create_dataset(config, "/tmp", TRAIN)
     val_dataset = create_dataset(config, "/tmp", VAL)
@@ -152,15 +145,12 @@ def test_faster_rcnn_train(mock_create, mock_loss, config, dataset):
     checkpointer = EstimatorCheckpoint(
         estimator_name=config.estimator, log_dir=log_dir, distributed=False,
     )
-    depedencies = FasterRCNNDepedencies(
-        config=config,
-        writer=writer,
-        device=torch.device("cpu"),
-        checkpointer=checkpointer,
-        kfp_writer=kfp_writer,
-    )
+    estimator = FasterRCNN(config=config,
+                           writer=writer,
+                           checkpointer=checkpointer,
+                           kfp_writer=kfp_writer)
 
-    estimator = FasterRCNN(estimator_dependencies=depedencies)
+    estimator.device = torch.device("cpu")
     estimator.train()
     writer.add_scalar.assert_called_with(
         "val/loss", loss_val, config.train.epochs - 1
@@ -183,16 +173,12 @@ def test_faster_rcnn_evaluate_per_epoch(
     checkpointer = MagicMock()
     writer.add_scalar = MagicMock()
 
-    depedencies = FasterRCNNDepedencies(
-        config=config,
-        writer=writer,
-        device=torch.device("cpu"),
-        checkpointer=checkpointer,
-        kfp_writer=kfp_writer,
-        distributed=False,
-    )
+    estimator = FasterRCNN(config=config,
+                           writer=writer,
+                           checkpointer=checkpointer,
+                           kfp_writer=kfp_writer)
 
-    estimator = FasterRCNN(estimator_dependencies=depedencies)
+    estimator.device = torch.device("cpu")
 
     test_dataset = create_dataset(config, "/tmp", TEST)
     label_mappings = test_dataset.label_mappings
@@ -227,15 +213,12 @@ def test_faster_rcnn_evaluate(mock_create, mock_loss, config, dataset):
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
     writer.add_scalar = MagicMock()
-    depedencies = FasterRCNNDepedencies(
-        config=config,
-        writer=writer,
-        device=torch.device("cpu"),
-        checkpointer=checkpointer,
-        kfp_writer=kfp_writer,
-    )
+    estimator = FasterRCNN(config=config,
+                           writer=writer,
+                           checkpointer=checkpointer,
+                           kfp_writer=kfp_writer)
 
-    estimator = FasterRCNN(estimator_dependencies=depedencies)
+    estimator.device = torch.device("cpu")
     estimator.evaluate()
     epoch = 0
     writer.add_scalar.assert_called_with("val/loss", loss_val, epoch)
@@ -251,15 +234,12 @@ def test_faster_rcnn_log_metric_val(mock_create, config, dataset):
     writer.add_scalar = MagicMock()
     writer.add_scalars = MagicMock()
     writer.add_figure = MagicMock()
-    depedencies = FasterRCNNDepedencies(
-        config=config,
-        writer=writer,
-        device=torch.device("cpu"),
-        checkpointer=checkpointer,
-        kfp_writer=kfp_writer,
-    )
+    estimator = FasterRCNN(config=config,
+                           writer=writer,
+                           checkpointer=checkpointer,
+                           kfp_writer=kfp_writer)
 
-    estimator = FasterRCNN(estimator_dependencies=depedencies)
+    estimator.device = torch.device("cpu")
     epoch = 0
     estimator.log_metric_val(dataset.label_mappings, epoch)
 
@@ -277,15 +257,12 @@ def test_faster_rcnn_save(mock_create, config, dataset):
     checkpointer = EstimatorCheckpoint(
         estimator_name=config.estimator, log_dir=log_dir, distributed=False,
     )
-    depedencies = FasterRCNNDepedencies(
-        config=config,
-        writer=writer,
-        device=torch.device("cpu"),
-        checkpointer=checkpointer,
-        kfp_writer=kfp_writer,
-    )
+    estimator = FasterRCNN(config=config,
+                           writer=writer,
+                           checkpointer=checkpointer,
+                           kfp_writer=kfp_writer)
 
-    estimator = FasterRCNN(estimator_dependencies=depedencies)
+    estimator.device = torch.device("cpu")
     estimator.save(log_dir + "FasterRCNN_test")
 
     assert any(
@@ -306,15 +283,12 @@ def test_faster_rcnn_load(mock_create, config, dataset):
     checkpointer = EstimatorCheckpoint(
         estimator_name=config.estimator, log_dir=log_dir, distributed=False,
     )
-    depedencies = FasterRCNNDepedencies(
-        config=config,
-        writer=writer,
-        device=torch.device("cpu"),
-        checkpointer=checkpointer,
-        kfp_writer=kfp_writer,
-    )
+    estimator = FasterRCNN(config=config,
+                           writer=writer,
+                           checkpointer=checkpointer,
+                           kfp_writer=kfp_writer)
 
-    estimator = FasterRCNN(estimator_dependencies=depedencies)
+    estimator.device = torch.device("cpu")
     estimator.load(ckpt_dir)
     assert os.listdir(log_dir)[0].startswith("events.out.tfevents")
 
@@ -401,15 +375,12 @@ def test_create_optimizer(mock_create, mock_lr, mock_adm, config, dataset):
     writer = MagicMock()
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
-    depedencies = FasterRCNNDepedencies(
-        config=config,
-        writer=writer,
-        device=torch.device("cpu"),
-        checkpointer=checkpointer,
-        kfp_writer=kfp_writer,
-    )
+    estimator = FasterRCNN(config=config,
+                           writer=writer,
+                           checkpointer=checkpointer,
+                           kfp_writer=kfp_writer)
 
-    estimator = FasterRCNN(estimator_dependencies=depedencies)
+    estimator.device = torch.device("cpu")
     params = [p for p in estimator.model.parameters() if p.requires_grad]
     optimizer, lr_scheduler = FasterRCNN.create_optimizer_lrs(config, params)
 
@@ -431,15 +402,12 @@ def test_faster_rcnn_predict(mock_create, config, dataset):
         log_dir=config.system.logdir,
         distributed=False,
     )
-    depedencies = FasterRCNNDepedencies(
-        config=config,
-        writer=writer,
-        device=torch.device("cpu"),
-        checkpointer=checkpointer,
-        kfp_writer=kfp_writer,
-    )
+    estimator = FasterRCNN(config=config,
+                           writer=writer,
+                           checkpointer=checkpointer,
+                           kfp_writer=kfp_writer)
 
-    estimator = FasterRCNN(estimator_dependencies=depedencies)
+    estimator.device = torch.device("cpu")
     image_size = (256, 256)
     image = Image.fromarray(np.random.random(image_size), "L")
     image = torchvision.transforms.functional.to_tensor(image)

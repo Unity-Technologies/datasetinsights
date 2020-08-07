@@ -17,7 +17,13 @@ from datasetinsights.data.bbox import BBox2D
 from datasetinsights.data.datasets import Dataset
 from datasetinsights.data.transforms import Compose
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
-from datasetinsights.torch_distributed import get_world_size
+from datasetinsights.torch_distributed import (
+    get_gpu,
+    get_rank,
+    get_world_size,
+    init_distributed_mode,
+    is_distributed,
+)
 
 from .base import Estimator
 
@@ -29,23 +35,12 @@ VAL = "val"
 TEST = "test"
 
 
-class FasterRCNNDepedencies:
-    def __init__(
-        self,
-        *,
-        config,
-        writer,
-        kfp_writer,
-        checkpointer,
-        device,
-        box_score_thresh=0.05,
-        gpu=0,
-        rank=0,
-        distributed=None,
-        data_root=None,
-    ):
-        """
-            Args:
+class FasterRCNN(Estimator):
+    """
+    Faster-RCNN train/evaluate implementation for object detection.
+
+
+    Args:
         config (CfgNode): estimator config
         writer: Tensorboard writer object
         kfp_writer: KubeflowPipelineWriter object to write logs
@@ -58,10 +53,42 @@ class FasterRCNNDepedencies:
         data_root:
         checkpoint_file:
         checkpoint_dir:
-        """
+
+
+    https://github.com/pytorch/vision/tree/master/references/detection
+    https://arxiv.org/abs/1506.01497
+
+    Attributes:
+        model: pytorch model
+        writer: Tensorboard writer object
+        kfp_writer: KubeflowPipelineWriter object
+        checkpointer: Model checkpointer callback to save models
+        device: model training on device (cpu|cuda)
+    """
+
+    def __init__(
+        self,
+        *,
+        config,
+        writer,
+        kfp_writer,
+        checkpointer,
+        box_score_thresh=0.05,
+        data_root=None,
+        no_cuda=None,
+        **kwargs,
+    ):
+        """initiate estimator."""
+
         logger.info(f"initializing faster rcnn")
         self.config = config
-        self.device = device
+
+        init_distributed_mode()
+        if torch.cuda.is_available() and not no_cuda:
+            self.device = torch.device("cuda")
+        else:
+            self.device = torch.device("cpu")
+
         self.writer = writer
         self.kfp_writer = kfp_writer
         model_name = f"fasterrcnn_{self.config.backbone}_fpn"
@@ -73,14 +100,12 @@ class FasterRCNNDepedencies:
             box_score_thresh=box_score_thresh,
         )
         self.model_without_ddp = self.model
-        self.gpu = gpu
-        self.rank = rank
+        self.gpu = get_gpu()
+        self.rank = get_rank()
         logger.info(f"gpu: {self.gpu}, rank: {self.rank}")
         self.sync_metrics = config.get("synchronize_metrics", True)
-        self.distributed = distributed
+        self.distributed = is_distributed()
         self.data_root = data_root
-
-        logger.info(f"gpu: {self.gpu}, rank: {self.rank}")
 
         self.checkpointer = checkpointer
         self.metrics = {}
@@ -96,40 +121,6 @@ class FasterRCNNDepedencies:
             )
             self.model_without_ddp = self.model.module
 
-
-class FasterRCNN(Estimator):
-    """
-    Faster-RCNN train/evaluate implementation for object detection.
-
-    https://github.com/pytorch/vision/tree/master/references/detection
-    https://arxiv.org/abs/1506.01497
-
-    Attributes:
-        model: pytorch model
-        writer: Tensorboard writer object
-        kfp_writer: KubeflowPipelineWriter object
-        checkpointer: Model checkpointer callback to save models
-        device: model training on device (cpu|cuda)
-    """
-
-    def __init__(
-        self, estimator_dependencies, **kwargs,
-    ):
-        """initiate estimator."""
-
-        self.config = estimator_dependencies.config
-        self.device = estimator_dependencies.device
-        self.writer = estimator_dependencies.writer
-        self.kfp_writer = estimator_dependencies.kfp_writer
-        self.model = estimator_dependencies.model
-        self.model_without_ddp = self.model
-        self.gpu = estimator_dependencies.gpu
-        self.rank = estimator_dependencies.rank
-        self.metrics = estimator_dependencies.metrics
-        self.sync_metrics = self.config.get("synchronize_metrics", True)
-        self.checkpointer = estimator_dependencies.checkpointer
-        self.data_root = estimator_dependencies.data_root
-        self.distributed = estimator_dependencies.distributed
         self.checkpoint_file = self.config.get(
             "checkpoint_file", const.NULL_STRING
         )

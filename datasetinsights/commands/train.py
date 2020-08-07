@@ -103,6 +103,8 @@ def cli(
     model_config = CN.load_cfg(open(ctx.params["config"], "r"))
 
     estimator = EstimatorFactory.create(
-        name=model_config.estimator, ctx=ctx, model_config=model_config
+        name=model_config.estimator,
+        params=ctx.params,
+        model_config=model_config,
     )
     estimator.train()

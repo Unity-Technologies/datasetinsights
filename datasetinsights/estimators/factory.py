@@ -1,14 +1,9 @@
-import torch
 from tensorboardX import SummaryWriter
 
 import datasetinsights.constants as const
 from datasetinsights.estimators import Estimator
-from datasetinsights.estimators.faster_rcnn import FasterRCNNDepedencies
-from datasetinsights.estimators.densedepth import DenseDepthDependencies
-from datasetinsights.estimators.deeplab import DeepLabV3Depedencies
 from datasetinsights.storage.checkpoint import EstimatorCheckpoint
 from datasetinsights.storage.kfp_output import KubeflowPipelineWriter
-from datasetinsights.torch_distributed import init_distributed_mode, is_master
 
 
 class EstimatorFactory:
@@ -26,12 +21,43 @@ class EstimatorFactory:
         """
 
         estimators_cls = EstimatorFactory.find(name)
-        estimator_dependencies = create_estomator_depedencies(
-            kwargs["ctx"], kwargs["model_config"]
+
+        logdir = kwargs["params"]["tb_log_dir"]
+        no_cuda = kwargs["params"]["no_cuda"]
+        model_config = kwargs["model_config"]
+
+        if logdir == const.NULL_STRING:
+            # Use logdir=None to force using SummaryWriter default logdir,
+            # which points to ./runs/<model>_<timestamp>
+            logdir = None
+
+        from datasetinsights.torch_distributed import is_distributed, is_master
+
+        # todo this makes it so that we lose the tensorboard
+        #  writer of non-master processes which could make debugging harder
+        writer = SummaryWriter(
+            logdir,
+            write_to_disk=is_master(),
+            max_queue=const.SUMMARY_WRITER_MAX_QUEUE,
+            flush_secs=const.SUMMARY_WRITER_FLUSH_SECS,
+        )
+        kfp_writer = KubeflowPipelineWriter(
+            filename=const.DEFAULT_KFP_METRICS_FILENAME,
+            filepath=const.DEFAULT_KFP_METRICS_DIR,
+        )
+        checkpointer = EstimatorCheckpoint(
+            estimator_name=model_config.estimator,
+            log_dir=writer.logdir,
+            distributed=is_distributed(),
         )
 
         return estimators_cls(
-            estimator_dependencies=estimator_dependencies, **kwargs
+            model_config=model_config,
+            writer=writer,
+            kfp_writer=kfp_writer,
+            checkpointer=checkpointer,
+            logdir=logdir,
+            no_cuda=no_cuda,
         )
 
     @staticmethod
@@ -51,66 +77,3 @@ class EstimatorFactory:
             return estimators_cls
         else:
             raise NotImplementedError(f"Unknown Estimator class {name}!")
-
-
-def create_estomator_depedencies(ctx, model_config):
-
-    if len(ctx.args) == 1:
-        model_config.merge_from_list(ctx.args[0].split(" "))
-    else:
-        model_config.merge_from_list(ctx.args)
-
-    gpu, rank, distributed = init_distributed_mode()
-    if torch.cuda.is_available() and not ctx.params["no_cuda"]:
-        device = torch.device("cuda")
-    else:
-        device = torch.device("cpu")
-    logdir = ctx.params["tb_log_dir"]
-    if logdir == const.NULL_STRING:
-        # Use logdir=None to force using SummaryWriter default logdir,
-        # which points to ./runs/<model>_<timestamp>
-        logdir = None
-
-    # todo this makes it so that we lose the tensorboard
-    #  writer of non-master processes which could make debugging harder
-    writer = SummaryWriter(
-        logdir,
-        write_to_disk=is_master(),
-        max_queue=const.SUMMARY_WRITER_MAX_QUEUE,
-        flush_secs=const.SUMMARY_WRITER_FLUSH_SECS,
-    )
-    kfp_writer = KubeflowPipelineWriter(
-        filename=const.DEFAULT_KFP_METRICS_FILENAME,
-        filepath=const.DEFAULT_KFP_METRICS_DIR,
-    )
-    checkpointer = EstimatorCheckpoint(
-        estimator_name=model_config.estimator,
-        log_dir=writer.logdir,
-        distributed=distributed,
-    )
-    if model_config.estimator == "FasterRCNN":
-        estimator_depedencies = FasterRCNNDepedencies(
-            config=model_config,
-            writer=writer,
-            kfp_writer=kfp_writer,
-            device=device,
-            checkpointer=checkpointer,
-            gpu=gpu,
-            rank=rank,
-            distributed=distributed,
-            data_root=ctx.params["data_root"],
-        )
-    elif model_config.estimator == "DeeplabV3":
-        estimator_depedencies = DeepLabV3Depedencies(config=model_config,
-                                                     writer=writer,
-                                                     checkpointer=checkpointer,
-                                                     device=device)
-    elif model_config.estimator == "DenseDepth":
-        estimator_depedencies = DenseDepthDependencies(config=model_config,
-                                                       writer=writer,
-                                                       checkpointer=checkpointer,
-                                                       device=device)
-    else:
-        raise ValueError(f"Model {model_config.estimator} estimator not supported")
-
-    return estimator_depedencies

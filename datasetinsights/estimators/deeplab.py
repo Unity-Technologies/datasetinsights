@@ -75,14 +75,6 @@ class Normalize:
         return image, target
 
 
-class DeepLabV3Depedencies:
-    def __init__(self, config, writer, checkpointer, device):
-        self.config = config
-        self.writer = writer
-        self.checkpointer = checkpointer
-        self.device = device
-
-
 class DeeplabV3(Estimator):
     """ DeeplabV3 Model https://arxiv.org/abs/1706.05587
 
@@ -102,11 +94,11 @@ class DeeplabV3(Estimator):
         lr_scheduler: pytorch learning rate scheduler
     """
 
-    def __init__(self, *, estimator_dependencies, **kwargs):
-        self.config = estimator_dependencies.config
-        self.writer = estimator_dependencies.writer
-        self.checkpointer = estimator_dependencies.checkpointer
-        self.device = estimator_dependencies.device
+    def __init__(self, config, writer, checkpointer, device, **kwargs):
+        self.config = config
+        self.writer = writer
+        self.checkpointer = checkpointer
+        self.device = device
 
         self.backbone = self.config.backbone
         self.num_classes = self.config.num_classes

@@ -24,7 +24,30 @@ def get_world_size():
     """
     if not is_dist_avail_and_initialized():
         return 1
+    if "WORLD_SIZE" in os.environ:
+        return int(os.environ["WORLD_SIZE"])
     return dist.get_world_size()
+
+
+def get_rank():
+    if "RANK" in os.environ:
+        rank = int(os.environ["RANK"])
+        return rank
+    elif "SLURM_PROCID" in os.environ:
+        rank = int(os.environ["SLURM_PROCID"])
+    else:
+        return 0
+
+
+def get_gpu():
+    if "RANK" in os.environ and "WORLD_SIZE" in os.environ:
+        return int(os.environ["LOCAL_RANK"])
+    elif "SLURM_PROCID" in os.environ:
+        rank = int(os.environ["SLURM_PROCID"])
+        gpu = rank % torch.cuda.device_count()
+        return gpu
+    else:
+        return 0
 
 
 def init_distributed_mode():
@@ -33,41 +56,45 @@ def init_distributed_mode():
     torch.distributed.launch which sets the proper environment variables.
     It parses those variables and initializes the process group.
     https://github.com/pytorch/pytorch/blob/master/torch/distributed/launch.py
-    Args:
-        args: cli arguments
-
     """
-    if "RANK" in os.environ and "WORLD_SIZE" in os.environ:
-        logger.info(f"found RANK and WORLD_SIZE in environment")
-        rank = int(os.environ["RANK"])
-        world_size = int(os.environ["WORLD_SIZE"])
-        gpu = int(os.environ["LOCAL_RANK"])
-    elif "SLURM_PROCID" in os.environ:
-        logger.info(f"found 'SLURM_PROCID' in environment")
-        rank = int(os.environ["SLURM_PROCID"])
-        gpu = rank % torch.cuda.device_count()
-    else:
-        gpu = 0
-        rank = 0
-        logger.info("Not using distributed mode")
-        distributed = False
-        return gpu, rank, distributed
-    device_count = torch.cuda.device_count()
-    logger.info(f"device count: {torch.cuda.device_count()}")
-    logger.info(f"world size: {world_size}")
-    logger.info(f"gpu: {gpu}")
-    logger.info(f"local rank {rank}")
-    if device_count == 0:
-        logger.info("No cuda devices found, will not parallelize")
-        distributed = False
-        return gpu, rank, distributed
     if not is_master():
         logging.disable(logging.ERROR)
-    distributed = True
-    torch.cuda.set_device(gpu)
 
+    if torch.cuda.device_count() == 0:
+        logger.info("No cuda devices found, will not parallelize")
+        return
+    if (
+        "RANK" not in os.environ
+        and "WORLD_SIZE" not in os.environ
+        or "SLURM_PROCID" not in os.environ
+    ):
+        return
+
+    gpu = get_gpu()
+    rank = get_rank()
+    world_size = get_world_size()
+
+    logger.info(f"gpu: {gpu}")
+    logger.info(f"local rank {rank}")
+    logger.info(f"world size {world_size}")
+
+    torch.cuda.set_device(gpu)
     torch.distributed.init_process_group(
         backend="nccl", init_method="env://", world_size=world_size, rank=rank,
     )
     torch.distributed.barrier()
-    return gpu, rank, distributed
+
+
+def is_distributed():
+    if (
+        "RANK" not in os.environ
+        and "WORLD_SIZE" not in os.environ
+        or "SLURM_PROCID" not in os.environ
+    ):
+        logger.info("Not using distributed mode")
+        return False
+    if torch.cuda.device_count() == 0:
+        logger.info("No cuda devices found, will not parallelize")
+        return False
+    else:
+        return True
