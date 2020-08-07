@@ -6,11 +6,13 @@ https://github.com/rafaelpadilla/Object-Detection-Metrics/issues/22
 """
 import collections
 
+import numpy as np
+
 from .base import EvaluationMetric
 from .records import Records
 
 
-class AverageRecallBBox2D(EvaluationMetric):
+class AverageRecall(EvaluationMetric):
     """2D Bounding Box Average Recall metrics.
 
     Attributes:
@@ -112,3 +114,67 @@ class AverageRecallBBox2D(EvaluationMetric):
                 labels[label] = boxes[:max_detections]
 
         return labels
+
+
+class MeanAverageRecall(EvaluationMetric):
+    """2D Bounding Box Mean Average Recall metrics.
+
+    Implementation of classic mAR metrics. We use 10 IoU thresholds
+    of .50:.95:.05. This is the same metrics in cocoEval.summarize():
+    Average Recall (AR) @[IoU=0.50:0.95 | area = all | maxDets=100]
+
+    Attributes:
+        mar_records (dict): save prediction records for each label
+        iou_thresholds (numpy.array): iou thresholds
+        max_detections (int): max detections per image
+
+    Args:
+        iou_start (float): iou range starting point (default: 0.5)
+        iou_end (float): iou range ending point (default: 0.95)
+        iou_step (float): iou step size (default: 0.05)
+        max_detections (int): max detections per image (default: 100)
+    """
+
+    IOU_THRESHOULDS = np.linspace(
+        0.5, 0.95, np.round((0.95 - 0.5) / 0.05) + 1, endpoint=True
+    )
+
+    def __init__(self):
+        self.mar_per_iou = [
+            AverageRecall() for iou in MeanAverageRecall.IOU_THRESHOULDS
+        ]
+
+    def reset(self):
+        """Reset metrics."""
+        self.mar_per_iou = [
+            AverageRecall(iou, self.max_detections)
+            for iou in self.iou_thresholds
+        ]
+
+    def update(self, mini_batch):
+        """Update records per mini batch.
+
+        Args:
+            mini_batch (list(list)): a list which contains batch_size of
+            gt bboxes and pred bboxes pair in each image.
+            For example, if batch size = 2, mini_batch looks like:
+            [[gt_bboxes1, pred_bboxes1], [gt_bboxes2, pred_bboxes2]]
+            where gt_bboxes1, pred_bboxes1 contain gt bboxes and pred bboxes
+            in one image
+        """
+        for mean_ar in self.mar_per_iou:
+            mean_ar.update(mini_batch)
+
+    def compute(self):
+        """Compute AR for each label.
+
+        Return:
+            average_recall (dict): a dictionary of AR scores per label.
+        """
+        mean_sum = 0
+        for mean_ar in self.mar_per_iou:
+            result = mean_ar.compute()
+            mean_sum += np.mean(
+                [result_per_label for result_per_label in result.values()]
+            )
+        return mean_sum / len(self.mar_per_iou)

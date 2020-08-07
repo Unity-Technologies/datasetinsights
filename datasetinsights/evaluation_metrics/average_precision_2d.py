@@ -12,7 +12,7 @@ from .base import EvaluationMetric
 from .records import Records
 
 
-class AveragePrecisionBBox2D(EvaluationMetric):
+class AveragePrecision(EvaluationMetric):
     """2D Bounding Box Average Precision metrics.
 
     Attributes:
@@ -196,3 +196,110 @@ class AveragePrecisionBBox2D(EvaluationMetric):
                 cc.append(p)
 
         return ap
+
+
+class AveragePrecision50IOU(EvaluationMetric):
+    """2D Bounding Box Average Precision at IOU = 50%.
+
+    This would calculate AP@50IOU for each label.
+    """
+
+    def __init__(self):
+        self.ap = AveragePrecision(iou_threshold=0.5)
+
+    def reset(self):
+        self.ap.reset()
+
+    def update(self, mini_batch):
+        self.ap.update(mini_batch)
+
+    def compute(self):
+        return self.ap.compute()
+
+
+class MeanAveragePrecision50IOU(EvaluationMetric):
+    """2D Bounding Box Mean Average Precision metrics at IOU=50%.
+
+    Implementation of classic mAP metrics. We use 10 IoU thresholds
+    of .50:.05:.95. This is the same metrics in cocoEval.summarize():
+    Average Precision (AP) @[IoU=0.50:0.95 | area = all | maxDets=100]
+    """
+
+    def __init__(self):
+        self.ap = AveragePrecision(iou_threshold=0.5)
+
+    def reset(self):
+        self.ap.reset()
+
+    def update(self, mini_batch):
+        self.ap.update(mini_batch)
+
+    def compute(self):
+        """Compute mAP in the iou range.
+        """
+        result = self.ap.compute()
+        mean_ap = np.mean(
+            [result_per_label for result_per_label in result.values()]
+        )
+        return mean_ap
+
+
+class MeanAveragePrecision(EvaluationMetric):
+    """2D Bounding Box Mean Average Precision metrics.
+
+    Implementation of classic mAP metrics. We use 10 IoU thresholds
+    of .50:.95:.05. This is the same metrics in cocoEval.summarize():
+    Average Precision (AP) @[IoU=0.50:0.95 | area = all | maxDets=100]
+
+    Attributes:
+        map_per_iou (dict): save prediction records for each ious
+        iou_thresholds (numpy.array): iou thresholds
+
+    Args:
+        iou_start (float): iou range starting point (default: 0.5)
+        iou_end (float): iou range ending point (default: 0.95)
+        iou_step (float): iou step size (default: 0.05)
+    """
+
+    IOU_THRESHOULDS = np.linspace(
+        0.5, 0.95, np.round((0.95 - 0.5) / 0.05) + 1, endpoint=True
+    )
+
+    def __init__(self):
+        self.map_per_iou = [
+            AveragePrecision(iou)
+            for iou in MeanAveragePrecision.IOU_THRESHOULDS
+        ]
+
+    def reset(self):
+        """Reset metrics."""
+        for mean_ap in self.map_per_iou:
+            mean_ap.reset()
+
+    def update(self, mini_batch):
+        """Update records per mini batch
+
+        Args:
+            mini_batch (list(list)): a list which contains batch_size of
+            gt bboxes and pred bboxes pair in each image.
+            For example, if batch size = 2, mini_batch looks like:
+            [[gt_bboxes1, pred_bboxes1], [gt_bboxes2, pred_bboxes2]]
+            where gt_bboxes1, pred_bboxes1 contain gt bboxes and pred bboxes
+            in one image
+        """
+        for mean_ap in self.map_per_iou:
+            mean_ap.update(mini_batch)
+
+    def compute(self):
+        """Compute AP for each label.
+
+        Return:
+            mAP (float): mean average precision across all ious
+        """
+        mean_sum = 0
+        for mean_ap in self.map_per_iou:
+            result = mean_ap.compute()
+            mean_sum += np.mean(
+                [result_per_label for result_per_label in result.values()]
+            )
+        return mean_sum / len(self.map_per_iou)
