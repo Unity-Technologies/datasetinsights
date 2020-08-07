@@ -24,6 +24,7 @@ class EstimatorFactory:
 
         logdir = kwargs["params"]["tb_log_dir"]
         no_cuda = kwargs["params"]["no_cuda"]
+        data_root = kwargs["params"]["data_root"]
         model_config = kwargs["model_config"]
 
         if logdir == const.NULL_STRING:
@@ -35,6 +36,7 @@ class EstimatorFactory:
 
         # todo this makes it so that we lose the tensorboard
         #  writer of non-master processes which could make debugging harder
+
         writer = SummaryWriter(
             logdir,
             write_to_disk=is_master(),
@@ -52,11 +54,12 @@ class EstimatorFactory:
         )
 
         return estimators_cls(
-            model_config=model_config,
+            config=model_config,
             writer=writer,
             kfp_writer=kfp_writer,
             checkpointer=checkpointer,
             logdir=logdir,
+            data_root=data_root,
             no_cuda=no_cuda,
         )
 

@@ -415,6 +415,8 @@ class DenseDepth(Estimator):
             writer.add_scalar("Training/Loss", epoch_loss, epoch)
             self.checkpointer.save(self, epoch=epoch)
 
+        self.writer.close()
+
     def evaluate(self, **kwargs):
         config = self.config
         test_dataset = Dataset.create(
@@ -433,6 +435,7 @@ class DenseDepth(Estimator):
         logger.info("Start evaluating estimator: %s", type(self).__name__)
         self.model.to(self.device)
         self._evaluate_one_epoch(test_loader, 1, 1)
+        self.writer.close()
 
     def save(self, path):
         """ Serialize Estimator to path

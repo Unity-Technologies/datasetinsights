@@ -158,6 +158,8 @@ class FasterRCNN(Estimator):
             val_dataloader=val_loader,
             train_sampler=train_sampler,
         )
+        self.writer.close()
+        self.kfp_writer.write_metric()
 
     def train_loop(
         self,
@@ -309,6 +311,8 @@ class FasterRCNN(Estimator):
             label_mappings=label_mappings,
             synchronize_metrics=self.sync_metrics,
         )
+        self.writer.close()
+        self.kfp_writer.write_metric()
 
     @torch.no_grad()
     def evaluate_per_epoch(
