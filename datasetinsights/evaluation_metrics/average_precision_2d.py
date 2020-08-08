@@ -9,7 +9,7 @@ import collections
 import numpy as np
 
 from .base import EvaluationMetric
-from .metrics_utils import mean_metrics_over_iou
+from .metrics_utils import filter_pred_bboxes, mean_metrics_over_iou
 from .records import Records
 
 
@@ -26,10 +26,14 @@ class AveragePrecision(EvaluationMetric):
     Args:
         iou_threshold (float): iou threshold (default: 0.5)
         interpolation (string): AP interoperation method name for AP calculation
+        max_detections (int): max detections per image
     """
 
     def __init__(
-        self, iou_threshold=0.5, interpolation="EveryPointInterpolation"
+        self,
+        iou_threshold=0.5,
+        interpolation="EveryPointInterpolation",
+        max_detections=100,
     ):
         if interpolation == "EveryPointInterpolation":
             self.ap_method = self.every_point_interpolated_ap
@@ -39,6 +43,7 @@ class AveragePrecision(EvaluationMetric):
             raise ValueError(f"Unknown AP method name: {interpolation}!")
 
         self.iou_threshold = iou_threshold
+        self.max_detections = max_detections
         self.label_records = collections.defaultdict(
             lambda: Records(iou_threshold=self.iou_threshold)
         )
@@ -65,7 +70,9 @@ class AveragePrecision(EvaluationMetric):
         for bboxes in mini_batch:
             gt_bboxes, pred_bboxes = bboxes
 
-            bboxes_per_label = self.label_bboxes(pred_bboxes)
+            bboxes_per_label = filter_pred_bboxes(
+                pred_bboxes, self.max_detections
+            )
             for label, boxes in bboxes_per_label.items():
                 self.label_records[label].add_records(gt_bboxes, boxes)
 
@@ -103,25 +110,6 @@ class AveragePrecision(EvaluationMetric):
             average_precision[label] = ap
 
         return average_precision
-
-    @staticmethod
-    def label_bboxes(pred_bboxes):
-        """Save bboxes with same label in to a dictionary.
-
-        Args:
-            pred_bboxes (list): a list of prediction bounding boxes
-
-        Returns:
-            labels (dict): a dictionary of prediction bounding boxes
-        """
-        labels = collections.defaultdict(list)
-        for box in pred_bboxes:
-            labels[box.label].append(box)
-        for label, boxes in labels.items():
-            labels[label] = sorted(
-                boxes, key=lambda bbox: bbox.score, reverse=True
-            )
-        return labels
 
     @staticmethod
     def every_point_interpolated_ap(recall, precision):
@@ -202,7 +190,10 @@ class AveragePrecision(EvaluationMetric):
 class AveragePrecisionIOU50(EvaluationMetric):
     """2D Bounding Box Average Precision at IOU = 50%.
 
-    This would calculate AP@50IOU for each label.
+    This implementation would calculate AP@50IOU for each label.
+
+    Attributes:
+        ap (AveragePrecision): AveragePrecision metrics
     """
 
     def __init__(self):
@@ -221,9 +212,12 @@ class AveragePrecisionIOU50(EvaluationMetric):
 class MeanAveragePrecisionIOU50(EvaluationMetric):
     """2D Bounding Box Mean Average Precision metrics at IOU=50%.
 
-    Implementation of classic mAP metrics. We use 10 IoU thresholds
-    of .50:.05:.95. This is the same metrics in cocoEval.summarize():
-    Average Precision (AP) @[IoU=0.50:0.95 | area = all | maxDets=100]
+    This implementation would calculate mAP@50IOU. The metric can be
+    described as:
+    mAP = mean_{label}AP(label)@IOU50
+
+    Attributes:
+        ap (AveragePrecision): AveragePrecision metrics
     """
 
     def __init__(self):
@@ -248,17 +242,14 @@ class MeanAveragePrecisionIOU50(EvaluationMetric):
 class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
     """2D Bounding Box Mean Average Precision metrics.
 
-    Implementation of classic mAP metrics. We use 10 IoU thresholds
-    of .50:.95:.05. This is the same metrics in cocoEval.summarize():
-    Average Precision (AP) @[IoU=0.50:0.95 | area = all | maxDets=100]
+    This implementation computes Mean Average Precision (mAP) metric,
+    which is implemented as the Average Precision average over all
+    labels and IOU thresholds [0.5:0.95:0.05]. The max detections
+    per image is limited to 100. The metric can be described as:
+    mAP = mean_{label, IOU}AP(label, IOU)
 
     Attributes:
         map_per_iou (dict): save prediction records for each ious
-
-    Args:
-        iou_start (float): iou range starting point (default: 0.5)
-        iou_end (float): iou range ending point (default: 0.95)
-        iou_step (float): iou step size (default: 0.05)
     """
 
     IOU_THRESHOULDS = np.linspace(

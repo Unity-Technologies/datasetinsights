@@ -9,7 +9,7 @@ import collections
 import numpy as np
 
 from .base import EvaluationMetric
-from .metrics_utils import mean_metrics_over_iou
+from .metrics_utils import filter_pred_bboxes, mean_metrics_over_iou
 from .records import Records
 
 
@@ -58,7 +58,7 @@ class AverageRecall(EvaluationMetric):
             for gt_bbox in gt_bboxes:
                 self.gt_bboxes_count[gt_bbox.label] += 1
 
-            bboxes_per_label = self.label_bboxes(
+            bboxes_per_label = filter_pred_bboxes(
                 pred_bboxes, self.max_detections
             )
             for label in bboxes_per_label:
@@ -92,37 +92,15 @@ class AverageRecall(EvaluationMetric):
 
         return average_recall
 
-    @staticmethod
-    def label_bboxes(pred_bboxes, max_detections):
-        """Save bboxes with same label in to a dictionary.
-
-        This operation only apply to predictions for a single image.
-
-        Args:
-            pred_bboxes (list): a list of prediction bounding boxes list
-            max_detections (int): max detections per label
-
-        Returns:
-            labels (dict): a dictionary of prediction boundign boxes
-        """
-        labels = collections.defaultdict(list)
-        for box in pred_bboxes:
-            labels[box.label].append(box)
-        for label, boxes in labels.items():
-            boxes = sorted(boxes, key=lambda bbox: bbox.score, reverse=True)
-            # only consider the top confident predictions
-            if len(boxes) > max_detections:
-                labels[label] = boxes[:max_detections]
-
-        return labels
-
 
 class MeanAverageRecallAverageOverIOU(EvaluationMetric):
     """2D Bounding Box Mean Average Recall metrics.
 
-    Implementation of classic mAR metrics. We use 10 IoU thresholds
-    of .50:.95:.05. This is the same metrics in cocoEval.summarize():
-    Average Recall (AR) @[IoU=0.50:0.95 | area = all | maxDets=100]
+    This implementation computes Mean Average Recall (mAR) metric,
+    which is implemented as the Average Recall average over all
+    labels and IOU thresholds [0.5:0.95:0.05]. The max detections
+    per image is limited to 100. The metric can be described as:
+    mAR = mean_{label, IOU}AR(label, IOU)
 
     Attributes:
         mar_per_iou (dict): save prediction records for each label

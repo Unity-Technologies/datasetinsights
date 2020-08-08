@@ -63,5 +63,3 @@ def get_mini_batches():
     ]
     mini_batch3 = [[gt_bboxes[4], pred_bboxes[4]]]
     return [mini_batch1, mini_batch2, mini_batch3]
-
-    return gt_bboxes, pred_bboxes
