@@ -6,11 +6,17 @@ from datasetinsights.evaluation_metrics.confusion_matrix import (
 )
 
 
-def test_prediction_records(get_gt_pred_bbox):
-    gt_bboxes, pred_bboxes = get_gt_pred_bbox
+def test_prediction_records(get_mini_batches):
+    mini_batches = get_mini_batches
 
-    img1_gt_bboxes, img1_pred_bboxes = gt_bboxes[0], pred_bboxes[0]
-    img2_gt_bboxes, img2_pred_bboxes = gt_bboxes[1], pred_bboxes[1]
+    img1_gt_bboxes, img1_pred_bboxes = (
+        mini_batches[0][0][0],
+        mini_batches[0][0][1],
+    )
+    img2_gt_bboxes, img2_pred_bboxes = (
+        mini_batches[0][1][0],
+        mini_batches[0][1][1],
+    )
 
     # test iou threshold = 0.5
     pred_info1 = prediction_records(
@@ -49,11 +55,17 @@ def test_prediction_records(get_gt_pred_bbox):
         assert pred_info2[i][1] == true_res2[i]
 
 
-def test_precision_recall(get_gt_pred_bbox):
-    gt_bboxes, pred_bboxes = get_gt_pred_bbox
+def test_precision_recall(get_mini_batches):
+    mini_batches = get_mini_batches
 
-    img1_gt_bboxes, img1_pred_bboxes = gt_bboxes[0], pred_bboxes[0]
-    img2_gt_bboxes, img2_pred_bboxes = gt_bboxes[1], pred_bboxes[1]
+    img1_gt_bboxes, img1_pred_bboxes = (
+        mini_batches[0][0][0],
+        mini_batches[0][0][1],
+    )
+    img2_gt_bboxes, img2_pred_bboxes = (
+        mini_batches[0][1][0],
+        mini_batches[0][1][1],
+    )
 
     # test iou threshold = 0.5
     precision1, recall1 = precision_recall(
