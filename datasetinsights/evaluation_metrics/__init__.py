@@ -2,8 +2,8 @@ from .average_log10_error import AverageLog10Error
 from .average_precision_2d import (
     AveragePrecision,
     AveragePrecisionIOU50,
-    MeanAveragePrecisionIOU50,
     MeanAveragePrecisionAverageOverIOU,
+    MeanAveragePrecisionIOU50,
 )
 from .average_recall_2d import AverageRecall, MeanAverageRecallAverageOverIOU
 from .average_relative_error import AverageRelativeError

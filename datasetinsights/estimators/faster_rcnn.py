@@ -372,7 +372,7 @@ class FasterRCNN(Estimator):
             result = metric.compute()
             logger.debug(result)
             logger.info(f"metric {metric_name} has result: {result}")
-            if not isinstance(result, dict):
+            if metric_name.startswith("m"):
                 self.writer.add_scalar(f"val/{metric_name}", result, epoch)
                 self.kfp_writer.add_metric(name=metric_name, val=result)
             # TODO (YC) This is hotfix to allow user map between label_id

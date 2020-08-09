@@ -3,11 +3,13 @@ from unittest.mock import patch
 from pytest import approx
 
 from datasetinsights.evaluation_metrics import (
-    AveragePrecisionIOU50,
     AveragePrecision,
+    AveragePrecisionIOU50,
     MeanAveragePrecisionAverageOverIOU,
     MeanAveragePrecisionIOU50,
 )
+
+COMPUTE_RETURN_VALUE = {"car": 0.5, "book": 0}
 
 
 def test_average_precision_2d_bbox(get_mini_batches):
@@ -43,12 +45,16 @@ def test_mean_average_precision_average_over_iou(
     for mini_batch in mini_batches:
         map_metrics.update(mini_batch)
 
-    map_metrics.compute()
+    mock_compute.return_value = COMPUTE_RETURN_VALUE
+    res = map_metrics.compute()
     assert mock_update.call_count == len(
         MeanAveragePrecisionAverageOverIOU.IOU_THRESHOULDS
     ) * len(mini_batches)
     assert mock_compute.call_count == len(
         MeanAveragePrecisionAverageOverIOU.IOU_THRESHOULDS
+    )
+    assert res == sum(COMPUTE_RETURN_VALUE.values()) / len(
+        COMPUTE_RETURN_VALUE.values()
     )
 
     map_metrics.reset()
@@ -69,9 +75,10 @@ def test_average_precision_IOU50(
     for mini_batch in mini_batches:
         map_metrics.update(mini_batch)
 
-    map_metrics.compute()
+    mock_compute.return_value = COMPUTE_RETURN_VALUE
+    res = map_metrics.compute()
     assert mock_update.call_count == len(mini_batches)
-    mock_compute.assert_called()
+    assert res == COMPUTE_RETURN_VALUE
 
     map_metrics.reset()
     mock_reset.assert_called()
@@ -89,9 +96,12 @@ def test_mean_average_precision_IOU50(
     for mini_batch in mini_batches:
         map_metrics.update(mini_batch)
 
-    map_metrics.compute()
+    mock_compute.return_value = COMPUTE_RETURN_VALUE
+    res = map_metrics.compute()
     assert mock_update.call_count == len(mini_batches)
-    mock_compute.assert_called()
+    assert res == sum(COMPUTE_RETURN_VALUE.values()) / len(
+        COMPUTE_RETURN_VALUE.values()
+    )
 
     map_metrics.reset()
     mock_reset.assert_called()
