@@ -38,6 +38,8 @@ class NyuDepth(Dataset):
         split (str): test or valuation. see SPLITS constant for possible values
     """
 
+    name = ""
+
     def __init__(
         self,
         data_root=const.DEFAULT_DATA_ROOT,

@@ -65,6 +65,8 @@ class NuscenesDataLoader(Dataset):
             the specified version of nuscenes is downloaded.
     """
 
+    name = ""
+
     def __init__(
         self,
         *,

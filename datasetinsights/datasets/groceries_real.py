@@ -76,6 +76,8 @@ class GroceriesReal(Dataset):
         default version="v3".
     """
 
+    name = "groceriesreal"
+
     LOCAL_PATH = "groceries"
     SPLITS = {
         "train": "groceries_real_train.txt",
@@ -349,6 +351,8 @@ class GoogleGroceriesReal(Dataset):
         label_mappings (dict): a dict of {label_id: label_name} mapping
             loaded from label_map_with_path_64_retail.txt
     """
+
+    name = ""
 
     GCS_PATH = "data/google_groceries"
     LOCAL_PATH = "google_groceries"

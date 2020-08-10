@@ -144,6 +144,8 @@ class SynDetection2D(Dataset):
         label_mappings (dict): a dict of {label_id: label_name} mapping
     """
 
+    name = "syndetection2d"
+
     SYNTHETIC_DATASET_TABLES = {
         "v1": SyntheticTable(
             "v1",

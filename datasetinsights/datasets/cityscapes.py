@@ -31,6 +31,8 @@ class Cityscapes(Dataset):
         split (str): indicate split type of the dataset (train|val|test)
     """
 
+    name = ""
+
     def __init__(
         self,
         *,
