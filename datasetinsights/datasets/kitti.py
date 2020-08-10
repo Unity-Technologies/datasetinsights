@@ -283,7 +283,7 @@ class Kitti(Dataset):
     dataloader for kitti dataset
     http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d
     """
-
+    name = ""
     def __init__(
         self,
         root=os.path.join(const.DEFAULT_DATA_ROOT, "kitti"),
