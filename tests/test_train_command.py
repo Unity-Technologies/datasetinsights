@@ -59,7 +59,7 @@ def test_train_except_called_once(
 @patch("builtins.open")
 @patch.object(CfgNode, "load_cfg")
 @patch.object(EstimatorFactory, "create")
-def test_train_with_config_and_invalid_data_root_except_not_called(
+def test_train_except_not_called(
     estimator_factory_create_mock, cfg_node_mock, open_mock, args
 ):
     # arrange

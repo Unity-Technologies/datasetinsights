@@ -32,17 +32,10 @@ class EstimatorFactory:
             # which points to ./runs/<model>_<timestamp>
             logdir = None
 
-        from datasetinsights.torch_distributed import is_distributed, is_master
-
         # todo this makes it so that we lose the tensorboard
         #  writer of non-master processes which could make debugging harder
 
-        writer = SummaryWriter(
-            logdir,
-            write_to_disk=is_master(),
-            max_queue=const.SUMMARY_WRITER_MAX_QUEUE,
-            flush_secs=const.SUMMARY_WRITER_FLUSH_SECS,
-        )
+        writer = SummaryWriter(logdir,)
         kfp_writer = KubeflowPipelineWriter(
             filename=const.DEFAULT_KFP_METRICS_FILENAME,
             filepath=const.DEFAULT_KFP_METRICS_DIR,
@@ -50,7 +43,7 @@ class EstimatorFactory:
         checkpointer = EstimatorCheckpoint(
             estimator_name=model_config.estimator,
             log_dir=writer.logdir,
-            distributed=is_distributed(),
+            distributed=False,
         )
 
         return estimators_cls(

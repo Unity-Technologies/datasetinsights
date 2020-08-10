@@ -3,6 +3,7 @@
 import copy
 import logging
 import math
+import os
 from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
@@ -11,19 +12,15 @@ import torch
 import torch.distributed as dist
 import torchvision
 from codetiming import Timer
+from tensorboardX import SummaryWriter
 
 import datasetinsights.constants as const
 from datasetinsights.data.bbox import BBox2D
 from datasetinsights.data.datasets import Dataset
 from datasetinsights.data.transforms import Compose
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
-from datasetinsights.torch_distributed import (
-    get_gpu,
-    get_rank,
-    get_world_size,
-    init_distributed_mode,
-    is_distributed,
-)
+from datasetinsights.storage.checkpoint import EstimatorCheckpoint
+from datasetinsights.storage.kfp_output import KubeflowPipelineWriter
 
 from .base import Estimator
 
@@ -70,9 +67,7 @@ class FasterRCNN(Estimator):
         self,
         *,
         config,
-        writer,
-        kfp_writer,
-        checkpointer,
+        logdir,
         box_score_thresh=0.05,
         data_root=None,
         no_cuda=None,
@@ -83,14 +78,60 @@ class FasterRCNN(Estimator):
         logger.info(f"initializing faster rcnn")
         self.config = config
 
-        init_distributed_mode()
+        if "RANK" in os.environ and "WORLD_SIZE" in os.environ:
+            logger.info(f"found RANK and WORLD_SIZE in environment")
+            self.rank = int(os.environ["RANK"])
+            self.world_size = int(os.environ["WORLD_SIZE"])
+            self.gpu = int(os.environ["LOCAL_RANK"])
+        elif "SLURM_PROCID" in os.environ:
+            logger.info(f"found 'SLURM_PROCID' in environment")
+            self.rank = int(os.environ["SLURM_PROCID"])
+            self.gpu = self.rank % torch.cuda.device_count()
+        else:
+            self.gpu = 0
+            self.rank = 0
+            logger.info("Not using distributed mode")
+            self.distributed = False
+
+        if self.gpu != 0 and self.rank != 0:
+            device_count = torch.cuda.device_count()
+            logger.info(f"device count: {torch.cuda.device_count()}")
+            logger.info(f"world size: {self.world_size}")
+            logger.info(f"gpu: {self.gpu}")
+            logger.info(f"local rank {self.rank}")
+            if device_count == 0:
+                logger.info("No cuda devices found, will not parallelize")
+                self.distributed = False
+            else:
+                if not is_master():
+                    logging.disable(logging.ERROR)
+                self.distributed = True
+                torch.cuda.set_device(self.gpu)
+
+                torch.distributed.init_process_group(
+                    backend="nccl",
+                    init_method="env://",
+                    world_size=self.world_size,
+                    rank=self.rank,
+                )
+                torch.distributed.barrier()
+
         if torch.cuda.is_available() and not no_cuda:
             self.device = torch.device("cuda")
         else:
             self.device = torch.device("cpu")
 
-        self.writer = writer
-        self.kfp_writer = kfp_writer
+        self.writer = SummaryWriter(logdir)
+        self.kfp_writer = KubeflowPipelineWriter(
+            filename=const.DEFAULT_KFP_METRICS_FILENAME,
+            filepath=const.DEFAULT_KFP_METRICS_DIR,
+        )
+        self.checkpointer = EstimatorCheckpoint(
+            estimator_name=config.estimator,
+            log_dir=self.writer.logdir,
+            distributed=self.distributed,
+        )
+
         model_name = f"fasterrcnn_{self.config.backbone}_fpn"
         self.model = torchvision.models.detection.__dict__[model_name](
             num_classes=config.num_classes,
@@ -100,14 +141,8 @@ class FasterRCNN(Estimator):
             box_score_thresh=box_score_thresh,
         )
         self.model_without_ddp = self.model
-        self.gpu = get_gpu()
-        self.rank = get_rank()
-        logger.info(f"gpu: {self.gpu}, rank: {self.rank}")
         self.sync_metrics = config.get("synchronize_metrics", True)
-        self.distributed = is_distributed()
         self.data_root = data_root
-
-        self.checkpointer = checkpointer
         self.metrics = {}
         for metric_key, metric in config.metrics.items():
             self.metrics[metric_key] = EvaluationMetric.create(
@@ -1066,3 +1101,21 @@ class ToTensor:
         """transform image to tesnor."""
         image = torchvision.transforms.functional.to_tensor(image)
         return image, target
+
+
+def is_master():
+    rank = int(os.getenv("RANK", 0))
+    return rank == 0
+
+
+def is_dist_avail_and_initialized():
+    return dist.is_available() and dist.is_initialized()
+
+
+def get_world_size():
+    """
+    Returns: number of available devices
+    """
+    if not is_dist_avail_and_initialized():
+        return 1
+    return dist.get_world_size()
