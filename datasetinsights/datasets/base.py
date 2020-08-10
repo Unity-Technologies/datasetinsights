@@ -21,7 +21,7 @@ class DatasetRegistry(ABCMeta):
         if dataset_cls:
             return dataset_cls
         else:
-            raise ValueError(f"Downloader '{name}' does not exist:")
+            raise ValueError(f"Dataset '{name}' does not exist:")
 
     @staticmethod
     def list_datasets():

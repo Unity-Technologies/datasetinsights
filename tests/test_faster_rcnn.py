@@ -235,7 +235,7 @@ def test_faster_rcnn_log_metric_val(config):
         kfp_writer=kfp_writer,
     )
     epoch = 0
-    estimator.log_metric_val(dataset.label_mappings, epoch)
+    estimator.log_metric_val({"1": "car", "2": "bike"}, epoch)
 
     writer.add_scalars.assert_called_with("val/AR-per-class", {}, epoch)
 
@@ -296,7 +296,7 @@ def test_len_dataset(config, dataset):
     assert len(dataset.images) == len(dataset)
 
 
-def test_create_dryrun_dataset(mock_create, config, dataset):
+def test_create_dryrun_dataset(config, dataset):
     """test create dryrun dataset."""
     train_dataset = dataset
     train_dataset = create_dryrun_dataset(config, train_dataset, TRAIN)
@@ -330,7 +330,7 @@ def test_dataloader_creator(mock_loader, config, dataset):
 
 
 @patch("datasetinsights.estimators.faster_rcnn.torch.utils.data.DataLoader")
-def test_create_dataloader(mock_create, mock_loader, config, dataset):
+def test_create_dataloader(mock_loader, config, dataset):
     """test load data."""
 
     mock_loader.return_value = MagicMock()
