@@ -17,7 +17,9 @@ class DummyDetection2D(Dataset):
         transform: transform the images and bounding boxes
 
     """
+
     name = ""
+
     def __init__(self, image_size=(256, 256), transform=None):
         """initiate dataset class.
 
