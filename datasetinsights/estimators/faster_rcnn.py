@@ -43,7 +43,8 @@ class FasterRCNN(Estimator):
         distributed: whether or not the estimator is distributed
         data_root: Root directory on localhost where datasets are located
         kfp_metrics_filename: Kubeflow Metrics filename
-        kfp_metrics_dir: Path to the directory where Kubeflow Metrics files are stored
+        kfp_metrics_dir: Path to the directory where Kubeflow
+         metrics files are stored
 
 
     https://github.com/pytorch/vision/tree/master/references/detection
