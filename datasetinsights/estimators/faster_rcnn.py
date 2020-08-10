@@ -39,17 +39,11 @@ class FasterRCNN(Estimator):
 
     Args:
         config (CfgNode): estimator config
-        writer: Tensorboard writer object
-        kfp_writer: KubeflowPipelineWriter object to write logs
-        checkpointer: Model checkpointer callback to save models
-        device: model training on device (cpu|cuda)
         box_score_thresh: (optional) default threshold is 0.05
-        gpu (int): (optional) gpu id on which code will execute
-        rank (int): (optional) rank of process executing code
-        distributed:
-        data_root:
-        checkpoint_file:
-        checkpoint_dir:
+        distributed: whether or not the estimator is distributed
+        data_root: Root directory on localhost where datasets are located
+        kfp_metrics_filename: Kubeflow Metrics filename
+        kfp_metrics_dir: Path to the directory where Kubeflow Metrics files are stored
 
 
     https://github.com/pytorch/vision/tree/master/references/detection
@@ -61,6 +55,8 @@ class FasterRCNN(Estimator):
         kfp_writer: KubeflowPipelineWriter object
         checkpointer: Model checkpointer callback to save models
         device: model training on device (cpu|cuda)
+        gpu (int): (optional) gpu id on which code will execute
+        rank (int): (optional) rank of process executing code
     """
 
     def __init__(
@@ -71,6 +67,8 @@ class FasterRCNN(Estimator):
         box_score_thresh=0.05,
         data_root=None,
         no_cuda=None,
+        kfp_metrics_filename=const.DEFAULT_KFP_METRICS_FILENAME,
+        kfp_metrics_dir=const.DEFAULT_KFP_METRICS_DIR,
         **kwargs,
     ):
         """initiate estimator."""
@@ -121,11 +119,12 @@ class FasterRCNN(Estimator):
         else:
             self.device = torch.device("cpu")
 
-        self.writer = SummaryWriter(logdir)
+        self.writer = SummaryWriter(logdir, write_to_disk=self.distributed)
+
         self.kfp_writer = KubeflowPipelineWriter(
-            filename=const.DEFAULT_KFP_METRICS_FILENAME,
-            filepath=const.DEFAULT_KFP_METRICS_DIR,
+            filename=kfp_metrics_filename, filepath=kfp_metrics_dir,
         )
+
         self.checkpointer = EstimatorCheckpoint(
             estimator_name=config.estimator,
             log_dir=self.writer.logdir,

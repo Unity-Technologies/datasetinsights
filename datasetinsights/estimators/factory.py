@@ -26,6 +26,15 @@ class EstimatorFactory:
         no_cuda = kwargs["params"]["no_cuda"]
         data_root = kwargs["params"]["data_root"]
         model_config = kwargs["model_config"]
+        if "kfp_metrics_dir" in kwargs:
+            kfp_metrics_dir = kwargs["params"]["kfp_metrics_dir"]
+        else:
+            kfp_metrics_dir = const.DEFAULT_KFP_METRICS_DIR
+
+        if "kfp_metrics_filename" in kwargs:
+            kfp_metrics_filename = kwargs["params"]["kfp_metrics_filename"]
+        else:
+            kfp_metrics_filename = const.DEFAULT_KFP_METRICS_FILENAME
 
         if logdir == const.NULL_STRING:
             # Use logdir=None to force using SummaryWriter default logdir,
@@ -37,8 +46,7 @@ class EstimatorFactory:
 
         writer = SummaryWriter(logdir,)
         kfp_writer = KubeflowPipelineWriter(
-            filename=const.DEFAULT_KFP_METRICS_FILENAME,
-            filepath=const.DEFAULT_KFP_METRICS_DIR,
+            filename=kfp_metrics_dir, filepath=kfp_metrics_filename,
         )
         checkpointer = EstimatorCheckpoint(
             estimator_name=model_config.estimator,
@@ -54,6 +62,8 @@ class EstimatorFactory:
             logdir=logdir,
             data_root=data_root,
             no_cuda=no_cuda,
+            kfp_metrics_dir=kfp_metrics_dir,
+            kfp_metrics_filename=kfp_metrics_filename,
         )
 
     @staticmethod
