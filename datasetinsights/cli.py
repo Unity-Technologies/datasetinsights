@@ -7,9 +7,9 @@ from tensorboardX import SummaryWriter
 from yacs.config import CfgNode as CN
 
 import datasetinsights.constants as const
+from datasetinsights.datasets import Dataset
 
 from .configs import system
-from .data.datasets import Dataset
 from .estimators import Estimator
 from .storage.checkpoint import EstimatorCheckpoint
 from .storage.kfp_output import KubeflowPipelineWriter

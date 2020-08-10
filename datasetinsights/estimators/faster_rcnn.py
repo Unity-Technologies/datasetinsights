@@ -16,8 +16,8 @@ from tensorboardX import SummaryWriter
 
 import datasetinsights.constants as const
 from datasetinsights.data.bbox import BBox2D
-from datasetinsights.data.datasets import Dataset
 from datasetinsights.data.transforms import Compose
+from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
 from datasetinsights.storage.checkpoint import EstimatorCheckpoint
 from datasetinsights.storage.kfp_output import KubeflowPipelineWriter
