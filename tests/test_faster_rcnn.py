@@ -23,7 +23,6 @@ from datasetinsights.estimators.faster_rcnn import (
     FasterRCNN,
     create_dataloader,
     create_dataset,
-    create_dryrun_dataset,
     dataloader_creator,
 )
 from datasetinsights.storage.checkpoint import EstimatorCheckpoint
@@ -172,7 +171,7 @@ def test_faster_rcnn_train(mock_create, mock_loss, config, dataset):
     estimator.checkpointer = checkpointer
 
     estimator.device = torch.device("cpu")
-    estimator.train()
+    estimator.train(data_root=None)
     writer.add_scalar.assert_called_with(
         "val/loss", loss_val, config.train.epochs - 1
     )
@@ -252,7 +251,7 @@ def test_faster_rcnn_evaluate(mock_create, mock_loss, config, dataset):
     estimator.checkpointer = checkpointer
 
     estimator.device = torch.device("cpu")
-    estimator.evaluate()
+    estimator.evaluate(data_root=None)
     epoch = 0
     writer.add_scalar.assert_called_with("val/loss", loss_val, epoch)
 
@@ -349,15 +348,6 @@ def test_create_dataset(mock_create, config, dataset):
     mock_create.return_value = dataset
     train_dataset = create_dataset(config, "/tmp", TRAIN)
     assert len(dataset.images) == len(train_dataset)
-
-
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_create_dryrun_dataset(mock_create, config, dataset):
-    """test create dryrun dataset."""
-    mock_create.return_value = dataset
-    train_dataset = create_dataset(config, "/tmp", TRAIN)
-    train_dataset = create_dryrun_dataset(config, train_dataset, TRAIN)
-    assert config.train.batch_size * 2 == len(train_dataset)
 
 
 @patch("datasetinsights.estimators.faster_rcnn.Dataset.create")

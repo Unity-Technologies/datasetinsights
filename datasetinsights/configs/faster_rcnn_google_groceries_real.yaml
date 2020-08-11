@@ -41,4 +41,3 @@ optimizer:
 pretrained: False
 pretrained_backbone: True
 synchronize_metrics: True
-checkpoint_file: None

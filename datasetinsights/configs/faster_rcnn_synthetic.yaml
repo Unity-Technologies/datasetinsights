@@ -49,4 +49,3 @@ optimizer:
     lr: 2.0e-4
 pretrained: False
 pretrained_backbone: True
-checkpoint_file: None

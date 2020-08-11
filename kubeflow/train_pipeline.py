@@ -18,7 +18,6 @@ def train_pipeline(
     config_file: str = "datasetinsights/configs/faster_rcnn_synthetic.yaml",
     auth_token: str = "xxxxxx",
     run_execution_id: str = "EjPQYAN",
-    extra_options: str = "",
 ):
     """Train Pipeline
 
@@ -65,8 +64,7 @@ def train_pipeline(
             "datasetinsights",
             "train",
             f"--config={config_file}",
-            f"--tb-logdir={logdir}",
-            extra_options,
+            f"--tb-log-dir={logdir}",
         ],
         # Refer to pvloume in previous step to explicitly call out dependency
         pvolumes={"/data": download.pvolumes["/data"]},

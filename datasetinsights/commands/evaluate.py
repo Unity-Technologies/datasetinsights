@@ -4,6 +4,7 @@ import click
 from yacs.config import CfgNode as CN
 
 import datasetinsights.constants as const
+from datasetinsights.estimators.base import create_estimator
 
 logger = logging.getLogger(__name__)
 
@@ -89,15 +90,16 @@ def cli(
     ctx = click.get_current_context()
     logger.debug(f"Called evaluate command with parameters: {ctx.params}")
     logger.debug(f"Override estimator config with args: {ctx.args}")
-
-    from datasetinsights.estimators.factory import EstimatorFactory
-
-    model_config = CN.load_cfg(open(ctx.params["config"], "r"))
-
-    estimator = EstimatorFactory.create(
-        name=model_config.estimator,
-        params=ctx.params,
-        model_config=model_config,
+    config = CN.load_cfg(open(config, "r"))
+    estimator = create_estimator(
+        config=config,
+        name=config.estimator,
+        checkpoint_file=checkpoint_file,
+        tb_log_dir=tb_log_dir,
+        workers=workers,
+        kfp_metrics_dir=kfp_metrics_dir,
+        kfp_metrics_filename=kfp_metrics_filename,
+        no_cuda=no_cuda,
     )
 
-    estimator.evaluate()
+    estimator.evaluate(data_root=data_root)

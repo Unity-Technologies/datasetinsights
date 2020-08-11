@@ -24,7 +24,6 @@ def train_pipeline(
     config_file: str = (
         "datasetinsights/configs/faster_rcnn_groceries_real.yaml"
     ),
-    extra_options: str = "",
 ):
 
     # Create large persistant volume to store training data.
@@ -53,7 +52,6 @@ def train_pipeline(
             "train",
             f"--config={config_file}",
             f"--tb-log-dir={logdir}",
-            extra_options,
         ],
         pvolumes={"/data": download.pvolumes["/data"]},
     )

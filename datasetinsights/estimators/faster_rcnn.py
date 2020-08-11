@@ -18,6 +18,10 @@ import datasetinsights.constants as const
 from datasetinsights.data.bbox import BBox2D
 from datasetinsights.data.transforms import Compose
 from datasetinsights.datasets import Dataset
+from datasetinsights.estimators.torch_distributed import (
+    get_world_size,
+    is_master,
+)
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
 from datasetinsights.storage.checkpoint import EstimatorCheckpoint
 from datasetinsights.storage.kfp_output import KubeflowPipelineWriter
@@ -41,7 +45,6 @@ class FasterRCNN(Estimator):
         config (CfgNode): estimator config
         box_score_thresh: (optional) default threshold is 0.05
         distributed: whether or not the estimator is distributed
-        data_root: Root directory on localhost where datasets are located
         kfp_metrics_filename: Kubeflow Metrics filename
         kfp_metrics_dir: Path to the directory where Kubeflow
          metrics files are stored
@@ -66,10 +69,10 @@ class FasterRCNN(Estimator):
         config,
         logdir,
         box_score_thresh=0.05,
-        data_root=None,
         no_cuda=None,
         kfp_metrics_filename=const.DEFAULT_KFP_METRICS_FILENAME,
         kfp_metrics_dir=const.DEFAULT_KFP_METRICS_DIR,
+        checkpoint_file=None,
         **kwargs,
     ):
         """initiate estimator."""
@@ -77,6 +80,49 @@ class FasterRCNN(Estimator):
         logger.info(f"initializing faster rcnn")
         self.config = config
 
+        self._init_distributed_mode()
+        self.no_cuda = no_cuda
+        self._init_device()
+        self.writer = SummaryWriter(logdir, write_to_disk=self.distributed)
+
+        self.kfp_writer = KubeflowPipelineWriter(
+            filename=kfp_metrics_filename, filepath=kfp_metrics_dir,
+        )
+
+        self.checkpointer = EstimatorCheckpoint(
+            estimator_name=config.estimator,
+            log_dir=self.writer.logdir,
+            distributed=self.distributed,
+        )
+
+        model_name = f"fasterrcnn_{self.config.backbone}_fpn"
+        self.model = torchvision.models.detection.__dict__[model_name](
+            num_classes=config.num_classes,
+            pretrained_backbone=config.pretrained_backbone,
+            pretrained=config.pretrained,
+            box_detections_per_img=MAX_BOXES_PER_IMAGE,
+            box_score_thresh=box_score_thresh,
+        )
+        self.model_without_ddp = self.model
+        self.sync_metrics = config.get("synchronize_metrics", True)
+        self.metrics = {}
+        for metric_key, metric in config.metrics.items():
+            self.metrics[metric_key] = EvaluationMetric.create(
+                metric.name, **metric.args
+            )
+        self.model.to(self.device)
+
+        if self.distributed:
+            self.model = torch.nn.parallel.DistributedDataParallel(
+                self.model, device_ids=[self.gpu]
+            )
+            self.model_without_ddp = self.model.module
+
+        self.checkpoint_file = checkpoint_file
+        if self.checkpoint_file:
+            self.checkpointer.load(self, self.checkpoint_file)
+
+    def _init_distributed_mode(self):
         if "RANK" in os.environ and "WORLD_SIZE" in os.environ:
             logger.info(f"found RANK and WORLD_SIZE in environment")
             self.rank = int(os.environ["RANK"])
@@ -115,58 +161,22 @@ class FasterRCNN(Estimator):
                 )
                 torch.distributed.barrier()
 
-        if torch.cuda.is_available() and not no_cuda:
+    def _init_device(self):
+        if torch.cuda.is_available() and not self.no_cuda:
             self.device = torch.device("cuda")
         else:
             self.device = torch.device("cpu")
 
-        self.writer = SummaryWriter(logdir, write_to_disk=self.distributed)
+    def train(self, data_root, **kwargs):
+        """start training, save trained model per epoch.
 
-        self.kfp_writer = KubeflowPipelineWriter(
-            filename=kfp_metrics_filename, filepath=kfp_metrics_dir,
-        )
+        Args:
+            data_root: Root directory on localhost where datasets are located
 
-        self.checkpointer = EstimatorCheckpoint(
-            estimator_name=config.estimator,
-            log_dir=self.writer.logdir,
-            distributed=self.distributed,
-        )
-
-        model_name = f"fasterrcnn_{self.config.backbone}_fpn"
-        self.model = torchvision.models.detection.__dict__[model_name](
-            num_classes=config.num_classes,
-            pretrained_backbone=config.pretrained_backbone,
-            pretrained=config.pretrained,
-            box_detections_per_img=MAX_BOXES_PER_IMAGE,
-            box_score_thresh=box_score_thresh,
-        )
-        self.model_without_ddp = self.model
-        self.sync_metrics = config.get("synchronize_metrics", True)
-        self.data_root = data_root
-        self.metrics = {}
-        for metric_key, metric in config.metrics.items():
-            self.metrics[metric_key] = EvaluationMetric.create(
-                metric.name, **metric.args
-            )
-        self.model.to(self.device)
-
-        if self.distributed:
-            self.model = torch.nn.parallel.DistributedDataParallel(
-                self.model, device_ids=[self.gpu]
-            )
-            self.model_without_ddp = self.model.module
-
-        self.checkpoint_file = self.config.get(
-            "checkpoint_file", const.NULL_STRING
-        )
-        if self.checkpoint_file != const.NULL_STRING:
-            self.checkpointer.load(self, self.config.checkpoint_file)
-
-    def train(self, **kwargs):
-        """start training, save trained model per epoch."""
+        """
         config = self.config
-        train_dataset = create_dataset(config, self.data_root, TRAIN)
-        val_dataset = create_dataset(config, self.data_root, VAL)
+        train_dataset = create_dataset(config, data_root, TRAIN)
+        val_dataset = create_dataset(config, data_root, VAL)
         label_mappings = train_dataset.label_mappings
 
         logger.info(f"length of train dataset is {len(train_dataset)}")
@@ -322,10 +332,10 @@ class FasterRCNN(Estimator):
         )
         loss_metric.reset()
 
-    def evaluate(self, **kwargs):
+    def evaluate(self, data_root, **kwargs):
         """evaluate given dataset."""
         config = self.config
-        test_dataset = create_dataset(config, self.data_root, TEST)
+        test_dataset = create_dataset(config, data_root, TEST)
         label_mappings = test_dataset.label_mappings
         test_sampler = FasterRCNN.create_sampler(
             is_distributed=self.distributed,
@@ -593,24 +603,6 @@ class FasterRCNN(Estimator):
             mini batch in the form [(x0,y0), (x1,y2), (x2,y2)... (xn,yn)]
         """
         return tuple(zip(*batch))
-
-
-def create_dryrun_dataset(config, dataset, split):
-    """create dataset with very small no of images.
-
-    Args:
-        config: (CfgNode): estimator config:
-        dataset: dataset obj must have len and __get_item__
-        split: train, val, test
-
-    Returns:
-        Subset dataset
-
-    """
-    r = np.random.default_rng()
-    indices = r.integers(0, len(dataset), config[split].batch_size * 2)
-    dataset = torch.utils.data.Subset(dataset, indices)
-    return dataset
 
 
 def create_dataset(config, data_root, split):
@@ -1101,21 +1093,3 @@ class ToTensor:
         """transform image to tesnor."""
         image = torchvision.transforms.functional.to_tensor(image)
         return image, target
-
-
-def is_master():
-    rank = int(os.getenv("RANK", 0))
-    return rank == 0
-
-
-def is_dist_avail_and_initialized():
-    return dist.is_available() and dist.is_initialized()
-
-
-def get_world_size():
-    """
-    Returns: number of available devices
-    """
-    if not is_dist_avail_and_initialized():
-        return 1
-    return dist.get_world_size()

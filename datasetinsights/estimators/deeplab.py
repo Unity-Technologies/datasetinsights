@@ -94,16 +94,16 @@ class DeeplabV3(Estimator):
         lr_scheduler: pytorch learning rate scheduler
     """
 
-    def __init__(self, config, writer, checkpointer, device, **kwargs):
+    def __init__(self, *, config, writer, checkpointer, device, **kwargs):
         self.config = config
         self.writer = writer
         self.checkpointer = checkpointer
         self.device = device
 
-        self.backbone = self.config.backbone
-        self.num_classes = self.config.num_classes
+        self.backbone = config.backbone
+        self.num_classes = config.num_classes
 
-        model_name = "deeplabv3_" + self.backbone
+        model_name = "deeplabv3_" + config.backbone
         self.model = torchvision.models.segmentation.__dict__[model_name](
             num_classes=self.num_classes
         )

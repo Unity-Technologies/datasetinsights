@@ -20,7 +20,6 @@ def evaluate_pipeline(
         "gcr.io/unity-ai-thea-test/datasetinsights:<git-comit-sha>"
     ),
     checkpoint_file: str = "",
-    extra_options: str = "",
 ):
     """Evaluate Pipeline
 
@@ -62,9 +61,8 @@ def evaluate_pipeline(
             "datasetinsights",
             "evaluate",
             f"--config={config_file}",
-            f"--logdir={logdir}",
+            f"--tb-log-dir={logdir}",
             f"--checkpoint-file={checkpoint_file}",
-            extra_options,
         ],
         file_outputs={"mlpipeline-metrics": "/mlpipeline-metrics.json"},
         # Refer to pvloume in previous step to explicitly call out dependency
