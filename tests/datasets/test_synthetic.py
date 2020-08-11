@@ -15,6 +15,7 @@ from datasetinsights.datasets.synthetic import (
     _get_split,
     read_bounding_box_2d,
 )
+from datasetinsights.datasets.synthetic import SynDetection2DDownloader
 
 
 @patch("datasetinsights.datasets.synthetic._download_captures")
@@ -77,21 +78,22 @@ def test_get_split():
 @patch("datasetinsights.datasets.synthetic.os.path.exists")
 @patch("datasetinsights.datasets.synthetic.os.remove")
 @patch("datasetinsights.datasets.synthetic.validate_checksum")
-@patch("datasetinsights.datasets.synthetic.SynDetection2D.unzip_file")
+@patch("datasetinsights.datasets.synthetic.SynDetection2DDownloader.unzip_file")
 def test_synthetic_download_raises_exception(
     mocked_unzip, mocked_validate, mocked_remove, mocked_exists
 ):
     bad_version = "v_bad"
     version = "v1"
+    downloader = SynDetection2DDownloader()
     filename = SynDetection2D.SYNTHETIC_DATASET_TABLES[version].filename
     with tempfile.TemporaryDirectory() as tmp_dir:
         extract_folder = os.path.join(tmp_dir, const.SYNTHETIC_SUBFOLDER)
         dataset_path = os.path.join(extract_folder, filename)
 
         with pytest.raises(ValueError):
-            SynDetection2D.download(data_root=tmp_dir, version=bad_version)
+            downloader.download(data_root=tmp_dir, version=bad_version)
 
     mocked_exists.return_value = True
     mocked_validate.side_effect = ChecksumError()
-    SynDetection2D.download(tmp_dir, version)
+    downloader.download(tmp_dir, version)
     mocked_remove.assert_called_with(dataset_path)
