@@ -29,6 +29,8 @@ class AveragePrecision(EvaluationMetric):
         max_detections (int): max detections per image
     """
 
+    COMPUTE_TYPE = "metric_per_label"
+
     def __init__(
         self,
         iou_threshold=0.5,
@@ -196,6 +198,8 @@ class AveragePrecisionIOU50(EvaluationMetric):
         ap (AveragePrecision): AveragePrecision metrics
     """
 
+    COMPUTE_TYPE = "metric_per_label"
+
     def __init__(self):
         self.ap = AveragePrecision(iou_threshold=0.5)
 
@@ -212,13 +216,14 @@ class AveragePrecisionIOU50(EvaluationMetric):
 class MeanAveragePrecisionIOU50(EvaluationMetric):
     """2D Bounding Box Mean Average Precision metrics at IOU=50%.
 
-    This implementation would calculate mAP@50IOU. The metric can be
-    described as:
+    This implementation would calculate mAP@50IOU. 
     mAP = mean_{label}AP(label)@IOU50
 
     Attributes:
-        ap (AveragePrecision): AveragePrecision metrics
+        mean_ap (AveragePrecision): AveragePrecision metrics
     """
+
+    COMPUTE_TYPE = "mean"
 
     def __init__(self):
         self.ap = AveragePrecision(iou_threshold=0.5)
@@ -245,12 +250,14 @@ class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
     This implementation computes Mean Average Precision (mAP) metric,
     which is implemented as the Average Precision average over all
     labels and IOU thresholds [0.5:0.95:0.05]. The max detections
-    per image is limited to 100. The metric can be described as:
+    per image is limited to 100.
     mAP = mean_{label, IOU}AP(label, IOU)
 
     Attributes:
         map_per_iou (dict): save prediction records for each ious
     """
+
+    COMPUTE_TYPE = "mean"
 
     IOU_THRESHOULDS = np.linspace(
         0.5, 0.95, np.round((0.95 - 0.5) / 0.05) + 1, endpoint=True

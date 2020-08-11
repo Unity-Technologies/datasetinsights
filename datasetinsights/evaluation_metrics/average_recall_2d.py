@@ -27,6 +27,8 @@ class AverageRecall(EvaluationMetric):
         max_detections (int): max detections per image (default: 100)
     """
 
+    COMPUTE_TYPE = "metric_per_label"
+
     def __init__(self, iou_threshold=0.5, max_detections=100):
         self.label_records = collections.defaultdict(
             lambda: Records(iou_threshold=self.iou_threshold)
@@ -99,7 +101,7 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
     This implementation computes Mean Average Recall (mAR) metric,
     which is implemented as the Average Recall average over all
     labels and IOU thresholds [0.5:0.95:0.05]. The max detections
-    per image is limited to 100. The metric can be described as:
+    per image is limited to 100.
     mAR = mean_{label, IOU}AR(label, IOU)
 
     Attributes:
@@ -111,6 +113,8 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
         iou_step (float): iou step size (default: 0.05)
         max_detections (int): max detections per image (default: 100)
     """
+
+    COMPUTE_TYPE = "float"
 
     IOU_THRESHOULDS = np.linspace(
         0.5, 0.95, np.round((0.95 - 0.5) / 0.05) + 1, endpoint=True
