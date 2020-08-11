@@ -12,10 +12,10 @@ from datasetinsights.data.bbox import BBox2D
 from datasetinsights.data.exceptions import ChecksumError
 from datasetinsights.datasets.synthetic import (
     SynDetection2D,
+    SynDetection2DDownloader,
     _get_split,
     read_bounding_box_2d,
 )
-from datasetinsights.datasets.synthetic import SynDetection2DDownloader
 
 
 @patch("datasetinsights.datasets.synthetic._download_captures")
