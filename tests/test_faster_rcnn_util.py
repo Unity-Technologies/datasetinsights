@@ -5,7 +5,6 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import torch
 
-from datasetinsights.data.bbox import BBox2D
 from datasetinsights.estimators.faster_rcnn import (
     FasterRCNN,
     _gt_preds2tensor,
@@ -20,6 +19,7 @@ from datasetinsights.estimators.faster_rcnn import (
     reduce_dict,
     tensorlist2canonical,
 )
+from datasetinsights.io.bbox import BBox2D
 
 padding_box = BBox2D(
     label=np.nan, score=np.nan, x=np.nan, y=np.nan, w=np.nan, h=np.nan

@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 
 import datasetinsights.constants as const
-from datasetinsights.datasets.simulation import Downloader, download_manifest
+from datasetinsights.io.usim import Downloader, download_manifest
 
 logging.basicConfig(
     level=logging.INFO,

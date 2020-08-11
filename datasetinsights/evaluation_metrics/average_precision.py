@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 from nuscenes.eval.detection.data_classes import DetectionMetrics
 
-from datasetinsights.data.bbox import BBox3d
+from datasetinsights.io.bbox import BBox3d
 
 from .average_precision_config import (
     DIST_FCN,
