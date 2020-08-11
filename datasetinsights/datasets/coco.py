@@ -78,8 +78,6 @@ class CocoDetection(Dataset):
     http://cocodataset.org/#detection-2019
     """
 
-    name = ""
-
     def __init__(
         self,
         *,

@@ -13,6 +13,7 @@ import datasetinsights.constants as const
 from datasetinsights.data.bbox import BBox2D
 from datasetinsights.data.download import download_file, validate_checksum
 from datasetinsights.data.exceptions import ChecksumError, DownloadError
+from datasetinsights.datasets.base import DatasetDownloader, DownloaderRegistry
 from datasetinsights.storage.gcs import download_file_from_gcs
 
 from .base import Dataset
@@ -28,10 +29,101 @@ GroceriesRealTable = namedtuple(
 )
 
 
+class GroceriesRealDownloaderHTTP(DatasetDownloader):
+
+    SOURCE_URI_SCHEMA = "https://"
+
+    def download(self, data_root, version):
+        """ Download dataset from Public HTTP URL.
+
+        If the file already exists and the checksum matches, it will skip the
+        download step. If not, it would delete the previous file and download
+        it again. If the file doesn't exist, it would download the file.
+
+        Args:
+            data_root (str): Root directory prefix of datasets
+            version (str): version of GroceriesReal dataset, e.g. "v3"
+
+        Raises:
+            ValueError if the dataset version is not supported
+            ChecksumError if the download file checksum does not match
+            DownloadError if the download file failed
+        """
+        if version not in GroceriesReal.GROCERIES_REAL_DATASET_TABLES.keys():
+            raise ValueError(
+                f"A valid dataset version is required. Available versions are:"
+                f"{GroceriesReal.GROCERIES_REAL_DATASET_TABLES.keys()}"
+            )
+        dest_path = os.path.join(
+            data_root, GroceriesReal.LOCAL_PATH, f"{version}.zip"
+        )
+        expected_checksum = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[
+            version
+        ].checksum
+        extract_folder = os.path.join(data_root, GroceriesReal.LOCAL_PATH)
+        if os.path.exists(dest_path):
+            logger.info("The dataset file exists. Skip download.")
+            try:
+                validate_checksum(dest_path, expected_checksum)
+            except ChecksumError:
+                logger.info(
+                    "The checksum of the previous dataset mismatches. "
+                    "Delete the previously downloaded dataset."
+                )
+                os.remove(dest_path)
+        if not os.path.exists(dest_path):
+            source_uri = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[
+                version
+            ].source_uri
+            self._download_http(source_uri, dest_path, version)
+        self._extract_file(dest_path, extract_folder)
+
+    def _download_http(self, source_uri, dest_path, version):
+        """ Download dataset from Public HTTP URL.
+
+        Args:
+            source_uri (str): source url where the file should be downloaded
+            dest_path (str): destination path of the file
+
+        Raises:
+            DownloadError if the download file failed
+            ChecksumError if the download file checksum does not match
+        """
+
+        try:
+            logger.info("Downloading the dataset.")
+            download_file(source_uri=source_uri, dest_path=dest_path)
+        except DownloadError as e:
+            logger.info(
+                f"The request download from {source_uri} -> {dest_path} can't "
+                f"be completed."
+            )
+            raise e
+        expected_checksum = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[
+            version
+        ].checksum
+        try:
+            validate_checksum(dest_path, expected_checksum)
+        except ChecksumError as e:
+            logger.info("Checksum mismatch. Delete the downloaded files.")
+            os.remove(dest_path)
+            raise e
+
+    def _extract_file(self, dest_path, root_dir):
+        """ Unzip the downloaded file.
+        """
+        logger.info("Unzipping the dataset file.")
+        with zipfile.ZipFile(dest_path, "r") as zip_dir:
+            zip_dir.extractall(root_dir)
+
+
+@DownloaderRegistry.register(
+    name="groceriesreal", downloaders=[GroceriesRealDownloaderHTTP]
+)
 class GroceriesReal(Dataset):
     """Unity's Groceries Real Dataset.
 
-    During the class instantiation, it would check whehter the data is
+    During the class instantiation, it would check whether the data is
     downloaded or not. If there is no dataset, it would raise an error.
     Please make sure you download the dataset before use this class.
 
@@ -75,8 +167,6 @@ class GroceriesReal(Dataset):
         version (str): version of GroceriesReal dataset, e.g. "v3".
         default version="v3".
     """
-
-    name = "groceriesreal"
 
     LOCAL_PATH = "groceries"
     SPLITS = {
@@ -178,92 +268,6 @@ class GroceriesReal(Dataset):
         """
         return os.path.join(self.root, self.version, filename)
 
-    @staticmethod
-    def _download_http(source_uri, dest_path, version):
-        """ Download dataset from Public HTTP URL.
-
-        Args:
-            source_uri (str): source url where the file should be downloaded
-            dest_path (str): destination path of the file
-
-        Raises:
-            DownloadError if the download file failed
-            ChecksumError if the download file checksum does not match
-        """
-
-        try:
-            logger.info("Downloading the dataset.")
-            download_file(source_uri=source_uri, dest_path=dest_path)
-        except DownloadError as e:
-            logger.info(
-                f"The request download from {source_uri} -> {dest_path} can't "
-                f"be completed."
-            )
-            raise e
-        expected_checksum = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[
-            version
-        ].checksum
-        try:
-            validate_checksum(dest_path, expected_checksum)
-        except ChecksumError as e:
-            logger.info("Checksum mismatch. Delete the downloaded files.")
-            os.remove(dest_path)
-            raise e
-
-    @staticmethod
-    def _extract_file(dest_path, root_dir):
-        """ Unzip the downloaded file.
-        """
-        logger.info("Unzipping the dataset file.")
-        with zipfile.ZipFile(dest_path, "r") as zip_dir:
-            zip_dir.extractall(root_dir)
-
-    @staticmethod
-    def download(data_root, version):
-        """ Download dataset from Public HTTP URL.
-
-        If the file already exists and the checksum matches, it will skip the
-        download step. If not, it would delete the previous file and download
-        it again. If the file doesn't exist, it would download the file.
-
-        Args:
-            data_root (str): Root directory prefix of datasets
-            version (str): version of GroceriesReal dataset, e.g. "v3"
-
-        Raises:
-            ValueError if the dataset version is not supported
-            ChecksumError if the download file checksum does not match
-            DownloadError if the download file failed
-        """
-        if version not in GroceriesReal.GROCERIES_REAL_DATASET_TABLES.keys():
-            raise ValueError(
-                f"A valid dataset version is required. Available versions are:"
-                f"{GroceriesReal.GROCERIES_REAL_DATASET_TABLES.keys()}"
-            )
-        dest_path = os.path.join(
-            data_root, GroceriesReal.LOCAL_PATH, f"{version}.zip"
-        )
-        expected_checksum = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[
-            version
-        ].checksum
-        extract_folder = os.path.join(data_root, GroceriesReal.LOCAL_PATH)
-        if os.path.exists(dest_path):
-            logger.info("The dataset file exists. Skip download.")
-            try:
-                validate_checksum(dest_path, expected_checksum)
-            except ChecksumError:
-                logger.info(
-                    "The checksum of the previous dataset mismatches. "
-                    "Delete the previously downloaded dataset."
-                )
-                os.remove(dest_path)
-        if not os.path.exists(dest_path):
-            source_uri = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[
-                version
-            ].source_uri
-            GroceriesReal._download_http(source_uri, dest_path, version)
-        GroceriesReal._extract_file(dest_path, extract_folder)
-
     def _load_annotations(self):
         """Load annotation from annotations.json file
 
@@ -351,8 +355,6 @@ class GoogleGroceriesReal(Dataset):
         label_mappings (dict): a dict of {label_id: label_name} mapping
             loaded from label_map_with_path_64_retail.txt
     """
-
-    name = ""
 
     GCS_PATH = "data/google_groceries"
     LOCAL_PATH = "google_groceries"
