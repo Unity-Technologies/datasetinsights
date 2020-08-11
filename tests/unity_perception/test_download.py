@@ -8,13 +8,13 @@ import pandas as pd
 import pytest
 import responses
 
-from datasetinsights.data.download import (
+from datasetinsights.io.download import (
     compute_checksum,
     download_file,
     validate_checksum,
 )
-from datasetinsights.data.exceptions import ChecksumError, DownloadError
-from datasetinsights.datasets.simulation.download import (
+from datasetinsights.io.exceptions import ChecksumError, DownloadError
+from datasetinsights.io.usim import (
     Downloader,
     FileType,
     _filter_unsuccessful_attempts,
@@ -58,17 +58,13 @@ def test_download_bad_request():
 
 def test_download_rows(downloader):
     n_rows = len(downloader.manifest)
-    with patch(
-        "datasetinsights.datasets.simulation.download.download_file"
-    ) as mocked_dl:
+    with patch("datasetinsights.io.usim.download_file") as mocked_dl:
         matched_rows = pd.Series(np.zeros(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
         assert len(downloaded) == 0
         mocked_dl.assert_not_called()
 
-    with patch(
-        "datasetinsights.datasets.simulation.download.download_file"
-    ) as mocked_dl:
+    with patch("datasetinsights.io.usim.download_file") as mocked_dl:
         matched_rows = pd.Series(np.ones(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
         assert len(downloaded) == n_rows
@@ -77,9 +73,7 @@ def test_download_rows(downloader):
 
 def test_download_all(downloader):
     n_rows = len(downloader.manifest)
-    with patch(
-        "datasetinsights.datasets.simulation.download.download_file"
-    ) as mocked_dl:
+    with patch("datasetinsights.io.usim.download_file") as mocked_dl:
         downloader.download_references()
         downloader.download_captures()
         downloader.download_metrics()
@@ -162,7 +156,7 @@ def test_match_filetypes():
 
 def test_compute_checksum():
     expected_checksum = 123456
-    with patch("datasetinsights.data.download._crc32_checksum") as mocked:
+    with patch("datasetinsights.io.download._crc32_checksum") as mocked:
         mocked.return_value = expected_checksum
         computed = compute_checksum("filepath/not/important", "CRC32")
         assert computed == expected_checksum
@@ -174,7 +168,7 @@ def test_compute_checksum():
 def test_validate_checksum():
     expected_checksum = 123456
     wrong_checksum = 123455
-    with patch("datasetinsights.data.download.compute_checksum") as mocked:
+    with patch("datasetinsights.io.download.compute_checksum") as mocked:
         mocked.return_value = wrong_checksum
         with pytest.raises(ChecksumError):
             validate_checksum("filepath/not/important", expected_checksum)
