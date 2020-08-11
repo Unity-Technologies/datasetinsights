@@ -40,7 +40,9 @@ def test_train_except_called_once(
     )
     cfg_node_mock.assert_called_once()
     estimator_factory_create_mock.assert_called_once()
-    estimator_factory_create_mock.return_value.train.assert_called_once_with(data_root="tests/datasets")
+    estimator_factory_create_mock.return_value.train.assert_called_once_with(
+        data_root="tests/datasets"
+    )
 
 
 @pytest.mark.parametrize(

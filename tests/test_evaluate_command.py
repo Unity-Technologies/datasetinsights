@@ -44,7 +44,9 @@ def test_evaluate_except_called_once(
     )
     cfg_node_mock.assert_called_once()
     estimator_create_mock.assert_called_once()
-    estimator_create_mock.return_value.evaluate.assert_called_once_with(data_root="tests/datasets")
+    estimator_create_mock.return_value.evaluate.assert_called_once_with(
+        data_root="tests/datasets"
+    )
 
 
 @pytest.mark.parametrize(
