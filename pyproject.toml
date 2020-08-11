@@ -22,7 +22,6 @@ include = [
     "LICENSE",
 ]
 
-
 [tool.poetry.dependencies]
 python = "^3.7"
 cython = "^0.29.14"
@@ -35,17 +34,23 @@ plotly = "^4.4.1"
 pyquaternion = "^0.9.5"
 pytorch-ignite = "^0.3.0"
 tensorboardx = "^2.0"
-torch = "~1.4.0"
-torchvision = "~0.5"
+torch = "^1.4.0"
+torchvision = "^0.5"
 yacs = "^0.1.6"
 pycocotools = "^2.0.0"
 codetiming = "^1.2.0"
 pandas = "^1.0.1"
 tqdm = "^4.45.0"
 dask = {extras = ["complete"], version = "^2.14.0"}
-dash = "1.12.0"
-tensorflow = "^2.2.0"
-click = "^7.1.2"
+tensorflow = "^1.13.1"
+Keras-Applications = "==1.0.7"
+Keras-Preprocessing = "^1.1.0"
+onnx = "^1.6.1"
+onnxconverter-common = "^1.6.1"
+onnxmltools = "^1.6.1"
+hyperopt = "^0.2.3"
+Keras = "^2.2.4"
+bayesian-optimization = "^1.2.0"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
@@ -53,16 +58,6 @@ flake8 = "^3.7.9"
 pytest = "^5.3"
 pytest-cov = "^2.8.1"
 responses = "^0.10.9"
-isort = "^4.3.21"
-sphinx-rtd-theme = "^0.5.0"
-recommonmark = "^0.6.0"
-
-[tool.isort]
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-line_length = 80
 
 [tool.black]
 line-length = 80
@@ -82,17 +77,10 @@ exclude = '''
     | buck-out
     | build
     | dist
-    | protos
   )/
 )
 '''
 
-[tool.poetry.extras]
-docs = ["sphinx-rtd-theme", "recommonmark"]
-
 [build-system]
 requires = ["poetry>=1.0.5"]
 build-backend = "poetry.masonry.api"
-
-[tool.poetry.scripts]
-datasetinsights = "datasetinsights.main:entrypoint"

@@ -1,0 +1,31 @@
+estimator: VGGSlamCS
+backbone: VGG
+task: depth_estimation
+train:
+  dataset: SingleCube
+  batch_size: 50
+  accumulation_steps: 8
+  crop_size: 769
+  epochs: 40
+val:
+  dataset: synthetic
+  batch_size: 10
+test:
+  dataset: synthetic
+  batch_size: 4
+metric: AMSE
+optimizer:
+  name: Adam
+  args:
+    lr: 0.0001
+    beta_1: 0.9
+    beta_2: 0.999
+checkpoint_file: None
+system:
+  args:
+    logdir: gs://vision/robot/models
+    local_unzip_images: single_cube/set_2/ScreenCapture
+    local_unzip_logs: single_cube/set_2/Logs
+
+
+

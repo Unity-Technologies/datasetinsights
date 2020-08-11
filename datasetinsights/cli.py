@@ -7,9 +7,9 @@ from tensorboardX import SummaryWriter
 from yacs.config import CfgNode as CN
 
 import datasetinsights.constants as const
-from datasetinsights.datasets import Dataset
 
 from .configs import system
+from .data.datasets import Dataset
 from .estimators import Estimator
 from .storage.checkpoint import EstimatorCheckpoint
 from .storage.kfp_output import KubeflowPipelineWriter
@@ -178,6 +178,7 @@ def run(command, cfg):
 
     # todo this makes it so that we lose the tensorboard writer of non-master
     # processes which could make debugging harder
+    logdir = "gs://thea-dev/runs/single-cube/"
     writer = SummaryWriter(logdir, write_to_disk=is_master())
     kfp_writer = KubeflowPipelineWriter(
         filename=cfg.system.metricsfilename, filepath=cfg.system.metricsdir

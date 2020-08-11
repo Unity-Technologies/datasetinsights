@@ -1,6 +1,6 @@
 import pytest
 
-from datasetinsights.io.bbox import BBox2D
+from datasetinsights.data.bbox import BBox2D
 
 
 @pytest.fixture

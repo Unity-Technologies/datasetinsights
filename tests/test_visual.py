@@ -6,9 +6,9 @@ import pandas as pd
 from PIL import Image, ImageColor
 from pytest import approx
 
-from datasetinsights.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
-from datasetinsights.io.bbox import BBox2D
-from datasetinsights.stats.visualization.plots import (
+from datasetinsights.data.bbox import BBox2D
+from datasetinsights.data.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
+from datasetinsights.visualization.plots import (
     _convert_euler_rotations_to_scatter_points,
     bar_plot,
     decode_segmap,
@@ -34,8 +34,7 @@ def test_histogram_plot():
     mock_histogram_plot = MagicMock(return_value=mock_figure)
 
     with patch(
-        "datasetinsights.stats.visualization.plots.px.histogram",
-        mock_histogram_plot,
+        "datasetinsights.visualization.plots.px.histogram", mock_histogram_plot
     ):
         fig = histogram_plot(df, x="x")
         assert fig == mock_layout
@@ -48,9 +47,7 @@ def test_bar_plot():
     mock_figure.update_layout = MagicMock(return_value=mock_layout)
     mock_bar_plot = MagicMock(return_value=mock_figure)
 
-    with patch(
-        "datasetinsights.stats.visualization.plots.px.bar", mock_bar_plot
-    ):
+    with patch("datasetinsights.visualization.plots.px.bar", mock_bar_plot):
         fig = bar_plot(df, x="x", y="y")
         assert fig == mock_layout
 
@@ -112,9 +109,7 @@ def test_plot_bboxes():
         ImageColor.getcolor("green", "RGB"),
     ]
 
-    with patch(
-        "datasetinsights.stats.visualization.plots.ImageDraw.Draw"
-    ) as mock:
+    with patch("datasetinsights.visualization.plots.ImageDraw.Draw") as mock:
         instance = mock.return_value
         plot_bboxes(img, boxes, colors)
         assert instance.rectangle.call_count == len(boxes)

@@ -3,7 +3,7 @@ import logging
 import random
 from itertools import permutations
 
-import kornia
+#import kornia
 import numpy as np
 import torch
 import torch.nn as nn
@@ -15,11 +15,11 @@ from torchvision.transforms import Compose
 from torchvision.transforms.functional import to_tensor
 
 import datasetinsights.constants as const
-from datasetinsights.datasets import Dataset
+from datasetinsights.data.datasets import Dataset
+from datasetinsights.data.loader import create_loader
+from datasetinsights.data.transforms import RandomHorizontalFlip, Resize
 from datasetinsights.evaluation_metrics import EvaluationMetric
-from datasetinsights.io.loader import create_loader
-from datasetinsights.io.transforms import RandomHorizontalFlip, Resize
-from datasetinsights.stats.visualization.plots import grid_plot
+from datasetinsights.visualization.plots import grid_plot
 
 from .base import Estimator
 

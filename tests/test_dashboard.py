@@ -1,6 +1,6 @@
 import pandas as pd
 
-from datasetinsights.stats.visualization.object_detection import ScaleFactor
+from datasetinsights.visualization.object_detection import ScaleFactor
 
 
 def test_generate_scale_data():
