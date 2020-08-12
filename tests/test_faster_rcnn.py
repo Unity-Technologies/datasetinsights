@@ -410,7 +410,6 @@ def test_create_optimizer(mock_create, mock_lr, mock_adm, config, dataset):
     """test create optimizer."""
     mock_lr.return_value = MagicMock()
     mock_adm.return_value = MagicMock()
-
     mock_create.return_value = dataset
     writer = MagicMock()
     kfp_writer = MagicMock()
@@ -438,22 +437,14 @@ def test_create_optimizer(mock_create, mock_lr, mock_adm, config, dataset):
 def test_faster_rcnn_predict(mock_create, config, dataset):
     """test predict."""
     mock_create.return_value = dataset
-    ckpt_dir = tmp_name + "/train/FasterRCNN.estimator"
-
-    config.checkpoint_file = ckpt_dir
+    checkpoint_file = tmp_name + "/train/FasterRCNN.estimator"
     kfp_writer = MagicMock()
     writer = MagicMock()
     checkpointer = EstimatorCheckpoint(
-        estimator_name=config.estimator,
-        log_dir=config.system.logdir,
-        distributed=False,
+        estimator_name=config.estimator, log_dir="/tmp", distributed=False,
     )
     estimator = FasterRCNN(
-        config=config,
-        writer=writer,
-        checkpointer=checkpointer,
-        kfp_writer=kfp_writer,
-        logdir="/tmp",
+        config=config, checkpoint_file=checkpoint_file, logdir="/tmp",
     )
     estimator.writer = writer
     estimator.kfp_writer = kfp_writer
@@ -463,6 +454,7 @@ def test_faster_rcnn_predict(mock_create, config, dataset):
     image_size = (256, 256)
     image = Image.fromarray(np.random.random(image_size), "L")
     image = torchvision.transforms.functional.to_tensor(image)
+
     result = estimator.predict(image)
     assert result == []
 

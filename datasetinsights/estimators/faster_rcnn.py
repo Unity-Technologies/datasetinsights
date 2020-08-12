@@ -493,7 +493,6 @@ class FasterRCNN(Estimator):
         self.model_without_ddp.load_state_dict(checkpoint["model"])
         loaded_config = copy.deepcopy(checkpoint["config"])
         stored_config = copy.deepcopy(self.config)
-        del stored_config["checkpoint_file"]
         if stored_config != loaded_config:
             logger.debug(
                 f"Found difference in estimator config."
