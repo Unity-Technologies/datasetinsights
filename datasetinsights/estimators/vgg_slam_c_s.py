@@ -1,7 +1,7 @@
 from datasetinsights.storage.gcs import copy_folder_to_gcs
 from .base import Estimator
 import datasetinsights.constants as const
-from datasetinsights.data.datasets import Dataset
+from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics import EvaluationMetric
 import logging
 import numpy as np
@@ -53,7 +53,7 @@ def loss_orient(y_true, y_pred):
     y_true_orient = y_true[0, :]
     y_pred_orient = y_pred[0, :]
 
-    orientation_loss = 150 * (1 - tf.tensordot(y_pred_orient, y_true_orient, 1))
+    orientation_loss = 200 * (1 - tf.tensordot(y_pred_orient, y_true_orient, 1))
 
     orientation_loss = ops.convert_to_tensor_v2(orientation_loss,
                                                 dtype=tf.float32)
@@ -115,11 +115,25 @@ def vgg_slam_orientation_cube(inputs):
 
     x = model.layers[-1].output
 
+    x = layers.Conv2D(filters=512, kernel_size=(3,3), padding="same", activation="relu")(x)
+    x = layers.Conv2D(filters=512, kernel_size=(3,3), padding="same", activation="relu")(x)
+    x = layers.Conv2D(filters=512, kernel_size=(3,3), padding="same", activation="relu")(x)
+    x = layers.MaxPool2D(pool_size=(2,2),strides=(2,2))(x)
+
+    x = layers.Conv2D(filters=1024, kernel_size=(3,3), padding="same", activation="relu")(x)
+    x = layers.Conv2D(filters=1024, kernel_size=(3,3), padding="same", activation="relu")(x)
+    x = layers.Conv2D(filters=1024, kernel_size=(3,3), padding="same", activation="relu")(x)
+    x = layers.MaxPool2D(pool_size=(2,2),strides=(2,2))(x)
+
+    x = layers.Conv2D(filters=1024, kernel_size=(3,3), padding="same", activation="relu")(x)
+    x = layers.Conv2D(filters=1024, kernel_size=(3,3), padding="same", activation="relu")(x)
+    x = layers.Conv2D(filters=1024, kernel_size=(3,3), padding="same", activation="relu")(x)
+
     x = layers.Flatten(name='Flattern_orient')(x)
 
     # add two dense layers
-    x = layers.Dense(1024, activation='relu')(x)
-    x = layers.Dense(512, activation='relu')(x)
+    x = layers.Dense(4096, activation='relu')(x)
+    x = layers.Dense(2048, activation='relu')(x)
 
     # prediction of the coordinates of the cube's center
     predictions_orientation = layers.Dense(2, activation=linear_normalized,
@@ -490,7 +504,7 @@ class VGGSlamCS(Estimator):
             saved the model on gcs
         """
         epoch = "ep" + str(epoch)
-        file_name = "UR3_cube_sphere_vgg_model3" + epoch
+        file_name = "UR3_cube_sphere_vgg_model7_" + epoch
         checkpoint_file_folder = os.path.join(self.data_root, "models/", epoch)
         # checkpoint_file_folder = "/tmp/test/"  # to save on local
         Path(checkpoint_file_folder).mkdir(parents=True, exist_ok=True)

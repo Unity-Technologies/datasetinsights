@@ -1,10 +1,13 @@
 import json
 
-from datasetinsights.data.simulation import (
+from datasetinsights.datasets.unity_perception import (
     AnnotationDefinitions,
     MetricDefinitions,
 )
-from datasetinsights.data.simulation.tables import SCHEMA_VERSION, glob
+from datasetinsights.datasets.unity_perception.tables import (
+    SCHEMA_VERSION,
+    glob,
+)
 
 
 def test_annotation_definitions(mock_data_dir):

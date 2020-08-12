@@ -1,8 +1,8 @@
 import dash_core_components as dcc
 import dash_html_components as html
 
-import datasetinsights.data.datasets.statistics as stat
-import datasetinsights.visualization.constants as constants
+import datasetinsights.stats.statistics as stat
+import datasetinsights.stats.visualization.constants as constants
 
 from .plots import bar_plot, histogram_plot
 

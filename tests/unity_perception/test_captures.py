@@ -3,9 +3,14 @@ import json
 
 import pytest
 
-from datasetinsights.data.simulation import Captures
-from datasetinsights.data.simulation.exceptions import DefinitionIDError
-from datasetinsights.data.simulation.tables import SCHEMA_VERSION, glob
+from datasetinsights.datasets.unity_perception import Captures
+from datasetinsights.datasets.unity_perception.exceptions import (
+    DefinitionIDError,
+)
+from datasetinsights.datasets.unity_perception.tables import (
+    SCHEMA_VERSION,
+    glob,
+)
 
 
 def test_get_captures_and_annotations(mock_data_dir):

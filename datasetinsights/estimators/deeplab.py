@@ -9,11 +9,11 @@ from torchvision import transforms as T
 from torchvision.transforms import functional as F
 
 import datasetinsights.constants as const
-from datasetinsights.data.datasets import Dataset
-from datasetinsights.data.loader import create_loader
-from datasetinsights.data.transforms import Compose, RandomHorizontalFlip
+from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics import EvaluationMetric
-from datasetinsights.visualization.plots import decode_segmap, grid_plot
+from datasetinsights.io.loader import create_loader
+from datasetinsights.io.transforms import Compose, RandomHorizontalFlip
+from datasetinsights.stats.visualization.plots import decode_segmap, grid_plot
 
 from .base import Estimator
 

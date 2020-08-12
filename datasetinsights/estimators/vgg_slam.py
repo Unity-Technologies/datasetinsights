@@ -1,7 +1,7 @@
 from datasetinsights.storage.gcs import copy_folder_to_gcs
 from .base import Estimator
 import datasetinsights.constants as const
-from datasetinsights.data.datasets import Dataset
+from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics import EvaluationMetric
 import logging
 import numpy as np
@@ -335,7 +335,7 @@ class VGGSlam(Estimator):
                 "Train/quaternion_loss", train_loss_orient, epoch
             )
 
-            self.save(epoch)
+            #self.save(epoch)
 
     def evaluate(self, **kwargs):
         """Abstract method to evaluate estimators
@@ -370,7 +370,7 @@ class VGGSlam(Estimator):
         y_val_orient = []
         y_val_trans = []
         root_dir = self.uncompress_data_root
-        files = glob.glob(os.path.join(root_dir, "*.png"))  # your image path
+        files = glob.glob(os.path.join(root_dir, "*.png"))[:10]  # your image path
 
         for myFile in files[:int(0.9 * len(files))]:
             img = image.load_img(myFile, target_size=(224, 224))

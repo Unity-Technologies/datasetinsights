@@ -4,13 +4,13 @@ from unittest.mock import patch
 
 import pytest
 
-from datasetinsights.data.datasets import GroceriesReal
-from datasetinsights.data.exceptions import ChecksumError, DownloadError
+from datasetinsights.datasets import GroceriesReal
+from datasetinsights.io.exceptions import ChecksumError, DownloadError
 
 
-@patch("datasetinsights.data.datasets.groceries_real.os.remove")
-@patch("datasetinsights.data.datasets.groceries_real.download_file")
-@patch("datasetinsights.data.datasets.groceries_real.validate_checksum")
+@patch("datasetinsights.datasets.groceries_real.os.remove")
+@patch("datasetinsights.datasets.groceries_real.download_file")
+@patch("datasetinsights.datasets.groceries_real.validate_checksum")
 def test_groceriesreal_download_http(
     mocked_validate, mocked_download, mocked_remove
 ):
@@ -38,15 +38,11 @@ def test_groceriesreal_download_http(
             mocked_remove.assert_called()
 
 
-@patch("datasetinsights.data.datasets.groceries_real.os.path.exists")
-@patch("datasetinsights.data.datasets.groceries_real.os.remove")
-@patch("datasetinsights.data.datasets.groceries_real.validate_checksum")
-@patch(
-    "datasetinsights.data.datasets.groceries_real.GroceriesReal._extract_file"
-)
-@patch(
-    "datasetinsights.data.datasets.groceries_real.GroceriesReal._download_http"
-)
+@patch("datasetinsights.datasets.groceries_real.os.path.exists")
+@patch("datasetinsights.datasets.groceries_real.os.remove")
+@patch("datasetinsights.datasets.groceries_real.validate_checksum")
+@patch("datasetinsights.datasets.groceries_real.GroceriesReal._extract_file")
+@patch("datasetinsights.datasets.groceries_real.GroceriesReal._download_http")
 def test_groceriesreal_download(
     mocked_download,
     mocked_extract,
@@ -75,15 +71,11 @@ def test_groceriesreal_download(
         mocked_extract.assert_called_with(dest_path, extract_folder)
 
 
-@patch("datasetinsights.data.datasets.groceries_real.os.path.exists")
-@patch("datasetinsights.data.datasets.groceries_real.os.remove")
-@patch("datasetinsights.data.datasets.groceries_real.validate_checksum")
-@patch(
-    "datasetinsights.data.datasets.groceries_real.GroceriesReal._extract_file"
-)
-@patch(
-    "datasetinsights.data.datasets.groceries_real.GroceriesReal._download_http"
-)
+@patch("datasetinsights.datasets.groceries_real.os.path.exists")
+@patch("datasetinsights.datasets.groceries_real.os.remove")
+@patch("datasetinsights.datasets.groceries_real.validate_checksum")
+@patch("datasetinsights.datasets.groceries_real.GroceriesReal._extract_file")
+@patch("datasetinsights.datasets.groceries_real.GroceriesReal._download_http")
 def test_groceriesreal_download_raises(
     mocked_download,
     mocked_extract,

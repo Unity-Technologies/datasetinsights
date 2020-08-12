@@ -12,7 +12,7 @@ MAX_MEMORY = "64Gi"
 def train_pipeline(
     num_proc: int = 1,
     # volume_size: str = "50Gi",
-    logdir: str = "gs://thea-dev/runs/yyyymmdd-hhmm",
+    logdir: str = "gs://thea-dev/runs/single-cube/",
     docker_image:
     str = "gcr.io/unity-ai-thea-test/datasetinsights:<git-comit-sha>",
     auth_token: str = "xxxxxx",

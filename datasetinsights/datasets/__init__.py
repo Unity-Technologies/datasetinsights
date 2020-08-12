@@ -7,12 +7,12 @@ from .synthetic import SynDetection2D
 from .single_cube import SingleCube
 
 __all__ = [
-    Cityscapes,
-    CocoDetection,
-    Dataset,
-    GroceriesReal,
-    GoogleGroceriesReal,
-    NyuDepth,
-    SynDetection2D,
-    SingleCube,
+    "Cityscapes",
+    "CocoDetection",
+    "Dataset",
+    "GroceriesReal",
+    "GoogleGroceriesReal",
+    "NyuDepth",
+    "SynDetection2D",
+    "SingleCube",
 ]
