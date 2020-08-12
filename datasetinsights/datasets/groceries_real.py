@@ -87,8 +87,8 @@ class GroceriesReal(Dataset):
         # Split test dataset into high/low foreground to background ratio
         "test_high_ratio": "groceries_real_test_high_ratio.txt",
         "test_low_ratio": "groceries_real_test_low_ratio.txt",
-        # Split test datset into high/low contrast. Images in high contrast
-        # split tend to have more complicated shadow pattern
+        # Split test dataset into high/low contrast. Images in high contrast
+        # split tend to have more complicated shadow patterns
         "test_low_contrast": "groceries_real_test_low_contrast.txt",
         "test_high_contrast": "groceries_real_test_high_contrast.txt",
     }

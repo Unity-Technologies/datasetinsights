@@ -1,6 +1,6 @@
 from pytest import approx
 
-from datasetinsights.evaluation_metrics import AveragePrecisionBBox2D
+from datasetinsights.evaluation_metrics import AveragePrecision
 
 
 def get_precision_recall():
@@ -63,16 +63,16 @@ def get_precision_recall():
 def test_average_precision_2d_bbox():
     precision, recall = get_precision_recall()
 
-    n_points_inter1 = AveragePrecisionBBox2D.n_point_interpolated_ap(
+    n_points_inter1 = AveragePrecision.n_point_interpolated_ap(
         recall, precision, point=11
     )
-    n_points_inter2 = AveragePrecisionBBox2D.n_point_interpolated_ap(
+    n_points_inter2 = AveragePrecision.n_point_interpolated_ap(
         recall, precision, point=6
     )
-    n_points_inter3 = AveragePrecisionBBox2D.n_point_interpolated_ap(
+    n_points_inter3 = AveragePrecision.n_point_interpolated_ap(
         recall, precision, point=101
     )
-    all_points_inter = AveragePrecisionBBox2D.every_point_interpolated_ap(
+    all_points_inter = AveragePrecision.every_point_interpolated_ap(
         recall, precision
     )
 
