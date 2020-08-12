@@ -8,7 +8,6 @@ from .root_mean_square_error import RootMeanSquareError
 from .threshold_accuracy import ThresholdAccuracy
 from .average_mean_square_error import AverageMeanSquareError
 from .average_quaternion_error import AverageQuaternionError
-from .average_euler_error import AverageEulerError
 
 __all__ = [
     EvaluationMetric,
@@ -21,5 +20,4 @@ __all__ = [
     ThresholdAccuracy,
     AverageMeanSquareError,
     AverageQuaternionError,
-    AverageEulerError,
 ]
