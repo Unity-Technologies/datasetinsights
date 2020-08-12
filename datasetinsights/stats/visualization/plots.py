@@ -111,65 +111,65 @@ def grid_plot(
     return figure
 
 
-def plot_bboxes(
-    image, boxes, label_mappings, colors=None, box_line_width=1, font_scale=50
-):
-    """ Plot an image with bounding boxes.
+# def plot_bboxes(
+#     image, boxes, label_mappings, colors=None, box_line_width=1, font_scale=50
+# ):
+#     """ Plot an image with bounding boxes.
 
-    Args:
-        image (PIL Image): a PIL image.
-        boxes (list): a list of BBox2D objects.
-        colors (list): a color list for boxes. Defaults to None.
-        If colors = None, it will randomly assign PIL.COLORS for each box.
-        box_line_width (int): line width of the bounding boxes. Defaults to 1.
-        font_scale (int): how many chars can be filled in the image
-        horizontally. Defaults to 50.
+#     Args:
+#         image (PIL Image): a PIL image.
+#         boxes (list): a list of BBox2D objects.
+#         colors (list): a color list for boxes. Defaults to None.
+#         If colors = None, it will randomly assign PIL.COLORS for each box.
+#         box_line_width (int): line width of the bounding boxes. Defaults to 1.
+#         font_scale (int): how many chars can be filled in the image
+#         horizontally. Defaults to 50.
 
-    Returns:
-        a PIL image with bounding boxes drawn.
-    """
-    combined = image.copy()
-    combined = np.array(combined)
-    # draw = ImageDraw.Draw(combined)
-    # image_width = combined.size[0]
+#     Returns:
+#         a PIL image with bounding boxes drawn.
+#     """
+#     combined = image.copy()
+#     combined = np.array(combined)
+#     # draw = ImageDraw.Draw(combined)
+#     # image_width = combined.size[0]
 
-    for i, box in enumerate(boxes):
+#     for i, box in enumerate(boxes):
 
-        # x0y0 = (box.x, box.y)
-        # x1y1 = (box.x + box.w, box.y + box.h)
-        # xcyc = (
-        #     box.x + 0.5 * box.w - image_width // font_scale,
-        #     box.y + 0.5 * box.h - image_width // font_scale,
-        # )
-        # if not colors:
-        #     color_idx = i % len(COLORS)
-        #     color = COLORS[color_idx]
-        # else:
-        #     color = colors[i]
-        # draw.rectangle((x0y0, x1y1), outline=color, width=box_line_width)
-        # font_file = str(CUR_DIR / "font" / "arial.ttf")
-        # font = ImageFont.truetype(font_file, image_width // font_scale)
-        # text = f"{box.label}\n{box.score:.2f}"
-        # draw.multiline_text(xcyc, text, font=font, fill=color)
-        left, top = (box.x, box.y)
-        right, bottom = (box.x + box.w, box.y + box.h)
-        label = label_mappings.iloc[box.label]["Label Name"]
+#         # x0y0 = (box.x, box.y)
+#         # x1y1 = (box.x + box.w, box.y + box.h)
+#         # xcyc = (
+#         #     box.x + 0.5 * box.w - image_width // font_scale,
+#         #     box.y + 0.5 * box.h - image_width // font_scale,
+#         # )
+#         # if not colors:
+#         #     color_idx = i % len(COLORS)
+#         #     color = COLORS[color_idx]
+#         # else:
+#         #     color = colors[i]
+#         # draw.rectangle((x0y0, x1y1), outline=color, width=box_line_width)
+#         # font_file = str(CUR_DIR / "font" / "arial.ttf")
+#         # font = ImageFont.truetype(font_file, image_width // font_scale)
+#         # text = f"{box.label}\n{box.score:.2f}"
+#         # draw.multiline_text(xcyc, text, font=font, fill=color)
+#         left, top = (box.x, box.y)
+#         right, bottom = (box.x + box.w, box.y + box.h)
+#         label = label_mappings.iloc[box.label]["Label Name"]
 
-        if not colors:
-            add(combined, left, top, right, bottom, label=label, color=None)
-        else:
-            label = f"{label}: {box.score * 100: .2f}%"
-            add(
-                combined,
-                left,
-                top,
-                right,
-                bottom,
-                label=label,
-                color=colors[i],
-            )
+#         if not colors:
+#             add(combined, left, top, right, bottom, label=label, color=None)
+#         else:
+#             label = f"{label}: {box.score * 100: .2f}%"
+#             add(
+#                 combined,
+#                 left,
+#                 top,
+#                 right,
+#                 bottom,
+#                 label=label,
+#                 color=colors[i],
+#             )
 
-    return Image.fromarray(combined)
+#     return Image.fromarray(combined)
 
 
 def bar_plot(
@@ -340,6 +340,67 @@ def rotation_plot(df, x, y, z=None, max_samples=None, title=None, **kwargs):
         )
     )
     return fig
+
+
+def plot_bboxes(
+    image, boxes, label_mappings, colors=None, box_line_width=1, font_scale=50
+):
+    """ Plot an image with bounding boxes.
+
+    Args:
+        image (PIL Image): a PIL image.
+        boxes (list): a list of BBox2D objects.
+        colors (list): a color list for boxes. Defaults to None.
+        If colors = None, it will randomly assign PIL.COLORS for each box.
+        box_line_width (int): line width of the bounding boxes. Defaults to 1.
+        font_scale (int): how many chars can be filled in the image
+        horizontally. Defaults to 50.
+
+    Returns:
+        a PIL image with bounding boxes drawn.
+    """
+    combined = image.copy()
+    combined = np.array(combined)
+    # draw = ImageDraw.Draw(combined)
+    # image_width = combined.size[0]
+
+    for i, box in enumerate(boxes):
+
+        # x0y0 = (box.x, box.y)
+        # x1y1 = (box.x + box.w, box.y + box.h)
+        # xcyc = (
+        #     box.x + 0.5 * box.w - image_width // font_scale,
+        #     box.y + 0.5 * box.h - image_width // font_scale,
+        # )
+        # if not colors:
+        #     color_idx = i % len(COLORS)
+        #     color = COLORS[color_idx]
+        # else:
+        #     color = colors[i]
+        # draw.rectangle((x0y0, x1y1), outline=color, width=box_line_width)
+        # font_file = str(CUR_DIR / "font" / "arial.ttf")
+        # font = ImageFont.truetype(font_file, image_width // font_scale)
+        # text = f"{box.label}\n{box.score:.2f}"
+        # draw.multiline_text(xcyc, text, font=font, fill=color)
+        left, top = (box.x, box.y)
+        right, bottom = (box.x + box.w, box.y + box.h)
+        label = label_mappings.iloc[box.label]["Label Name"]
+
+        if not colors:
+            add(combined, left, top, right, bottom, label=label, color=None)
+        else:
+            label = f"{label}: {box.score * 100: .2f}%"
+            add(
+                combined,
+                left,
+                top,
+                right,
+                bottom,
+                label=label,
+                color=colors[i],
+            )
+
+    return Image.fromarray(combined)
 
 
 _COLOR_NAME_TO_RGB = dict(
