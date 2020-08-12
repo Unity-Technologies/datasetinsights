@@ -26,7 +26,7 @@ from datasetinsights.estimators.faster_rcnn import (
     create_dryrun_dataset,
     dataloader_creator,
 )
-from datasetinsights.storage.checkpoint import EstimatorCheckpoint
+from datasetinsights.io.checkpoint import EstimatorCheckpoint
 
 tmp_dir = tempfile.TemporaryDirectory()
 tmp_name = tmp_dir.name

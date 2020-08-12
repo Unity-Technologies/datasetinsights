@@ -11,7 +11,7 @@ from torch.utils.data import Dataset
 
 import datasetinsights.constants as const
 from datasetinsights.io.bbox import BBox3d
-from datasetinsights.storage.gcs import GCSClient
+from datasetinsights.io.gcs import GCSClient
 
 logger = logging.getLogger(__name__)
 
