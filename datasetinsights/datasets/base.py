@@ -12,7 +12,9 @@ class DownloaderRegistry(ABCMeta):
             )
         new_cls = super().__new__(cls, name, bases, namespace)
         if namespace["SOURCE_SCHEMA_URI"] != "":
-            DownloaderRegistry.registry[namespace["SOURCE_SCHEMA_URI"]] = new_cls
+            DownloaderRegistry.registry[
+                namespace["SOURCE_SCHEMA_URI"]
+            ] = new_cls
         return new_cls
 
     @classmethod

@@ -42,8 +42,6 @@ class KittiBox3d:
     To convert from kitti style to nuscenes use the method convert_kitti2nu.
     """
 
-    name = ""
-
     def __init__(
         self,
         *,
