@@ -3,7 +3,7 @@ import dash_html_components as html
 import dash_table
 import pandas as pd
 
-import datasetinsights.datasets.simulation as sim
+import datasetinsights.datasets.unity_perception as sim
 import datasetinsights.stats.visualization.constants as constants
 
 from .plots import histogram_plot, rotation_plot

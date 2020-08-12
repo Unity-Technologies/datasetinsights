@@ -10,10 +10,10 @@ from google.protobuf import text_format
 from PIL import Image
 
 import datasetinsights.constants as const
-from datasetinsights.data.bbox import BBox2D
-from datasetinsights.data.download import download_file, validate_checksum
-from datasetinsights.data.exceptions import ChecksumError, DownloadError
 from datasetinsights.datasets.base import DatasetDownloader, DownloaderRegistry
+from datasetinsights.io.bbox import BBox2D
+from datasetinsights.io.download import download_file, validate_checksum
+from datasetinsights.io.exceptions import ChecksumError, DownloadError
 from datasetinsights.storage.gcs import download_file_from_gcs
 
 from .base import Dataset

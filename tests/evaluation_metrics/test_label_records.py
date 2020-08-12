@@ -1,5 +1,5 @@
-from datasetinsights.data.bbox import BBox2D
 from datasetinsights.evaluation_metrics.records import Records
+from datasetinsights.io.bbox import BBox2D
 
 
 def get_gt_pred_bbox():

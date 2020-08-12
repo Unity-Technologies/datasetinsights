@@ -3,8 +3,8 @@
 import numpy as np
 from PIL import Image
 
-from datasetinsights.data.bbox import BBox2D
 from datasetinsights.datasets import Dataset
+from datasetinsights.io.bbox import BBox2D
 
 
 class DummyDetection2D(Dataset):

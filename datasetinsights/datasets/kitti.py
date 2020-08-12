@@ -9,7 +9,7 @@ from PIL import Image
 from pyquaternion import Quaternion
 
 import datasetinsights.constants as const
-from datasetinsights.data.bbox import BBox3d
+from datasetinsights.io.bbox import BBox3d
 from datasetinsights.storage.gcs import GCSClient
 
 from .base import Dataset

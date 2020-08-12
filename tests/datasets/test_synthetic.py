@@ -8,14 +8,14 @@ import pandas as pd
 import pytest
 
 import datasetinsights.constants as const
-from datasetinsights.data.bbox import BBox2D
-from datasetinsights.data.exceptions import ChecksumError
 from datasetinsights.datasets.synthetic import (
     SynDetection2D,
     SynDetection2DDownloader,
     _get_split,
     read_bounding_box_2d,
 )
+from datasetinsights.io.bbox import BBox2D
+from datasetinsights.io.exceptions import ChecksumError
 
 
 @patch("datasetinsights.datasets.synthetic._download_captures")
