@@ -434,3 +434,9 @@ def test_faster_rcnn_predict(mock_create, config, dataset):
     image = torchvision.transforms.functional.to_tensor(image)
     result = estimator.predict(image)
     assert result == []
+
+
+def test_clean_dir():
+    """clean tmp dir."""
+    if os.path.exists(tmp_dir.name):
+        tmp_dir.cleanup()
