@@ -189,9 +189,9 @@ class CocoTracking(Dataset):
         logger = logging.getLogger("global")
 
         self.split = "train"
-        # self.download()
-        # self.crop()
-        # self.generate_json_coco()
+        self.download()
+        self.crop()
+        self.generate_json_coco()
         # All these hard-coded rignt now.
         # TODO: Move these to config files
         self.anchors = anchors
