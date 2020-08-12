@@ -1,8 +1,7 @@
 import random
 
-import numpy as np
 import cv2
-
+import numpy as np
 import torchvision.transforms.functional as F
 
 
@@ -62,6 +61,7 @@ class Resize:
         if self.target_size != -1:
             target = F.resize(target, self.target_size)
         return (img, target)
+
 
 class BlurImage:
     """Blur the image.
@@ -141,6 +141,7 @@ class CenterCrop:
         if shape == self.size:
             return img
         c = shape // 2
+        # noqa: E741 IDK why it says ambiguous
         l = c - self.size // 2
         r = c + self.size // 2 + 1
         return img[l:r, l:r], None

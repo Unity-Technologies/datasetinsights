@@ -1,18 +1,18 @@
+import json
 import logging
 import os
+import random
 import zipfile
+from os import makedirs
+from os.path import isdir, join
 from pathlib import Path
 from typing import List, Tuple
-import json
-import random
-from os.path import join, isdir
-from os import makedirs, rename
 
+import cv2
+import numpy as np
 import torch
 import torchvision
 from PIL.Image import Image
-import cv2
-import numpy as np
 from pycocotools.coco import COCO
 
 import datasetinsights.constants as const
@@ -182,15 +182,16 @@ class CocoDetection(Dataset):
             with zipfile.ZipFile(images_local, "r") as zip_dir:
                 zip_dir.extractall(self.root)
 
+
 class CocoTracking(Dataset):
     def __init__(self, anchors, anchor_target, config, transforms):
         global logger
         logger = logging.getLogger("global")
 
         self.split = "train"
-        self.download()
-        self.crop()
-        self.generate_json_coco()
+        # self.download()
+        # self.crop()
+        # self.generate_json_coco()
         # All these hard-coded rignt now.
         # TODO: Move these to config files
         self.anchors = anchors
@@ -227,7 +228,6 @@ class CocoTracking(Dataset):
     def __len__(self):
         return self.num
 
-
     def _get_local_annotations_zip(self):
         return os.path.join(self.root, "annotations_trainval2017.zip")
 
@@ -235,7 +235,7 @@ class CocoTracking(Dataset):
         return os.path.join(self.root, f"{self.split}2017.zip")
 
     def download(self, cloud_path=COCO_GCS_PATH):
-        data_root = './datasetinsights/data'
+        data_root = "./datasetinsights/data"
         self.root = os.path.join(data_root, COCO_LOCAL_PATH)
         print(self.root)
         # exit(0)
@@ -268,7 +268,6 @@ class CocoTracking(Dataset):
             )
             with zipfile.ZipFile(images_local, "r") as zip_dir:
                 zip_dir.extractall(self.root)
-
 
     def crop_hwc(self, image, bbox, out_sz, padding=(0, 0, 0)):
         a = (out_sz - 1) / (bbox[2] - bbox[0])
@@ -330,8 +329,6 @@ class CocoTracking(Dataset):
             makedirs(frame_crop_base_path)
 
         im = cv2.imread("{}/{}".format(set_img_base_path, img["file_name"]))
-        # print("{}/{}".format(set_img_base_path, img["file_name"]))
-        # exit(0)
         avg_chans = np.mean(im, axis=(0, 1))
         for track_id, ann in enumerate(anns):
             rect = ann["bbox"]
@@ -440,7 +437,6 @@ class CocoTracking(Dataset):
     ):
         global coco  # will used for generate mask
         data_dir = self.root
-        # crop_path = "./coco/crop{:d}".format(search_size)
         crop_path = self.root + "/crop{:d}".format(search_size)
         if not isdir(crop_path):
             os.mkdir(crop_path)
@@ -456,7 +452,7 @@ class CocoTracking(Dataset):
             n_imgs = len(coco.imgs)
 
             for cnt, i in enumerate(coco.imgs):
-                logger.info(str(cnt)+"/"+str(n_imgs))
+                logger.info(str(cnt) + "/" + str(n_imgs))
                 self.crop_img(
                     coco.loadImgs(i)[0],
                     coco.loadAnns(coco.getAnnIds(imgIds=i, iscrowd=None)),
@@ -487,7 +483,6 @@ class CocoTracking(Dataset):
             #     for i, f in enumerate(futures.as_completed(fs)):
             #         printProgress(i, n_imgs,
             #         prefix=data_subset, suffix='Done ', barLength=40)
-
 
     # Apply all transforms and return object
     def __getitem__(self, index):
@@ -553,14 +548,17 @@ class CocoTracking(Dataset):
         )
 
         neg = False
-        cls, delta, delta_weight = self.anchor_target(self.anchors, bbox, self.size, neg)
+        cls, delta, delta_weight = self.anchor_target(
+            self.anchors, bbox, self.size, neg
+        )
 
-        # Change this if we want to train using any dataset which has no masks like vid
+        # Change this if we want to train using any dataset
+        # which has no masks like vid
 
-        # if dataset.has_mask and not neg:
         mask_weight = cls.max(axis=0, keepdims=True)
+        # if dataset.has_mask and not neg:
         # else:
-        #     mask_weight = np.zeros([1, cls.shape[1], cls.shape[2]], dtype=np.float32)
+        # mask_weight=np.zeros([1,cls.shape[1],cls.shape[2]],dtype=np.float32)
 
         # Changing ordering of channels for pytorch format
         template, search = map(
@@ -570,9 +568,19 @@ class CocoTracking(Dataset):
 
         # To get into Pytorch format
         mask = (np.expand_dims(mask, axis=0) > 0.5) * 2 - 1  # 1*H*W
-        
-        return template, search, cls, delta, delta_weight, np.array([bbox.x, bbox.y, bbox.x + bbox.w, bbox.y + bbox.h], np.float32), \
-               np.array(mask, np.float32), np.array(mask_weight, np.float32)
+
+        return (
+            template,
+            search,
+            cls,
+            delta,
+            delta_weight,
+            np.array(
+                [bbox.x, bbox.y, bbox.x + bbox.w, bbox.y + bbox.h], np.float32
+            ),
+            np.array(mask, np.float32),
+            np.array(mask_weight, np.float32),
+        )
 
     def imread(self, path):
         img = cv2.imread(path)
@@ -591,27 +599,28 @@ class CocoTracking(Dataset):
 
         return img, nsize / img.shape[1]
 
-    def shuffle(self):
-        pick = []
-        m = 0
-        while m < self.num:
-            p = []
-            for subset in self.alldata:
-                sub_p = subset.shuffle()
-                p += sub_p
+    # def shuffle(self):
+    #     pick = []
+    #     m = 0
+    #     while m < self.num:
+    #         p = []
+    #         for subset in self.alldata:
+    #             sub_p = subset.shuffle()
+    #             p += sub_p
 
-            random.Random().shuffle(p)
+    #         random.Random().shuffle(p)
 
-            pick += p
-            m = len(pick)
-        self.pick = pick
-        logger.info("shuffle done!")
-        logger.info("dataset length {}".format(self.num))
+    #         pick += p
+    #         m = len(pick)
+    #     self.pick = pick
+    #     logger.info("shuffle done!")
+    #     logger.info("dataset length {}".format(self.num))
 
-    ''' 
-        Populate function is used to read the dataset and load from the 
+    """
+        Populate function is used to read the dataset and load from the
         json file created
-    '''
+    """
+
     def populate(self, cfg):
         dset_index = cfg["dataset"]["name"].index(self.dset)
         root = cfg["dataset"]["dataroot"][dset_index]
@@ -669,7 +678,8 @@ class CocoTracking(Dataset):
         self.num_use = cfg["dataset"]["num_use"][0]
         if self.num_use == -1:
             self.num_use = self.num
-        # Frame range is x +/- 100 range. If kept high, the object might disappear from frame
+        # Frame range is x +/- 100 range.
+        # If kept high, the object might disappear from frame
         self.frame_range = 100
         self.path_format = "{}.{}.{}.jpg"
         self.mask_format = "{}.{}.m.png"
@@ -678,7 +688,7 @@ class CocoTracking(Dataset):
         self.num_use = int(self.num_use)
 
         # self.has_mask = self.mark in ["coco", "ytb_vos"]
-        # Kept here for generic purpose. Whenever a new class is made, we can change this
+        # Kept here for generic purpose. Whenever new class is made-change this
         self.has_mask = True
 
         """
@@ -749,7 +759,6 @@ class CocoTracking(Dataset):
                 out[video] = new_tracks
 
         return out
-
 
     def get_image_anno(self, video, track, frame):
         frame = "{:06d}".format(frame)
