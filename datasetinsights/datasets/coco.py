@@ -16,7 +16,7 @@ import numpy as np
 from pycocotools.coco import COCO
 
 import datasetinsights.constants as const
-from datasetinsights.data.bbox import BBox2D
+from datasetinsights.io.bbox import BBox2D
 from datasetinsights.storage.gcs import GCSClient
 
 from .base import Dataset
@@ -189,7 +189,7 @@ class CocoTracking(Dataset):
 
         self.split = "train"
         self.download()
-        # self.crop()
+        self.crop()
         self.generate_json_coco()
         # All these hard-coded rignt now.
         # TODO: Move these to config files
