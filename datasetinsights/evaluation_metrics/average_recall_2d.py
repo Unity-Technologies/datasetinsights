@@ -98,7 +98,8 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
     which is implemented as the Average Recall average over all
     labels and IOU thresholds [0.5:0.95:0.05]. The max detections
     per image is limited to 100.
-    mAR = mean_{label, IOU}AR(label, IOU)
+
+    .. math:: mAR = mean_{label, IOU}AR(label, IOU)
     """
 
     TYPE = "scalar"

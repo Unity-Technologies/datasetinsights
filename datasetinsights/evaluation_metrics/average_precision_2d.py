@@ -16,6 +16,11 @@ from .records import Records
 
 class AveragePrecision(EvaluationMetric):
     """2D Bounding Box Average Precision metrics.
+
+    Args:
+        iou_threshold (float): iou threshold (default: 0.5)
+        interpolation (string): AP interoperation method name for AP calculation
+        max_detections (int): max detections per image (default: 100)
     """
 
     TYPE = "metric_per_label"
@@ -207,7 +212,8 @@ class MeanAveragePrecisionIOU50(EvaluationMetric):
     """2D Bounding Box Mean Average Precision metrics at IOU=50%.
 
     This implementation would calculate mAP@50IOU.
-    mAP = mean_{label}AP(label)@IOU50
+
+    .. math:: mAP = mean_{label}AP(label)@IOU50
     """
 
     TYPE = "scalar"

@@ -13,16 +13,16 @@ from .root_mean_square_error import RootMeanSquareError
 from .threshold_accuracy import ThresholdAccuracy
 
 __all__ = [
-    EvaluationMetric,
-    IoU,
-    AverageRelativeError,
-    AverageLog10Error,
-    AveragePrecision,
-    AveragePrecisionIOU50,
-    AverageRecall,
-    MeanAveragePrecisionAverageOverIOU,
-    MeanAveragePrecisionIOU50,
-    MeanAverageRecallAverageOverIOU,
-    RootMeanSquareError,
-    ThresholdAccuracy,
+    "EvaluationMetric",
+    "IoU",
+    "AverageRelativeError",
+    "AverageLog10Error",
+    "AveragePrecision",
+    "AveragePrecisionIOU50",
+    "AverageRecall",
+    "MeanAveragePrecisionAverageOverIOU",
+    "MeanAveragePrecisionIOU50",
+    "MeanAverageRecallAverageOverIOU",
+    "RootMeanSquareError",
+    "ThresholdAccuracy",
 ]
