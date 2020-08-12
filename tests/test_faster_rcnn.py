@@ -1,7 +1,6 @@
 """unit test case for frcnn train and evaluate."""
 
 import os
-import shutil
 import tempfile
 from unittest.mock import MagicMock, patch
 
@@ -435,8 +434,3 @@ def test_faster_rcnn_predict(mock_create, config, dataset):
     image = torchvision.transforms.functional.to_tensor(image)
     result = estimator.predict(image)
     assert result == []
-
-
-def test_clean_dir():
-    """clean tmp dir."""
-    shutil.rmtree(tmp_dir.name, ignore_errors=True)
