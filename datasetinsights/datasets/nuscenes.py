@@ -10,7 +10,7 @@ from nuscenes.utils.data_classes import Box
 from torch.utils.data import Dataset
 
 import datasetinsights.constants as const
-from datasetinsights.data.bbox import BBox3d
+from datasetinsights.io.bbox import BBox3d
 from datasetinsights.storage.gcs import GCSClient
 
 logger = logging.getLogger(__name__)

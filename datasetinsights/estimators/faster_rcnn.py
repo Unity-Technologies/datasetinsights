@@ -15,14 +15,15 @@ from codetiming import Timer
 from tensorboardX import SummaryWriter
 
 import datasetinsights.constants as const
-from datasetinsights.data.bbox import BBox2D
-from datasetinsights.data.transforms import Compose
 from datasetinsights.datasets import Dataset
 from datasetinsights.estimators.torch_distributed import (
     get_world_size,
     is_master,
 )
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
+from datasetinsights.io.bbox import BBox2D
+from datasetinsights.io.transforms import Compose
+from datasetinsights.torch_distributed import get_world_size
 from datasetinsights.storage.checkpoint import EstimatorCheckpoint
 from datasetinsights.storage.kfp_output import KubeflowPipelineWriter
 
@@ -40,7 +41,8 @@ class FasterRCNN(Estimator):
     """
     Faster-RCNN train/evaluate implementation for object detection.
 
-
+    https://github.com/pytorch/vision/tree/master/references/detection
+    https://arxiv.org/abs/1506.01497
     Args:
         config (CfgNode): estimator config
         box_score_thresh: (optional) default threshold is 0.05
@@ -59,8 +61,6 @@ class FasterRCNN(Estimator):
         kfp_writer: KubeflowPipelineWriter object
         checkpointer: Model checkpointer callback to save models
         device: model training on device (cpu|cuda)
-        gpu (int): (optional) gpu id on which code will execute
-        rank (int): (optional) rank of process executing code
     """
 
     def __init__(
