@@ -63,7 +63,7 @@ class AveragePrecision(EvaluationMetric):
 
             pred_bboxes = sorted(
                 pred_bboxes, key=lambda bbox: bbox.score, reverse=True
-            )[:self._max_detections]
+            )[: self._max_detections]
 
             bboxes_per_label = group_bbox2d_per_label(pred_bboxes)
             for label, boxes in bboxes_per_label.items():
@@ -247,8 +247,7 @@ class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
 
     def __init__(self):
         self._map_per_iou = [
-            AveragePrecision(iou)
-            for iou in MeanAveragePrecisionAverageOverIOU.IOU_THRESHOULDS
+            AveragePrecision(iou) for iou in self.IOU_THRESHOULDS
         ]
 
     def reset(self):
@@ -262,6 +261,10 @@ class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
         """Compute mAP over ious.
         """
         result = np.mean(
-            [value for dic in self._map_per_iou for value in dic.values()]
+            [
+                value
+                for ap in self._map_per_iou
+                for value in ap.compute().values()
+            ]
         )
         return result

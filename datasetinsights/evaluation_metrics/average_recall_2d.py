@@ -26,7 +26,7 @@ class AverageRecall(EvaluationMetric):
 
     def __init__(self, iou_threshold=0.5, max_detections=100):
         self._label_records = collections.defaultdict(
-            lambda: Records(_iou_threshold=self._iou_threshold)
+            lambda: Records(iou_threshold=self._iou_threshold)
         )
         self._gt_bboxes_count = collections.defaultdict(int)
         self._iou_threshold = iou_threshold
@@ -35,7 +35,7 @@ class AverageRecall(EvaluationMetric):
     def reset(self):
         """Reset AR metrics."""
         self._label_records = collections.defaultdict(
-            lambda: Records(_iou_threshold=self._iou_threshold)
+            lambda: Records(iou_threshold=self._iou_threshold)
         )
         self._gt_bboxes_count = collections.defaultdict(int)
 
@@ -57,7 +57,7 @@ class AverageRecall(EvaluationMetric):
 
             pred_bboxes = sorted(
                 pred_bboxes, key=lambda bbox: bbox.score, reverse=True
-            )[:self.__max_detections]
+            )[:self._max_detections]
             bboxes_per_label = group_bbox2d_per_label(pred_bboxes)
             for label in bboxes_per_label:
                 self._label_records[label].add_records(
@@ -99,12 +99,6 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
     labels and IOU thresholds [0.5:0.95:0.05]. The max detections
     per image is limited to 100.
     mAR = mean_{label, IOU}AR(label, IOU)
-
-    Args:
-        iou_start (float): iou range starting point (default: 0.5)
-        iou_end (float): iou range ending point (default: 0.95)
-        iou_step (float): iou step size (default: 0.05)
-        _max_detections (int): max detections per image (default: 100)
     """
 
     TYPE = "scalar"
@@ -114,22 +108,26 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
     )
 
     def __init__(self):
-        self.mar_per_iou = [
+        self._mar_per_iou = [
             AverageRecall(iou)
             for iou in MeanAverageRecallAverageOverIOU.IOU_THRESHOULDS
         ]
 
     def reset(self):
-        [mean_ar.reset() for mean_ar in self.mar_per_iou]
+        [mean_ar.reset() for mean_ar in self._mar_per_iou]
 
     def update(self, mini_batch):
-        for mean_ar in self.mar_per_iou:
+        for mean_ar in self._mar_per_iou:
             mean_ar.update(mini_batch)
 
     def compute(self):
         """Compute mAR over ious.
         """
         result = np.mean(
-            [value for dic in self.mar_per_iou for value in dic.values()]
+            [
+                value
+                for ar in self._mar_per_iou
+                for value in ar.compute().values()
+            ]
         )
         return result
