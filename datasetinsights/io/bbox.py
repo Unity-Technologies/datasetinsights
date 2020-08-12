@@ -4,6 +4,25 @@ import numpy as np
 from pyquaternion import Quaternion
 
 
+def group_bbox2d_per_label(bboxes):
+    """Group 2D bounding boxes with same label.
+
+    Args:
+        bboxes (list[BBox2D]): a list of 2D bounding boxes
+
+    Returns:
+        dict: a dictionary of 2d boundign box group.
+        {label1: [bbox1, bboxes2, ...], label2: [bbox1, ...]}
+    """
+    bboxes_per_label = {}
+    for box in bboxes:
+        if box.label not in bboxes_per_label:
+            bboxes_per_label[box.label] = []
+        bboxes_per_label[box.label].append(box)
+
+    return bboxes_per_label
+
+
 class BBox2D:
     """Canonical Representation of a 2D bounding box.
 
