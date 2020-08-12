@@ -11,7 +11,7 @@ MAX_MEMORY = "16Gi"
 )
 def evaluate_pipeline(
     num_proc: int = 1,
-    volume_size: str = "20G",
+    volume_size: str = "20Gi",
     data_name: str = "GroceriesReal",
     test_split="test",
     logdir: str = "gs://thea-dev/runs/yyyymmdd-hhmm",
@@ -24,7 +24,7 @@ def evaluate_pipeline(
 
     This is currently configured as a three-step pipeline. 1) Create
     a persistent volume that can be used to store data. 2) Download
-    data for the pipeline. 3) Kick off evaluation jobs.s
+    data for the pipeline. 3) Kick off evaluation jobs.
     """
     # Create large persistant volume to store training data.
     vop = dsl.VolumeOp(

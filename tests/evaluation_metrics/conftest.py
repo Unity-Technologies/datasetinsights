@@ -54,3 +54,19 @@ def get_gt_pred_bbox():
     ]
 
     return gt_bboxes, pred_bboxes
+
+
+@pytest.fixture
+def get_mini_batches(get_gt_pred_bbox):
+    gt_bboxes, pred_bboxes = get_gt_pred_bbox
+
+    mini_batch1 = [
+        [gt_bboxes[0], pred_bboxes[0]],
+        [gt_bboxes[1], pred_bboxes[1]],
+    ]
+    mini_batch2 = [
+        [gt_bboxes[2], pred_bboxes[2]],
+        [gt_bboxes[3], pred_bboxes[3]],
+    ]
+    mini_batch3 = [[gt_bboxes[4], pred_bboxes[4]]]
+    return [mini_batch1, mini_batch2, mini_batch3]
