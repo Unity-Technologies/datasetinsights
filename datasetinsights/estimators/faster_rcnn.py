@@ -23,7 +23,6 @@ from datasetinsights.estimators.torch_distributed import (
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
 from datasetinsights.io.bbox import BBox2D
 from datasetinsights.io.transforms import Compose
-from datasetinsights.torch_distributed import get_world_size
 from datasetinsights.storage.checkpoint import EstimatorCheckpoint
 from datasetinsights.storage.kfp_output import KubeflowPipelineWriter
 
