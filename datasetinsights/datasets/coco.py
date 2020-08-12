@@ -599,23 +599,6 @@ class CocoTracking(Dataset):
 
         return img, nsize / img.shape[1]
 
-    # def shuffle(self):
-    #     pick = []
-    #     m = 0
-    #     while m < self.num:
-    #         p = []
-    #         for subset in self.alldata:
-    #             sub_p = subset.shuffle()
-    #             p += sub_p
-
-    #         random.Random().shuffle(p)
-
-    #         pick += p
-    #         m = len(pick)
-    #     self.pick = pick
-    #     logger.info("shuffle done!")
-    #     logger.info("dataset length {}".format(self.num))
-
     """
         Populate function is used to read the dataset and load from the
         json file created
