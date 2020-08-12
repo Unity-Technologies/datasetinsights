@@ -5,40 +5,8 @@ import click
 
 import datasetinsights.constants as const
 from datasetinsights.datasets.base import DownloaderRegistry
-from datasetinsights.datasets.unity_simulation import UnitySimulationDownloader
 
 logger = logging.getLogger(__name__)
-
-
-# class Mutex(click.Option):
-#     def __init__(self, *args, **kwargs):
-#         self.not_required_if: list = kwargs.pop("not_required_if")
-#
-#         assert self.not_required_if, "'not_required_if' parameter required"
-#         kwargs["help"] = (
-#             kwargs.get("help", "")
-#             + "Option is mutually exclusive with "
-#             + ", ".join(self.not_required_if)
-#             + "."
-#         ).strip()
-#         super(Mutex, self).__init__(*args, **kwargs)
-#
-#     def handle_parse_result(self, ctx, opts, args):
-#         current_opt: bool = self.name in opts
-#
-#         for mutex_opt in self.not_required_if:
-#             if mutex_opt in opts:
-#                 if current_opt:
-#                     raise click.UsageError(
-#                         "Illegal usage: '"
-#                         + str(self.name)
-#                         + "' is mutually exclusive with "
-#                         + str(mutex_opt)
-#                         + "."
-#                     )
-#                 else:
-#                     self.prompt = None
-#         return super(Mutex, self).handle_parse_result(ctx, opts, args)
 
 
 class SourceURI(click.ParamType):
@@ -76,13 +44,6 @@ class SourceURI(click.ParamType):
     context_settings=const.CONTEXT_SETTINGS,
 )
 @click.option(
-    "-n",
-    "--name",
-    type=click.Choice(DownloaderRegistry.list_datasets()),
-    required=True,
-    help="The dataset registry name.",
-)
-@click.option(
     "-s",
     "--source-uri",
     type=SourceURI(),
@@ -94,11 +55,11 @@ class SourceURI(click.ParamType):
     ),
 )
 @click.option(
-    "-d",
-    "--data-root",
+    "-o",
+    "--output",
     type=click.Path(exists=True, file_okay=False, writable=True),
     default=const.DEFAULT_DATA_ROOT,
-    help="Root directory on localhost where datasets should be downloaded.",
+    help="Directory on localhost where datasets should be downloaded.",
 )
 @click.option(
     "-b",
@@ -112,29 +73,13 @@ class SourceURI(click.ParamType):
         "binary files."
     ),
 )
-@click.option(
-    "--dataset-version",
-    type=click.STRING,
-    default=const.DEFAULT_DATASET_VERSION,
-    help=(
-        "The dataset version. This only applies to some dataset "
-        "where different versions are available."
-    ),
-)
 def cli(
-    name, source_uri, data_root, include_binary, dataset_version,
+    source_uri, output, include_binary,
 ):
-
     ctx = click.get_current_context()
     logger.debug(f"Called download command with parameters: {ctx.params}")
-    if source_uri.startswith("usim://"):
-        downloader = UnitySimulationDownloader()
-        downloader.download(
-            source_uri=source_uri,
-            data_root=data_root,
-            include_binary=include_binary,
-        )
 
-    if name:
-        downloader = DownloaderRegistry.find(name, source_uri)()
-        downloader.download(data_root=data_root, version=dataset_version)
+    downloader = DownloaderRegistry.find(source_uri)()
+    downloader.download(
+        source_uri=source_uri, output=output, include_binary=include_binary
+    )

@@ -3,7 +3,6 @@
 import glob
 import logging
 import os
-import zipfile
 from collections import namedtuple
 from pathlib import Path
 
@@ -11,15 +10,12 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 
 import datasetinsights.constants as const
-from datasetinsights.datasets.base import DatasetDownloader, DownloaderRegistry
 from datasetinsights.datasets.unity_perception import (
     AnnotationDefinitions,
     Captures,
 )
 from datasetinsights.datasets.unity_perception.tables import SCHEMA_VERSION
 from datasetinsights.io.bbox import BBox2D
-from datasetinsights.io.download import download_file, validate_checksum
-from datasetinsights.io.exceptions import ChecksumError
 from datasetinsights.io.usim import Downloader, download_manifest
 
 from .base import Dataset
@@ -124,79 +120,6 @@ def read_bounding_box_2d(annotation, label_mappings=None):
     return bboxes
 
 
-class SynDetection2DDownloader(DatasetDownloader):
-
-    SOURCE_URI_SCHEMA = "https://"
-
-    def download(self, data_root, version):
-        """Downloads dataset zip file and unzips it.
-
-        Args:
-            data_root (str): Path where to download the dataset.
-            version (str): version of GroceriesReal dataset, e.g. "v1"
-
-        Raises:
-             ValueError if the dataset version is not supported
-             ChecksumError if the download file checksum does not match
-             DownloadError if the download file failed
-
-        Note: Synthetic dataset is downloaded and unzipped to
-        data_root/synthetic.
-        """
-        if version not in SynDetection2D.SYNTHETIC_DATASET_TABLES.keys():
-            raise ValueError(
-                f"A valid dataset version is required. Available versions are:"
-                f"{SynDetection2D.SYNTHETIC_DATASET_TABLES.keys()}"
-            )
-
-        source_uri = SynDetection2D.SYNTHETIC_DATASET_TABLES[version].source_uri
-        expected_checksum = SynDetection2D.SYNTHETIC_DATASET_TABLES[
-            version
-        ].checksum
-        dataset_file = SynDetection2D.SYNTHETIC_DATASET_TABLES[version].filename
-
-        extract_folder = os.path.join(data_root, const.SYNTHETIC_SUBFOLDER)
-        dataset_path = os.path.join(extract_folder, dataset_file)
-
-        if os.path.exists(dataset_path):
-            logger.info("The dataset file exists. Skip download.")
-            try:
-                validate_checksum(dataset_path, expected_checksum)
-            except ChecksumError:
-                logger.info(
-                    "The checksum of the previous dataset mismatches. "
-                    "Delete the previously downloaded dataset."
-                )
-                os.remove(dataset_path)
-
-        if not os.path.exists(dataset_path):
-            logger.info(f"Downloading dataset to {extract_folder}.")
-            download_file(source_uri, dataset_path)
-            try:
-                validate_checksum(dataset_path, expected_checksum)
-            except ChecksumError as e:
-                logger.info("Checksum mismatch. Delete the downloaded files.")
-                os.remove(dataset_path)
-                raise e
-
-        self.unzip_file(filepath=dataset_path, destination=extract_folder)
-
-    def unzip_file(self, filepath, destination):
-        """Unzips a zip file to the destination and delete the zip file.
-
-        Args:
-            filepath (str): File path of the zip file.
-            destination (str): Path where to unzip contents of zipped file.
-        """
-        with zipfile.ZipFile(filepath) as file:
-            logger.info(f"Unzipping file from {filepath} to {destination}")
-            file.extractall(destination)
-        os.remove(filepath)
-
-
-@DownloaderRegistry.register(
-    name="syndetection2d", downloaders=[SynDetection2DDownloader]
-)
 class SynDetection2D(Dataset):
     """Synthetic dataset for 2D object detection.
 

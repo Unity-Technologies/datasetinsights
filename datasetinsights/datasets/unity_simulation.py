@@ -14,7 +14,7 @@ class UnitySimulationDownloader(DatasetDownloader):
 
     SOURCE_URI_SCHEMA = "usim://"
 
-    def download(self, source_uri, data_root, include_binary):
+    def download(self, source_uri, output, include_binary):
         (
             auth_token,
             project_id,
@@ -23,7 +23,7 @@ class UnitySimulationDownloader(DatasetDownloader):
 
         # use_cache = not args.no_cache
         manifest_file = os.path.join(
-            data_root, const.SYNTHETIC_SUBFOLDER, f"{run_execution_id}.csv"
+            output, const.SYNTHETIC_SUBFOLDER, f"{run_execution_id}.csv"
         )
         if auth_token:
             manifest_file = download_manifest(
@@ -39,7 +39,7 @@ class UnitySimulationDownloader(DatasetDownloader):
             )
 
         subfolder = Path(manifest_file).stem
-        root = os.path.join(data_root, const.SYNTHETIC_SUBFOLDER, subfolder)
+        root = os.path.join(output, const.SYNTHETIC_SUBFOLDER, subfolder)
         dl_worker = Downloader(manifest_file, root)
         dl_worker.download_references()
         dl_worker.download_metrics()
