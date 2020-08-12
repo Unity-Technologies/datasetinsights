@@ -27,5 +27,6 @@ __all__ = [
     "MeanAverageRecallAverageOverIOU",
     "RootMeanSquareError",
     "ThresholdAccuracy",
+    "AverageMeanSquareError",
     "AverageQuaternionError"
 ]

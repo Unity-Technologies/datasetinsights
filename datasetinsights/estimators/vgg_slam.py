@@ -11,7 +11,6 @@ from pathlib import Path
 import glob
 
 import tensorflow as tf
-from tensorflow.python.framework import ops
 from tensorflow.keras import layers
 from tensorflow.keras.applications import VGG16
 from keras import optimizers
