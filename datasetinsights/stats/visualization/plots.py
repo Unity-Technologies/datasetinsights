@@ -342,8 +342,6 @@ def rotation_plot(df, x, y, z=None, max_samples=None, title=None, **kwargs):
     return fig
 
 
-_LOC = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-
 _COLOR_NAME_TO_RGB = dict(
     navy=((0, 38, 63), (119, 193, 250)),
     blue=((0, 120, 210), (173, 220, 252)),
@@ -409,9 +407,6 @@ def add(image, left, top, right, bottom, label=None, color=None):
         hex_digest = md5(label.encode()).hexdigest()
         color_index = int(hex_digest, 16) % len(_COLOR_NAME_TO_RGB)
         color = _COLOR_NAMES[color_index]
-
-    # if not color:
-    #     color = _DEFAULT_COLOR_NAME
 
     if type(color) is not str:
         raise TypeError("'color' must be a str")
