@@ -13,10 +13,10 @@ import torchvision
 from codetiming import Timer
 
 import datasetinsights.constants as const
-from datasetinsights.data.bbox import BBox2D
-from datasetinsights.data.transforms import Compose
 from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
+from datasetinsights.io.bbox import BBox2D
+from datasetinsights.io.transforms import Compose
 from datasetinsights.torch_distributed import get_world_size
 
 from .base import Estimator

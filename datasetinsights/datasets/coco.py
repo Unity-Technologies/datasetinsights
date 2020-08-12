@@ -9,7 +9,7 @@ import torchvision
 from PIL.Image import Image
 
 import datasetinsights.constants as const
-from datasetinsights.data.bbox import BBox2D
+from datasetinsights.io.bbox import BBox2D
 from datasetinsights.storage.gcs import GCSClient
 
 from .base import Dataset

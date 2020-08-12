@@ -4,8 +4,8 @@ from unittest.mock import patch
 
 import pytest
 
-from datasetinsights.data.exceptions import ChecksumError, DownloadError
 from datasetinsights.datasets import GroceriesReal
+from datasetinsights.io.exceptions import ChecksumError, DownloadError
 
 
 @patch("datasetinsights.datasets.groceries_real.os.remove")
