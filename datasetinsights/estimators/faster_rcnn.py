@@ -380,7 +380,7 @@ class FasterRCNN(Estimator):
             # should be available before training/evaluation dataset was loaded.
             # label_id that was missing from label_name should be removed from
             # dataset and the training procedure.
-            elif metric.TYPE == "mapping":
+            elif metric.TYPE == "metric_per_label":
                 label_results = {
                     label_mappings.get(id, str(id)): value
                     for id, value in result.items()

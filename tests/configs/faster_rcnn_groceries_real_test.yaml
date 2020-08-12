@@ -30,11 +30,11 @@ test:
 metrics:
   mAP:
     name: MeanAveragePrecisionAverageOverIOU
-  mAP50IOU:
+  mAPIOU50:
     name: MeanAveragePrecisionIOU50
   mAR:
     name: MeanAverageRecallAverageOverIOU
-  AP50IOU:
+  APIOU50:
     name: AveragePrecisionIOU50
 optimizer:
   name: Adam
