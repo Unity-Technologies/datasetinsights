@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class UnitySimulationDownloader(DatasetDownloader):
 
-    SOURCE_URI_SCHEMA = "usim://"
+    SOURCE_SCHEMA = "usim://"
 
     def download(self, source_uri, output, include_binary):
         (

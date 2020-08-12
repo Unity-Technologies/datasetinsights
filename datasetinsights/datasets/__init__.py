@@ -4,6 +4,7 @@ from .coco import CocoDetection
 from .groceries_real import GoogleGroceriesReal, GroceriesReal
 from .nyudepth import NyuDepth
 from .synthetic import SynDetection2D
+from .unity_simulation import UnitySimulationDownloader
 
 __all__ = [
     "Cityscapes",
@@ -13,4 +14,5 @@ __all__ = [
     "GoogleGroceriesReal",
     "NyuDepth",
     "SynDetection2D",
+    "UnitySimulationDownloader",
 ]

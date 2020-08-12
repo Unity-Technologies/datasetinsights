@@ -6,22 +6,20 @@ class DownloaderRegistry(ABCMeta):
 
     def __new__(cls, name, bases, namespace):
 
-        if "SOURCE_SCHEMA_URI" not in namespace:
+        if "SOURCE_SCHEMA" not in namespace:
             raise RuntimeError(
-                f"{name} must define a class-level SOURCE_SCHEMA_URI"
+                f"{name} must define a class-level SOURCE_SCHEMA"
             )
         new_cls = super().__new__(cls, name, bases, namespace)
-        if namespace["SOURCE_SCHEMA_URI"] != "":
-            DownloaderRegistry.registry[
-                namespace["SOURCE_SCHEMA_URI"]
-            ] = new_cls
+        if namespace["SOURCE_SCHEMA"] != "":
+            DownloaderRegistry.registry[namespace["SOURCE_SCHEMA"]] = new_cls
         return new_cls
 
     @classmethod
     def find(cls, source_uri_schema):
         dataset_cls = DownloaderRegistry.registry.get(source_uri_schema)
         if dataset_cls:
-            return dataset_cls
+            return dataset_cls()
         else:
             raise ValueError(
                 f"Downloader '{source_uri_schema}' does not exist:"
@@ -33,7 +31,7 @@ class DownloaderRegistry(ABCMeta):
 
 
 class DatasetDownloader(metaclass=DownloaderRegistry):
-    SOURCE_SCHEMA_URI = ""
+    SOURCE_SCHEMA = ""
 
     @abstractmethod
     def download(self, **kwargs):

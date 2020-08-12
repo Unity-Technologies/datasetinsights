@@ -78,8 +78,7 @@ def cli(
 ):
     ctx = click.get_current_context()
     logger.debug(f"Called download command with parameters: {ctx.params}")
-
-    downloader = DownloaderRegistry.find(source_uri)()
+    downloader = DownloaderRegistry.find(source_uri)
     downloader.download(
         source_uri=source_uri, output=output, include_binary=include_binary
     )

@@ -1,7 +1,11 @@
+from unittest.mock import patch
+
 import pytest
 from click.exceptions import BadParameter
+from click.testing import CliRunner
 
-from datasetinsights.commands.download import SourceURI
+from datasetinsights.commands.download import SourceURI, cli
+from datasetinsights.datasets.base import DownloaderRegistry
 
 
 def test_source_uri_validation():
@@ -22,3 +26,43 @@ def test_source_uri_validation():
         validate_source_uri("/path/to/file")
         validate_source_uri("dasdklsdk")
         validate_source_uri("")
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ["download", "--source-uri=usim://", "--output=tests/"],
+        ["download", "--source-uri=http://", "--output=tests/"],
+        ["download", "--source-uri=https://", "--output=tests/"],
+        ["download", "--source-uri=gs://", "--output=tests/"],
+    ],
+)
+@patch.object(DownloaderRegistry, "find")
+def test_download_except_called_once(mock_find, args):
+    # arrange
+    runner = CliRunner()
+    # act
+    runner.invoke(cli, args)
+    # assert
+
+    mock_find.assert_called_once()
+    mock_find.return_value.download.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ["download"],
+        ["download", "--source-uri=s3://"],
+    ],
+)
+@patch.object(DownloaderRegistry, "find")
+def test_download_except_not_called(mock_find, args):
+    # arrange
+    runner = CliRunner()
+    # act
+    runner.invoke(cli, args)
+    # assert
+
+    mock_find.assert_not_called()
+    mock_find.return_value.download.assert_not_called()
