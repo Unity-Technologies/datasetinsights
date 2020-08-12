@@ -8,7 +8,7 @@ import collections
 
 import numpy as np
 
-from datasetinsights.data.bbox import group_bbox2d_per_label
+from datasetinsights.io.bbox import group_bbox2d_per_label
 
 from .base import EvaluationMetric
 from .records import Records
@@ -57,7 +57,7 @@ class AverageRecall(EvaluationMetric):
 
             pred_bboxes = sorted(
                 pred_bboxes, key=lambda bbox: bbox.score, reverse=True
-            )[:self._max_detections]
+            )[: self._max_detections]
             bboxes_per_label = group_bbox2d_per_label(pred_bboxes)
             for label in bboxes_per_label:
                 self._label_records[label].add_records(

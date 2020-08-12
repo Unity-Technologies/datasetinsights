@@ -8,7 +8,7 @@ import collections
 
 import numpy as np
 
-from datasetinsights.data.bbox import group_bbox2d_per_label
+from datasetinsights.io.bbox import group_bbox2d_per_label
 
 from .base import EvaluationMetric
 from .records import Records

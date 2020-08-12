@@ -1,4 +1,4 @@
-from datasetinsights.data.bbox import BBox2D, group_bbox2d_per_label
+from datasetinsights.io.bbox import BBox2D, group_bbox2d_per_label
 
 
 def test_group_bbox2d_per_label():
