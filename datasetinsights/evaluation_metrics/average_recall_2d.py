@@ -8,41 +8,36 @@ import collections
 
 import numpy as np
 
+from datasetinsights.data.bbox import group_bbox2d_per_label
+
 from .base import EvaluationMetric
-from .metrics_utils import filter_pred_bboxes, mean_metrics_over_iou
 from .records import Records
 
 
 class AverageRecall(EvaluationMetric):
     """2D Bounding Box Average Recall metrics.
 
-    Attributes:
-        label_records (dict): save prediction records for each label
-        gt_bboxes_count (dict): ground truth box count for each label
-        iou_threshold (float): iou threshold
-        max_detections (int): max detections per image
-
     Args:
         iou_threshold (float): iou threshold (default: 0.5)
         max_detections (int): max detections per image (default: 100)
     """
 
-    COMPUTE_TYPE = "metric_per_label"
+    TYPE = "metric_per_label"
 
     def __init__(self, iou_threshold=0.5, max_detections=100):
-        self.label_records = collections.defaultdict(
-            lambda: Records(iou_threshold=self.iou_threshold)
+        self._label_records = collections.defaultdict(
+            lambda: Records(_iou_threshold=self._iou_threshold)
         )
-        self.gt_bboxes_count = collections.defaultdict(int)
-        self.iou_threshold = iou_threshold
-        self.max_detections = max_detections
+        self._gt_bboxes_count = collections.defaultdict(int)
+        self._iou_threshold = iou_threshold
+        self._max_detections = max_detections
 
     def reset(self):
         """Reset AR metrics."""
-        self.label_records = collections.defaultdict(
-            lambda: Records(iou_threshold=self.iou_threshold)
+        self._label_records = collections.defaultdict(
+            lambda: Records(_iou_threshold=self._iou_threshold)
         )
-        self.gt_bboxes_count = collections.defaultdict(int)
+        self._gt_bboxes_count = collections.defaultdict(int)
 
     def update(self, mini_batch):
         """Update records per mini batch.
@@ -58,37 +53,38 @@ class AverageRecall(EvaluationMetric):
         for bboxes in mini_batch:
             gt_bboxes, pred_bboxes = bboxes
             for gt_bbox in gt_bboxes:
-                self.gt_bboxes_count[gt_bbox.label] += 1
+                self._gt_bboxes_count[gt_bbox.label] += 1
 
-            bboxes_per_label = filter_pred_bboxes(
-                pred_bboxes, self.max_detections
-            )
+            pred_bboxes = sorted(
+                pred_bboxes, key=lambda bbox: bbox.score, reverse=True
+            )[:self.__max_detections]
+            bboxes_per_label = group_bbox2d_per_label(pred_bboxes)
             for label in bboxes_per_label:
-                self.label_records[label].add_records(
+                self._label_records[label].add_records(
                     gt_bboxes, bboxes_per_label[label]
                 )
 
     def compute(self):
         """Compute AR for each label.
 
-        Return:
-            average_recall (dict): a dictionary of AR scores per label.
+        Returns:
+            dict: a dictionary of AR scores per label.
         """
         average_recall = {}
-        label_records = self.label_records
-        for label in self.gt_bboxes_count:
+        _label_records = self._label_records
+        for label in self._gt_bboxes_count:
             # if there are no predicted boxes with this label
-            if label not in label_records:
+            if label not in _label_records:
                 average_recall[label] = 0
                 continue
 
-            pred_infos = label_records[label].pred_infos
-            gt_bboxes_count = self.gt_bboxes_count[label]
+            pred_infos = _label_records[label].pred_infos
+            _gt_bboxes_count = self._gt_bboxes_count[label]
 
             # The number of TP
             sum_tp = sum(list(zip(*pred_infos))[1])
 
-            max_recall = sum_tp / gt_bboxes_count
+            max_recall = sum_tp / _gt_bboxes_count
 
             average_recall[label] = max_recall
 
@@ -104,17 +100,14 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
     per image is limited to 100.
     mAR = mean_{label, IOU}AR(label, IOU)
 
-    Attributes:
-        mar_per_iou (dict): save prediction records for each label
-
     Args:
         iou_start (float): iou range starting point (default: 0.5)
         iou_end (float): iou range ending point (default: 0.95)
         iou_step (float): iou step size (default: 0.05)
-        max_detections (int): max detections per image (default: 100)
+        _max_detections (int): max detections per image (default: 100)
     """
 
-    COMPUTE_TYPE = "float"
+    TYPE = "scalar"
 
     IOU_THRESHOULDS = np.linspace(
         0.5, 0.95, np.round((0.95 - 0.5) / 0.05) + 1, endpoint=True
@@ -127,27 +120,16 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
         ]
 
     def reset(self):
-        """Reset metrics."""
         [mean_ar.reset() for mean_ar in self.mar_per_iou]
 
     def update(self, mini_batch):
-        """Update records per mini batch.
-
-        Args:
-            mini_batch (list(list)): a list which contains batch_size of
-            gt bboxes and pred bboxes pair in each image.
-            For example, if batch size = 2, mini_batch looks like:
-            [[gt_bboxes1, pred_bboxes1], [gt_bboxes2, pred_bboxes2]]
-            where gt_bboxes1, pred_bboxes1 contain gt bboxes and pred bboxes
-            in one image
-        """
         for mean_ar in self.mar_per_iou:
             mean_ar.update(mini_batch)
 
     def compute(self):
-        """Compute AR for each label.
-
-        Returns (float):
-            mean average recall over ious
+        """Compute mAR over ious.
         """
-        return mean_metrics_over_iou(self.mar_per_iou)
+        result = np.mean(
+            [value for dic in self.mar_per_iou for value in dic.values()]
+        )
+        return result

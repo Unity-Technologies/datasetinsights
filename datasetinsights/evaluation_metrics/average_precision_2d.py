@@ -8,28 +8,17 @@ import collections
 
 import numpy as np
 
+from datasetinsights.data.bbox import group_bbox2d_per_label
+
 from .base import EvaluationMetric
-from .metrics_utils import filter_pred_bboxes, mean_metrics_over_iou
 from .records import Records
 
 
 class AveragePrecision(EvaluationMetric):
     """2D Bounding Box Average Precision metrics.
-
-    Attributes:
-        label_records (dict): save prediction records for each label
-        ap_method (string): AP interoperation method name for AP calculation
-        {"EveryPointInterpolation"| "NPointInterpolatedAP"}
-        gt_bboxes_count (dict): ground truth box count for each label
-        iou_threshold (float): iou threshold
-
-    Args:
-        iou_threshold (float): iou threshold (default: 0.5)
-        interpolation (string): AP interoperation method name for AP calculation
-        max_detections (int): max detections per image
     """
 
-    COMPUTE_TYPE = "metric_per_label"
+    TYPE = "metric_per_label"
 
     def __init__(
         self,
@@ -38,25 +27,25 @@ class AveragePrecision(EvaluationMetric):
         max_detections=100,
     ):
         if interpolation == "EveryPointInterpolation":
-            self.ap_method = self.every_point_interpolated_ap
+            self._ap_method = self.every_point_interpolated_ap
         elif interpolation == "NPointInterpolatedAP":
-            self.ap_method = self.n_point_interpolated_ap
+            self._ap_method = self.n_point_interpolated_ap
         else:
             raise ValueError(f"Unknown AP method name: {interpolation}!")
 
-        self.iou_threshold = iou_threshold
-        self.max_detections = max_detections
-        self.label_records = collections.defaultdict(
-            lambda: Records(iou_threshold=self.iou_threshold)
+        self._iou_threshold = iou_threshold
+        self._max_detections = max_detections
+        self._label_records = collections.defaultdict(
+            lambda: Records(iou_threshold=self._iou_threshold)
         )
-        self.gt_bboxes_count = collections.defaultdict(int)
+        self._gt_bboxes_count = collections.defaultdict(int)
 
     def reset(self):
         """Reset AP metrics."""
-        self.label_records = collections.defaultdict(
-            lambda: Records(iou_threshold=self.iou_threshold)
+        self._label_records = collections.defaultdict(
+            lambda: Records(iou_threshold=self._iou_threshold)
         )
-        self.gt_bboxes_count = collections.defaultdict(int)
+        self._gt_bboxes_count = collections.defaultdict(int)
 
     def update(self, mini_batch):
         """Update records per mini batch
@@ -72,31 +61,33 @@ class AveragePrecision(EvaluationMetric):
         for bboxes in mini_batch:
             gt_bboxes, pred_bboxes = bboxes
 
-            bboxes_per_label = filter_pred_bboxes(
-                pred_bboxes, self.max_detections
-            )
+            pred_bboxes = sorted(
+                pred_bboxes, key=lambda bbox: bbox.score, reverse=True
+            )[:self._max_detections]
+
+            bboxes_per_label = group_bbox2d_per_label(pred_bboxes)
             for label, boxes in bboxes_per_label.items():
-                self.label_records[label].add_records(gt_bboxes, boxes)
+                self._label_records[label].add_records(gt_bboxes, boxes)
 
             for gt_bbox in gt_bboxes:
-                self.gt_bboxes_count[gt_bbox.label] += 1
+                self._gt_bboxes_count[gt_bbox.label] += 1
 
     def compute(self):
         """Compute AP for each label.
 
-        Return:
-            average_precision (dict): a dictionary of AP scores per label.
+        Returns:
+            dict: a dictionary of AP scores per label.
         """
         average_precision = {}
-        label_records = self.label_records
+        _label_records = self._label_records
 
-        for label in self.gt_bboxes_count:
+        for label in self._gt_bboxes_count:
             # if there are no predicted boxes with this label
-            if label not in label_records:
+            if label not in _label_records:
                 average_precision[label] = 0
                 continue
-            pred_infos = label_records[label].pred_infos
-            gt_bboxes_count = self.gt_bboxes_count[label]
+            pred_infos = _label_records[label].pred_infos
+            _gt_bboxes_count = self._gt_bboxes_count[label]
 
             pred_infos = sorted(pred_infos, reverse=True)
             true_pos = np.array(list(zip(*pred_infos))[1]).astype(int)
@@ -105,9 +96,9 @@ class AveragePrecision(EvaluationMetric):
             acc_tp = np.cumsum(true_pos)
             acc_fp = np.cumsum(false_pos)
 
-            recall = acc_tp / gt_bboxes_count
+            recall = acc_tp / _gt_bboxes_count
             precision = np.divide(acc_tp, (acc_fp + acc_tp))
-            ap = self.ap_method(recall, precision)
+            ap = self._ap_method(recall, precision)
             # add class result in the dictionary to be returned
             average_precision[label] = ap
 
@@ -121,7 +112,8 @@ class AveragePrecision(EvaluationMetric):
             recall (list): recall history of the prediction
             precision (list): precision history of the prediction
 
-        Returns: average precision for all points interpolation
+        Returns:
+            float: average precision for all points interpolation
         """
         # TODO: make it readable
         mrec = [0] + list(recall) + [1]
@@ -147,7 +139,8 @@ class AveragePrecision(EvaluationMetric):
             precision (list): precision history of the prediction
             point (int): n, n-point interpolation
 
-        Returns: average precision for n-point interpolation
+        Returns:
+            float: average precision for n-point interpolation
         """
         # TODO: make it readable
         mrec = [e for e in recall]
@@ -193,51 +186,43 @@ class AveragePrecisionIOU50(EvaluationMetric):
     """2D Bounding Box Average Precision at IOU = 50%.
 
     This implementation would calculate AP@50IOU for each label.
-
-    Attributes:
-        ap (AveragePrecision): AveragePrecision metrics
     """
 
-    COMPUTE_TYPE = "metric_per_label"
+    TYPE = "metric_per_label"
 
     def __init__(self):
-        self.ap = AveragePrecision(iou_threshold=0.5)
+        self._ap = AveragePrecision(iou_threshold=0.5)
 
     def reset(self):
-        self.ap.reset()
+        self._ap.reset()
 
     def update(self, mini_batch):
-        self.ap.update(mini_batch)
+        self._ap.update(mini_batch)
 
     def compute(self):
-        return self.ap.compute()
+        return self._ap.compute()
 
 
 class MeanAveragePrecisionIOU50(EvaluationMetric):
     """2D Bounding Box Mean Average Precision metrics at IOU=50%.
 
-    This implementation would calculate mAP@50IOU. 
+    This implementation would calculate mAP@50IOU.
     mAP = mean_{label}AP(label)@IOU50
-
-    Attributes:
-        mean_ap (AveragePrecision): AveragePrecision metrics
     """
 
-    COMPUTE_TYPE = "mean"
+    TYPE = "scalar"
 
     def __init__(self):
-        self.ap = AveragePrecision(iou_threshold=0.5)
+        self._ap = AveragePrecision(iou_threshold=0.5)
 
     def reset(self):
-        self.ap.reset()
+        self._ap.reset()
 
     def update(self, mini_batch):
-        self.ap.update(mini_batch)
+        self._ap.update(mini_batch)
 
     def compute(self):
-        """Compute mAP in the iou range.
-        """
-        result = self.ap.compute()
+        result = self._ap.compute()
         mean_ap = np.mean(
             [result_per_label for result_per_label in result.values()]
         )
@@ -252,45 +237,31 @@ class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
     labels and IOU thresholds [0.5:0.95:0.05]. The max detections
     per image is limited to 100.
     mAP = mean_{label, IOU}AP(label, IOU)
-
-    Attributes:
-        map_per_iou (dict): save prediction records for each ious
     """
 
-    COMPUTE_TYPE = "mean"
+    TYPE = "scalar"
 
     IOU_THRESHOULDS = np.linspace(
         0.5, 0.95, np.round((0.95 - 0.5) / 0.05) + 1, endpoint=True
     )
 
     def __init__(self):
-        self.map_per_iou = [
+        self._map_per_iou = [
             AveragePrecision(iou)
             for iou in MeanAveragePrecisionAverageOverIOU.IOU_THRESHOULDS
         ]
 
     def reset(self):
-        """Reset metrics."""
-        [mean_ap.reset() for mean_ap in self.map_per_iou]
+        [mean_ap.reset() for mean_ap in self._map_per_iou]
 
     def update(self, mini_batch):
-        """Update records per mini batch.
-
-        Args:
-            mini_batch (list(list)): a list which contains batch_size of
-            gt bboxes and pred bboxes pair in each image.
-            For example, if batch size = 2, mini_batch looks like:
-            [[gt_bboxes1, pred_bboxes1], [gt_bboxes2, pred_bboxes2]]
-            where gt_bboxes1, pred_bboxes1 contain gt bboxes and pred bboxes
-            in one image
-        """
-        for mean_ap in self.map_per_iou:
+        for mean_ap in self._map_per_iou:
             mean_ap.update(mini_batch)
 
     def compute(self):
-        """Compute AP for each label.
-
-        Returns (float):
-            mean average precision over ious
+        """Compute mAP over ious.
         """
-        return mean_metrics_over_iou(self.map_per_iou)
+        result = np.mean(
+            [value for dic in self._map_per_iou for value in dic.values()]
+        )
+        return result

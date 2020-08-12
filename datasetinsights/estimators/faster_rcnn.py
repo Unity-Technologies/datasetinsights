@@ -372,7 +372,7 @@ class FasterRCNN(Estimator):
             result = metric.compute()
             logger.debug(result)
             logger.info(f"metric {metric_name} has result: {result}")
-            if metric.COMPUTE_TYPE == "mean":
+            if metric.TYPE == "scalar":
                 self.writer.add_scalar(f"val/{metric_name}", result, epoch)
                 self.kfp_writer.add_metric(name=metric_name, val=result)
             # TODO (YC) This is hotfix to allow user map between label_id
@@ -380,7 +380,7 @@ class FasterRCNN(Estimator):
             # should be available before training/evaluation dataset was loaded.
             # label_id that was missing from label_name should be removed from
             # dataset and the training procedure.
-            else:
+            elif metric.TYPE == "mapping":
                 label_results = {
                     label_mappings.get(id, str(id)): value
                     for id, value in result.items()
