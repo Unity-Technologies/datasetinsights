@@ -5,10 +5,7 @@ from pathlib import Path
 
 import datasetinsights.constants as const
 from datasetinsights.datasets.base import DatasetDownloader
-from datasetinsights.datasets.simulation.download import (
-    Downloader,
-    download_manifest,
-)
+from datasetinsights.io.usim import Downloader, download_manifest
 
 logger = logging.getLogger(__name__)
 
