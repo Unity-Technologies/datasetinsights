@@ -1,7 +1,6 @@
 """unit test case for frcnn train and evaluate."""
 
 import os
-import shutil
 import tempfile
 from unittest.mock import MagicMock, patch
 
@@ -86,16 +85,27 @@ def test_faster_rcnn_train_one_epoch(mock_create, config, dataset):
     )
 
 
+@patch("datasetinsights.estimators.faster_rcnn.FasterRCNN.train_one_epoch")
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
 @patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_faster_rcnn_train_all(mock_create, mock_loss, config, dataset):
+def test_faster_rcnn_train_all(
+    mock_create, mock_loss, mock_train_one_epoch, config, dataset
+):
     """test train on all epochs."""
     loss_val = 0.1
     mock_create.return_value = dataset
     mock_loss.return_value = loss_val
+    log_dir = tmp_name + "/train/"
+    config.system.logdir = log_dir
     writer = MagicMock()
     kfp_writer = MagicMock()
-    checkpointer = MagicMock()
+
+    checkpointer = EstimatorCheckpoint(
+        estimator_name=config.estimator,
+        log_dir=log_dir,
+        distributed=config.system["distributed"],
+    )
+
     estimator = FasterRCNN(
         config=config,
         writer=writer,
@@ -103,7 +113,6 @@ def test_faster_rcnn_train_all(mock_create, mock_loss, config, dataset):
         checkpointer=checkpointer,
         kfp_writer=kfp_writer,
     )
-    checkpointer.save = MagicMock()
     train_dataset = create_dataset(config, TRAIN)
     val_dataset = create_dataset(config, VAL)
     label_mappings = train_dataset.label_mappings
@@ -127,28 +136,27 @@ def test_faster_rcnn_train_all(mock_create, mock_loss, config, dataset):
         train_sampler=train_sampler,
     )
     writer.add_scalar.assert_called_with("val/loss", loss_val, epoch)
+    mock_train_one_epoch.assert_called_once()
 
 
+@patch("datasetinsights.estimators.faster_rcnn.FasterRCNN.train_loop")
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
 @patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_faster_rcnn_train(mock_create, mock_loss, config, dataset):
+def test_faster_rcnn_train(
+    mock_create, mock_loss, mock_train_loop, config, dataset
+):
     """test train."""
     loss_val = 0.1
     mock_loss.return_value = loss_val
     mock_create.return_value = dataset
-    log_dir = tmp_name + "/train/"
-    config.system.logdir = log_dir
+
     kfp_writer = MagicMock()
     writer = MagicMock
     writer.add_scalar = MagicMock()
     writer.add_scalars = MagicMock()
     writer.add_figure = MagicMock()
 
-    checkpointer = EstimatorCheckpoint(
-        estimator_name=config.estimator,
-        log_dir=log_dir,
-        distributed=config.system["distributed"],
-    )
+    checkpointer = MagicMock()
     estimator = FasterRCNN(
         config=config,
         writer=writer,
@@ -157,9 +165,7 @@ def test_faster_rcnn_train(mock_create, mock_loss, config, dataset):
         kfp_writer=kfp_writer,
     )
     estimator.train()
-    writer.add_scalar.assert_called_with(
-        "val/loss", loss_val, config.train.epochs - 1
-    )
+    mock_train_loop.assert_called_once()
 
 
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
@@ -203,9 +209,12 @@ def test_faster_rcnn_evaluate_per_epoch(
     writer.add_scalar.assert_called_with("val/loss", loss_val, epoch)
 
 
+@patch("datasetinsights.estimators.faster_rcnn.FasterRCNN.evaluate_per_epoch")
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
 @patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_faster_rcnn_evaluate(mock_create, mock_loss, config, dataset):
+def test_faster_rcnn_evaluate(
+    mock_create, mock_loss, mock_evaluate_per_epoch, config, dataset
+):
     """test evaluate."""
     mock_create.return_value = dataset
     loss_val = 0.1
@@ -224,8 +233,7 @@ def test_faster_rcnn_evaluate(mock_create, mock_loss, config, dataset):
         kfp_writer=kfp_writer,
     )
     estimator.evaluate()
-    epoch = 0
-    writer.add_scalar.assert_called_with("val/loss", loss_val, epoch)
+    mock_evaluate_per_epoch.assert_called_once()
 
 
 @patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
@@ -430,4 +438,5 @@ def test_faster_rcnn_predict(mock_create, config, dataset):
 
 def test_clean_dir():
     """clean tmp dir."""
-    shutil.rmtree(tmp_dir.name, ignore_errors=True)
+    if os.path.exists(tmp_dir.name):
+        tmp_dir.cleanup()
