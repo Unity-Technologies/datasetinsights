@@ -3,7 +3,7 @@ import kfp.gcp as gcp
 
 
 MAX_GPU = 1
-MAX_MEMORY = "64Gi"
+MAX_MEMORY = "128Gi"
 
 
 @dsl.pipeline(
@@ -11,7 +11,7 @@ MAX_MEMORY = "64Gi"
 )
 def train_pipeline(
     num_proc: int = 1,
-    # volume_size: str = "50Gi",
+    # volume_size: str = "100Gi",
     logdir: str = "gs://thea-dev/runs/single-cube/",
     docker_image:
     str = "gcr.io/unity-ai-thea-test/datasetinsights:<git-comit-sha>",
@@ -43,7 +43,7 @@ def train_pipeline(
             "-m",
             "datasetinsights.cli",
             "train",
-            "--config=datasetinsights/configs/vgg_slam_c_s.yaml",
+            "--config=datasetinsights/configs/vgg_slam_multi_objects.yaml",
             f"--logdir={logdir}",
             "train.epochs",
             epochs,

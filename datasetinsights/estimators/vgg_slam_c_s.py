@@ -387,7 +387,7 @@ class VGGSlamCS(Estimator):
             saved the model on gcs
         """
         epoch = "ep" + str(epoch)
-        file_name = "UR3_cube_sphere_vgg_" + epoch
+        file_name = "UR3_cube_sphere_vgg_2" + epoch
         checkpoint_file_folder = os.path.join(self.data_root, "models/", epoch)
         # checkpoint_file_folder = "/tmp/test/"  # to save on local
         Path(checkpoint_file_folder).mkdir(parents=True, exist_ok=True)
