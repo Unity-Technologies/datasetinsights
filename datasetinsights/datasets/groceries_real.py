@@ -11,7 +11,7 @@ from PIL import Image
 
 import datasetinsights.constants as const
 from datasetinsights.io.bbox import BBox2D
-from datasetinsights.storage.gcs import download_file_from_gcs
+from datasetinsights.io.gcs import download_file_from_gcs
 
 from .base import Dataset
 from .exceptions import DatasetNotFoundError
@@ -85,8 +85,8 @@ class GroceriesReal(Dataset):
         # Split test dataset into high/low foreground to background ratio
         "test_high_ratio": "groceries_real_test_high_ratio.txt",
         "test_low_ratio": "groceries_real_test_low_ratio.txt",
-        # Split test datset into high/low contrast. Images in high contrast
-        # split tend to have more complicated shadow pattern
+        # Split test dataset into high/low contrast. Images in high contrast
+        # split tend to have more complicated shadow patterns
         "test_low_contrast": "groceries_real_test_low_contrast.txt",
         "test_high_contrast": "groceries_real_test_high_contrast.txt",
     }

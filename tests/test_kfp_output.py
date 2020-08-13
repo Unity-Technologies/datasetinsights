@@ -1,6 +1,6 @@
 import os
 
-from datasetinsights.storage.kfp_output import KubeflowPipelineWriter
+from datasetinsights.io.kfp_output import KubeflowPipelineWriter
 
 
 def test_kfp_writer_save_and_overwrite_metric():

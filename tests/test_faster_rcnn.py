@@ -1,7 +1,6 @@
 """unit test case for frcnn train and evaluate."""
 
 import os
-import shutil
 import tempfile
 from unittest.mock import MagicMock, patch
 
@@ -25,7 +24,7 @@ from datasetinsights.estimators.faster_rcnn import (
     create_dryrun_dataset,
     dataloader_creator,
 )
-from datasetinsights.storage.checkpoint import EstimatorCheckpoint
+from datasetinsights.io.checkpoint import EstimatorCheckpoint
 
 tmp_dir = tempfile.TemporaryDirectory()
 tmp_name = tmp_dir.name
@@ -83,14 +82,25 @@ def test_faster_rcnn_train_one_epoch(config, dataset):
     )
 
 
+@patch("datasetinsights.estimators.faster_rcnn.FasterRCNN.train_one_epoch")
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
-def test_faster_rcnn_train_all(mock_loss, config, dataset):
+def test_faster_rcnn_train_all(
+    mock_loss, mock_train_one_epoch, config, dataset
+):
     """test train on all epochs."""
     loss_val = 0.1
     mock_loss.return_value = loss_val
+    log_dir = tmp_name + "/train/"
+    config.system.logdir = log_dir
     writer = MagicMock()
     kfp_writer = MagicMock()
-    checkpointer = MagicMock()
+
+    checkpointer = EstimatorCheckpoint(
+        estimator_name=config.estimator,
+        log_dir=log_dir,
+        distributed=config.system["distributed"],
+    )
+
     estimator = FasterRCNN(
         config=config,
         writer=writer,
@@ -122,28 +132,27 @@ def test_faster_rcnn_train_all(mock_loss, config, dataset):
         train_sampler=train_sampler,
     )
     writer.add_scalar.assert_called_with("val/loss", loss_val, epoch)
+    mock_train_one_epoch.assert_called_once()
 
 
+@patch("datasetinsights.estimators.faster_rcnn.FasterRCNN.train_loop")
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
 @patch("datasetinsights.estimators.faster_rcnn.create_dataset")
-def test_faster_rcnn_train(mock_create, mock_loss, config, dataset):
+def test_faster_rcnn_train(
+    mock_create, mock_loss, mock_train_loop, config, dataset
+):
     """test train."""
     loss_val = 0.1
     mock_loss.return_value = loss_val
     mock_create.return_value = dataset
-    log_dir = tmp_name + "/train/"
-    config.system.logdir = log_dir
+
     kfp_writer = MagicMock()
     writer = MagicMock
     writer.add_scalar = MagicMock()
     writer.add_scalars = MagicMock()
     writer.add_figure = MagicMock()
 
-    checkpointer = EstimatorCheckpoint(
-        estimator_name=config.estimator,
-        log_dir=log_dir,
-        distributed=config.system["distributed"],
-    )
+    checkpointer = MagicMock()
     estimator = FasterRCNN(
         config=config,
         writer=writer,
@@ -152,9 +161,7 @@ def test_faster_rcnn_train(mock_create, mock_loss, config, dataset):
         kfp_writer=kfp_writer,
     )
     estimator.train()
-    writer.add_scalar.assert_called_with(
-        "val/loss", loss_val, config.train.epochs - 1
-    )
+    mock_train_loop.assert_called_once()
 
 
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
@@ -194,9 +201,12 @@ def test_faster_rcnn_evaluate_per_epoch(mock_loss, config, dataset):
     writer.add_scalar.assert_called_with("val/loss", loss_val, epoch)
 
 
+@patch("datasetinsights.estimators.faster_rcnn.FasterRCNN.evaluate_per_epoch")
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
 @patch("datasetinsights.estimators.faster_rcnn.create_dataset")
-def test_faster_rcnn_evaluate(mock_create, mock_loss, config, dataset):
+def test_faster_rcnn_evaluate(
+    mock_create, mock_loss, mock_evaluate_per_epoch, config, dataset
+):
     """test evaluate."""
     mock_create.return_value = dataset
     loss_val = 0.1
@@ -215,8 +225,7 @@ def test_faster_rcnn_evaluate(mock_create, mock_loss, config, dataset):
         kfp_writer=kfp_writer,
     )
     estimator.evaluate()
-    epoch = 0
-    writer.add_scalar.assert_called_with("val/loss", loss_val, epoch)
+    mock_evaluate_per_epoch.assert_called_once()
 
 
 def test_faster_rcnn_log_metric_val(config):
@@ -237,13 +246,13 @@ def test_faster_rcnn_log_metric_val(config):
     epoch = 0
     estimator.log_metric_val({"1": "car", "2": "bike"}, epoch)
 
-    writer.add_scalars.assert_called_with("val/AR-per-class", {}, epoch)
+    writer.add_scalars.assert_called_with("val/APIOU50-per-class", {}, epoch)
 
 
 def test_faster_rcnn_save(config):
     """test save model."""
 
-    log_dir = tmp_name + "/test_save/"
+    log_dir = tmp_name + "/train/"
     config.system.logdir = log_dir
     kfp_writer = MagicMock()
     writer = MagicMock()
@@ -259,10 +268,13 @@ def test_faster_rcnn_save(config):
         checkpointer=checkpointer,
         kfp_writer=kfp_writer,
     )
-    estimator.save(log_dir + "FasterRCNN_test")
+    estimator.save(log_dir + "FasterRCNN.estimator")
 
     assert any(
-        [name.startswith("FasterRCNN_test") for name in os.listdir(log_dir)]
+        [
+            name.startswith("FasterRCNN.estimator")
+            for name in os.listdir(log_dir)
+        ]
     )
 
 
@@ -405,4 +417,5 @@ def test_faster_rcnn_predict(config, dataset):
 
 def test_clean_dir():
     """clean tmp dir."""
-    shutil.rmtree(tmp_dir.name, ignore_errors=True)
+    if os.path.exists(tmp_dir.name):
+        tmp_dir.cleanup()
