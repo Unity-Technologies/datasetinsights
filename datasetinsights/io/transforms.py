@@ -142,9 +142,9 @@ class CenterCrop:
             return img
         c = shape // 2
         # noqa: E741 IDK why it says ambiguous
-        l = c - self.size // 2
+        left = c - self.size // 2
         r = c + self.size // 2 + 1
-        return img[l:r, l:r], None
+        return img[left:r, left:r], None
 
 
 class ShiftBBox:
