@@ -1990,12 +1990,6 @@ def resnet50(pretrained=False, **kwargs):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
-    # if pretrained:
-    #     model.load_state_dict(
-    #         model_zoo.load_url(
-    #             "https://download.pytorch.org/models/resnet50-19c8e357.pth"
-    #         )
-    #     )
     return model
 
 
