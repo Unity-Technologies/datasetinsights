@@ -33,12 +33,13 @@ class AverageQuaternionError(EvaluationMetric):
                                should be the same.')
 
         self.num_samples += y.shape[0]
-        if 2 * np.square(np.dot(y, y_pred)) - 1 >= 0.999: 
+        if 2 * np.square(np.dot(y, y_pred)) - 1 >= 0.999:
             self.sum_of_average_quaternion_error += 0
         elif 2 * np.square(np.dot(y, y_pred)) - 1 <= -0.999:
             self.sum_of_average_quaternion_error += 3.14
         else:
-            self.sum_of_average_quaternion_error += np.sum(np.arccos((2 * np.square(np.dot(y, y_pred)) - 1)))
+            self.sum_of_average_quaternion_error += np.sum(
+                np.arccos((2 * np.square(np.dot(y, y_pred)) - 1)))
 
     def compute(self):
         if self.num_samples == 0:

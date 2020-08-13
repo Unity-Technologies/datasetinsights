@@ -11,7 +11,6 @@ from pathlib import Path
 import glob
 
 import tensorflow as tf
-from tensorflow.python.framework import ops
 from tensorflow.keras import layers
 from tensorflow.keras.applications import VGG16
 from keras import optimizers
@@ -93,7 +92,7 @@ class VGGSlamMO(Estimator):
     far from the original one. We call this method "transfer learning".
 
     This model is used on the SingleCube dataset.
-    The purpose is to predict the coordinates of the center of the cube 
+    The purpose is to predict the coordinates of the center of the cube
 
     Attributes:
         config (dict): estimator config
@@ -155,7 +154,7 @@ class VGGSlamMO(Estimator):
 
         for i, row in enumerate(X):
             output_trans_cube = self.model.predict(
-                    row.reshape(1, 224, 224, -1))
+                row.reshape(1, 224, 224, -1))
 
             # for the cube translation
             output_trans_cube = output_trans_cube[0, :].reshape(1, 3)
@@ -269,13 +268,15 @@ class VGGSlamMO(Estimator):
             img = image.load_img(myFile, target_size=(224, 224))
             X_train.append(self._image_process(img)[0])
             name_image = myFile.split("/")[-1]
-            y_train.append(df[df['screenCaptureName'] == name_image][['x', 'y', 'z']].values[0])
+            y_train.append(df[df['screenCaptureName'] == name_image]
+                           [['x', 'y', 'z']].values[0])
 
         for myFile in files[int(0.9 * len(files)):]:
             img = image.load_img(myFile, target_size=(224, 224))
             X_val.append(self._image_process(img)[0])
             name_image = myFile.split("/")[-1]
-            y_val.append(df[df['screenCaptureName'] == name_image][['x', 'y', 'z']].values[0])
+            y_val.append(df[df['screenCaptureName'] == name_image]
+                         [['x', 'y', 'z']].values[0])
 
         X_train, X_val, y_train, \
             y_val = np.array(X_train), np.array(X_val), \

@@ -11,6 +11,7 @@ from pathlib import Path
 import glob
 
 import tensorflow as tf
+from tensorflow.python.framework import ops
 from tensorflow.keras import layers
 from tensorflow.keras.applications import VGG16
 from keras import optimizers
@@ -373,22 +374,27 @@ class VGGSlam(Estimator):
             img = image.load_img(myFile, target_size=(224, 224))
             X_train.append(self._image_process(img)[0])
             name_image = myFile.split("/")[-1]
-            y_train_orient.append(df[df['screenCaptureName'] == name_image][['q_w', 'q_y']].values[0])
-            y_train_trans.append(df[df['screenCaptureName'] == name_image][['x', 'y', 'z']].values[0])
+            y_train_orient.append(df[df['screenCaptureName'] == name_image]
+                                  [['q_w', 'q_y']].values[0])
+            y_train_trans.append(df[df['screenCaptureName'] == name_image]
+                                 [['x', 'y', 'z']].values[0])
 
         for myFile in files[int(0.9 * len(files)):]:
             img = image.load_img(myFile, target_size=(224, 224))
             X_val.append(self._image_process(img)[0])
             name_image = myFile.split("/")[-1]
-            y_val_orient.append(df[df['screenCaptureName'] == name_image][['q_w', 'q_y']].values[0])
-            y_val_trans.append(df[df['screenCaptureName'] == name_image][['x', 'y', 'z']].values[0])
+            y_val_orient.append(df[df['screenCaptureName'] == name_image]
+                                [['q_w', 'q_y']].values[0])
+            y_val_trans.append(df[df['screenCaptureName'] == name_image]
+                               [['x', 'y', 'z']].values[0])
 
         X_train, X_val, y_train_orient, y_train_trans, \
             y_val_orient, y_val_trans = np.array(X_train), np.array(X_val), \
             np.array(y_train_orient), np.array(y_train_trans), \
             np.array(y_val_orient), np.array(y_val_trans)
 
-        return (X_train, X_val, y_train_orient, y_train_trans, y_val_orient, y_val_trans)
+        return (X_train, X_val, y_train_orient, y_train_trans,
+                y_val_orient, y_val_trans)
 
     def save(self, epoch):
         """ Serialize Estimator to path

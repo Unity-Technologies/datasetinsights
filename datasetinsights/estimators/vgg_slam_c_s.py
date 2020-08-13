@@ -273,7 +273,8 @@ class VGGSlamCS(Estimator):
             train_trans_sphere = history.history['output_trans_sphere_loss'][-1]
 
             val_trans_cube = history.history['val_output_trans_cube_loss'][-1]
-            val_trans_sphere = history.history['val_output_trans_sphere_loss'][-1]
+            val_trans_sphere = history.history[
+                'val_output_trans_sphere_loss'][-1]
 
             if epoch > 0:
                 self._evaluate_one_epoch(X_val, y_val_trans_cube,
@@ -344,15 +345,23 @@ class VGGSlamCS(Estimator):
             img = image.load_img(myFile, target_size=(224, 224))
             X_train.append(self._image_process(img)[0])
             name_image = myFile.split("/")[-1]
-            y_train_trans_cube.append(df[df['screenCaptureName'] == name_image][['x_cube', 'y_cube', 'z_cube']].values[0])
-            y_train_trans_sphere.append(df[df['screenCaptureName'] == name_image][['x_sphere', 'y_sphere', 'z_sphere']].values[0])
+            y_train_trans_cube.append(df[df['screenCaptureName'] == name_image]
+                                      [['x_cube', 'y_cube',
+                                        'z_cube']].values[0])
+            y_train_trans_sphere.append(df[df['screenCaptureName'] ==
+                                           name_image]
+                                        [['x_sphere', 'y_sphere',
+                                          'z_sphere']].values[0])
 
         for myFile in files[int(0.9 * len(files)):]:
             img = image.load_img(myFile, target_size=(224, 224))
             X_val.append(self._image_process(img)[0])
             name_image = myFile.split("/")[-1]
-            y_val_trans_cube.append(df[df['screenCaptureName'] == name_image][['x_cube', 'y_cube', 'z_cube']].values[0])
-            y_val_trans_sphere.append(df[df['screenCaptureName'] == name_image][['x_sphere', 'y_sphere', 'z_sphere']].values[0])
+            y_val_trans_cube.append(df[df['screenCaptureName'] == name_image]
+                                    [['x_cube', 'y_cube', 'z_cube']].values[0])
+            y_val_trans_sphere.append(df[df['screenCaptureName'] == name_image]
+                                      [['x_sphere', 'y_sphere',
+                                        'z_sphere']].values[0])
 
         X_train, X_val, y_train_trans_cube, \
             y_val_trans_cube, y_train_trans_sphere, y_val_trans_spere = \
