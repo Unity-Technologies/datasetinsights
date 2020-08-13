@@ -18,15 +18,17 @@ from datasetinsights.datasets import Dataset
 from datasetinsights.io.bbox import BBox2D
 from datasetinsights.io.loader import create_loader
 from datasetinsights.io.transforms import (
+    BlurImage,
     CenterCrop,
+    GrayImage,
     ScaleBBox,
     ShiftBBox,
-    GrayImage,
-    BlurImage,
 )
-# from datasetinsights.evaluation_metrics.base import EvaluationMetric
 
 from .base import Estimator
+
+# from datasetinsights.evaluation_metrics.base import EvaluationMetric
+
 
 logger = logging.getLogger(__name__)
 
@@ -510,7 +512,7 @@ class SiamMask(Estimator):
         self.writer = writer
         self.gpu = gpu
         self.rank = rank
-        model_name = f"siammask_{self.config.backbone}"
+        # model_name = f"siammask_{self.config.backbone}"
         logger.info(f"gpu: {self.gpu}, rank: {self.rank}")
 
         self.train_mode = train_mode
@@ -729,15 +731,15 @@ class SiamMask(Estimator):
 
             if (iter + 1) % 1 == 0:
                 logger.info(
-                    "Epoch: [{0}][{1}/{2}] \
-                    lr: {lr:.6f}\t{batch_time:s}\t{data_time:s}"
-                    "\t{rpn_cls_loss:s}\
-                    \t{rpn_loc_loss:s}\
-                    \t{rpn_mask_loss:s}\
-                    \t{siammask_loss:s}"
-                    "\t{mask_iou_mean:s}\
-                    \t{mask_iou_at_5:s}\
-                    \t{mask_iou_at_7:s}".format(
+                    "Epoch: [{0}][{1}/{2}]\n \
+                    lr: {lr:.6f}\n{batch_time:s}\n{data_time:s}"
+                    "\n{rpn_cls_loss:s}\
+                    \n{rpn_loc_loss:s}\
+                    \n{rpn_mask_loss:s}\
+                    \n{siammask_loss:s}"
+                    "\n{mask_iou_mean:s}\
+                    \n{mask_iou_at_5:s}\
+                    \n{mask_iou_at_7:s}".format(
                         epoch + 1,
                         (iter + 1) % batches_per_epoch,
                         batches_per_epoch,
@@ -753,7 +755,6 @@ class SiamMask(Estimator):
                         mask_iou_at_7=avg.mask_iou_at_7,
                     )
                 )
-                # print_speed(iter + 1, avg.batch_time.avg, args.epochs * batches_per_epoch)
             print(cur_lr)
 
     def save(self, state, filename="checkpoint.pth"):
@@ -794,9 +795,6 @@ class SiamMask(Estimator):
         )
 
     def evaluate(self):
-        import os
-
-        # print(os.listdir("/data/savedmodels"))
         self.train_mode = False
         load_path = self.config["test"]["dataset"]["saved_model"][0]
         print(load_path)
@@ -911,7 +909,7 @@ class SiamMask(Estimator):
             for i in range(object_num):
                 for j, thr in enumerate(thrs):
                     logger.info(
-                        "Fusion Multi Object{:20s} IOU at {:.2f}: {:.4f}".format(
+                        "Multi Object{:20s} IOU at {:.2f}: {:.4f}".format(
                             video["name"] + "_" + str(i + 1),
                             thr,
                             multi_mean_iou[i, j],
@@ -919,15 +917,6 @@ class SiamMask(Estimator):
                     )
         else:
             multi_mean_iou = []
-
-        # if args.save_mask:
-        #     video_path = join('test', args.dataset, 'SiamMask', video['name'])
-        #     if not isdir(video_path): makedirs(video_path)
-        #     pred_mask_final = np.array(pred_masks)
-        #     pred_mask_final = (np.argmax(pred_mask_final, axis=0).astype('uint8') + 1) * (
-        #             np.max(pred_mask_final, axis=0) > state['p'].seg_thr).astype('uint8')
-        #     for i in range(pred_mask_final.shape[0]):
-        #         cv2.imwrite(join(video_path, image_files[i].split('/')[-1].split('.')[0] + '.png'), pred_mask_final[i].astype(np.uint8))
 
         visualization = True
         if visualization:
@@ -1060,15 +1049,10 @@ class SiamMask(Estimator):
         state["im_h"] = im.shape[0]
         state["im_w"] = im.shape[1]
 
-        penalty_k = 0.09
-        window_influence = 0.39
-        lr = 0.38
-        seg_thr = 0.3  # for mask
-        windowing = "cosine"
         exemplar_size = 127  # input z size
         instance_size = 255  # input x size (search region)
         total_stride = 8
-        out_size = 63  # for mask
+        # out_size = 63  # for mask
         base_size = 8
         score_size = (
             (instance_size - exemplar_size) // total_stride + 1 + base_size
@@ -1076,10 +1060,7 @@ class SiamMask(Estimator):
         context_amount = 0.5
 
         net = model
-        scales = model.anchors["scales"]
-        ratios = model.anchors["ratios"]
         anchor_num = model.anchor_num
-        anchor = self.generate_anchor(model.anchors, score_size)
         avg_chans = np.mean(im, axis=(0, 1))
 
         wc_z = target_sz[0] + context_amount * sum(target_sz)
@@ -1093,10 +1074,9 @@ class SiamMask(Estimator):
         z = Variable(z_crop.unsqueeze(0))
         net.template(z.to(self.device))
 
-        if windowing == "cosine":
-            window = np.outer(np.hanning(score_size), np.hanning(score_size))
-        elif windowing == "uniform":
-            window = np.ones((p.score_size, score_size))
+        # if windowing == "cosine":
+        window = np.outer(np.hanning(score_size), np.hanning(score_size))
+
         window = np.tile(window.flatten(), anchor_num)
 
         state["net"] = net
@@ -1117,7 +1097,6 @@ class SiamMask(Estimator):
         window_influence = 0.39
         lr = 0.38
         seg_thr = 0.3  # for mask
-        windowing = "cosine"
         exemplar_size = 127  # input z size
         instance_size = 255  # input x size (search region)
         total_stride = 8
@@ -1141,14 +1120,6 @@ class SiamMask(Estimator):
             round(s_x),
             round(s_x),
         ]
-
-        # if debug:
-        #     im_debug = im.copy()
-        #     crop_box_int = np.int0(crop_box)
-        #     cv2.rectangle(im_debug, (crop_box_int[0], crop_box_int[1]),
-        #                   (crop_box_int[0] + crop_box_int[2], crop_box_int[1] + crop_box_int[3]), (255, 0, 0), 2)
-        #     cv2.imshow('search area', im_debug)
-        #     cv2.waitKey(0)
 
         # extract scaled crops for search region x at previous target position
         x_crop = Variable(
@@ -1296,16 +1267,6 @@ class SiamMask(Estimator):
 
             # box_in_img = pbox
             rbox_in_img = prbox
-        else:  # empty mask
-            location = cxy_wh_2_rect(target_pos, target_sz)
-            rbox_in_img = np.array(
-                [
-                    [location[0], location[1]],
-                    [location[0] + location[2], location[1]],
-                    [location[0] + location[2], location[1] + location[3]],
-                    [location[0], location[1] + location[3]],
-                ]
-            )
 
         target_pos[0] = max(0, min(state["im_w"], target_pos[0]))
         target_pos[1] = max(0, min(state["im_h"], target_pos[1]))
@@ -1374,7 +1335,6 @@ class WarmupScheduler(_LRScheduler):
         self.lr_spaces = np.concatenate([warmup, normal])
         self.start_lr = normal[0]
 
-        # self.lr_spaces = np.logspace(math.log10(start_lr), math.log10(end_lr), epochs)
         super(WarmupScheduler, self).__init__(optimizer, last_epoch)
 
     def get_cur_lr(self):
@@ -1707,11 +1667,20 @@ class DepthCorr(nn.Module):
 """
 # Helper functions to read the pre-trained weights to the Resnet Model
 # TODO: Clean up these functions
+
+
+def f_lambda(x, prefix):
+    if x.startswith(prefix):
+        return x.split(prefix, 1)[-1]
+    else:
+        return x
+
+
 def remove_prefix(state_dict, prefix):
-    """ Old style model is stored with all names of parameters share common prefix 'module.' """
+    """ Model is stored with parameters share common prefix 'module.' """
     logger.info("remove prefix '{}'".format(prefix))
-    f = lambda x: x.split(prefix, 1)[-1] if x.startswith(prefix) else x
-    return {f(key): value for key, value in state_dict.items()}
+    # f = lambda x: x.split(prefix, 1)[-1] if x.startswith(prefix) else x
+    return {f_lambda(key, prefix): value for key, value in state_dict.items()}
 
 
 def check_keys(model, pretrained_state_dict):
@@ -1759,9 +1728,10 @@ def load_pretrain(model, pretrained_path):
 
     try:
         check_keys(model, pretrained_dict)
-    except:
+    except AssertionError:
         logger.info(
-            '[Warning]: using pretrain as features. Adding "features." as prefix'
+            '[Warning]: using pretrain as features. \
+            Adding "features." as prefix'
         )
         new_dict = {}
         for k, v in pretrained_dict.items():
@@ -1773,7 +1743,8 @@ def load_pretrain(model, pretrained_path):
     return model
 
 
-# Parent class conataining helper functions for freezing weights of the layers at any point of training
+# Parent class conataining helper functions for
+# freezing weights of the layers at any point of training
 class MultiStageFeature(nn.Module):
     def __init__(self):
         super(MultiStageFeature, self).__init__()
@@ -1781,7 +1752,8 @@ class MultiStageFeature(nn.Module):
         self.layers = []
         self.train_num = -1
         # Will be overriden from child class ideally
-        # This basically says, reading from right to left: when model is 0.5 trained increase trainable layers to 3
+        # This basically says, reading from right to left:
+        # when model is 0.5 trained increase trainable layers to 3
         # change_point [0, 0.5]
         # train_nums[1, 3]
         self.change_point = []
@@ -1790,7 +1762,8 @@ class MultiStageFeature(nn.Module):
     def forward():
         raise NotImplementedError
 
-    # This ratio is the percentage of training completed (current_epoch/total_epochs)
+    # This ratio is the percentage of training completed
+    # (current_epoch/total_epochs)
     def unfix(self, ratio=0.0):
         if self.train_num == -1:
             self.train_num = 0
@@ -1813,18 +1786,14 @@ class MultiStageFeature(nn.Module):
         for p in self.parameters():
             p.requires_grad = False
 
-        logger.info(
-            "Current training {} layers:\n\t".format(
-                self.train_num, self.train_layers()
-            )
-        )
+        logger.info("Current training {} layers:\n\t".format(self.train_num))
         for m in self.train_layers():
             for p in m.parameters():
                 p.requires_grad = True
 
     def train(self, mode):
         self.training = mode
-        if mode == False:
+        if not mode:
             super(MultiStageFeature, self).train(False)
         else:
             for m in self.train_layers():
@@ -1923,7 +1892,6 @@ class ResNet(nn.Module):
                 )
 
         layers = []
-        # layers.append(block(self.inplanes, planes, stride, downsample, dilation=dilation))
         layers.append(
             block(self.inplanes, planes, stride, downsample, dilation=dd)
         )
@@ -2022,12 +1990,12 @@ def resnet50(pretrained=False, **kwargs):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
-    if pretrained:
-        model.load_state_dict(
-            model_zoo.load_url(
-                "https://download.pytorch.org/models/resnet50-19c8e357.pth"
-            )
-        )
+    # if pretrained:
+    #     model.load_state_dict(
+    #         model_zoo.load_url(
+    #             "https://download.pytorch.org/models/resnet50-19c8e357.pth"
+    #         )
+    #     )
     return model
 
 
@@ -2043,9 +2011,9 @@ class ResDownS(nn.Module):
     def forward(self, x):
         x = self.downsample(x)
         if x.size(3) < 20:
-            l = 4
+            _l = 4
             r = -4
-            x = x[:, :, l:r, l:r]
+            x = x[:, :, _l:r, _l:r]
         return x
 
 
@@ -2053,13 +2021,15 @@ class ResDownS(nn.Module):
 class ResDown(MultiStageFeature):
     def __init__(self, pretrain=False):
         super(ResDown, self).__init__()
-        # features is the original Siamese network -> till layer3 of resnet 50 (shared)
+        # features is the original Siamese network
+        # -> till layer3 of resnet 50 (shared)
         self.features = resnet50(layer3=True, layer4=False)
         # Weights for this need to be downloaded from the oxford link (TODO)
         # Initialized the Resnet by the weights
         if pretrain:
             load_pretrain(self.features, "resnet.model")
-        # This is the adjust layer, which is not shared by template and search images (unshared)
+        # This is the adjust layer
+        # which is not shared by template and search images (unshared)
         self.downsample = ResDownS(1024, 256)
 
         self.layers = [
@@ -2072,7 +2042,8 @@ class ResDown(MultiStageFeature):
 
         # This controls when, what layers will be frozen
         # As this is init, so all layers will be trainable
-        # if unfix(0.5) is passed, the number of layers will be frozen depicted by train_nums and change_point
+        # if unfix(0.5) is passed, the number of layers will
+        # be frozen depicted by train_nums and change_point
         self.unfix(0.0)
 
     def param_groups(self, start_lr, feature_mult=1):
@@ -2097,7 +2068,8 @@ class ResDown(MultiStageFeature):
         # Output is of the form : (layer2, layer3, layer4)
         # As we dont need layer4 or layer2, we take output[1]
         p3 = self.downsample(output[1])
-        # p3 is basically the expected feature block. template_p3 will be used to cross correlate with search_p3
+        # p3 is basically the expected feature block.
+        # template_p3 will be used to cross correlate with search_p3
         return p3
 
 
