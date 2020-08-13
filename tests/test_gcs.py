@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from datasetinsights.storage.gcs import GCSClient, gcs_bucket_and_path
+from datasetinsights.io.gcs import GCSClient, gcs_bucket_and_path
 
 
 def test_gcs_client_warpper():
@@ -12,7 +12,7 @@ def test_gcs_client_warpper():
 
     mocked_gcs_client = MagicMock()
     with patch(
-        "datasetinsights.storage.gcs.Client",
+        "datasetinsights.io.gcs.Client",
         MagicMock(return_value=mocked_gcs_client),
     ):
         client = GCSClient()

@@ -8,11 +8,11 @@ from yacs.config import CfgNode as CN
 
 import datasetinsights.constants as const
 from datasetinsights.datasets import Dataset
+from datasetinsights.io.checkpoint import EstimatorCheckpoint
+from datasetinsights.io.kfp_output import KubeflowPipelineWriter
 
 from .configs import system
 from .estimators import Estimator
-from .storage.checkpoint import EstimatorCheckpoint
-from .storage.kfp_output import KubeflowPipelineWriter
 from .torch_distributed import get_world_size, init_distributed_mode, is_master
 
 logging.basicConfig(
