@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 def corner2center(corner):
     """
     Converts a corner representation to center representation
-    x1,y1,x2,y2 -> cx,cy,w,h 
+    x1,y1,x2,y2 -> cx,cy,w,h
     :param corner: Corner or np.array 4*N
     :return: Center or 4 np.array N
     """
@@ -49,7 +49,7 @@ def corner2center(corner):
 def center2corner(center):
     """
     Converts a corner representation to center representation
-    cx,cy,w,h -> x1,y1,x2,y2 
+    cx,cy,w,h -> x1,y1,x2,y2
     :param center: Center or np.array 4*N
     :return: Corner or np.array 4*N
     """
@@ -88,7 +88,7 @@ def toBBox(image, shape, template_size=127):
     else:
         w, h = shape
     context_amount = 0.5
-    exemplar_size = template_size  # 127
+    exemplar_size = template_size
     wc_z = w + context_amount * (w + h)
     hc_z = h + context_amount * (w + h)
     s_z = np.sqrt(wc_z * hc_z)
@@ -103,6 +103,8 @@ def toBBox(image, shape, template_size=127):
 def crop_hwc(image, bbox, out_sz, padding=(0, 0, 0)):
     """
     Cropping image given a bounding box
+    Args: Image and modified bounding box
+    Returns: Cropped Image
     """
     x1, y1, w, h = bbox.x, bbox.y, bbox.w, bbox.h
     bbox = [x1, y1, x1 + w, y1 + h]
@@ -124,7 +126,9 @@ def crop_hwc(image, bbox, out_sz, padding=(0, 0, 0)):
 
 def draw(image, box, name):
     """
-    Only for debugging - will draw a bbox on image
+        Args: image, bbox
+        Saves an image with bbox drawn on it
+        Only for debugging-> Not used anywhere
     """
     if box is not None:
         box = [box.x, box.y, box.x + box.w, box.y + box.h]
@@ -162,7 +166,7 @@ def get_transforms(center_crop, blur, gray, shift, scale, resize, flip):
 
     """
     # Should maintain this order
-    # (x) TODO: center crop both template and search
+    # (x) TODO: center crop both template and search -buggy
     # make bounding box on both
     # scale
     # shift
@@ -270,10 +274,10 @@ class SiamMaskCompose:
 
 class Anchors:
     def __init__(self, cfg):
-        '''
+        """
             Args: config file
             Initializes the anchor box specs
-        '''
+        """
         self.stride = 8
         self.ratios = [0.33, 0.5, 1, 2, 3]
         self.scales = [8]
@@ -292,9 +296,9 @@ class Anchors:
         self.generate_anchors()
 
     def generate_anchors(self):
-        '''
+        """
             Generates the anchor boxes with spec in config file
-        '''
+        """
         self.anchors = np.zeros((self.anchor_num, 4), dtype=np.float32)
 
         size = self.stride * self.stride
@@ -325,9 +329,9 @@ class Anchors:
                     count += 1
 
     def generate_all_anchors(self, im_c, size):
-        '''
+        """
             Helper function for generating anchors
-        '''
+        """
         if self.image_center == im_c and self.size == size:
             return False
         self.image_center = im_c
@@ -364,13 +368,13 @@ class Anchors:
 
 class AnchorTargetLayer:
     def __init__(self):
-        '''
+        """
             self.thr_high -> Above this anchor box is positive
             self.thr_low = 0.3 -> Below this anchor box is negative
             self.negative = 16 -> Number of boxes to select
             self.rpn_batch = 16 - > Batch Size
             self.positive = 16 -> Number of boxes to select
-        '''
+        """
         self.thr_high = 0.6
         self.thr_low = 0.3
         self.negative = 16
@@ -530,15 +534,13 @@ class SiamMask(Estimator):
 
         # Declare Checkpoint
         self.checkpointer = checkpointer
-        # TODO: Move iou metric to emulate thea
-        # self.metrics = {}
-        # self.metrics["IoU"] = EvaluationMetric.create(
-        #         "IoU",num_classes = 1
-        #     )
 
         self.model.to(self.device)
 
     def build_scheduler(self, optimizer, config, epochs=50, last_epoch=-1):
+        """
+            Builds the lr scheduler according to the configfile
+        """
         warmup_epoch = config["warmup"]["epoch"]
         sc1 = Scheduler(
             optimizer,
@@ -557,6 +559,9 @@ class SiamMask(Estimator):
         return WarmupScheduler(optimizer, sc1, sc2, epochs, last_epoch)
 
     def get_opt_lrsched(self, model, config, epoch):
+        """
+            Builds optimizer using lr correspinding to epoch
+        """
         backbone_feature = model.features.param_groups(config["start_lr"])
         if len(backbone_feature) == 0:
             trainable_params = model.rpn_model.param_groups(
@@ -703,12 +708,15 @@ class SiamMask(Estimator):
                 torch.nn.utils.clip_grad_norm_(
                     model.module.mask_model.parameters(), config["clip"]["mask"]
                 )
-
-            def is_valid_number(x):
-                return not (math.isnan(x) or math.isinf(x) or x > 1e4)
-
-            if is_valid_number(loss.item()):
+            if (
+                not math.isnan(loss.item())
+                or not math.isinf(loss.item())
+                or not loss.item() > 1e4
+            ):
                 optimizer.step()
+            else:
+                logger.info("Loss corrupted! Stopping training")
+                return
 
             siammask_loss = loss.item()
 
@@ -848,6 +856,10 @@ class SiamMask(Estimator):
         logger.info("Mean Speed: {:.2f} FPS".format(np.mean(speed_list)))
 
     def track_vos(self, model, video, device, v_id):
+        """
+            Args: model, 1 single video, gpu id
+            Returns: IOU value
+        """
         image_files = video["image_files"]
         from PIL import Image
 
@@ -949,8 +961,6 @@ class SiamMask(Estimator):
                 ).astype("uint8")
                 svp = join(save_path_vid, (str(f) + ".jpg"))
                 cv2.imwrite(str(svp), output)
-                # cv2.imshow("mask", output)
-                # cv2.waitKey(1)
 
         logger.info(
             "({:d}) Video: {:12s} Time: {:02.1f}s Speed: {:3.1f}fps".format(
@@ -961,6 +971,9 @@ class SiamMask(Estimator):
         return multi_mean_iou, f * len(object_ids) / toc
 
     def generate_anchor(self, cfg, score_size):
+        """
+            Generates anchors during testing
+        """
         anchors = Anchors(cfg)
         anchor = anchors.anchors
         x1, y1, x2, y2 = anchor[:, 0], anchor[:, 1], anchor[:, 2], anchor[:, 3]
@@ -990,6 +1003,9 @@ class SiamMask(Estimator):
     def get_subwindow_tracking(
         self, im, pos, model_sz, original_sz, avg_chans, out_mode="torch"
     ):
+        """
+            Generates box around mask
+        """
         if isinstance(pos, float):
             pos = [pos, pos]
         sz = original_sz
@@ -1050,18 +1066,24 @@ class SiamMask(Estimator):
             return im_patch
 
     def siamese_init(self, im, target_pos, target_sz, model, device="cpu"):
+        """
+            Helper function to perform tracking.
+            Returns: information from one video frame to the next
+        """
         state = dict()
         state["im_h"] = im.shape[0]
         state["im_w"] = im.shape[1]
 
-        exemplar_size = 127  # input z size
-        instance_size = 255  # input x size (search region)
+        exemplar_size = 127
+        instance_size = 255
         total_stride = 8
-        # out_size = 63  # for mask
         base_size = 8
+        # Dimensions of the score map
         score_size = (
             (instance_size - exemplar_size) // total_stride + 1 + base_size
         )
+        # maximum score in the classification branch -> per-pixel sigmoid
+        # binarise the output of the mask branch at context_amount
         context_amount = 0.5
 
         net = model
@@ -1079,7 +1101,6 @@ class SiamMask(Estimator):
         z = Variable(z_crop.unsqueeze(0))
         net.template(z.to(self.device))
 
-        # if windowing == "cosine":
         window = np.outer(np.hanning(score_size), np.hanning(score_size))
 
         window = np.tile(window.flatten(), anchor_num)
@@ -1092,6 +1113,9 @@ class SiamMask(Estimator):
         return state
 
     def siamese_track(self, state, im, mask_enable=True):
+        """
+            Helper function to perform appropriate tracking
+        """
         net = state["net"]
         avg_chans = state["avg_chans"]
         window = state["window"]
@@ -1133,10 +1157,7 @@ class SiamMask(Estimator):
             ).unsqueeze(0)
         )
 
-        # if mask_enable:
         score, delta, mask = net.track_mask(x_crop.to(self.device))
-        # else:
-        #     score, delta = net.track(x_crop.to(device))
 
         delta = (
             delta.permute(1, 2, 3, 0)
@@ -1331,8 +1352,6 @@ class SiamMask(Estimator):
 class WarmupScheduler(_LRScheduler):
     def __init__(self, optimizer, warmup, normal, epochs=50, last_epoch=-1):
         # optimizer, sc1,     sc2,   epochs,    last_epoch
-        # self.start_lr = start_lr
-        # self.end_lr = end_lr
         self.epochs = epochs
 
         normal = normal.lr_spaces
@@ -1665,13 +1684,18 @@ class DepthCorr(nn.Module):
     Classes for building the Resnet - ResNet, Bottleneck
     Classes for building siamese network - ResDownS, ResDown
     Helper for loading pre-trained weights into Resnet:
+        f_lambda
         remove_prefix
         check_keys
         load_pretrain
 
 """
 # Helper functions to read the pre-trained weights to the Resnet Model
-# TODO: Clean up these functions
+
+
+"""
+    Helper function to remove the word "module"
+"""
 
 
 def f_lambda(x, prefix):
@@ -1684,7 +1708,6 @@ def f_lambda(x, prefix):
 def remove_prefix(state_dict, prefix):
     """ Model is stored with parameters share common prefix 'module.' """
     logger.info("remove prefix '{}'".format(prefix))
-    # f = lambda x: x.split(prefix, 1)[-1] if x.startswith(prefix) else x
     return {f_lambda(key, prefix): value for key, value in state_dict.items()}
 
 
@@ -1712,6 +1735,10 @@ def check_keys(model, pretrained_state_dict):
 
 
 def load_pretrain(model, pretrained_path):
+    """
+        Args : Model path
+        Loads a pre-trained resnet model to init the siamese net
+    """
     logger.info("load pretrained model from {}".format(pretrained_path))
     if not torch.cuda.is_available():
         pretrained_dict = torch.load(
@@ -1788,6 +1815,7 @@ class MultiStageFeature(nn.Module):
         return self.layers[: self.train_num]
 
     def unlock(self):
+        # Make all grads False then only set trainable ones True
         for p in self.parameters():
             p.requires_grad = False
 
@@ -2029,7 +2057,6 @@ class ResDown(MultiStageFeature):
         # features is the original Siamese network
         # -> till layer3 of resnet 50 (shared)
         self.features = resnet50(layer3=True, layer4=False)
-        # Weights for this need to be downloaded from the oxford link (TODO)
         # Initialized the Resnet by the weights
         if pretrain:
             load_pretrain(self.features, "resnet.model")
@@ -2154,6 +2181,11 @@ class SiamMask3Branch(SiamMaskBase):
         rpn_pred_cls, rpn_pred_loc = self.rpn(self.zf, search)
         pred_mask = self.mask(self.zf, search)
         return rpn_pred_cls, rpn_pred_loc, pred_mask
+
+
+"""
+    Helper classes for storing average of tracked metrics
+"""
 
 
 class Meter(object):
