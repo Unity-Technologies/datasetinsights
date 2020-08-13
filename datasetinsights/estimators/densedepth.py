@@ -3,7 +3,7 @@ import logging
 import random
 from itertools import permutations
 
-import kornia
+#import kornia
 import numpy as np
 import torch
 import torch.nn as nn

@@ -411,8 +411,8 @@ class VGGSlamCS(Estimator):
                                beta_2=config.optimizer.args.beta_2,
                                amsgrad=False)
 
-        self.model.compile(loss={'output_translation_cube': 'mse',
-                                 'output_translation_sphere': 'mse'},
+        self.model.compile(loss={'output_trans_cube': 'mse',
+                                 'output_trans_sphere': 'mse'},
                            optimizer=adam)
 
     def _image_process(self, input_img):

@@ -185,7 +185,7 @@ class VGGSlamMO(Estimator):
             config.train.dataset,
             config=config,
             split="train",
-            version='UR3_multiple_objects',
+            version='UR3_multiple_objects_simpler',
             data_root=self.data_root
         )
 
@@ -228,7 +228,7 @@ class VGGSlamMO(Estimator):
                 "Train/mse_loss cube", train_trans, epoch
             )
 
-            self.save(epoch)
+            #self.save(epoch)
 
     def evaluate(self, **kwargs):
         """Abstract method to evaluate estimators
@@ -293,7 +293,7 @@ class VGGSlamMO(Estimator):
             saved the model on gcs
         """
         epoch = "ep" + str(epoch)
-        file_name = "UR3_multi_objects_vgg_2" + epoch
+        file_name = "UR3_multi_objects_vgg_smaller" + epoch
         checkpoint_file_folder = os.path.join(self.data_root, "models/", epoch)
         # checkpoint_file_folder = "/tmp/test/"  # to save on local
         Path(checkpoint_file_folder).mkdir(parents=True, exist_ok=True)
