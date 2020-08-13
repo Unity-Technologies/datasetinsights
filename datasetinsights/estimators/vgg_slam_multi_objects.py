@@ -209,9 +209,8 @@ class VGGSlamMO(Estimator):
                                  {"output_trans" : y_val})
             )
 
-            train_trans = history.history['output_trans_loss'][-1]
-
-            val_trans = history.history['val_output_trans_loss'][-1]
+            train_trans = history.history['loss'][-1]
+            val_trans = history.history['val_loss'][-1]
 
             if epoch > 0:
                 self._evaluate_one_epoch(X_val, y_val, epoch, n_epochs)

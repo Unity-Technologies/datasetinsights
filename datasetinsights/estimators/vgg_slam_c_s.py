@@ -289,16 +289,16 @@ class VGGSlamCS(Estimator):
             )
 
             writer.add_scalar(
-                "Validation/mse_loss cube", val_trans_cube, epoch
+                "Validation/mse_loss_cube", val_trans_cube, epoch
             )
             writer.add_scalar(
-                "Validation/mse_loss sphere", val_trans_sphere, epoch
+                "Validation/mse_loss_sphere", val_trans_sphere, epoch
             )
             writer.add_scalar(
-                "Train/mse_loss cube", train_trans_cube, epoch
+                "Train/mse_loss_cube", train_trans_cube, epoch
             )
             writer.add_scalar(
-                "Train/mse_loss sphere", train_trans_sphere, epoch
+                "Train/mse_loss_sphere", train_trans_sphere, epoch
             )
 
             self.save(epoch)
