@@ -614,11 +614,7 @@ class CocoTracking(Dataset):
             self.labels = self.filter_zero(json.load(fin), self.dset, cfg)
 
             def isint(x):
-                try:
-                    int(x)
-                    return True
-                except:
-                    return False
+                return isinstance(x, int)
 
             # add frames args into labels
             to_del = []
