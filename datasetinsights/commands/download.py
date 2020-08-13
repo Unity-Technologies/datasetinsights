@@ -4,7 +4,7 @@ import re
 import click
 
 import datasetinsights.constants as const
-from datasetinsights.datasets.base import DownloaderRegistry
+from datasetinsights.io.source.base import DownloaderRegistry
 
 logger = logging.getLogger(__name__)
 

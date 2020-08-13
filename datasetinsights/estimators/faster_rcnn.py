@@ -13,9 +13,9 @@ import torchvision
 from codetiming import Timer
 
 import datasetinsights.constants as const
-from datasetinsights.datasets.base import DownloaderRegistry
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
 from datasetinsights.io.bbox import BBox2D
+from datasetinsights.io.source.base import DownloaderRegistry
 from datasetinsights.io.transforms import Compose
 from datasetinsights.torch_distributed import get_world_size
 

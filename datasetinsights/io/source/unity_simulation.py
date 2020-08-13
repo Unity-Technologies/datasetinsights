@@ -3,7 +3,7 @@ import os
 import re
 from pathlib import Path
 
-from datasetinsights.datasets.base import DatasetDownloader
+from datasetinsights.io.source.base import DatasetDownloader
 from datasetinsights.io.usim import Downloader, download_manifest
 
 logger = logging.getLogger(__name__)

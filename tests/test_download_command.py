@@ -5,8 +5,8 @@ from click.exceptions import BadParameter
 from click.testing import CliRunner
 
 from datasetinsights.commands.download import SourceURI, cli
-from datasetinsights.datasets.base import DownloaderRegistry
-from datasetinsights.datasets.unity_simulation import UnitySimulationDownloader
+from datasetinsights.io.source.base import DownloaderRegistry
+from datasetinsights.io.source.unity_simulation import UnitySimulationDownloader
 
 
 def test_source_uri_validation():
