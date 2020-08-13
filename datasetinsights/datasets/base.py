@@ -20,6 +20,8 @@ class DownloaderRegistry(ABCMeta):
     def find(cls, source_uri):
         match = re.compile("(gs://|^https://|^http://|^usim://)")
         source_schema = match.findall(source_uri)[0]
+        if source_schema.startswith(("https://", "http://")):
+            source_schema = "http://"
         dataset_cls = DownloaderRegistry.registry.get(source_schema)
         if dataset_cls:
             return dataset_cls
