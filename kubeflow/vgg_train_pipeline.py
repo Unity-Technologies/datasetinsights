@@ -43,7 +43,7 @@ def train_pipeline(
             "-m",
             "datasetinsights.cli",
             "train",
-            "--config=datasetinsights/configs/vgg_slam.yaml",
+            "--config=datasetinsights/configs/vgg_slam_c_s.yaml",
             f"--logdir={logdir}",
             "train.epochs",
             epochs,

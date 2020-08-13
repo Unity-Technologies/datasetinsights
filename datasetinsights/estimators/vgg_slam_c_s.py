@@ -46,6 +46,9 @@ def vgg_slam_translation_cube(inputs):
     x = layers.Dense(256, activation='relu')(x)
     x = layers.Dense(64, activation='relu')(x)
 
+    for layer in model.layers:
+        layer._name = layer.name + str("_trans_cube")
+
     # prediction of the coordinates of the cube's center
     predictions_translation = layers.Dense(3, activation="linear",
                                            name='output_trans_cube')(x)
@@ -63,8 +66,7 @@ def vgg_slam_translation_sphere(inputs):
         the model not compiled
     """
     model = VGG16(weights='imagenet', input_tensor=inputs)
-    for layer in model.layers:
-        layer._name = layer.name + str("_trans_sphere")
+
     # remove the last 3 layers
     model._layers.pop()
     model._layers.pop()
@@ -75,6 +77,9 @@ def vgg_slam_translation_sphere(inputs):
     # add two dense layers
     x = layers.Dense(256, activation='relu')(x)
     x = layers.Dense(64, activation='relu')(x)
+
+    for layer in model.layers:
+        layer._name = layer.name + str("_trans_sphere")
 
     # prediction of the coordinates of the cube's center
     predictions_translation = layers.Dense(3, activation="linear",
@@ -287,7 +292,6 @@ class VGGSlamCS(Estimator):
                 f"Validation Loss mse: {val_trans_cube:.3f}\n"
                 f"Validation Loss mse sphere: {val_trans_sphere:.3f}\n"
             )
-
             writer.add_scalar(
                 "Validation/mse_loss_cube", val_trans_cube, epoch
             )
@@ -300,7 +304,6 @@ class VGGSlamCS(Estimator):
             writer.add_scalar(
                 "Train/mse_loss_sphere", train_trans_sphere, epoch
             )
-
             self.save(epoch)
 
     def evaluate(self, **kwargs):
@@ -389,7 +392,7 @@ class VGGSlamCS(Estimator):
         # checkpoint_file_folder = "/tmp/test/"  # to save on local
         Path(checkpoint_file_folder).mkdir(parents=True, exist_ok=True)
         checkpoint_file_path = checkpoint_file_folder + "/" + file_name + ".h5"
-        self.model.save(checkpoint_file_path)
+        self.model.save(checkpoint_file_path, include_optimizer=False)
         copy_folder_to_gcs(GCS_PATH_MODELS, checkpoint_file_folder)
 
     def load(self, path):
