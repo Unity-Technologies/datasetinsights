@@ -3,7 +3,6 @@ import os
 import re
 from pathlib import Path
 
-import datasetinsights.constants as const
 from datasetinsights.datasets.base import DatasetDownloader
 from datasetinsights.io.usim import Downloader, download_manifest
 
@@ -14,23 +13,22 @@ class UnitySimulationDownloader(DatasetDownloader):
 
     SOURCE_SCHEMA = "usim://"
 
-    def download(self, source_uri, output, include_binary):
-        (
-            auth_token,
-            project_id,
-            run_execution_id,
-        ) = self._parse_source_uri_to_usim(source_uri=source_uri)
+    def __init__(self, access_token=None):
+        self.access_token = access_token
+        self.run_execution_id = None
+        self.project_id = None
 
+    def download(self, source_uri, output, include_binary):
+
+        self.parse_source_uri(source_uri)
         # use_cache = not args.no_cache
-        manifest_file = os.path.join(
-            output, const.SYNTHETIC_SUBFOLDER, f"{run_execution_id}.csv"
-        )
-        if auth_token:
+        manifest_file = os.path.join(output, f"{self.run_execution_id}.csv")
+        if self.access_token:
             manifest_file = download_manifest(
-                run_execution_id,
+                self.run_execution_id,
                 manifest_file,
-                auth_token,
-                project_id=project_id,
+                self.access_token,
+                project_id=self.project_id,
             )
         else:
             logger.info(
@@ -39,15 +37,59 @@ class UnitySimulationDownloader(DatasetDownloader):
             )
 
         subfolder = Path(manifest_file).stem
-        root = os.path.join(output, const.SYNTHETIC_SUBFOLDER, subfolder)
-        dl_worker = Downloader(manifest_file, root)
+        output_directory = os.path.join(output, subfolder)
+        dl_worker = Downloader(manifest_file, output_directory)
         dl_worker.download_references()
         dl_worker.download_metrics()
         dl_worker.download_captures()
         if include_binary:
             dl_worker.download_binary_files()
 
-    def _parse_source_uri_to_usim(self, source_uri):
+    def parse_source_uri(self, source_uri):
+        if self.access_token:
+            self._parse_with_no_access_token(source_uri)
+            if not self.project_id and not self.run_execution_id:
+                self._parse_potential_overridden_access_token(source_uri)
+        else:
+            self._parse_source_uri(source_uri)
+
+        if (
+            not self.access_token
+            and not self.project_id
+            and not self.run_execution_id
+        ):
+            raise ValueError(
+                f"{source_uri} needs to be in format"
+                f" usim://access_token@project_id/run_execution_id"
+            )
+
+    def _parse_with_no_access_token(self, source_uri):
+        match = re.compile(r"usim://(\w+-\w+-\w+-\w+-\w+)/(\w+)")
+        result = match.findall(source_uri)
+        if result:
+            self.project_id, self.run_execution_id = result[0]
+
+    def _parse_potential_overridden_access_token(self, source_uri):
+        match = re.compile(r"usim://\w+@(\w+-\w+-\w+-\w+-\w+)/(\w+)")
+        result = match.findall(source_uri)
+        if result:
+            self.project_id, self.run_execution_id = result[0]
+        else:
+            raise ValueError(
+                f"{source_uri} needs to be in format"
+                f" usim://access_token@project_id/run_execution_id"
+            )
+
+    def _parse_source_uri(self, source_uri):
         match = re.compile(r"usim://(\w+)@(\w+-\w+-\w+-\w+-\w+)/(\w+)")
-        auth_token, project_id, run_execution_id = match.findall(source_uri)[0]
-        return auth_token, project_id, run_execution_id
+        if match.findall(source_uri):
+            (
+                self.access_token,
+                self.project_id,
+                self.run_execution_id,
+            ) = match.findall(source_uri)[0]
+        else:
+            raise ValueError(
+                f"{source_uri} needs to be in format"
+                f" usim://access_token@project_id/run_execution_id"
+            )

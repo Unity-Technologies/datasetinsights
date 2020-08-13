@@ -73,12 +73,14 @@ class SourceURI(click.ParamType):
         "binary files."
     ),
 )
+@click.option("--access-token", type=str, default=None)
 def cli(
-    source_uri, output, include_binary,
+    source_uri, output, include_binary, access_token,
 ):
     ctx = click.get_current_context()
     logger.debug(f"Called download command with parameters: {ctx.params}")
-    downloader = DownloaderRegistry.find(source_uri)
+
+    downloader = DownloaderRegistry.find(source_uri)(access_token=access_token)
     downloader.download(
         source_uri=source_uri, output=output, include_binary=include_binary
     )

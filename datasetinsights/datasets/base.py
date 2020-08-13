@@ -1,3 +1,4 @@
+import re
 from abc import ABCMeta, abstractmethod
 
 
@@ -16,14 +17,14 @@ class DownloaderRegistry(ABCMeta):
         return new_cls
 
     @classmethod
-    def find(cls, source_uri_schema):
-        dataset_cls = DownloaderRegistry.registry.get(source_uri_schema)
+    def find(cls, source_uri):
+        match = re.compile("(gs://|^https://|^http://|^usim://)")
+        source_schema = match.findall(source_uri)[0]
+        dataset_cls = DownloaderRegistry.registry.get(source_schema)
         if dataset_cls:
-            return dataset_cls()
+            return dataset_cls
         else:
-            raise ValueError(
-                f"Downloader '{source_uri_schema}' does not exist:"
-            )
+            raise ValueError(f"Downloader '{source_schema}' does not exist:")
 
     @staticmethod
     def list_datasets():
