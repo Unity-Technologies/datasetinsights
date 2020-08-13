@@ -1,17 +1,14 @@
 import glob
-import json
 import logging
 import math
 import random
 import time
-import zipfile
-from os.path import isdir, join
+from os.path import join
 from pathlib import Path
 
 import cv2
 import numpy as np
 import torch
-import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as FF
 from torch.autograd import Variable
@@ -20,7 +17,14 @@ from torch.optim.lr_scheduler import _LRScheduler
 from datasetinsights.datasets import Dataset
 from datasetinsights.io.bbox import BBox2D
 from datasetinsights.io.loader import create_loader
-from datasetinsights.io.transforms import *
+from datasetinsights.io.transforms import (
+    CenterCrop,
+    ScaleBBox,
+    ShiftBBox,
+    GrayImage,
+    BlurImage,
+)
+# from datasetinsights.evaluation_metrics.base import EvaluationMetric
 
 from .base import Estimator
 
@@ -160,7 +164,7 @@ def get_transforms(center_crop, blur, gray, shift, scale, resize, flip):
     # shift
     # Any order below this
     # grayscale
-    # blur 
+    # blur
     # resize - not tested
     # flip - not tested
     """
@@ -362,7 +366,6 @@ class AnchorTargetLayer:
         self.rpn_batch = 64
         self.positive = 16
 
-
     def __call__(self, anchor, target, size, neg=False, need_iou=False):
         anchor_num = anchor.anchors.shape[0]
 
@@ -381,10 +384,10 @@ class AnchorTargetLayer:
             return tuple(p[slt] for p in position), keep_num
 
         if neg:
-            l = size // 2 - 3
+            left = size // 2 - 3
             r = size // 2 + 3 + 1
 
-            cls[:, l:r, l:r] = 0
+            cls[:, left:r, left:r] = 0
 
             neg, neg_num = select(np.where(cls == 0), self.negative)
             cls[:] = -1
@@ -449,8 +452,11 @@ class AnchorTargetLayer:
             [x1, y1, x2, y2],
             [target.x, target.y, target.x + target.w, target.y + target.h],
         )
-        # Canonical BBox class does not support multiple IoUs together, so using the IoU from authors
-        # overlap = anyform2canonicalBBox([x1,y1,x2,y2],rep_type = "corner").iou(anyform2canonicalBBox(target,rep_type = "corner"))
+        # Canonical BBox class does not support multiple IoUs together,
+        # so using the IoU from authors
+        # overlap = anyform2canonicalBBox([x1,y1,x2,y2],
+        # rep_type = "corner").iou(anyform2canonicalBBox
+        # (target,rep_type = "corner"))
         # print("Overlap: ",overlap)
 
         pos = np.where(overlap > self.thr_high)
@@ -517,6 +523,11 @@ class SiamMask(Estimator):
 
         # Declare Checkpoint
         self.checkpointer = checkpointer
+        # TODO: Move iou metric to emulate thea
+        # self.metrics = {}
+        # self.metrics["IoU"] = EvaluationMetric.create(
+        #         "IoU",num_classes = 1
+        #     )
 
         self.model.to(self.device)
 
@@ -589,7 +600,7 @@ class SiamMask(Estimator):
         )
 
         cur_lr = lr_scheduler.get_cur_lr()
-       
+
         for iter, input in enumerate(train_loader):
             # If epoch and iterations seem out of order, restart from 0
             if epoch != (iter // batches_per_epoch):
@@ -718,9 +729,15 @@ class SiamMask(Estimator):
 
             if (iter + 1) % 1 == 0:
                 logger.info(
-                    "Epoch: [{0}][{1}/{2}] lr: {lr:.6f}\t{batch_time:s}\t{data_time:s}"
-                    "\t{rpn_cls_loss:s}\t{rpn_loc_loss:s}\t{rpn_mask_loss:s}\t{siammask_loss:s}"
-                    "\t{mask_iou_mean:s}\t{mask_iou_at_5:s}\t{mask_iou_at_7:s}".format(
+                    "Epoch: [{0}][{1}/{2}] \
+                    lr: {lr:.6f}\t{batch_time:s}\t{data_time:s}"
+                    "\t{rpn_cls_loss:s}\
+                    \t{rpn_loc_loss:s}\
+                    \t{rpn_mask_loss:s}\
+                    \t{siammask_loss:s}"
+                    "\t{mask_iou_mean:s}\
+                    \t{mask_iou_at_5:s}\
+                    \t{mask_iou_at_7:s}".format(
                         epoch + 1,
                         (iter + 1) % batches_per_epoch,
                         batches_per_epoch,
