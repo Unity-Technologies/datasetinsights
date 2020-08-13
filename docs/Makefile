@@ -15,7 +15,7 @@ clean:
 	find $(SOURCEDIR) -name "*.rst" | grep -v index | xargs rm -f
 
 apidoc:
-	sphinx-apidoc -f --templatedir=$(TEMPLATEDIR) -o $(SOURCEDIR) ../datasetinsights/ ../datasetinsights/visualization ../datasetinsights/dashboard.py ../datasetinsights/data/datasets/protos
+	sphinx-apidoc -f --templatedir=$(TEMPLATEDIR) -o $(SOURCEDIR) ../datasetinsights/ ../datasetinsights/ststs/visualization ../datasetinsights/dashboard.py ../datasetinsights/datasets/protos
 html: apidoc
 	sphinx-build -b html $(SOURCEDIR) $(BUILDDIR)/html
 	@echo
