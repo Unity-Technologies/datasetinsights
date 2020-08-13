@@ -13,7 +13,7 @@ import datasetinsights.constants as const
 from datasetinsights.io.bbox import BBox2D
 from datasetinsights.io.download import download_file, validate_checksum
 from datasetinsights.io.exceptions import ChecksumError, DownloadError
-from datasetinsights.storage.gcs import download_file_from_gcs
+from datasetinsights.io.gcs import download_file_from_gcs
 
 from .base import Dataset
 from .exceptions import DatasetNotFoundError

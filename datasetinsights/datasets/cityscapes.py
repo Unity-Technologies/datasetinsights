@@ -5,7 +5,7 @@ from pathlib import Path
 from torchvision import datasets
 
 import datasetinsights.constants as const
-from datasetinsights.storage.gcs import GCSClient
+from datasetinsights.io.gcs import GCSClient
 
 from .base import Dataset
 

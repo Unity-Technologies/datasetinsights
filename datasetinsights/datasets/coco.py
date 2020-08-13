@@ -10,7 +10,7 @@ from PIL.Image import Image
 
 import datasetinsights.constants as const
 from datasetinsights.io.bbox import BBox2D
-from datasetinsights.storage.gcs import GCSClient
+from datasetinsights.io.gcs import GCSClient
 
 from .base import Dataset
 
