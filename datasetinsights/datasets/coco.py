@@ -189,9 +189,9 @@ class CocoTracking(Dataset):
         logger = logging.getLogger("global")
 
         self.split = "train"
-        self.download()
-        self.crop()
-        self.generate_json_coco()
+        # self.download()
+        # self.crop()
+        # self.generate_json_coco()
         # All these hard-coded rignt now.
         # TODO: Move these to config files
         self.anchors = anchors
@@ -614,7 +614,11 @@ class CocoTracking(Dataset):
             self.labels = self.filter_zero(json.load(fin), self.dset, cfg)
 
             def isint(x):
-                return isinstance(x, int)
+                try:
+                    int(x)
+                    return True
+                except ValueError:
+                    return False
 
             # add frames args into labels
             to_del = []
