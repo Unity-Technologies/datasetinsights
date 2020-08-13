@@ -27,14 +27,14 @@ from datasetinsights.io.transforms import (
 
 from .base import Estimator
 
-# from datasetinsights.evaluation_metrics.base import EvaluationMetric
-
 
 logger = logging.getLogger(__name__)
 
 
 def corner2center(corner):
     """
+    Converts a corner representation to center representation
+    x1,y1,x2,y2 -> cx,cy,w,h 
     :param corner: Corner or np.array 4*N
     :return: Center or 4 np.array N
     """
@@ -48,6 +48,8 @@ def corner2center(corner):
 
 def center2corner(center):
     """
+    Converts a corner representation to center representation
+    cx,cy,w,h -> x1,y1,x2,y2 
     :param center: Center or np.array 4*N
     :return: Corner or np.array 4*N
     """
@@ -181,10 +183,6 @@ def get_transforms(center_crop, blur, gray, shift, scale, resize, flip):
         transforms.append(GrayImage(p=gray[1]))
     if blur[0]:
         transforms.append(BlurImage(p=blur[1]))
-    # if resize[0]:
-    #     transforms.append(Resize())
-    # if flip[0]:
-    #     transforms.append(Flip())
 
     return SiamMaskCompose(transforms)
 
@@ -192,6 +190,8 @@ def get_transforms(center_crop, blur, gray, shift, scale, resize, flip):
 class SiamMaskCompose:
     def __init__(self, transforms):
         self.transforms = transforms
+        # This is a number to calculate offset
+        # Offset improves training performance
         self.rgbVar = np.array(
             [
                 [-0.55919361, 0.98062831, -0.41940627],
@@ -209,14 +209,6 @@ class SiamMaskCompose:
 
         # For debugging - actual bbox of object
         bbox_orig = toBBox(image, annotations)
-        # Debugging: Should output correct labels
-        # draw(image, bbox_orig,"")
-
-        # # Center cropping image - buggy
-        # [TODO: Once you center crop, bbox will change - calculations]
-        # image,_ = self.transforms[0]((image,size))
-        # if not mask is None:
-        #     mask, _ = self.transforms[0]((mask,size))
 
         # Storing shape before it changes
         shape = image.shape
@@ -278,6 +270,10 @@ class SiamMaskCompose:
 
 class Anchors:
     def __init__(self, cfg):
+        '''
+            Args: config file
+            Initializes the anchor box specs
+        '''
         self.stride = 8
         self.ratios = [0.33, 0.5, 1, 2, 3]
         self.scales = [8]
@@ -296,6 +292,9 @@ class Anchors:
         self.generate_anchors()
 
     def generate_anchors(self):
+        '''
+            Generates the anchor boxes with spec in config file
+        '''
         self.anchors = np.zeros((self.anchor_num, 4), dtype=np.float32)
 
         size = self.stride * self.stride
@@ -326,6 +325,9 @@ class Anchors:
                     count += 1
 
     def generate_all_anchors(self, im_c, size):
+        '''
+            Helper function for generating anchors
+        '''
         if self.image_center == im_c and self.size == size:
             return False
         self.image_center = im_c
@@ -362,10 +364,17 @@ class Anchors:
 
 class AnchorTargetLayer:
     def __init__(self):
+        '''
+            self.thr_high -> Above this anchor box is positive
+            self.thr_low = 0.3 -> Below this anchor box is negative
+            self.negative = 16 -> Number of boxes to select
+            self.rpn_batch = 16 - > Batch Size
+            self.positive = 16 -> Number of boxes to select
+        '''
         self.thr_high = 0.6
         self.thr_low = 0.3
         self.negative = 16
-        self.rpn_batch = 64
+        self.rpn_batch = 16
         self.positive = 16
 
     def __call__(self, anchor, target, size, neg=False, need_iou=False):
@@ -376,6 +385,7 @@ class AnchorTargetLayer:
         delta = np.zeros((4, anchor_num, size, size), dtype=np.float32)
         delta_weight = np.zeros((anchor_num, size, size), dtype=np.float32)
 
+        # Function to randomly select the number of +ve/-ve boxes
         def select(position, keep_num=16):
             num = position[0].shape[0]
             if num <= keep_num:
@@ -401,8 +411,6 @@ class AnchorTargetLayer:
                 overlap = np.zeros((anchor_num, size, size), dtype=np.float32)
                 return cls, delta, delta_weight, overlap
 
-        # x1, y1, w, h = target.x, target.y, target.w, target.h
-        # target = [x1,y1,x1+w,y1+h]
         tcx, tcy, tw, th = corner2center(
             [target.x, target.y, target.x + target.w, target.y + target.h]
         )
@@ -463,9 +471,6 @@ class AnchorTargetLayer:
 
         pos = np.where(overlap > self.thr_high)
         neg = np.where(overlap < self.thr_low)
-
-        # print("POSITIVE:" ,pos)
-        # exit(0)
 
         pos, pos_num = select(pos, self.positive)
         neg, neg_num = select(neg, self.rpn_batch - pos_num)
@@ -2206,7 +2211,6 @@ class AverageMeter(object):
         if attr in self.__dict__:
             return super(AverageMeter, self).__getattr__(attr)
         if attr not in self.sum:
-            # logger.warn("invalid key '{}'".format(attr))
             print("invalid key '{}'".format(attr))
             return Meter(attr, 0, 0)
         return Meter(attr, self.val[attr], self.avg(attr))
