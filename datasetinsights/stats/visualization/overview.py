@@ -1,3 +1,5 @@
+import json
+
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
@@ -113,6 +115,7 @@ def html_overview(data_root):
     overview_layout = html.Div(
         [
             html.Div(id="overview"),
+            dcc.Markdown(""" ## Total Object Count:  """),
             dcc.Graph(id="total_count", figure=total_counts_fig,),
             html.Div(
                 [
@@ -160,9 +163,12 @@ def html_overview(data_root):
 
 @app.callback(
     Output("pixels_visible_filter_graph", "figure"),
-    [Input("pixels_visible_filter", "value")],
+    [
+        Input("pixels_visible_filter", "value"),
+        Input("intermediate-value", "children"),
+    ],
 )
-def update_visible_pixels_figure(label_value):
+def update_visible_pixels_figure(label_value, json_data_root):
     """ Method for generating pixels visible histogram for selected object.
     Args:
         label_value (str): value selected by user using drop-down
@@ -170,7 +176,7 @@ def update_visible_pixels_figure(label_value):
         plotly.graph_objects.Figure: displays visible pixels distribution.
     """
     roinfo = stat.RenderedObjectInfo(
-        data_root=app.data_root,
+        data_root=json.loads(json_data_root),
         def_id=constants.RENDERED_OBJECT_INFO_DEFINITION_ID,
     )
     filtered_roinfo = roinfo.raw_table[
@@ -189,9 +195,12 @@ def update_visible_pixels_figure(label_value):
 
 @app.callback(
     Output("per_object_count_filter_graph", "figure"),
-    [Input("object_count_filter", "value")],
+    [
+        Input("object_count_filter", "value"),
+        Input("intermediate-value", "children"),
+    ],
 )
-def update_object_counts_capture_figure(label_value):
+def update_object_counts_capture_figure(label_value, json_data_root):
     """ Method for generating object count per capture histogram for selected
         object.
     Args:
@@ -200,7 +209,7 @@ def update_object_counts_capture_figure(label_value):
         plotly.graph_objects.Figure: displays object count distribution.
     """
     roinfo = stat.RenderedObjectInfo(
-        data_root=app.data_root,
+        data_root=json.loads(json_data_root),
         def_id=constants.RENDERED_OBJECT_INFO_DEFINITION_ID,
     )
     filtered_object_count = roinfo.raw_table[

@@ -1,23 +1,23 @@
 import argparse
+import json
 import os
 
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
-import datasetinsights.visualization.overview as overview
-from datasetinsights.visualization.app import get_app
-from datasetinsights.visualization.object_detection import (
+import datasetinsights.stats.visualization.overview as overview
+from datasetinsights.stats.visualization.app import get_app
+from datasetinsights.stats.visualization.object_detection import (
     render_object_detection_layout,
 )
 
 app = get_app()
 
 
-def main_layout(data_root):
+def main_layout():
     """ Method for generating main app layout.
-    Args:
-        data_root(str): path to the dataset.
+
     Returns:
         html layout: main layout design with tabs for overview statistics
             and object detection.
@@ -50,6 +50,8 @@ def main_layout(data_root):
                     html.Div(id="main_page_tabs"),
                 ]
             ),
+            dcc.Dropdown(id="dropdown"),
+            html.Div(id="intermediate-value", style={"display": "none"}),
         ]
     )
     return app_layout
@@ -58,11 +60,19 @@ def main_layout(data_root):
 @app.callback(
     Output("main_page_tabs", "children"), [Input("page_tabs", "value")]
 )
-def render_content(tab):
-    if tab == "dataset_overview":
-        return overview.html_overview(app.data_root)
-    elif tab == "object_detection":
-        return render_object_detection_layout(app.data_root)
+def render_content(value):
+    if value == "dataset_overview":
+        return overview.html_overview(data_root)
+    elif value == "object_detection":
+        return render_object_detection_layout(data_root)
+
+
+@app.callback(
+    Output("intermediate-value", "children"), [Input("dropdown", "value")]
+)
+def clean_data(value):
+    json_data_root = json.dumps(data_root)
+    return json_data_root
 
 
 def check_path(path):
@@ -76,6 +86,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-root", help="Path to the data root")
     args = parser.parse_args()
-    app.data_root = check_path(args.data_root)
-    app.layout = main_layout(app.data_root)
+    data_root = check_path(args.data_root)
+    app.layout = main_layout()
     app.run_server(debug=True)
