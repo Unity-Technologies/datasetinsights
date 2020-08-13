@@ -6,4 +6,10 @@ from .visualization.plots import (
     rotation_plot,
 )
 
-__all__ = [bar_plot, grid_plot, histogram_plot, plot_bboxes, rotation_plot]
+__all__ = [
+    "bar_plot",
+    "grid_plot",
+    "histogram_plot",
+    "plot_bboxes",
+    "rotation_plot",
+]
