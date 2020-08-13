@@ -468,11 +468,6 @@ class AnchorTargetLayer:
         )
         # Canonical BBox class does not support multiple IoUs together,
         # so using the IoU from authors
-        # overlap = anyform2canonicalBBox([x1,y1,x2,y2],
-        # rep_type = "corner").iou(anyform2canonicalBBox
-        # (target,rep_type = "corner"))
-        # print("Overlap: ",overlap)
-
         pos = np.where(overlap > self.thr_high)
         neg = np.where(overlap < self.thr_low)
 
@@ -791,10 +786,6 @@ class SiamMask(Estimator):
             train_dataset, batch_size=self.config["train"]["batch_size"]
         )
         # TODO: create val dataloader
-        # val_dataset = SiamDataset(config["val"])
-        # val_dataset.split = "val"
-        # val_dataset.create(config["val"])
-        # val_loader = create_loader(val_dataset)
         val_loader = None
         logger.info(f"Dataloaders created!")
 
