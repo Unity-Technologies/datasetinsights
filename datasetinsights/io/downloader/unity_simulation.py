@@ -3,15 +3,21 @@ import os
 import re
 from pathlib import Path
 
-from datasetinsights.io.source.base import DatasetDownloader
+from datasetinsights.io.downloader.base import DatasetDownloader
 from datasetinsights.io.usim import Downloader, download_manifest
 
 logger = logging.getLogger(__name__)
 
 
 class UnitySimulationDownloader(DatasetDownloader):
+    """ Downloads unity simulation datasets
+        Args:
+        access_token: "Access token to be used to authenticate to
+         unity simulation for downloading the dataset"
 
-    PROTOCAL = "usim://"
+    """
+
+    PROTOCOL = "usim://"
 
     def __init__(self, access_token=None):
         self.access_token = access_token
@@ -19,7 +25,22 @@ class UnitySimulationDownloader(DatasetDownloader):
         self.project_id = None
 
     def download(self, source_uri, output, include_binary):
+        """
 
+        Args:
+            source_uri: This is the downloader-uri that indicates where on
+             unity simulation the dataset should be downloaded from.
+
+            output: This is the path to the directory
+            where the download will store the dataset.
+
+            include_binary: Whether to download binary files
+             such as images or LIDAR point
+            clouds. This flag applies to Datasets where metadata
+            (e.g. annotation json, dataset catalog, ...) can be separated from
+            binary files.
+
+        """
         self.parse_source_uri(source_uri)
         # use_cache = not args.no_cache
         manifest_file = os.path.join(output, f"{self.run_execution_id}.csv")

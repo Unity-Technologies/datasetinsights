@@ -4,7 +4,7 @@ import re
 import click
 
 import datasetinsights.constants as const
-from datasetinsights.io.source.base import DownloaderRegistry
+from datasetinsights.io.downloader.base import DownloaderRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +73,13 @@ class SourceURI(click.ParamType):
         "binary files."
     ),
 )
-@click.option("--access-token", type=str, default=None)
+@click.option(
+    "--access-token",
+    type=str,
+    default=None,
+    help="Access-token to be used to authenticate"
+    " to unity simulation for downloading the dataset",
+)
 def cli(
     source_uri, output, include_binary, access_token,
 ):

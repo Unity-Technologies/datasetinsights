@@ -3,28 +3,33 @@ from abc import ABCMeta, abstractmethod
 
 
 class DownloaderRegistry(ABCMeta):
+    """ This class registers DatasetDownloader
+        subclasses based on the PROTOCOL attribute
+
+    """
+
     registry = {}
 
     def __new__(cls, name, bases, namespace):
-        protocal = "PROTOCAL"
-        if protocal not in namespace:
-            raise RuntimeError(f"{name} must define a class-level {protocal}")
+        protocol = "PROTOCOL"
+        if protocol not in namespace:
+            raise RuntimeError(f"{name} must define a class-level {protocol}")
         new_cls = super().__new__(cls, name, bases, namespace)
-        if namespace[protocal] != "":
-            DownloaderRegistry.registry[namespace[protocal]] = new_cls
+        if namespace[protocol] != "":
+            DownloaderRegistry.registry[namespace[protocol]] = new_cls
         return new_cls
 
     @classmethod
     def find(cls, source_uri):
         match = re.compile("(gs://|^https://|^http://|^usim://)")
-        protocal = match.findall(source_uri)[0]
-        if protocal.startswith(("https://", "http://")):
-            protocal = "http://"
-        dataset_cls = DownloaderRegistry.registry.get(protocal)
+        protocol = match.findall(source_uri)[0]
+        if protocol.startswith(("https://", "http://")):
+            protocol = "http://"
+        dataset_cls = DownloaderRegistry.registry.get(protocol)
         if dataset_cls:
             return dataset_cls
         else:
-            raise ValueError(f"Downloader '{protocal}' does not exist:")
+            raise ValueError(f"Downloader '{protocol}' does not exist:")
 
     @staticmethod
     def list_datasets():
@@ -32,7 +37,7 @@ class DownloaderRegistry(ABCMeta):
 
 
 class DatasetDownloader(metaclass=DownloaderRegistry):
-    PROTOCAL = ""
+    PROTOCOL = ""
 
     @abstractmethod
     def download(self, **kwargs):

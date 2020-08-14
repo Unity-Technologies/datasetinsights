@@ -1,4 +1,6 @@
-from datasetinsights.io.source.unity_simulation import UnitySimulationDownloader
+from datasetinsights.io.downloader.unity_simulation import (
+    UnitySimulationDownloader,
+)
 
 from .base import Dataset
 from .cityscapes import Cityscapes
