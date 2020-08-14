@@ -1,5 +1,4 @@
 import os
-import shutil
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
@@ -22,13 +21,12 @@ def test_syn_detection_2d(mock_data):
     parent_dir = Path(__file__).parent.parent.absolute()
     mock_data_dir = str(parent_dir / "mock_data" / "simrun")
 
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        syn_det_2d = SynDetection2D(data_path=mock_data_dir)
+    syn_det_2d = SynDetection2D(data_path=mock_data_dir)
 
-        # From mock data, only one of the capture has 2D bounding box
-        # annotations.
-        assert len(syn_det_2d) == 1
-        assert len(syn_det_2d[0]) == 2
+    # From mock data, only one of the capture has 2D bounding box
+    # annotations.
+    assert len(syn_det_2d) == 1
+    assert len(syn_det_2d[0]) == 2
 
 
 def test_read_bounding_box_2d():

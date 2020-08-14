@@ -57,9 +57,7 @@ def test_groceriesreal_download(
     ].checksum
     with tempfile.TemporaryDirectory() as tmp_dir:
         extract_folder = tmp_dir
-        dest_path = os.path.join(
-            tmp_dir, f"{version}.zip"
-        )
+        dest_path = os.path.join(tmp_dir, f"{version}.zip")
         mocked_exists.return_value = True
         GroceriesReal.download(tmp_dir, version)
         mocked_validate.assert_called_with(dest_path, expected_checksum)
@@ -87,9 +85,7 @@ def test_groceriesreal_download_raises(
     bad_version = "v_bad"
     source_uri = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[version].source_uri
     with tempfile.TemporaryDirectory() as tmp_dir:
-        dest_path = os.path.join(
-            tmp_dir, f"{version}.zip"
-        )
+        dest_path = os.path.join(tmp_dir, f"{version}.zip")
         extract_folder = tmp_dir
         with pytest.raises(ValueError):
             GroceriesReal.download(tmp_dir, bad_version)
