@@ -3,8 +3,6 @@ import json
 
 import pytest
 
-from pathlib import Path
-
 from datasetinsights.datasets.unity_perception import Captures
 from datasetinsights.datasets.unity_perception.exceptions import (
     DefinitionIDError,
