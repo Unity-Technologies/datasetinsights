@@ -44,7 +44,7 @@ pandas = "^1.0.1"
 tqdm = "^4.45.0"
 dask = {extras = ["complete"], version = "^2.14.0"}
 dash = "1.12.0"
-tensorflow = "^2.2.0"
+tensorflow = "^2.3.0"
 click = "^7.1.2"
 
 [tool.poetry.dev-dependencies]

@@ -228,7 +228,7 @@ class VGGSlamMO(Estimator):
                 "Train/mse_loss cube", train_trans, epoch
             )
 
-            self.save(epoch)
+            #self.save(epoch)
 
     def evaluate(self, **kwargs):
         """Abstract method to evaluate estimators
@@ -261,7 +261,7 @@ class VGGSlamMO(Estimator):
         y_val = []
 
         root_dir = self.uncompress_data_root
-        files = glob.glob(os.path.join(root_dir, "*.png"))  # your image path
+        files = glob.glob(os.path.join(root_dir, "*.png"))[:10]  # your image path
 
         for myFile in files[:int(0.9 * len(files))]:
             img = image.load_img(myFile, target_size=(224, 224))
