@@ -91,7 +91,7 @@ class UnitySimulationDownloader(DatasetDownloader):
             self.project_id, self.run_execution_id = result[0]
 
     def _parse_potential_overridden_access_token(self, source_uri):
-        match = re.compile(r"usim://\w+@(\w+-\w+-\w+-\w+-\w+)/(\w+)")
+        match = re.compile(r"usim://[^@]*@(\w+-\w+-\w+-\w+-\w+)/(\w+)")
         result = match.findall(source_uri)
         if result:
             self.project_id, self.run_execution_id = result[0]
@@ -102,7 +102,7 @@ class UnitySimulationDownloader(DatasetDownloader):
             )
 
     def _parse_source_uri(self, source_uri):
-        match = re.compile(r"usim://(\w+)@(\w+-\w+-\w+-\w+-\w+)/(\w+)")
+        match = re.compile(r"usim://([^@]*)@(\w+-\w+-\w+-\w+-\w+)/(\w+)")
         if match.findall(source_uri):
             (
                 self.access_token,

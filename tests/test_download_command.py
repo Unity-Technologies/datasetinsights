@@ -70,7 +70,7 @@ def test_parsing_without_access_token_option():
     # arrange
     run_execution_id = "ABCDEDF"
     project_id = "aaaa-bbb-cccc-dddd-eeee"
-    access_token = "access_token"
+    access_token = "access-token"
     downloader = UnitySimulationDownloader()
 
     # act
@@ -88,7 +88,7 @@ def test_parsing_access_token_option():
     # arrange
     run_execution_id = "ABCDEDF"
     project_id = "aaaa-bbb-cccc-dddd-eeee"
-    access_token = "access_token"
+    access_token = "access-token"
     downloader = UnitySimulationDownloader(access_token=access_token)
 
     # act
@@ -104,7 +104,7 @@ def test_parsing_access_token_option_and_source_uri_access_token():
     # arrange
     run_execution_id = "ABCDEDF"
     project_id = "aaaa-bbb-cccc-dddd-eeee"
-    access_token = "access_token"
+    access_token = "access-token"
     downloader = UnitySimulationDownloader(access_token=access_token)
 
     # act
@@ -120,7 +120,7 @@ def test_parsing_access_token_option_and_source_uri_access_token():
 
 @pytest.mark.parametrize("run_execution_id", ["ABCDEDF", "ABC-ABC"])
 @pytest.mark.parametrize("project_id", ["invalid_project_id", "@abc", "@"])
-@pytest.mark.parametrize("access_token", ["access_token", ""])
+@pytest.mark.parametrize("access_token", ["access_token", "", "@"])
 def test_download_with_invalid_source_uri(
     access_token, project_id, run_execution_id
 ):
