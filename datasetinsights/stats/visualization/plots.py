@@ -361,27 +361,9 @@ def plot_bboxes(
     """
     combined = image.copy()
     combined = np.array(combined)
-    # draw = ImageDraw.Draw(combined)
-    # image_width = combined.size[0]
 
     for i, box in enumerate(boxes):
 
-        # x0y0 = (box.x, box.y)
-        # x1y1 = (box.x + box.w, box.y + box.h)
-        # xcyc = (
-        #     box.x + 0.5 * box.w - image_width // font_scale,
-        #     box.y + 0.5 * box.h - image_width // font_scale,
-        # )
-        # if not colors:
-        #     color_idx = i % len(COLORS)
-        #     color = COLORS[color_idx]
-        # else:
-        #     color = colors[i]
-        # draw.rectangle((x0y0, x1y1), outline=color, width=box_line_width)
-        # font_file = str(CUR_DIR / "font" / "arial.ttf")
-        # font = ImageFont.truetype(font_file, image_width // font_scale)
-        # text = f"{box.label}\n{box.score:.2f}"
-        # draw.multiline_text(xcyc, text, font=font, fill=color)
         left, top = (box.x, box.y)
         right, bottom = (box.x + box.w, box.y + box.h)
         label = label_mappings.iloc[box.label]["Label Name"]
@@ -422,16 +404,7 @@ _COLOR_NAME_TO_RGB = dict(
 )
 
 _COLOR_NAMES = list(_COLOR_NAME_TO_RGB)
-
-_DEFAULT_COLOR_NAME = "green"
-
-_FONT_PATH = str(CUR_DIR / "font" / "arial.ttf")
-_FONT_HEIGHT = 100
-_FONT = ImageFont.truetype(_FONT_PATH, _FONT_HEIGHT)
-
-
-def _rgb_to_bgr(color):
-    return list(color)
+_FONT = ImageFont.truetype(str(CUR_DIR / "font" / "arial.ttf"), 100)
 
 
 def _color_image(image, font_color, background_color):
@@ -476,7 +449,7 @@ def add(image, left, top, right, bottom, label=None, color=None):
         msg = "'color' must be one of " + ", ".join(_COLOR_NAME_TO_RGB)
         raise ValueError(msg)
 
-    colors = [_rgb_to_bgr(item) for item in _COLOR_NAME_TO_RGB[color]]
+    colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
     color, color_text = colors
 
     cv2.rectangle(image, (left, top), (right, bottom), color, thickness=15)
