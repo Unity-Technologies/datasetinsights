@@ -35,8 +35,10 @@ def corner2center(corner):
     """
     Converts a corner representation to center representation
     x1,y1,x2,y2 -> cx,cy,w,h
-    :param corner: Corner or np.array 4*N
-    :return: Center or 4 np.array N
+    Param:
+        corner: Corner or np.array 4*N
+    Return:
+        Center or 4 np.array N
     """
     x1, y1, x2, y2 = corner[0], corner[1], corner[2], corner[3]
     x = (x1 + x2) * 0.5
@@ -165,16 +167,19 @@ helper = {
 def get_transforms(center_crop, blur, gray, shift, scale, resize, flip):
 
     """
-    # Should maintain this order
-    # (x) TODO: center crop both template and search -buggy
-    # make bounding box on both
-    # scale
-    # shift
-    # Any order below this
-    # grayscale
-    # blur
-    # resize - not tested
-    # flip - not tested
+        Args:
+            (Bool,Prob) pair for transforms
+        Returns:
+            # Should maintain this order
+            # (x) TODO: center crop both template and search -buggy
+            # make bounding box on both
+            # scale
+            # shift
+            # Any order below this
+            # grayscale
+            # blur
+            # resize - not tested
+            # flip - not tested
     """
     transforms = []
     if center_crop[0]:
@@ -331,6 +336,10 @@ class Anchors:
     def generate_all_anchors(self, im_c, size):
         """
             Helper function for generating anchors
+            Args:
+                Image size
+            Returns:
+                True if anchors generated succesfully
         """
         if self.image_center == im_c and self.size == size:
             return False
