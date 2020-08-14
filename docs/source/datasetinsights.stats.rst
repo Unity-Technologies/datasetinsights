@@ -2,12 +2,6 @@ datasetinsights.stats
 =====================
 
 
-.. toctree::
-   :maxdepth: 4
-
-   datasetinsights.stats.visualization
-
-
 datasetinsights.stats.statistics
 --------------------------------
 
