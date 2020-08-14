@@ -189,11 +189,9 @@ class CocoTracking(Dataset):
         logger = logging.getLogger("global")
 
         self.split = "train"
-        # self.download()
-        # self.crop()
-        # self.generate_json_coco()
-        # All these hard-coded rignt now.
-        # TODO: Move these to config files
+        self.download()
+        self.crop()
+        self.generate_json_coco()
         self.anchors = anchors
         self.template_size = 127
         self.origin_size = 127
@@ -237,8 +235,6 @@ class CocoTracking(Dataset):
     def download(self, cloud_path=COCO_GCS_PATH):
         data_root = "./datasetinsights/data"
         self.root = os.path.join(data_root, COCO_LOCAL_PATH)
-        print(self.root)
-        # exit(0)
         path = Path(self.root)
         path.mkdir(parents=True, exist_ok=True)
         client = GCSClient()
