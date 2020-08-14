@@ -1,0 +1,63 @@
+estimator: SiamMask
+backbone: resnet50
+task: object_tracking_segmentation
+model_type: 3branch
+train:
+  epoch: 50
+  batch_size: 16
+  accumulation_steps: 8
+  log_frequency: 1000
+  model_save_path: "./datasetinsights/saved_model"
+  loss_weights:
+    feature: 1
+    rpn: 1.2
+    mask: 36
+  clip:
+    feature: 10
+    rpn: 10
+    mask: 10
+  momentum: 0.9
+  weight_decay: 0.0001
+  start_lr: 0.005
+  end_lr: 0.0025
+  warmup:
+    start_lr: 0.001
+    end_lr: 0.005
+    epoch: 5
+  dataset:
+    name: [CocoTracking]
+    dataroot: ['../../thea/datasetinsights/data/coco_old/crop511']
+    # dataroot: ['/data/coco']
+    annot_file: ['../../thea/datasetinsights/data/coco_old/train2017.json']
+    # annot_file: ['/data/coco/train2017.json']
+    frame_range: [1]
+    num_use: [-1]
+  augmentation:
+    template:
+      shift: 4
+      scale: 0.05
+    search:
+      shift: 64
+      scale: 0.18
+      blur: 0.18
+    neg: 0.2
+    inner_neg: 0.1
+    gray: 0.25
+  anchors:
+    stride: 8
+    ratios: [0.33, 0.5, 1, 2, 3]
+    scales: [8]
+    round_dight: 0
+test:
+  dataset:
+    name: [davis2016]
+    dataroot: ['/data/DAVIS/']
+    annot_file: ['/data/DAVIS/ImageSets/2016/val.txt']
+    saved_model: ['/data/savedmodels/checkpoint_e50.pth']
+    save_vis: ['/data/visualize/']
+    confidence: 0.3
+  anchors:
+    stride: 8
+    ratios: [0.33, 0.5, 1, 2, 3]
+    scales: [8]
+    round_dight: 0
