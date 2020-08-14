@@ -18,8 +18,6 @@ class DummyDetection2D(Dataset):
 
     """
 
-    name = ""
-
     def __init__(self, image_size=(256, 256), transform=None):
         """initiate dataset class.
 

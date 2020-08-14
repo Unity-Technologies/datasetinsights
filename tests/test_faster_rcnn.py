@@ -318,10 +318,9 @@ def test_create_dryrun_dataset(config, dataset):
 def test_create_sampler(config, dataset):
     """test create sampler."""
 
-    train_dataset = dataset
     is_distributed = config.system.distributed
     train_sampler = FasterRCNN.create_sampler(
-        is_distributed=is_distributed, dataset=train_dataset, is_train=True
+        is_distributed=is_distributed, dataset=dataset, is_train=True
     )
     assert len(dataset.images) == len(train_sampler)
 
@@ -330,14 +329,11 @@ def test_create_sampler(config, dataset):
 def test_dataloader_creator(mock_loader, config, dataset):
     """test create dataloader."""
     mock_loader.return_value = MagicMock()
-    train_dataset = dataset
     is_distributed = config.system.distributed
     train_sampler = FasterRCNN.create_sampler(
-        is_distributed=is_distributed, dataset=train_dataset, is_train=True
+        is_distributed=is_distributed, dataset=dataset, is_train=True
     )
-    train_loader = dataloader_creator(
-        config, train_dataset, train_sampler, TRAIN
-    )
+    train_loader = dataloader_creator(config, dataset, train_sampler, TRAIN)
     assert isinstance(train_loader, MagicMock)
 
 
@@ -346,14 +342,14 @@ def test_create_dataloader(mock_loader, config, dataset):
     """test load data."""
 
     mock_loader.return_value = MagicMock()
-    train_dataset = dataset
+
     is_distributed = config.system.distributed
     train_sampler = FasterRCNN.create_sampler(
-        is_distributed=is_distributed, dataset=train_dataset, is_train=True
+        is_distributed=is_distributed, dataset=dataset, is_train=True
     )
     dataloader = create_dataloader(
         config=config,
-        dataset=train_dataset,
+        dataset=dataset,
         batch_size=config.train.batch_size,
         sampler=train_sampler,
         collate_fn=FasterRCNN.collate_fn,

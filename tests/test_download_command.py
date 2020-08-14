@@ -129,10 +129,12 @@ def test_download_with_invalid_source_uri(
     with pytest.raises(ValueError):
         # act
         downloader.parse_source_uri(
-            f"usim://access_token_to_be_overridden@{project_id}/{run_execution_id}"
+            f"usim://access_token_to_be_overridden@"
+            f"{project_id}/{run_execution_id}"
         )
         downloader.parse_source_uri(
-            f"usim://access_token_to_be_overridden{project_id}/{run_execution_id}"
+            f"usim://access_token_to_be_overridden"
+            f"{project_id}/{run_execution_id}"
         )
         downloader.parse_source_uri(f"usim://{project_id}/{run_execution_id}")
         downloader.parse_source_uri(

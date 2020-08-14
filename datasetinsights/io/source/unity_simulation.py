@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class UnitySimulationDownloader(DatasetDownloader):
 
-    SOURCE_SCHEMA = "usim://"
+    PROTOCAL = "usim://"
 
     def __init__(self, access_token=None):
         self.access_token = access_token

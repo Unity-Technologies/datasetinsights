@@ -6,27 +6,25 @@ class DownloaderRegistry(ABCMeta):
     registry = {}
 
     def __new__(cls, name, bases, namespace):
-
-        if "SOURCE_SCHEMA" not in namespace:
-            raise RuntimeError(
-                f"{name} must define a class-level SOURCE_SCHEMA"
-            )
+        protocal = "PROTOCAL"
+        if protocal not in namespace:
+            raise RuntimeError(f"{name} must define a class-level {protocal}")
         new_cls = super().__new__(cls, name, bases, namespace)
-        if namespace["SOURCE_SCHEMA"] != "":
-            DownloaderRegistry.registry[namespace["SOURCE_SCHEMA"]] = new_cls
+        if namespace[protocal] != "":
+            DownloaderRegistry.registry[namespace[protocal]] = new_cls
         return new_cls
 
     @classmethod
     def find(cls, source_uri):
         match = re.compile("(gs://|^https://|^http://|^usim://)")
-        source_schema = match.findall(source_uri)[0]
-        if source_schema.startswith(("https://", "http://")):
-            source_schema = "http://"
-        dataset_cls = DownloaderRegistry.registry.get(source_schema)
+        protocal = match.findall(source_uri)[0]
+        if protocal.startswith(("https://", "http://")):
+            protocal = "http://"
+        dataset_cls = DownloaderRegistry.registry.get(protocal)
         if dataset_cls:
             return dataset_cls
         else:
-            raise ValueError(f"Downloader '{source_schema}' does not exist:")
+            raise ValueError(f"Downloader '{protocal}' does not exist:")
 
     @staticmethod
     def list_datasets():
@@ -34,7 +32,7 @@ class DownloaderRegistry(ABCMeta):
 
 
 class DatasetDownloader(metaclass=DownloaderRegistry):
-    SOURCE_SCHEMA = ""
+    PROTOCAL = ""
 
     @abstractmethod
     def download(self, **kwargs):
