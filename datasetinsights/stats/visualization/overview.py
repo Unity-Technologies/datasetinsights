@@ -115,11 +115,16 @@ def html_overview(data_root):
     overview_layout = html.Div(
         [
             html.Div(id="overview"),
-            dcc.Markdown(""" ## Total Object Count:  """),
+            dcc.Markdown(
+                """ # Total Object Count  """, style={"text-align": "center"}
+            ),
             dcc.Graph(id="total_count", figure=total_counts_fig,),
             html.Div(
                 [
-                    dcc.Markdown(""" ## Object Count Distribution """),
+                    dcc.Markdown(
+                        """ # Object Count Distribution """,
+                        style={"text-align": "center"},
+                    ),
                     dcc.Dropdown(
                         id="object_count_filter",
                         options=[{"label": i, "value": i} for i in label_names],
@@ -138,7 +143,10 @@ def html_overview(data_root):
             ),
             html.Div(
                 [
-                    dcc.Markdown("""## Visible Pixels Distribution """),
+                    dcc.Markdown(
+                        """# Visible Pixels Distribution """,
+                        style={"text-align": "center"},
+                    ),
                     dcc.Dropdown(
                         id="pixels_visible_filter",
                         options=[{"label": i, "value": i} for i in label_names],
@@ -165,7 +173,7 @@ def html_overview(data_root):
     Output("pixels_visible_filter_graph", "figure"),
     [
         Input("pixels_visible_filter", "value"),
-        Input("intermediate-value", "children"),
+        Input("data_root_value", "children"),
     ],
 )
 def update_visible_pixels_figure(label_value, json_data_root):
@@ -197,7 +205,7 @@ def update_visible_pixels_figure(label_value, json_data_root):
     Output("per_object_count_filter_graph", "figure"),
     [
         Input("object_count_filter", "value"),
-        Input("intermediate-value", "children"),
+        Input("data_root_value", "children"),
     ],
 )
 def update_object_counts_capture_figure(label_value, json_data_root):

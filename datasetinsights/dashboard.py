@@ -50,8 +50,15 @@ def main_layout():
                     html.Div(id="main_page_tabs"),
                 ]
             ),
-            dcc.Dropdown(id="dropdown"),
-            html.Div(id="intermediate-value", style={"display": "none"}),
+            # Sharing data between callbacks using hidden division.
+            # These hidden dcc and html components are for storing data-root
+            # into the division. This is further used in callbacks made in the
+            # object_detection module. This is a temporary hack and can be found
+            # in example 1 of sharing data between callback dash tutorial.
+            # ref: https://dash.plotly.com/sharing-data-between-callbacks
+            # TODO: Fix this using a better solution to share data.
+            dcc.Dropdown(id="dropdown", style={"display": "none"}),
+            html.Div(id="data_root_value", style={"display": "none"}),
         ]
     )
     return app_layout
@@ -61,6 +68,8 @@ def main_layout():
     Output("main_page_tabs", "children"), [Input("page_tabs", "value")]
 )
 def render_content(value):
+    """ Method for rendering dashboard layout based
+        on the selected tab value."""
     if value == "dataset_overview":
         return overview.html_overview(data_root)
     elif value == "object_detection":
@@ -68,14 +77,16 @@ def render_content(value):
 
 
 @app.callback(
-    Output("intermediate-value", "children"), [Input("dropdown", "value")]
+    Output("data_root_value", "children"), [Input("dropdown", "value")]
 )
 def clean_data(value):
+    """ Method for storing data-root value in a hidden division."""
     json_data_root = json.dumps(data_root)
     return json_data_root
 
 
 def check_path(path):
+    """ Method for checking if the given data-root path is valid or not."""
     if os.path.isdir(path):
         return path
     else:

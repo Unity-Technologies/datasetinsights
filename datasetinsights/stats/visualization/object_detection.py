@@ -79,9 +79,16 @@ class ScaleFactor:
 
         """
         scale_factor_distribution_figure = self._generate_scale_factor_figures()
-        html_layout = dcc.Graph(
-            id="scale_factor_distribution_figure",
-            figure=scale_factor_distribution_figure,
+        html_layout = html.Div(
+            [
+                dcc.Markdown(
+                    """# Scale Factor """, style={"text-align": "center"}
+                ),
+                dcc.Graph(
+                    id="scale_factor_distribution_figure",
+                    figure=scale_factor_distribution_figure,
+                ),
+            ]
         )
         return html_layout
 
@@ -119,7 +126,10 @@ class UserParameter:
         """
         html_layout = html.Div(
             [
-                html.H3("User Input Parameters Table"),
+                dcc.Markdown(
+                    """# User Input Parameters Table """,
+                    style={"text-align": "center"},
+                ),
                 dash_table.DataTable(
                     id="user_parameter_table",
                     columns=[
@@ -203,7 +213,7 @@ class Lighting:
             self.lighting,
             x="x_rotation",
             y="y_rotation",
-            title="Light orientations",
+            # title="Light orientations",
             max_samples=constants.MAX_SAMPLES,
         )
 
@@ -277,6 +287,10 @@ class Lighting:
             [
                 html.Div(
                     [
+                        dcc.Markdown(
+                            """# Lighting Orientations """,
+                            style={"text-align": "center"},
+                        ),
                         dcc.Graph(
                             id="lighting_fig",
                             figure=lighting_figures["lighting_fig"],
@@ -390,7 +404,7 @@ class ObjectPlacement:
             x="x_rot",
             y="y_rot",
             z="z_rot",
-            title="Object orientations",
+            # title="Object orientations",
             max_samples=constants.MAX_SAMPLES,
         )
 
@@ -440,6 +454,9 @@ class ObjectPlacement:
 
         html_layout = html.Div(
             [
+                dcc.Markdown(
+                    """# Object Orientations """, style={"text-align": "center"}
+                ),
                 dcc.Graph(
                     id="orientation_rotation",
                     figure=orientation_figures["orientation_rotation_plot_fig"],
