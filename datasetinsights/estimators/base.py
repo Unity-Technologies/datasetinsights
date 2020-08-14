@@ -3,8 +3,8 @@ from abc import ABCMeta, abstractmethod
 from tensorboardX import SummaryWriter
 
 import datasetinsights.constants as const
-from datasetinsights.storage.checkpoint import EstimatorCheckpoint
-from datasetinsights.storage.kfp_output import KubeflowPipelineWriter
+from datasetinsights.io.checkpoint import EstimatorCheckpoint
+from datasetinsights.io.kfp_output import KubeflowPipelineWriter
 
 
 def create_estimator(

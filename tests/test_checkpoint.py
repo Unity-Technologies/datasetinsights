@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from datasetinsights.storage.checkpoint import (
+from datasetinsights.io.checkpoint import (
     EstimatorCheckpoint,
     GCSEstimatorWriter,
     LocalEstimatorWriter,
@@ -71,11 +71,11 @@ def test_gcs_estimator_checkpoint_save():
     mocked_gcs_client = Mock()
     mocked_gcs_client.upload = Mock()
     with patch(
-        "datasetinsights.storage.checkpoint.GCSClient",
+        "datasetinsights.io.checkpoint.GCSClient",
         MagicMock(return_value=mocked_gcs_client),
     ):
         with patch(
-            "datasetinsights.storage.checkpoint.LocalEstimatorWriter",
+            "datasetinsights.io.checkpoint.LocalEstimatorWriter",
             MagicMock(return_value=mocked_ckpt),
         ):
             gcs_ckpt = GCSEstimatorWriter(cloud_path, prefix, suffix=suffix)
@@ -90,7 +90,7 @@ def test_gcs_estimator_checkpoint_save():
 def test_create_writer():
     mock_local_writer = Mock()
     with patch(
-        "datasetinsights.storage.checkpoint.LocalEstimatorWriter",
+        "datasetinsights.io.checkpoint.LocalEstimatorWriter",
         MagicMock(return_value=mock_local_writer),
     ):
         writer = EstimatorCheckpoint._create_writer("/path/to/folder", "abc")
@@ -99,7 +99,7 @@ def test_create_writer():
 
     mock_gcs_writer = Mock()
     with patch(
-        "datasetinsights.storage.checkpoint.GCSEstimatorWriter",
+        "datasetinsights.io.checkpoint.GCSEstimatorWriter",
         MagicMock(return_value=mock_gcs_writer),
     ):
         writer = EstimatorCheckpoint._create_writer("gs://abucket/path", "def")

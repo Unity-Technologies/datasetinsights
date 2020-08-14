@@ -3,7 +3,7 @@ from .cityscapes import Cityscapes
 from .coco import CocoDetection
 from .groceries_real import GoogleGroceriesReal, GroceriesReal
 from .nyudepth import NyuDepth
-from .synthetic import SynDetection2D
+from .synthetic import SynDetection2D, read_bounding_box_2d
 
 __all__ = [
     "Cityscapes",
@@ -13,4 +13,5 @@ __all__ = [
     "GoogleGroceriesReal",
     "NyuDepth",
     "SynDetection2D",
+    "read_bounding_box_2d",
 ]

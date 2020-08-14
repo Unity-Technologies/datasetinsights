@@ -5,6 +5,8 @@ class EvaluationMetric(metaclass=ABCMeta):
     """Abstract base class for metrics.
     """
 
+    COMPUTE_TYPE = ""
+
     @staticmethod
     def create(name, **kwargs):
         """Create a new instance of the metric subclass
