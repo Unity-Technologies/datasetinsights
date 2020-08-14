@@ -61,3 +61,4 @@ test:
     ratios: [0.33, 0.5, 1, 2, 3]
     scales: [8]
     round_dight: 0
+    
