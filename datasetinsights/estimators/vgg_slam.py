@@ -11,12 +11,11 @@ from pathlib import Path
 import glob
 
 import tensorflow as tf
-from tensorflow.python.framework import ops
 from tensorflow.keras import layers
 from tensorflow.keras.applications import VGG16
-from keras import optimizers
-from keras.preprocessing import image
-from keras.applications.vgg16 import preprocess_input
+from tensorflow.keras import optimizers
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.applications.vgg16 import preprocess_input
 from tensorflow.keras.layers import Input
 
 

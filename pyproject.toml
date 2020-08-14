@@ -44,10 +44,7 @@ pandas = "^1.0.1"
 tqdm = "^4.45.0"
 dask = {extras = ["complete"], version = "^2.14.0"}
 dash = "1.12.0"
-tensorflow = "^1.13.1"
-Keras-Applications = "==1.0.7"
-Keras-Preprocessing = "^1.1.0"
-Keras = "^2.2.4"
+tensorflow = "^2.2.0"
 click = "^7.1.2"
 
 [tool.poetry.dev-dependencies]
@@ -72,7 +69,6 @@ line-length = 80
 target-version = ["py37"]
 include = '\.pyi?$'
 exclude = '''
-
 (
   /(
       \.eggs         # exclude a few common directories in the
