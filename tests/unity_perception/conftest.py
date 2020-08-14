@@ -10,6 +10,7 @@ def mock_data_base_dir():
 
     return mock_data_dir
 
+
 @pytest.fixture
 def mock_data_dir(mock_data_base_dir):
     mock_data_dir = mock_data_base_dir / "simrun"
