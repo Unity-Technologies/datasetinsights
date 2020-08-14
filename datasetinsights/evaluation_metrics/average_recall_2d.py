@@ -17,6 +17,10 @@ from .records import Records
 class AverageRecall(EvaluationMetric):
     """2D Bounding Box Average Recall metrics.
 
+    This metric would calculate average recall (AR) for each label under
+    an iou threshold (default: 0.5). The maximum number of detections
+    per image is limited (default: 100).
+
     Args:
         iou_threshold (float): iou threshold (default: 0.5)
         max_detections (int): max detections per image (default: 100)
@@ -57,7 +61,9 @@ class AverageRecall(EvaluationMetric):
 
             pred_bboxes = sorted(
                 pred_bboxes, key=lambda bbox: bbox.score, reverse=True
-            )[: self._max_detections]
+            )
+            if len(pred_bboxes) > self._max_detections:
+                pred_bboxes = pred_bboxes[: self._max_detections]
             bboxes_per_label = group_bbox2d_per_label(pred_bboxes)
             for label in bboxes_per_label:
                 self._label_records[label].add_records(

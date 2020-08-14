@@ -17,6 +17,10 @@ from .records import Records
 class AveragePrecision(EvaluationMetric):
     """2D Bounding Box Average Precision metrics.
 
+    This metric would calculate average precision (AP) for each label under
+    an iou threshold (default: 0.5). The maximum number of detections
+    per image is limited (default: 100).
+
     Args:
         iou_threshold (float): iou threshold (default: 0.5)
         interpolation (string): AP interoperation method name for AP calculation
@@ -68,7 +72,9 @@ class AveragePrecision(EvaluationMetric):
 
             pred_bboxes = sorted(
                 pred_bboxes, key=lambda bbox: bbox.score, reverse=True
-            )[: self._max_detections]
+            )
+            if len(pred_bboxes) > self._max_detections:
+                pred_bboxes = pred_bboxes[: self._max_detections]
 
             bboxes_per_label = group_bbox2d_per_label(pred_bboxes)
             for label, boxes in bboxes_per_label.items():
