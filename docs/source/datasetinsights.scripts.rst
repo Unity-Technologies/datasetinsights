@@ -2,6 +2,14 @@ datasetinsights.scripts
 =======================
 
 
+datasetinsights.scripts.public\_download
+----------------------------------------
+
+.. automodule:: datasetinsights.scripts.public_download
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 datasetinsights.scripts.usim\_download
 --------------------------------------
 

@@ -18,10 +18,10 @@ datasetinsights.evaluation\_metrics.average\_precision
    :undoc-members:
    :show-inheritance:
 
-datasetinsights.evaluation\_metrics.average\_precision\_2d\_bbox
-----------------------------------------------------------------
+datasetinsights.evaluation\_metrics.average\_precision\_2d
+----------------------------------------------------------
 
-.. automodule:: datasetinsights.evaluation_metrics.average_precision_2d_bbox
+.. automodule:: datasetinsights.evaluation_metrics.average_precision_2d
    :members:
    :undoc-members:
    :show-inheritance:
@@ -34,10 +34,10 @@ datasetinsights.evaluation\_metrics.average\_precision\_config
    :undoc-members:
    :show-inheritance:
 
-datasetinsights.evaluation\_metrics.average\_recall\_2d\_bbox
--------------------------------------------------------------
+datasetinsights.evaluation\_metrics.average\_recall\_2d
+-------------------------------------------------------
 
-.. automodule:: datasetinsights.evaluation_metrics.average_recall_2d_bbox
+.. automodule:: datasetinsights.evaluation_metrics.average_recall_2d
    :members:
    :undoc-members:
    :show-inheritance:
