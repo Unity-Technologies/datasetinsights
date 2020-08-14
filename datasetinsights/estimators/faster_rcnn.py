@@ -13,9 +13,9 @@ import torchvision
 from codetiming import Timer
 
 import datasetinsights.constants as const
+from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
 from datasetinsights.io.bbox import BBox2D
-from datasetinsights.io.downloader.base import DownloaderRegistry
 from datasetinsights.io.transforms import Compose
 from datasetinsights.torch_distributed import get_world_size
 
@@ -559,7 +559,8 @@ def create_dataset(config, split):
     Returns dataset: dataset obj must have len and __get_item__
 
     """
-    dataset = DownloaderRegistry.find(config[split].dataset.name)(
+    dataset = Dataset.create(
+        config[split].dataset.name,
         data_root=config.system.data_root,
         transforms=FasterRCNN.get_transform(),
         **config[split].dataset.args,
