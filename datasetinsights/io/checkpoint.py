@@ -6,9 +6,8 @@ import tempfile
 
 import datasetinsights.constants as const
 from datasetinsights.io.download import download_file
+from datasetinsights.io.gcs import GCSClient, gcs_bucket_and_path
 from datasetinsights.torch_distributed import is_master
-
-from .gcs import GCSClient, gcs_bucket_and_path
 
 logger = logging.getLogger(__name__)
 

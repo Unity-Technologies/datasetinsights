@@ -10,7 +10,7 @@ from pyquaternion import Quaternion
 
 import datasetinsights.constants as const
 from datasetinsights.io.bbox import BBox3d
-from datasetinsights.storage.gcs import GCSClient
+from datasetinsights.io.gcs import GCSClient
 
 from .base import Dataset
 from .nuscenes import Box
