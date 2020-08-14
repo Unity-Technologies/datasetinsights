@@ -170,6 +170,13 @@ class Captures:
         +---------------+------------------+-----------+-------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+---------------+--------------+---------------------+---------------------------------------+-----------------------------------------------------------------------------------------------------------------------+
 
         """  # noqa: E501 table should not be broken down into multiple lines
+        if self.annotations.empty:
+            msg = (
+                f"Can't find annotations records associate with the given "
+                f"definition id {def_id}."
+            )
+            raise DefinitionIDError(msg)
+
         mask = self.annotations.annotation_definition == def_id
         annotations = (
             self.annotations[mask]

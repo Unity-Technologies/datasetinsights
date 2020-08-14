@@ -3,6 +3,8 @@ import json
 
 import pytest
 
+from pathlib import Path
+
 from datasetinsights.datasets.unity_perception import Captures
 from datasetinsights.datasets.unity_perception.exceptions import (
     DefinitionIDError,
@@ -12,8 +14,14 @@ from datasetinsights.datasets.unity_perception.tables import (
     glob,
 )
 
-
-def test_get_captures_and_annotations(mock_data_dir):
+@pytest.mark.parametrize(
+    "data_dir_name",
+    [
+        "simrun", "no_annotations_or_metrics"
+    ],
+)
+def test_get_captures_and_annotations(mock_data_base_dir, data_dir_name):
+    mock_data_dir = mock_data_base_dir / data_dir_name
     captures = Captures(str(mock_data_dir), version=SCHEMA_VERSION)
 
     captures_per_definition = collections.defaultdict(int)
