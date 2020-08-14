@@ -213,7 +213,6 @@ class Lighting:
             self.lighting,
             x="x_rotation",
             y="y_rotation",
-            # title="Light orientations",
             max_samples=constants.MAX_SAMPLES,
         )
 
@@ -404,7 +403,6 @@ class ObjectPlacement:
             x="x_rot",
             y="y_rot",
             z="z_rot",
-            # title="Object orientations",
             max_samples=constants.MAX_SAMPLES,
         )
 

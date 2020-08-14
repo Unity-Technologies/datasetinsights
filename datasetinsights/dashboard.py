@@ -65,24 +65,35 @@ def main_layout():
 
 
 @app.callback(
-    Output("main_page_tabs", "children"), [Input("page_tabs", "value")]
+    Output("data_root_value", "children"), [Input("dropdown", "value")]
 )
-def render_content(value):
+def get_data_root(value):
+    """ Method for storing data-root value in a hidden division."""
+    json_data_root = json.dumps(data_root)
+    return json_data_root
+
+
+@app.callback(
+    Output("main_page_tabs", "children"),
+    [Input("page_tabs", "value"), Input("data_root_value", "children")],
+)
+def render_content(value, json_data_root):
     """ Method for rendering dashboard layout based
-        on the selected tab value."""
+        on the selected tab value.
+
+    Args:
+        value(str): selected tab value
+        json_data_root(str): data root stored in hidden div in json format.
+
+    Returns:
+        html layout: layout for the selected tab.
+    """
+
+    data_root = json.loads(json_data_root)
     if value == "dataset_overview":
         return overview.html_overview(data_root)
     elif value == "object_detection":
         return render_object_detection_layout(data_root)
-
-
-@app.callback(
-    Output("data_root_value", "children"), [Input("dropdown", "value")]
-)
-def clean_data(value):
-    """ Method for storing data-root value in a hidden division."""
-    json_data_root = json.dumps(data_root)
-    return json_data_root
 
 
 def check_path(path):
