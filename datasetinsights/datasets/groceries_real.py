@@ -76,7 +76,6 @@ class GroceriesReal(Dataset):
         default version="v3".
     """
 
-    LOCAL_PATH = "groceries"
     SPLITS = {
         "train": "groceries_real_train.txt",
         "val": "groceries_real_val.txt",
@@ -105,7 +104,7 @@ class GroceriesReal(Dataset):
     def __init__(
         self,
         *,
-        data_root=const.DEFAULT_DATA_ROOT,
+        data_path=const.DEFAULT_DATA_ROOT,
         split="train",
         transforms=None,
         version="v3",
@@ -113,11 +112,13 @@ class GroceriesReal(Dataset):
     ):
         """
         Args:
-            data_root (str): Root directory prefix of datasets
+            data_path (str): Directory on localhost where datasets are located.
             split (str): Indicate split type of the dataset.
             transforms: callable transformation
             version (str): version of GroceriesReal dataset
         """
+        self.data_path = data_path
+
         valid_splits = tuple(self.SPLITS.keys())
         if split not in valid_splits:
             raise ValueError(
@@ -138,9 +139,9 @@ class GroceriesReal(Dataset):
         )
 
         self.version = version
-        self.root = os.path.join(data_root, self.LOCAL_PATH)
+
         self.transforms = transforms
-        if not os.path.isdir(os.path.join(self.root, f"{version}")):
+        if not os.path.isdir(os.path.join(self.data_path, f"{version}")):
             raise DatasetNotFoundError(
                 "Cannot find the dataset. Please download it first."
             )
@@ -172,9 +173,9 @@ class GroceriesReal(Dataset):
         return len(self.split_indices)
 
     def _filepath(self, filename):
-        """Local file path relative to root
+        """Local file path relative to data_path
         """
-        return os.path.join(self.root, self.version, filename)
+        return os.path.join(self.data_path, self.version, filename)
 
     @staticmethod
     def _download_http(source_uri, dest_path, version):
@@ -238,13 +239,11 @@ class GroceriesReal(Dataset):
                 f"A valid dataset version is required. Available versions are:"
                 f"{GroceriesReal.GROCERIES_REAL_DATASET_TABLES.keys()}"
             )
-        dest_path = os.path.join(
-            data_root, GroceriesReal.LOCAL_PATH, f"{version}.zip"
-        )
+        dest_path = os.path.join(data_root, f"{version}.zip")
         expected_checksum = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[
             version
         ].checksum
-        extract_folder = os.path.join(data_root, GroceriesReal.LOCAL_PATH)
+        extract_folder = data_root
         if os.path.exists(dest_path):
             logger.info("The dataset file exists. Skip download.")
             try:

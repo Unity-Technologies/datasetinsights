@@ -161,16 +161,18 @@ class FasterRCNN(Estimator):
         else:
             self.device = torch.device("cpu")
 
-    def train(self, data_root, **kwargs):
+    def train(self, train_data, val_data=None, **kwargs):
         """start training, save trained model per epoch.
 
         Args:
-            data_root: Root directory on localhost where datasets are located
+            train_data: Directory on localhost where train dataset is located.
+            val_data: Directory on localhost where
+            validation dataset is located.
 
         """
         config = self.config
-        train_dataset = create_dataset(config, data_root, TRAIN)
-        val_dataset = create_dataset(config, data_root, VAL)
+        train_dataset = create_dataset(config, train_data, TRAIN)
+        val_dataset = create_dataset(config, val_data, VAL)
         label_mappings = train_dataset.label_mappings
 
         logger.info(f"length of train dataset is {len(train_dataset)}")
@@ -596,12 +598,12 @@ class FasterRCNN(Estimator):
         return tuple(zip(*batch))
 
 
-def create_dataset(config, data_root, split):
+def create_dataset(config, data_path, split):
     """download dataset from source.
 
     Args:
         config: (CfgNode): estimator config:
-        data_root: Root directory on localhost where datasets are located.
+        data_path: Directory on localhost where datasets are located.
         split: train, val, test
 
     Returns dataset: dataset obj must have len and __get_item__
@@ -609,7 +611,7 @@ def create_dataset(config, data_root, split):
     """
     dataset = Dataset.create(
         config[split].dataset.name,
-        data_root=data_root,
+        data_path=data_path,
         transforms=FasterRCNN.get_transform(),
         **config[split].dataset.args,
     )

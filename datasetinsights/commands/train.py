@@ -21,6 +21,20 @@ logger = logging.getLogger(__name__)
     help="Path to the config estimator yaml file.",
 )
 @click.option(
+    "-t",
+    "--train-data",
+    type=click.Path(exists=True, file_okay=False),
+    required=True,
+    help="Directory on localhost where train dataset is located.",
+)
+@click.option(
+    "-e",
+    "--val-data",
+    type=click.Path(exists=True, file_okay=False),
+    default=None,
+    help="Directory on localhost where validation dataset is located.",
+)
+@click.option(
     "-p",
     "--checkpoint-file",
     type=click.STRING,
@@ -29,13 +43,6 @@ logger = logging.getLogger(__name__)
         "URI to a checkpoint file. If specified, model will load from "
         "this checkpoint and resume training."
     ),
-)
-@click.option(
-    "-d",
-    "--data-root",
-    type=click.Path(exists=True, file_okay=False),
-    default=const.DEFAULT_DATA_ROOT,
-    help="Root directory on localhost where datasets are located.",
 )
 @click.option(
     "-l",
@@ -87,8 +94,9 @@ logger = logging.getLogger(__name__)
 )
 def cli(
     config,
+    train_data,
+    val_data,
     checkpoint_file,
-    data_root,
     tb_log_dir,
     checkpoint_dir,
     workers,
@@ -112,4 +120,4 @@ def cli(
         workers=workers,
     )
 
-    estimator.train(data_root=data_root)
+    estimator.train(train_data=train_data, val_data=val_data)

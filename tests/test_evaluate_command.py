@@ -14,13 +14,13 @@ from datasetinsights.commands.evaluate import cli
             "evaluate",
             "--config=tests/configs/faster_rcnn_groceries_real_test.yaml",
             "--checkpoint-file=checkpoint_file.txt",
-            f"--data-root=tests/datasets",
+            f"--test-data=tests/datasets",
         ],
         [
             "evaluate",
             "-c",
             "tests/configs/faster_rcnn_groceries_real_test.yaml",
-            "-d",
+            "-t",
             "tests/datasets",
             "-p",
             "checkpoint_file.txt",
@@ -45,7 +45,7 @@ def test_evaluate_except_called_once(
     cfg_node_mock.assert_called_once()
     estimator_create_mock.assert_called_once()
     estimator_create_mock.return_value.evaluate.assert_called_once_with(
-        data_root="tests/datasets"
+        test_data="tests/datasets"
     )
 
 
@@ -57,7 +57,7 @@ def test_evaluate_except_called_once(
             "evaluate",
             "--config",
             "tests/configs/faster_rcnn_groceries_real_test.yaml",
-            "--data-root",
+            "--test-data",
             "invalid-data-root",
         ],
     ],

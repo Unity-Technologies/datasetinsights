@@ -168,7 +168,7 @@ def test_faster_rcnn_train(
     estimator.checkpointer = checkpointer
     estimator.kfp_writer = kfp_writer
     estimator.writer = writer
-    estimator.train(data_root=None)
+    estimator.train(train_data=None)
     mock_train_loop.assert_called_once()
 
 

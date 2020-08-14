@@ -13,13 +13,13 @@ from datasetinsights.commands.train import cli
         [
             "train",
             "--config=tests/configs/faster_rcnn_groceries_real_test.yaml",
-            "--data-root=tests/datasets",
+            "--train-data=tests/datasets",
         ],
         [
             "train",
             "-c",
             "tests/configs/faster_rcnn_groceries_real_test.yaml",
-            "-d",
+            "-t",
             "tests/datasets",
         ],
     ],
@@ -41,7 +41,7 @@ def test_train_except_called_once(
     cfg_node_mock.assert_called_once()
     estimator_factory_create_mock.assert_called_once()
     estimator_factory_create_mock.return_value.train.assert_called_once_with(
-        data_root="tests/datasets"
+        train_data="tests/datasets", val_data=None
     )
 
 
@@ -51,7 +51,7 @@ def test_train_except_called_once(
         [
             "train",
             "--config" "tests/configs/faster_rcnn_groceries_real_test.yaml",
-            "--data-root",
+            "--train-data",
             "invalid-data-root",
         ],
         ["train"],

@@ -28,11 +28,11 @@ logger = logging.getLogger(__name__)
     help="URI to a checkpoint file.",
 )
 @click.option(
-    "-d",
-    "--data-root",
+    "-t",
+    "--test-data",
     type=click.Path(exists=True, file_okay=False),
-    default=const.DEFAULT_DATA_ROOT,
-    help="Root directory on localhost where datasets are located.",
+    required=True,
+    help="Directory on localhost where test dataset is located.",
 )
 @click.option(
     "-l",
@@ -80,7 +80,7 @@ logger = logging.getLogger(__name__)
 def cli(
     config,
     checkpoint_file,
-    data_root,
+    test_data,
     tb_log_dir,
     workers,
     kfp_metrics_dir,
@@ -102,4 +102,4 @@ def cli(
         no_cuda=no_cuda,
     )
 
-    estimator.evaluate(data_root=data_root)
+    estimator.evaluate(test_data=test_data)

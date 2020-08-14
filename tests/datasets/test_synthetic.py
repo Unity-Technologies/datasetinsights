@@ -23,9 +23,7 @@ def test_syn_detection_2d(mock_data):
     mock_data_dir = str(parent_dir / "mock_data" / "simrun")
 
     with tempfile.TemporaryDirectory() as tmp_dir:
-        dest_path = str(Path(tmp_dir) / const.SYNTHETIC_SUBFOLDER)
-        shutil.copytree(mock_data_dir, dest_path)
-        syn_det_2d = SynDetection2D(data_root=tmp_dir)
+        syn_det_2d = SynDetection2D(data_path=mock_data_dir)
 
         # From mock data, only one of the capture has 2D bounding box
         # annotations.
