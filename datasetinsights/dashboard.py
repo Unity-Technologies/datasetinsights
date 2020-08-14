@@ -67,9 +67,14 @@ def main_layout():
 @app.callback(
     Output("data_root_value", "children"), [Input("dropdown", "value")]
 )
-def get_data_root(value):
-    """ Method for storing data-root value in a hidden division."""
+def store_data_root(value):
+    """ Method for storing data-root value in a hidden division.
+
+    Returns:
+        json : data-root encoded in json to be stored in data_root_value div.
+    """
     json_data_root = json.dumps(data_root)
+
     return json_data_root
 
 
@@ -83,12 +88,12 @@ def render_content(value, json_data_root):
 
     Args:
         value(str): selected tab value
-        json_data_root(str): data root stored in hidden div in json format.
+        json_data_root: data root stored in hidden div in json format.
 
     Returns:
         html layout: layout for the selected tab.
     """
-
+    # read data root value from the data_root_value division
     data_root = json.loads(json_data_root)
     if value == "dataset_overview":
         return overview.html_overview(data_root)
