@@ -4,7 +4,7 @@ import re
 import click
 
 import datasetinsights.constants as const
-from datasetinsights.io.downloader.base import DownloaderRegistry
+from datasetinsights.io.downloader.base import DownloaderFactory
 
 logger = logging.getLogger(__name__)
 
@@ -47,10 +47,9 @@ class SourceURI(click.ParamType):
     "-s",
     "--source-uri",
     type=SourceURI(),
-    default=None,
+    required=True,
     help=(
         "URI of where this data should be downloaded. "
-        "If not supplied, default path from the dataset registry will be used. "
         f"Supported source uri patterns {SourceURI.PREFIX_PATTERN}"
     ),
 )
@@ -77,8 +76,8 @@ class SourceURI(click.ParamType):
     "--access-token",
     type=str,
     default=None,
-    help="Access-token to be used to authenticate"
-    " to unity simulation for downloading the dataset",
+    help="Unity Simulation access token. "
+    "This will override synthetic datasets source-uri for Unity Simulation",
 )
 def cli(
     source_uri, output, include_binary, access_token,
@@ -86,7 +85,7 @@ def cli(
     ctx = click.get_current_context()
     logger.debug(f"Called download command with parameters: {ctx.params}")
 
-    downloader = DownloaderRegistry.find(source_uri)(access_token=access_token)
+    downloader = DownloaderFactory.find(source_uri)(access_token=access_token)
     downloader.download(
         source_uri=source_uri, output=output, include_binary=include_binary
     )

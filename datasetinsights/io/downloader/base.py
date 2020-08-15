@@ -1,45 +1,54 @@
 import re
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
+
+_registry = {}
 
 
-class DownloaderRegistry(ABCMeta):
-    """ This class registers DatasetDownloader
-        subclasses based on the PROTOCOL attribute
+class DownloaderFactory:
+    """ This factory returns the correct DatasetDownloader
+     from a registry based on the source-uri provided
 
     """
 
-    registry = {}
+    @staticmethod
+    def find(source_uri):
+        """
 
-    def __new__(cls, name, bases, namespace):
-        protocol = "PROTOCOL"
-        if protocol not in namespace:
-            raise RuntimeError(f"{name} must define a class-level {protocol}")
-        new_cls = super().__new__(cls, name, bases, namespace)
-        if namespace[protocol] != "":
-            DownloaderRegistry.registry[namespace[protocol]] = new_cls
-        return new_cls
+        Args:
+            source_uri: URI of where this data should be downloaded.
 
-    @classmethod
-    def find(cls, source_uri):
-        match = re.compile("(gs://|^https://|^http://|^usim://)")
-        protocol = match.findall(source_uri)[0]
+        Returns: The dataset downloader class that is
+         registered with the source-uri protocol
+
+
+        """
+        protocols = "|".join(_registry.keys())
+        pattern = re.compile(f"({protocols})")
+        protocol = pattern.findall(source_uri)
+        if protocol:
+            protocol = protocol[0]
+        else:
+            raise ValueError(
+                f"Downloader not found for source-uri '{source_uri}'"
+            )
+
         if protocol.startswith(("https://", "http://")):
             protocol = "http://"
-        dataset_cls = DownloaderRegistry.registry.get(protocol)
-        if dataset_cls:
-            return dataset_cls
+
+        return _registry.get(protocol)
+
+
+class DatasetDownloader(ABC):
+    @classmethod
+    def __init_subclass__(cls, protocol=None, **kwargs):
+        if protocol:
+            _registry[protocol] = cls
         else:
-            raise ValueError(f"Downloader '{protocol}' does not exist:")
-
-    @staticmethod
-    def list_datasets():
-        return DownloaderRegistry.registry.keys()
-
-
-class DatasetDownloader(metaclass=DownloaderRegistry):
-    PROTOCOL = ""
+            raise NotImplementedError(
+                f"Subclass needs to have class keyword argument named protocol."
+            )
+        super().__init_subclass__(**kwargs)
 
     @abstractmethod
-    def download(self, **kwargs):
-
+    def download(self, source_uri, output, **kwargs):
         raise NotImplementedError("Subclass needs to implement this method")

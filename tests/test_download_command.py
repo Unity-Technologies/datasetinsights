@@ -5,7 +5,7 @@ from click.exceptions import BadParameter
 from click.testing import CliRunner
 
 from datasetinsights.commands.download import SourceURI, cli
-from datasetinsights.io.downloader.base import DownloaderRegistry
+from datasetinsights.io.downloader.base import DownloaderFactory
 from datasetinsights.io.downloader.unity_simulation import (
     UnitySimulationDownloader,
 )
@@ -40,7 +40,7 @@ def test_source_uri_validation():
         ["download", "--source-uri=gs://", "--output=tests/"],
     ],
 )
-@patch.object(DownloaderRegistry, "find")
+@patch.object(DownloaderFactory, "find")
 def test_download_except_called_once(mock_find, args):
     # arrange
     runner = CliRunner()
@@ -54,7 +54,7 @@ def test_download_except_called_once(mock_find, args):
 @pytest.mark.parametrize(
     "args", [["download"], ["download", "--source-uri=s3://"]],
 )
-@patch.object(DownloaderRegistry, "find")
+@patch.object(DownloaderFactory, "find")
 def test_download_except_not_called(mock_find, args):
     # arrange
     runner = CliRunner()
@@ -69,7 +69,7 @@ def test_download_except_not_called(mock_find, args):
 def test_parsing_without_access_token_option():
     # arrange
     run_execution_id = "ABCDEDF"
-    project_id = "aaaa-bbb-cccc-dddd-eeee"
+    project_id = "549f15d3-1e72-4ff1-815d-6355feaed297"
     access_token = "access-token"
     downloader = UnitySimulationDownloader()
 
@@ -87,7 +87,7 @@ def test_parsing_without_access_token_option():
 def test_parsing_access_token_option():
     # arrange
     run_execution_id = "ABCDEDF"
-    project_id = "aaaa-bbb-cccc-dddd-eeee"
+    project_id = "549f15d3-1e72-4ff1-815d-6355feaed297"
     access_token = "access-token"
     downloader = UnitySimulationDownloader(access_token=access_token)
 
@@ -103,7 +103,7 @@ def test_parsing_access_token_option():
 def test_parsing_access_token_option_and_source_uri_access_token():
     # arrange
     run_execution_id = "ABCDEDF"
-    project_id = "aaaa-bbb-cccc-dddd-eeee"
+    project_id = "549f15d3-1e72-4ff1-815d-6355feaed297"
     access_token = "access-token"
     downloader = UnitySimulationDownloader(access_token=access_token)
 
