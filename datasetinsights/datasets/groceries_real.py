@@ -141,7 +141,7 @@ class GroceriesReal(Dataset):
         self.version = version
 
         self.transforms = transforms
-        if not os.path.isdir(os.path.join(self.data_path, f"{version}")):
+        if not os.path.isdir(self.data_path):
             raise DatasetNotFoundError(
                 "Cannot find the dataset. Please download it first."
             )
@@ -175,7 +175,7 @@ class GroceriesReal(Dataset):
     def _filepath(self, filename):
         """Local file path relative to data_path
         """
-        return os.path.join(self.data_path, self.version, filename)
+        return os.path.join(self.data_path, filename)
 
     @staticmethod
     def _download_http(source_uri, dest_path, version):
