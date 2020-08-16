@@ -20,13 +20,15 @@ class UnitySimulationDownloader(DatasetDownloader, protocol="usim://"):
 
     """
 
-    SOURCE_URI_PATTERN = r"usim://([^@]*)?@?" \
-              r"([a-fA-F0-9]{8}-" \
-              r"[a-fA-F0-9]{4}-" \
-              r"[a-fA-F0-9]{4}-" \
-              r"[a-fA-F0-9]{4}-" \
-              r"[a-fA-F0-9]{12})" \
-              r"/(\w+)"
+    SOURCE_URI_PATTERN = (
+        r"usim://([^@]*)?@?"
+        r"([a-fA-F0-9]{8}-"
+        r"[a-fA-F0-9]{4}-"
+        r"[a-fA-F0-9]{4}-"
+        r"[a-fA-F0-9]{4}-"
+        r"[a-fA-F0-9]{12})"
+        r"/(\w+)"
+    )
 
     def __init__(self, access_token=None, **kwargs):
         """
