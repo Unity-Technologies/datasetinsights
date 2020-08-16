@@ -172,7 +172,9 @@ class FasterRCNN(Estimator):
         """
         config = self.config
         train_dataset = create_dataset(config, train_data, TRAIN)
-        val_dataset = create_dataset(config, val_data, VAL) if val_data else None
+        val_dataset = (
+            create_dataset(config, val_data, VAL) if val_data else None
+        )
 
         label_mappings = train_dataset.label_mappings
 
