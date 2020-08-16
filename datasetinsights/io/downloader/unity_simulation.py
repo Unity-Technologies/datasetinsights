@@ -20,6 +20,14 @@ class UnitySimulationDownloader(DatasetDownloader, protocol="usim://"):
 
     """
 
+    SOURCE_URI_PATTERN = r"usim://([^@]*)?@?" \
+              r"([a-fA-F0-9]{8}-" \
+              r"[a-fA-F0-9]{4}-" \
+              r"[a-fA-F0-9]{4}-" \
+              r"[a-fA-F0-9]{4}-" \
+              r"[a-fA-F0-9]{12})" \
+              r"/(\w+)"
+
     def __init__(self, access_token=None, **kwargs):
         """
 
@@ -87,17 +95,9 @@ class UnitySimulationDownloader(DatasetDownloader, protocol="usim://"):
             usim://project-id/run-execution-id
 
         """
-        match = re.compile(
-            r"usim://([^@]*)?@?"
-            r"([a-fA-F0-9]{8}-"
-            r"[a-fA-F0-9]{4}-"
-            r"[a-fA-F0-9]{4}-"
-            r"[a-fA-F0-9]{4}-"
-            r"[a-fA-F0-9]{12})"
-            r"/(\w+)"
-        )
-        if match.findall(source_uri):
-            (access_token, project_id, run_execution_id,) = match.findall(
+        pattern = re.compile(self.SOURCE_URI_PATTERN)
+        if pattern.findall(source_uri):
+            (access_token, project_id, run_execution_id,) = pattern.findall(
                 source_uri
             )[0]
             if not self.access_token:
