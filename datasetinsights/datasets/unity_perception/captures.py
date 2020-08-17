@@ -84,9 +84,10 @@ class Captures:
         """
         captures = []
         for c_file in glob(data_root, self.FILE_PATTERN):
-            capture = load_table(
-                c_file, self.TABLE_NAME, version, max_level=0
-            ).drop(columns="annotations")
+            capture = load_table(c_file, self.TABLE_NAME, version, max_level=0)
+            if "annotations" in capture.columns:
+                capture.drop(columns="annotations")
+
             captures.append(capture)
 
         # pd.concat might create memory bottleneck
@@ -122,14 +123,20 @@ class Captures:
       """
         annotations = []
         for c_file in glob(data_root, self.FILE_PATTERN):
-            annotation = load_table(
-                c_file,
-                self.TABLE_NAME,
-                version,
-                record_path="annotations",
-                meta="id",
-                meta_prefix="capture.",
-            )
+            try:
+                annotation = load_table(
+                    c_file,
+                    self.TABLE_NAME,
+                    version,
+                    record_path="annotations",
+                    meta="id",
+                    meta_prefix="capture.",
+                )
+            except KeyError:
+                annotation = pd.DataFrame(
+                    {"annotation_definition": [], "capture.id": []}
+                )
+
             annotations.append(annotation)
 
         return pd.concat(annotations, axis=0)
@@ -163,6 +170,13 @@ class Captures:
         +---------------+------------------+-----------+-------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+---------------+--------------+---------------------+---------------------------------------+-----------------------------------------------------------------------------------------------------------------------+
 
         """  # noqa: E501 table should not be broken down into multiple lines
+        if self.annotations.empty:
+            msg = (
+                f"Can't find annotations records associate with the given "
+                f"definition id {def_id}."
+            )
+            raise DefinitionIDError(msg)
+
         mask = self.annotations.annotation_definition == def_id
         annotations = (
             self.annotations[mask]
