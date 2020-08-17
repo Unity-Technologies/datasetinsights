@@ -16,10 +16,13 @@ from datasetinsights.datasets.unity_perception import (
     Captures,
 )
 from datasetinsights.datasets.unity_perception.tables import SCHEMA_VERSION
+from datasetinsights.datasets.unity_perception.usim import (
+    Downloader,
+    download_manifest,
+)
 from datasetinsights.io.bbox import BBox2D
 from datasetinsights.io.download import download_file, validate_checksum
 from datasetinsights.io.exceptions import ChecksumError
-from datasetinsights.io.usim import Downloader, download_manifest
 
 from .base import Dataset
 from .exceptions import DatasetNotFoundError
