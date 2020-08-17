@@ -54,7 +54,8 @@ def train_op(
             "python",
             "-m",
             "torch.distributed.launch",
-            f"--nproc_per_node={num_gpu}" "datasetinsights",
+            f"--nproc_per_node={num_gpu}",
+            "datasetinsights",
             "train",
         ],
         arguments=[
@@ -79,24 +80,60 @@ def train_op(
     return train
 
 
+def evaluate_op(
+    docker,
+    config,
+    checkpoint_file,
+    test_data,
+    tb_log_dir,
+    volume,
+    memory_limit,
+    num_gpu,
+    gpu_type,
+):
+    evaluate = dsl.ContainerOp(
+        name="evaluate",
+        image=docker,
+        command=["datasetinsights", "evaluate"],
+        arguments=[
+            f"--config={config}",
+            f"--checkpoint-file={checkpoint_file}",
+            f"--test-data={test_data}",
+            f"--tb_log_dir={tb_log_dir}",
+        ],
+        # Refer to pvloume in previous step to explicitly call out dependency
+        pvolumes={DATA_PATH: volume},
+    )
+    # GPU
+    evaluate.set_gpu_limit(num_gpu)
+    evaluate.add_node_selector_constraint(
+        "cloud.google.com/gke-accelerator", gpu_type
+    )
+
+    evaluate.set_memory_request(memory_limit)
+    evaluate.set_memory_limit(memory_limit)
+
+    return evaluate
+
+
 @dsl.pipeline(
     name="Train on the SynthDet sample",
     description="Train on the SynthDet sample",
 )
 def train_on_synthdet_sample(
-    docker: str = ("unitytechnologies/datasetinsights:latest"),
+    docker: str = "unitytechnologies/datasetinsights:latest",
     source_uri: str = (
         "https://storage.googleapis.com/datasetinsights/data/"
         "synthetic/SynthDet.zip"
     ),
+    config: str = "datasetinsights/configs/faster_rcnn_synthetic.yaml",
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
     volume_size: str = "100Gi",
-    config: str = "datasetinsights/configs/faster_rcnn_synthetic.yaml",
 ):
     output = train_data = val_data = DATA_PATH
 
-    # Due to this issue, the following parameters can not be `PipelineParam`
+    # The following parameters can't be `PipelineParam` due to this issue:
     # https://github.com/kubeflow/pipelines/issues/1956
     # Instead, they have to be configured when the pipeline is compiled.
     memory_limit = "64Gi"
@@ -121,5 +158,51 @@ def train_on_synthdet_sample(
 
     # Use GCP Service Accounts to allow writing logs to GCS
     ops = [download, train]
+    for op in ops:
+        op.apply(gcp.use_gcp_secret("user-gcp-sa"))
+
+
+@dsl.pipeline(
+    name="Evaluate the model", description="Evaluate the model",
+)
+def evaluate_the_model(
+    docker: str = "unitytechnologies/datasetinsights:latest",
+    source_uri: str = (
+        "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip"
+    ),
+    config: str = "datasetinsights/configs/faster_rcnn_groceries_real.yaml",
+    checkpoint_file: str = (
+        "https://storage.googleapis.com/datasetinsights/models/"
+        "fine-tuned-sim2real/FasterRCNN.estimator"
+    ),
+    tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
+    volume_size: str = "100Gi",
+):
+    output = test_data = DATA_PATH
+
+    # The following parameters can't be `PipelineParam` due to this issue:
+    # https://github.com/kubeflow/pipelines/issues/1956
+    # Instead, they have to be configured when the pipeline is compiled.
+    memory_limit = "64Gi"
+    num_gpu = 1
+    gpu_type = "nvidia-tesla-v100"
+
+    # Pipeline definition
+    vop = volume_op(volume_size)
+    download = download_op(docker, source_uri, output, vop.volume, memory_limit)
+    evaluate = evaluate_op(
+        docker,
+        config,
+        checkpoint_file,
+        test_data,
+        tb_log_dir,
+        download.pvolumes[DATA_PATH],
+        memory_limit,
+        num_gpu,
+        gpu_type,
+    )
+
+    # Use GCP Service Accounts to allow writing logs to GCS
+    ops = [download, evaluate]
     for op in ops:
         op.apply(gcp.use_gcp_secret("user-gcp-sa"))
