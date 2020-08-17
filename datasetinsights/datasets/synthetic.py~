@@ -299,12 +299,17 @@ class SynDetection2D(Dataset):
         image without any objects.
 
         """
+<<<<<<< HEAD
+=======
         self._fix_filenames(catalog)
+>>>>>>> 3811cf8... Fixing Windows path handling for synthetic datasets
         catalog = self._remove_captures_with_missing_files(self.root, catalog)
         catalog = self._remove_captures_without_bboxes(catalog)
 
         return catalog
 
+<<<<<<< HEAD
+=======
     @staticmethod
     def _fix_filenames(catalog: pd.DataFrame):
         """
@@ -313,6 +318,7 @@ class SynDetection2D(Dataset):
         """
         catalog.filename = catalog.filename.apply(lambda f: f.replace('\\', '/'))
 
+>>>>>>> 3811cf8... Fixing Windows path handling for synthetic datasets
     @staticmethod
     def _remove_captures_without_bboxes(catalog):
         """Remove captures without bounding boxes from catalog
