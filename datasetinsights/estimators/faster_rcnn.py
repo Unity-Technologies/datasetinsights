@@ -18,8 +18,6 @@ import datasetinsights.constants as const
 from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
 from datasetinsights.io.bbox import BBox2D
-from datasetinsights.io.checkpoint import EstimatorCheckpoint
-from datasetinsights.io.kfp_output import KubeflowPipelineWriter
 from datasetinsights.io.transforms import Compose
 from datasetinsights.torch_distributed import get_world_size, is_master
 
@@ -63,11 +61,11 @@ class FasterRCNN(Estimator):
         self,
         *,
         config,
-        logdir,
+        writer,
+        kfp_writer,
+        checkpointer,
         box_score_thresh=0.05,
         no_cuda=None,
-        kfp_metrics_filename=const.DEFAULT_KFP_METRICS_FILENAME,
-        kfp_metrics_dir=const.DEFAULT_KFP_METRICS_DIR,
         checkpoint_file=None,
         **kwargs,
     ):
@@ -79,17 +77,11 @@ class FasterRCNN(Estimator):
         self._init_distributed_mode()
         self.no_cuda = no_cuda
         self._init_device()
-        self.writer = SummaryWriter(logdir, write_to_disk=self.distributed)
+        self.writer = SummaryWriter(writer.logdir, write_to_disk=is_master())
 
-        self.kfp_writer = KubeflowPipelineWriter(
-            filename=kfp_metrics_filename, filepath=kfp_metrics_dir,
-        )
-
-        self.checkpointer = EstimatorCheckpoint(
-            estimator_name=config.estimator,
-            log_dir=self.writer.logdir,
-            distributed=self.distributed,
-        )
+        self.kfp_writer = kfp_writer
+        checkpointer.distributed = self.distributed
+        self.checkpointer = checkpointer
 
         model_name = f"fasterrcnn_{self.config.backbone}_fpn"
         self.model = torchvision.models.detection.__dict__[model_name](
