@@ -5,7 +5,6 @@ from click.exceptions import BadParameter
 from click.testing import CliRunner
 
 from datasetinsights.commands.download import SourceURI, cli
-from datasetinsights.io.downloader.base import DownloaderFactory
 from datasetinsights.io.downloader.unity_simulation import (
     UnitySimulationDownloader,
 )
@@ -40,30 +39,29 @@ def test_source_uri_validation():
         ["download", "--source-uri=gs://", "--output=tests/"],
     ],
 )
-@patch.object(DownloaderFactory, "find")
-def test_download_except_called_once(mock_find, args):
+@patch("datasetinsights.commands.download.create_downloader")
+def test_download_except_called_once(mock_create, args):
     # arrange
     runner = CliRunner()
     # act
     runner.invoke(cli, args)
     # assert
-    mock_find.assert_called_once()
-    mock_find.return_value.return_value.download.assert_called_once()
+    mock_create.assert_called_once()
+    mock_create.return_value.download.assert_called_once()
 
 
 @pytest.mark.parametrize(
     "args", [["download"], ["download", "--source-uri=s3://"]],
 )
-@patch.object(DownloaderFactory, "find")
-def test_download_except_not_called(mock_find, args):
+@patch("datasetinsights.commands.download.create_downloader")
+def test_download_except_not_called(mock_create, args):
     # arrange
     runner = CliRunner()
     # act
     runner.invoke(cli, args)
     # assert
-
-    mock_find.assert_not_called()
-    mock_find.return_value.download.assert_not_called()
+    mock_create.assert_not_called()
+    mock_create.return_value.download.assert_not_called()
 
 
 def test_parsing_without_access_token_option():

@@ -4,7 +4,7 @@ import re
 import click
 
 import datasetinsights.constants as const
-from datasetinsights.io.downloader.base import DownloaderFactory
+from datasetinsights.io.downloader.base import create_downloader
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,9 @@ def cli(
     ctx = click.get_current_context()
     logger.debug(f"Called download command with parameters: {ctx.params}")
 
-    downloader = DownloaderFactory.find(source_uri)(access_token=access_token)
+    downloader = create_downloader(
+        source_uri=source_uri, access_token=access_token
+    )
     downloader.download(
         source_uri=source_uri, output=output, include_binary=include_binary
     )

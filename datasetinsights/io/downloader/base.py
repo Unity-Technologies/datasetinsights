@@ -4,38 +4,36 @@ from abc import ABC, abstractmethod
 _registry = {}
 
 
-class DownloaderFactory:
-    """ This factory returns the correct DatasetDownloader
-     from a registry based on the source-uri provided
-
+def _find_downloader(source_uri):
     """
-
-    @staticmethod
-    def find(source_uri):
-        """
+     This factory returns the correct DatasetDownloader
+     from a registry based on the source-uri provided
 
         Args:
             source_uri: URI of where this data should be downloaded.
 
-        Returns: The dataset downloader class that is
-         registered with the source-uri protocol
+            Returns: The dataset downloader class that is
+             registered with the source-uri protocol
 
 
-        """
-        protocols = "|".join(_registry.keys())
-        pattern = re.compile(f"({protocols})")
-        protocol = pattern.findall(source_uri)
-        if protocol:
-            protocol = protocol[0]
-        else:
-            raise ValueError(
-                f"Downloader not found for source-uri '{source_uri}'"
-            )
+    """
+    protocols = "|".join(_registry.keys())
+    pattern = re.compile(f"({protocols})")
+    protocol = pattern.findall(source_uri)
+    if protocol:
+        protocol = protocol[0]
+    else:
+        raise ValueError(f"Downloader not found for source-uri '{source_uri}'")
 
-        if protocol.startswith(("https://", "http://")):
-            protocol = "http://"
+    if protocol.startswith(("https://", "http://")):
+        protocol = "http://"
 
-        return _registry.get(protocol)
+    return _registry.get(protocol)
+
+
+def create_downloader(source_uri, **kwargs):
+    downloader_class = _find_downloader(source_uri=source_uri)
+    return downloader_class(**kwargs)
 
 
 class DatasetDownloader(ABC):
