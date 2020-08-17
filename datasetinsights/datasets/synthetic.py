@@ -3,7 +3,6 @@
 import glob
 import logging
 import os
-import zipfile
 from collections import namedtuple
 from pathlib import Path
 
@@ -17,12 +16,6 @@ from datasetinsights.datasets.unity_perception import (
 )
 from datasetinsights.datasets.unity_perception.tables import SCHEMA_VERSION
 from datasetinsights.io.bbox import BBox2D
-from datasetinsights.io.download import download_file, validate_checksum
-from datasetinsights.io.downloader.unity_simulation import (
-    Downloader,
-    download_manifest,
-)
-from datasetinsights.io.exceptions import ChecksumError
 
 from .base import Dataset
 from .exceptions import DatasetNotFoundError
@@ -83,21 +76,6 @@ def _get_split(*, split, catalog, train_percentage=0.9, random_seed=47):
             f"split provided was {split} but only valid "
             f"splits are: {VALID_SPLITS}"
         )
-
-
-def _download_captures(root, manifest_file):
-    """Download captures for synthetic dataset
-    Args:
-        root (str): root directory where the dataset should be downloaded
-        manifest_file (str): path to USim simulation manifest file
-    """
-    path = Path(root)
-    path.mkdir(parents=True, exist_ok=True)
-
-    dl = Downloader(manifest_file, root)
-    dl.download_captures()
-    dl.download_references()
-    dl.download_binary_files()
 
 
 def read_bounding_box_2d(annotation, label_mappings=None):
@@ -163,9 +141,6 @@ class SynDetection2D(Dataset):
         data_root=const.DEFAULT_DATA_ROOT,
         split="all",
         transforms=None,
-        manifest_file=None,
-        run_execution_id=None,
-        auth_token=None,
         version=SCHEMA_VERSION,
         def_id=4,
         train_split_ratio=DEFAULT_TRAIN_SPLIT_RATIO,
@@ -175,32 +150,10 @@ class SynDetection2D(Dataset):
         """
         Args:
             data_root (str): root directory prefix of dataset
-            manifest_file (str): path to a manifest file. Use this argument
-                if the synthetic data has already been downloaded. If the
-                synthetic dataset hasn't been downloaded, leave this argument
-                as None and provide the run_execution_id and auth_token and
-                this class will download the dataset. For more information
-                on Unity Simulations (USim) please see
-                https://github.com/Unity-Technologies/Unity-Simulation-Docs
             transforms: callable transformation that applies to a pair of
             capture, annotation.
             version(str): synthetic dataset schema version
             def_id (int): annotation definition id used to filter results
-            run_execution_id (str): USim run execution id, if this argument
-                is provided then the class will attempt to download the data
-                from USim. If the data has already been downloaded locally,
-                then this argument should be None and the caller should pass
-                in the location of the manifest_file for the manifest arg.
-                For more information
-                on Unity Simulations (USim) please see
-                https://github.com/Unity-Technologies/Unity-Simulation-Docs
-            auth_token (str): usim authorization token that can be used to
-                interact with usim API to download manifest files. This token
-                is necessary to download the dataset form USim. If the data is
-                already stored locally, then this argument can be left as None.
-                For more information
-                on Unity Simulations (USim) please see
-                https://github.com/Unity-Technologies/Unity-Simulation-Docs
             random_seed (int): random seed used for splitting dataset into
                 train and val
         """
@@ -214,30 +167,11 @@ class SynDetection2D(Dataset):
             self.root = dataset_directory
 
         else:
-            if run_execution_id:
-                manifest_file = os.path.join(
-                    data_root,
-                    const.SYNTHETIC_SUBFOLDER,
-                    f"{run_execution_id}.csv",
-                )
-                download_manifest(
-                    run_execution_id,
-                    manifest_file,
-                    auth_token,
-                    project_id=const.DEFAULT_PROJECT_ID,
-                )
-            if manifest_file:
-                subfolder = Path(manifest_file).stem
-                self.root = os.path.join(
-                    data_root, const.SYNTHETIC_SUBFOLDER, subfolder
-                )
-                self.download_captures_from_manifest(manifest_file)
-            else:
 
-                raise DatasetNotFoundError(
-                    "Cannot find the dataset. Please download it first or "
-                    "provide USIM run execution id or manifest file."
-                )
+            raise DatasetNotFoundError(
+                "Cannot find the dataset. Please download it first or "
+                "provide USIM run execution id or manifest file."
+            )
 
         captures = Captures(self.root, version)
         annotation_definition = AnnotationDefinitions(self.root, version)
@@ -343,80 +277,3 @@ class SynDetection2D(Dataset):
         keep_mask = catalog.filename.apply(exists)
 
         return catalog[keep_mask]
-
-    def download_captures_from_manifest(self, manifest_file):
-        """ Download captures of a given manifest file.
-
-        Args:
-            manifest_file (str): path to a manifest file
-        """
-        _download_captures(self.root, manifest_file)
-
-    @staticmethod
-    def download(data_root, version):
-        """Downloads dataset zip file and unzips it.
-
-        Args:
-            data_root (str): Path where to download the dataset.
-            version (str): version of GroceriesReal dataset, e.g. "v1"
-
-        Raises:
-             ValueError if the dataset version is not supported
-             ChecksumError if the download file checksum does not match
-             DownloadError if the download file failed
-
-        Note: Synthetic dataset is downloaded and unzipped to
-        data_root/synthetic.
-        """
-        if version not in SynDetection2D.SYNTHETIC_DATASET_TABLES.keys():
-            raise ValueError(
-                f"A valid dataset version is required. Available versions are:"
-                f"{SynDetection2D.SYNTHETIC_DATASET_TABLES.keys()}"
-            )
-
-        source_uri = SynDetection2D.SYNTHETIC_DATASET_TABLES[version].source_uri
-        expected_checksum = SynDetection2D.SYNTHETIC_DATASET_TABLES[
-            version
-        ].checksum
-        dataset_file = SynDetection2D.SYNTHETIC_DATASET_TABLES[version].filename
-
-        extract_folder = os.path.join(data_root, const.SYNTHETIC_SUBFOLDER)
-        dataset_path = os.path.join(extract_folder, dataset_file)
-
-        if os.path.exists(dataset_path):
-            logger.info("The dataset file exists. Skip download.")
-            try:
-                validate_checksum(dataset_path, expected_checksum)
-            except ChecksumError:
-                logger.info(
-                    "The checksum of the previous dataset mismatches. "
-                    "Delete the previously downloaded dataset."
-                )
-                os.remove(dataset_path)
-
-        if not os.path.exists(dataset_path):
-            logger.info(f"Downloading dataset to {extract_folder}.")
-            download_file(source_uri, dataset_path)
-            try:
-                validate_checksum(dataset_path, expected_checksum)
-            except ChecksumError as e:
-                logger.info("Checksum mismatch. Delete the downloaded files.")
-                os.remove(dataset_path)
-                raise e
-
-        SynDetection2D.unzip_file(
-            filepath=dataset_path, destination=extract_folder
-        )
-
-    @staticmethod
-    def unzip_file(filepath, destination):
-        """Unzips a zip file to the destination and delete the zip file.
-
-        Args:
-            filepath (str): File path of the zip file.
-            destination (str): Path where to unzip contents of zipped file.
-        """
-        with zipfile.ZipFile(filepath) as file:
-            logger.info(f"Unzipping file from {filepath} to {destination}")
-            file.extractall(destination)
-        os.remove(filepath)
