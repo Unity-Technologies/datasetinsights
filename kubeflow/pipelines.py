@@ -229,7 +229,7 @@ def train_on_synthdet_sample(
         volume=vop.volume,
         memory_limit=memory_limit,
     )
-    train = train_op(
+    train_op(
         docker=docker,
         config=config,
         train_data=train_data,
@@ -241,8 +241,6 @@ def train_on_synthdet_sample(
         num_gpu=num_gpu,
         gpu_type=gpu_type,
     )
-
-    return train
 
 
 @dsl.pipeline(
@@ -279,7 +277,7 @@ def evaluate_the_model(
         volume=vop.volume,
         memory_limit=memory_limit,
     )
-    evaluate = evaluate_op(
+    evaluate_op(
         docker=docker,
         config=config,
         checkpoint_file=checkpoint_file,
@@ -290,8 +288,6 @@ def evaluate_the_model(
         num_gpu=num_gpu,
         gpu_type=gpu_type,
     )
-
-    return evaluate
 
 
 @dsl.pipeline(
@@ -326,7 +322,7 @@ def train_on_real_world_dataset(
         volume=vop.volume,
         memory_limit=memory_limit,
     )
-    train = train_op(
+    train_op(
         docker=docker,
         config=config,
         train_data=train_data,
@@ -338,8 +334,6 @@ def train_on_real_world_dataset(
         num_gpu=num_gpu,
         gpu_type=gpu_type,
     )
-
-    return train
 
 
 @dsl.pipeline(
@@ -378,7 +372,7 @@ def train_on_synthetic_and_real_dataset(
         volume=vop.volume,
         memory_limit=memory_limit,
     )
-    train = train_op(
+    train_op(
         docker=docker,
         config=config,
         train_data=train_data,
@@ -391,8 +385,6 @@ def train_on_synthetic_and_real_dataset(
         gpu_type=gpu_type,
         checkpoint_file=checkpoint_file,
     )
-
-    return train
 
 
 @dsl.pipeline(
@@ -429,7 +421,7 @@ def train_on_synthetic_dataset_unity_simulation(
         volume=vop.volume,
         memory_limit=memory_limit,
     )
-    train = train_op(
+    train_op(
         docker=docker,
         config=config,
         train_data=train_data,
@@ -441,5 +433,3 @@ def train_on_synthetic_dataset_unity_simulation(
         num_gpu=num_gpu,
         gpu_type=gpu_type,
     )
-
-    return train
