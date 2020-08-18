@@ -91,17 +91,22 @@ def train_op(
         kfp.dsl.ContainerOp: Represents an op implemented by a container image
             to train an estimator.
     """
-    train = dsl.ContainerOp(
-        name="train",
-        image=docker,
-        command=[
+    if num_gpu > 1:
+        command = [
             "python",
             "-m",
             "torch.distributed.launch",
             f"--nproc_per_node={num_gpu}",
             "datasetinsights",
             "train",
-        ],
+        ]
+    else:
+        command = ["datasetinsights", "train"]
+
+    train = dsl.ContainerOp(
+        name="train",
+        image=docker,
+        command=command,
         arguments=[
             f"--config={config}",
             f"--train-data={train_data}",
@@ -278,3 +283,51 @@ def evaluate_the_model(
     )
 
     return evaluate
+
+
+@dsl.pipeline(
+    name="Train on real world dataset",
+    description="Train on real world dataset",
+)
+def train_on_real_world_dataset(
+    docker: str = "unitytechnologies/datasetinsights:latest",
+    source_uri: str = (
+        "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip"
+    ),
+    config: str = "datasetinsights/configs/faster_rcnn_groceries_real.yaml",
+    tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
+    checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
+    volume_size: str = "100Gi",
+):
+    output = train_data = val_data = DATA_PATH
+
+    # The following parameters can't be `PipelineParam` due to this issue:
+    # https://github.com/kubeflow/pipelines/issues/1956
+    # Instead, they have to be configured when the pipeline is compiled.
+    memory_limit = "64Gi"
+    num_gpu = 1
+    gpu_type = "nvidia-tesla-v100"
+
+    # Pipeline definition
+    vop = volume_op(volume_size=volume_size)
+    download = download_op(
+        docker=docker,
+        source_uri=source_uri,
+        output=output,
+        volume=vop.volume,
+        memory_limit=memory_limit,
+    )
+    train = train_op(
+        docker=docker,
+        config=config,
+        train_data=train_data,
+        val_data=val_data,
+        tb_log_dir=tb_log_dir,
+        checkpoint_dir=checkpoint_dir,
+        volume=download.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+        num_gpu=num_gpu,
+        gpu_type=gpu_type,
+    )
+
+    return train
