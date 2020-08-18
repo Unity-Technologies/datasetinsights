@@ -157,7 +157,9 @@ class SynDetection2D(Dataset):
             random_seed (int): random seed used for splitting dataset into
                 train and val
         """
-        self.dataset_directory = os.path.join(data_root, const.SYNTHETIC_SUBFOLDER)
+        self.dataset_directory = os.path.join(
+            data_root, const.SYNTHETIC_SUBFOLDER
+        )
 
         captures = Captures(self.dataset_directory, version)
         annotation_definition = AnnotationDefinitions(
