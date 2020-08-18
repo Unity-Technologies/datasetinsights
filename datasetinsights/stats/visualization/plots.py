@@ -1,7 +1,6 @@
 import cv2
 import logging
 import pathlib
-import os
 from hashlib import md5
 
 import matplotlib.pyplot as plt
@@ -9,13 +8,30 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from PIL import ImageColor, ImageDraw, ImageFont, Image
+from PIL import ImageColor, ImageFont, Image
 
 from datasetinsights.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
 
 logger = logging.getLogger(__name__)
 COLORS = list(ImageColor.colormap.values())
 CUR_DIR = pathlib.Path(__file__).parent.absolute()
+_COLOR_NAME_TO_RGB = dict(
+    navy=((0, 38, 63), (119, 193, 250)),
+    blue=((0, 120, 210), (173, 220, 252)),
+    aqua=((115, 221, 252), (0, 76, 100)),
+    teal=((15, 205, 202), (0, 0, 0)),
+    olive=((52, 153, 114), (25, 58, 45)),
+    green=((0, 204, 84), (15, 64, 31)),
+    lime=((1, 255, 127), (0, 102, 53)),
+    yellow=((255, 216, 70), (103, 87, 28)),
+    orange=((255, 125, 57), (104, 48, 19)),
+    red=((255, 47, 65), (131, 0, 17)),
+    maroon=((135, 13, 75), (239, 117, 173)),
+    fuchsia=((246, 0, 184), (103, 0, 78)),
+    purple=((179, 17, 193), (241, 167, 244)),
+    gray=((168, 168, 168), (0, 0, 0)),
+    silver=((220, 220, 220), (0, 0, 0)),
+)
 
 
 def decode_segmap(labels, dataset="cityscapes"):
@@ -46,18 +62,14 @@ def decode_segmap(labels, dataset="cityscapes"):
     return rgb
 
 
-def grid_plot(
-    images, figsize=(3, 5), img_type="rgb", titles=None, folder="sim2real"
-):
+def grid_plot(images, figsize=(3, 5), img_type="rgb", titles=None):
     """ Plot 2D array of images in grid.
-
     Args:
         images (list): 2D array of images.
         figsize (tuple): target figure size of each image in the grid.
         Defaults to (3, 5).
         img_type (string): image plot type ("rgb", "gray"). Defaults to "rgb".
         titles (list[str]): a list of titles. Defaults to None.
-
     Returns:
         matplotlib figure the combined grid plot.
     """
@@ -75,37 +87,12 @@ def grid_plot(
             plt.xticks([])
             plt.yticks([])
             if titles:
-                # plt.title(titles[k - 1])
-                plt.title(titles)
+                plt.title(titles[k - 1])
             plt.grid(False)
             if img_type == "gray":
                 plt.imshow(img, cmap="gray")
             else:
                 plt.imshow(img, plt.cm.binary)
-    if titles:
-        if not os.path.isdir(folder):
-            os.mkdir(folder)
-        figure.savefig(f"{folder}/{titles}.png")
-
-    figure = plt.figure(figsize=figsize, constrained_layout=True)
-    for i in range(n_rows):
-        for j in range(n_cols):
-            img = images[i][j]
-            k = i * n_cols + j + 1
-            plt.subplot(n_rows, n_cols, k)
-            plt.xticks([])
-            plt.yticks([])
-            plt.grid(False)
-            if img_type == "gray":
-                plt.imshow(img, cmap="gray")
-            else:
-                plt.imshow(img, plt.cm.binary)
-
-    if titles:
-        if not os.path.isdir(f"{folder}_notitles"):
-            os.mkdir(f"{folder}_notitles")
-        figure.savefig(f"{folder}_notitles/{titles}.png")
-
     plt.show()
 
     return figure
@@ -343,7 +330,7 @@ def rotation_plot(df, x, y, z=None, max_samples=None, title=None, **kwargs):
 
 
 def plot_bboxes(
-    image, boxes, label_mappings, colors=None, box_line_width=1, font_scale=50
+    image, boxes, label_mappings, colors=None, box_line_width=1, font_size=100
 ):
     """ Plot an image with bounding boxes.
 
@@ -353,66 +340,50 @@ def plot_bboxes(
         colors (list): a color list for boxes. Defaults to None.
         If colors = None, it will randomly assign PIL.COLORS for each box.
         box_line_width (int): line width of the bounding boxes. Defaults to 1.
-        font_scale (int): how many chars can be filled in the image
-        horizontally. Defaults to 50.
+        font_size (int): font size for each label. Defaults to 100.
 
     Returns:
         a PIL image with bounding boxes drawn.
     """
     combined = image.copy()
-    combined = np.array(combined)
 
     for i, box in enumerate(boxes):
 
         left, top = (box.x, box.y)
         right, bottom = (box.x + box.w, box.y + box.h)
+        location = [left, top, right, bottom]
         label = label_mappings.iloc[box.label]["Label Name"]
 
         if not colors:
-            add(combined, left, top, right, bottom, label=label, color=None)
+            _add_bbox(
+                combined,
+                location,
+                label=label,
+                color=None,
+                font_size=font_size,
+            )
         else:
             label = f"{label}: {box.score * 100: .2f}%"
-            add(
+            _add_bbox(
                 combined,
-                left,
-                top,
-                right,
-                bottom,
+                location,
                 label=label,
                 color=colors[i],
+                font_size=font_size,
             )
 
     return Image.fromarray(combined)
-
-
-_COLOR_NAME_TO_RGB = dict(
-    navy=((0, 38, 63), (119, 193, 250)),
-    blue=((0, 120, 210), (173, 220, 252)),
-    aqua=((115, 221, 252), (0, 76, 100)),
-    teal=((15, 205, 202), (0, 0, 0)),
-    olive=((52, 153, 114), (25, 58, 45)),
-    green=((0, 204, 84), (15, 64, 31)),
-    lime=((1, 255, 127), (0, 102, 53)),
-    yellow=((255, 216, 70), (103, 87, 28)),
-    orange=((255, 125, 57), (104, 48, 19)),
-    red=((255, 47, 65), (131, 0, 17)),
-    maroon=((135, 13, 75), (239, 117, 173)),
-    fuchsia=((246, 0, 184), (103, 0, 78)),
-    purple=((179, 17, 193), (241, 167, 244)),
-    gray=((168, 168, 168), (0, 0, 0)),
-    silver=((220, 220, 220), (0, 0, 0)),
-)
-
-_COLOR_NAMES = list(_COLOR_NAME_TO_RGB)
-_FONT = ImageFont.truetype(str(CUR_DIR / "font" / "arial.ttf"), 100)
 
 
 def _color_image(image, font_color, background_color):
     return background_color + (font_color - background_color) * image / 255
 
 
-def _get_label_image(text, font_color_tuple_bgr, background_color_tuple_bgr):
-    text_image = _FONT.getmask(text)
+def _get_label_image(
+    text, font_color_tuple_bgr, background_color_tuple_bgr, font_size
+):
+    FONT = ImageFont.truetype(str(CUR_DIR / "font" / "arial.ttf"), font_size)
+    text_image = FONT.getmask(text)
     shape = list(reversed(text_image.size))
     bw_image = np.array(text_image).reshape(shape)
 
@@ -426,28 +397,15 @@ def _get_label_image(text, font_color_tuple_bgr, background_color_tuple_bgr):
     return np.concatenate(image).transpose(1, 2, 0)
 
 
-def add(image, left, top, right, bottom, label=None, color=None):
-    if type(image) is not np.ndarray:
-        raise TypeError("'image' parameter must be a numpy.ndarray")
-    try:
-        left, top, right, bottom = int(left), int(top), int(right), int(bottom)
-    except ValueError:
-        raise TypeError("'left', 'top', 'right' & 'bottom' must be a number")
-
-    if label and type(label) is not str:
-        raise TypeError("'label' must be a str")
+def _add_bbox(image, location, label=None, color=None, font_size=100):
+    image = np.array(image)
+    color_names = list(_COLOR_NAME_TO_RGB)
+    left, top, right, bottom = location
 
     if label and not color:
         hex_digest = md5(label.encode()).hexdigest()
         color_index = int(hex_digest, 16) % len(_COLOR_NAME_TO_RGB)
-        color = _COLOR_NAMES[color_index]
-
-    if type(color) is not str:
-        raise TypeError("'color' must be a str")
-
-    if color not in _COLOR_NAME_TO_RGB:
-        msg = "'color' must be one of " + ", ".join(_COLOR_NAME_TO_RGB)
-        raise ValueError(msg)
+        color = color_names[color_index]
 
     colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
     color, color_text = colors
@@ -457,7 +415,7 @@ def add(image, left, top, right, bottom, label=None, color=None):
     if label:
         _, image_width, _ = image.shape
 
-        label_image = _get_label_image(label, color_text, color)
+        label_image = _get_label_image(label, color_text, color, font_size)
         label_height, label_width, _ = label_image.shape
 
         rectangle_height, rectangle_width = 1 + label_height, 1 + label_width
