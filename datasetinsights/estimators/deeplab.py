@@ -8,7 +8,6 @@ from ignite.metrics import Loss
 from torchvision import transforms as T
 from torchvision.transforms import functional as F
 
-import datasetinsights.constants as const
 from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics import EvaluationMetric
 from datasetinsights.io.loader import create_loader
@@ -94,7 +93,16 @@ class DeeplabV3(Estimator):
         lr_scheduler: pytorch learning rate scheduler
     """
 
-    def __init__(self, *, config, writer, checkpointer, device, **kwargs):
+    def __init__(
+        self,
+        *,
+        config,
+        writer,
+        checkpointer,
+        device,
+        checkpoint_file=None,
+        **kwargs,
+    ):
         self.config = config
         self.writer = writer
         self.checkpointer = checkpointer
@@ -125,9 +133,8 @@ class DeeplabV3(Estimator):
         self.lr_scheduler = lr_scheduler
 
         # load estimators from file if checkpoint_file exists
-        ckpt_file = self.config.checkpoint_file
-        if ckpt_file != const.NULL_STRING:
-            self.checkpointer.load(self, ckpt_file)
+        if checkpoint_file:
+            self.checkpointer.load(self, checkpoint_file)
 
     @staticmethod
     def _transforms(is_train=True, crop_size=769):

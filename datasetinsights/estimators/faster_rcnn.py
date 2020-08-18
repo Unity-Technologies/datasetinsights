@@ -104,9 +104,8 @@ class FasterRCNN(Estimator):
             )
             self.model_without_ddp = self.model.module
 
-        self.checkpoint_file = checkpoint_file
-        if self.checkpoint_file:
-            self.checkpointer.load(self, self.checkpoint_file)
+        if checkpoint_file:
+            self.checkpointer.load(self, checkpoint_file)
 
     def _init_distributed_mode(self):
         if "RANK" in os.environ and "WORLD_SIZE" in os.environ:
