@@ -6,7 +6,7 @@ _registry = {}
 
 def _find_downloader(source_uri):
     """
-     This factory returns the correct DatasetDownloader
+     This function returns the correct DatasetDownloader
      from a registry based on the source-uri provided
 
         Args:
@@ -32,6 +32,17 @@ def _find_downloader(source_uri):
 
 
 def create_downloader(source_uri, **kwargs):
+    """
+    This function instantiates the dataset downloader
+     after finding it with the source-uri provided
+
+    Args:
+        source_uri: URI used to look up the correct dataset downloader
+        **kwargs:
+
+    Returns: The dataset downloader instance matching the source-uri.
+
+    """
     downloader_class = _find_downloader(source_uri=source_uri)
     return downloader_class(**kwargs)
 
