@@ -31,7 +31,7 @@ GroceriesRealTable = namedtuple(
 class GroceriesReal(Dataset):
     """Unity's Groceries Real Dataset.
 
-    During the class instantiation, it would check whehter the data is
+    During the class instantiation, it would check whether the data is
     downloaded or not. If there is no dataset, it would raise an error.
     Please make sure you download the dataset before use this class.
 

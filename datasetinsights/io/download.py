@@ -67,6 +67,21 @@ def download_file(source_uri: str, dest_path: str, use_cache: bool = True):
     return dest_path
 
 
+def checksum_matches(filepath, expected_checksum, algorithm="CRC32"):
+    """ Check if the checksum matches
+
+    Args:
+        filepath (str): the doaloaded file path
+        expected_checksum (int): expected checksum of the file
+        algorithm (str): checksum algorithm. Defaults to CRC32
+
+    Returns:
+        True if the file checksum matches.
+    """
+    computed = compute_checksum(filepath, algorithm)
+    return computed == expected_checksum
+
+
 def validate_checksum(filepath, expected_checksum, algorithm="CRC32"):
     """ Validate checksum of the downloaded file.
 
@@ -78,8 +93,7 @@ def validate_checksum(filepath, expected_checksum, algorithm="CRC32"):
     Raises:
         ChecksumError if the file checksum does not match.
     """
-    computed = compute_checksum(filepath, algorithm)
-    if computed != expected_checksum:
+    if not checksum_matches(filepath, expected_checksum, algorithm):
         raise ChecksumError
 
 
