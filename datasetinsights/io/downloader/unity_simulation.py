@@ -83,18 +83,15 @@ class UnitySimulationDownloader(DatasetDownloader, protocol="usim://"):
         """
         self.parse_source_uri(source_uri)
         manifest_file = os.path.join(output, f"{self.run_execution_id}.csv")
-        if self.access_token:
+        try:
             manifest_file = download_manifest(
                 self.run_execution_id,
                 manifest_file,
                 self.access_token,
                 project_id=self.project_id,
             )
-        else:
-            logger.info(
-                f"No auth token is provided. Assuming you already have "
-                f"a manifest file located in {manifest_file}"
-            )
+        except DownloadError as error:
+            raise error
 
         dl_worker = Downloader(manifest_file, output)
         dl_worker.download_references()
@@ -114,7 +111,8 @@ class UnitySimulationDownloader(DatasetDownloader, protocol="usim://"):
 
         """
         pattern = re.compile(self.SOURCE_URI_PATTERN)
-        if pattern.findall(source_uri):
+        result = pattern.findall(source_uri)
+        if len(result) == 1:
             (access_token, project_id, run_execution_id,) = pattern.findall(
                 source_uri
             )[0]
@@ -348,7 +346,7 @@ class Downloader:
 
 
 def download_manifest(
-    run_execution_id, manifest_file, auth_token, project_id, use_cache=True
+    run_execution_id, manifest_file, access_token, project_id, use_cache=True
 ):
     """ Download manifest file from a single run_execution_id
     For more on Unity Simulation see these
@@ -358,7 +356,7 @@ def download_manifest(
     Args:
         run_execution_id (str): Unity Simulation run execution id
         manifest_file (str): path to the destination of the manifest_file
-        auth_token (str): short lived authorization token
+        access_token (str): short lived authorization token
         project_id (str): Unity project id that has Unity Simulation enabled
         use_cache (bool, optional): indicator to skip download if manifest
             file already exists. Default: True.
@@ -383,7 +381,7 @@ def download_manifest(
         timeout=DEFAULT_TIMEOUT, max_retries=Retry(total=DEFAULT_MAX_RETRIES)
     )
     headers = {
-        "Authorization": f"Bearer {auth_token}",
+        "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
     }
     with requests.Session() as http:
