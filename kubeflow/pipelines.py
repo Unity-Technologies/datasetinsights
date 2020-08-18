@@ -84,7 +84,7 @@ def train_op(
         val_data (str): Path to val dataset directory.
         checkpoint_file (str): Path to an estimator checkpoint file.
             If specified, model will resume from previous checkpoints.
-        tb_log_dir (str): Path to tensorbload log directory.
+        tb_log_dir (str): Path to tensorboard log directory.
         checkpoint_dir (str): Path to checkpoint file directory.
         volume (kfp.dsl.PipelineVolume): The volume where datasets are stored.
         memory_limit (str): Set memory limit for this operator. For simplicity,
@@ -111,8 +111,8 @@ def train_op(
     arguments = [
         f"--config={config}",
         f"--train-data={train_data}",
-        f"--val-date={val_data}",
-        f"--tb_log_dir={tb_log_dir}",
+        f"--val-data={val_data}",
+        f"--tb-log-dir={tb_log_dir}",
         f"--checkpoint-dir={checkpoint_dir}",
     ]
     if checkpoint_file:
@@ -178,7 +178,7 @@ def evaluate_op(
             f"--config={config}",
             f"--checkpoint-file={checkpoint_file}",
             f"--test-data={test_data}",
-            f"--tb_log_dir={tb_log_dir}",
+            f"--tb-log-dir={tb_log_dir}",
         ],
         pvolumes={DATA_PATH: volume},
     )
