@@ -1,6 +1,5 @@
 """ Simulation Dataset Catalog
 """
-import glob
 import logging
 import os
 import zipfile
@@ -16,16 +15,11 @@ from datasetinsights.datasets.unity_perception import (
     Captures,
 )
 from datasetinsights.datasets.unity_perception.tables import SCHEMA_VERSION
-from datasetinsights.datasets.unity_perception.usim import (
-    Downloader,
-    download_manifest,
-)
 from datasetinsights.io.bbox import BBox2D
 from datasetinsights.io.download import download_file, validate_checksum
 from datasetinsights.io.exceptions import ChecksumError
 
 from .base import Dataset
-from .exceptions import DatasetNotFoundError
 
 logger = logging.getLogger(__name__)
 PUBLIC_SYNTHETIC_PATH = (
@@ -82,21 +76,6 @@ def _get_split(*, split, catalog, train_percentage=0.9, random_seed=47):
             f"split provided was {split} but only valid "
             f"splits are: {VALID_SPLITS}"
         )
-
-
-def _download_captures(root, manifest_file):
-    """Download captures for synthetic dataset
-    Args:
-        root (str): root directory where the dataset should be downloaded
-        manifest_file (str): path to USim simulation manifest file
-    """
-    path = Path(root)
-    path.mkdir(parents=True, exist_ok=True)
-
-    dl = Downloader(manifest_file, root)
-    dl.download_captures()
-    dl.download_references()
-    dl.download_binary_files()
 
 
 def read_bounding_box_2d(annotation, label_mappings=None):
@@ -162,9 +141,6 @@ class SynDetection2D(Dataset):
         data_root=const.DEFAULT_DATA_ROOT,
         split="all",
         transforms=None,
-        manifest_file=None,
-        run_execution_id=None,
-        auth_token=None,
         version=SCHEMA_VERSION,
         def_id=4,
         train_split_ratio=DEFAULT_TRAIN_SPLIT_RATIO,
@@ -174,72 +150,21 @@ class SynDetection2D(Dataset):
         """
         Args:
             data_root (str): root directory prefix of dataset
-            manifest_file (str): path to a manifest file. Use this argument
-                if the synthetic data has already been downloaded. If the
-                synthetic dataset hasn't been downloaded, leave this argument
-                as None and provide the run_execution_id and auth_token and
-                this class will download the dataset. For more information
-                on Unity Simulations (USim) please see
-                https://github.com/Unity-Technologies/Unity-Simulation-Docs
             transforms: callable transformation that applies to a pair of
             capture, annotation.
             version(str): synthetic dataset schema version
             def_id (int): annotation definition id used to filter results
-            run_execution_id (str): USim run execution id, if this argument
-                is provided then the class will attempt to download the data
-                from USim. If the data has already been downloaded locally,
-                then this argument should be None and the caller should pass
-                in the location of the manifest_file for the manifest arg.
-                For more information
-                on Unity Simulations (USim) please see
-                https://github.com/Unity-Technologies/Unity-Simulation-Docs
-            auth_token (str): usim authorization token that can be used to
-                interact with usim API to download manifest files. This token
-                is necessary to download the dataset form USim. If the data is
-                already stored locally, then this argument can be left as None.
-                For more information
-                on Unity Simulations (USim) please see
-                https://github.com/Unity-Technologies/Unity-Simulation-Docs
             random_seed (int): random seed used for splitting dataset into
                 train and val
         """
-        dataset_directory = os.path.join(data_root, const.SYNTHETIC_SUBFOLDER)
-        if (
-            os.path.isdir(dataset_directory)
-            and glob.glob(f"{dataset_directory}/**/*.png")
-            and glob.glob(f"{dataset_directory}/**/*.json")
-        ):
-            logger.info(f"Found dataset locally at {dataset_directory}")
-            self.root = dataset_directory
+        self.dataset_directory = os.path.join(
+            data_root, const.SYNTHETIC_SUBFOLDER
+        )
 
-        else:
-            if run_execution_id:
-                manifest_file = os.path.join(
-                    data_root,
-                    const.SYNTHETIC_SUBFOLDER,
-                    f"{run_execution_id}.csv",
-                )
-                download_manifest(
-                    run_execution_id,
-                    manifest_file,
-                    auth_token,
-                    project_id=const.DEFAULT_PROJECT_ID,
-                )
-            if manifest_file:
-                subfolder = Path(manifest_file).stem
-                self.root = os.path.join(
-                    data_root, const.SYNTHETIC_SUBFOLDER, subfolder
-                )
-                self.download_captures_from_manifest(manifest_file)
-            else:
-
-                raise DatasetNotFoundError(
-                    "Cannot find the dataset. Please download it first or "
-                    "provide USIM run execution id or manifest file."
-                )
-
-        captures = Captures(self.root, version)
-        annotation_definition = AnnotationDefinitions(self.root, version)
+        captures = Captures(self.dataset_directory, version)
+        annotation_definition = AnnotationDefinitions(
+            self.dataset_directory, version
+        )
         catalog = captures.filter(def_id)
         self.catalog = self._cleanup(catalog)
         init_definition = annotation_definition.get_definition(def_id)
@@ -275,7 +200,7 @@ class SynDetection2D(Dataset):
         capture_file = cap.filename
         ann = cap["annotation.values"]
 
-        capture = Image.open(os.path.join(self.root, capture_file))
+        capture = Image.open(os.path.join(self.dataset_directory, capture_file))
         capture = capture.convert("RGB")  # Remove alpha channel
         annotation = read_bounding_box_2d(ann, self.label_mappings)
 
@@ -299,7 +224,9 @@ class SynDetection2D(Dataset):
         image without any objects.
 
         """
-        catalog = self._remove_captures_with_missing_files(self.root, catalog)
+        catalog = self._remove_captures_with_missing_files(
+            self.dataset_directory, catalog
+        )
         catalog = self._remove_captures_without_bboxes(catalog)
 
         return catalog
@@ -342,14 +269,6 @@ class SynDetection2D(Dataset):
         keep_mask = catalog.filename.apply(exists)
 
         return catalog[keep_mask]
-
-    def download_captures_from_manifest(self, manifest_file):
-        """ Download captures of a given manifest file.
-
-        Args:
-            manifest_file (str): path to a manifest file
-        """
-        _download_captures(self.root, manifest_file)
 
     @staticmethod
     def download(data_root, version):

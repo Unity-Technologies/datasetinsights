@@ -21,7 +21,6 @@ from datasetinsights.estimators.faster_rcnn import (
     VAL,
     FasterRCNN,
     create_dataloader,
-    create_dataset,
     create_dryrun_dataset,
     dataloader_creator,
 )
@@ -47,10 +46,8 @@ def config():
     return cfg
 
 
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_faster_rcnn_train_one_epoch(mock_create, config, dataset):
+def test_faster_rcnn_train_one_epoch(config, dataset):
     """test train one epoch."""
-    mock_create.return_value = dataset
     writer = MagicMock()
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
@@ -61,7 +58,7 @@ def test_faster_rcnn_train_one_epoch(mock_create, config, dataset):
         checkpointer=checkpointer,
         kfp_writer=kfp_writer,
     )
-    train_dataset = create_dataset(config, TRAIN)
+    train_dataset = dataset
     is_distributed = config.system.distributed
     train_sampler = FasterRCNN.create_sampler(
         is_distributed=is_distributed, dataset=train_dataset, is_train=True
@@ -87,13 +84,11 @@ def test_faster_rcnn_train_one_epoch(mock_create, config, dataset):
 
 @patch("datasetinsights.estimators.faster_rcnn.FasterRCNN.train_one_epoch")
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
 def test_faster_rcnn_train_all(
-    mock_create, mock_loss, mock_train_one_epoch, config, dataset
+    mock_loss, mock_train_one_epoch, config, dataset
 ):
     """test train on all epochs."""
     loss_val = 0.1
-    mock_create.return_value = dataset
     mock_loss.return_value = loss_val
     log_dir = tmp_name + "/train/"
     config.system.logdir = log_dir
@@ -113,8 +108,9 @@ def test_faster_rcnn_train_all(
         checkpointer=checkpointer,
         kfp_writer=kfp_writer,
     )
-    train_dataset = create_dataset(config, TRAIN)
-    val_dataset = create_dataset(config, VAL)
+    checkpointer.save = MagicMock()
+    train_dataset = dataset
+    val_dataset = dataset
     label_mappings = train_dataset.label_mappings
     is_distributed = config.system.distributed
     train_sampler = FasterRCNN.create_sampler(
@@ -141,7 +137,7 @@ def test_faster_rcnn_train_all(
 
 @patch("datasetinsights.estimators.faster_rcnn.FasterRCNN.train_loop")
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
+@patch("datasetinsights.estimators.faster_rcnn.create_dataset")
 def test_faster_rcnn_train(
     mock_create, mock_loss, mock_train_loop, config, dataset
 ):
@@ -169,14 +165,10 @@ def test_faster_rcnn_train(
 
 
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_faster_rcnn_evaluate_per_epoch(
-    mock_create, mock_loss, config, dataset
-):
+def test_faster_rcnn_evaluate_per_epoch(mock_loss, config, dataset):
     """test evaluate per epoch."""
     loss_val = 0.1
     mock_loss.return_value = loss_val
-    mock_create.return_value = dataset
     ckpt_dir = tmp_name + "/train/FasterRCNN.estimator"
     config.checkpoint_file = ckpt_dir
     writer = MagicMock()
@@ -190,7 +182,7 @@ def test_faster_rcnn_evaluate_per_epoch(
         checkpointer=checkpointer,
         kfp_writer=kfp_writer,
     )
-    test_dataset = create_dataset(config, TEST)
+    test_dataset = dataset
     label_mappings = test_dataset.label_mappings
     is_distributed = config.system.distributed
     test_sampler = FasterRCNN.create_sampler(
@@ -211,7 +203,7 @@ def test_faster_rcnn_evaluate_per_epoch(
 
 @patch("datasetinsights.estimators.faster_rcnn.FasterRCNN.evaluate_per_epoch")
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
+@patch("datasetinsights.estimators.faster_rcnn.create_dataset")
 def test_faster_rcnn_evaluate(
     mock_create, mock_loss, mock_evaluate_per_epoch, config, dataset
 ):
@@ -236,10 +228,8 @@ def test_faster_rcnn_evaluate(
     mock_evaluate_per_epoch.assert_called_once()
 
 
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_faster_rcnn_log_metric_val(mock_create, config, dataset):
+def test_faster_rcnn_log_metric_val(config):
     """test log metric val."""
-    mock_create.return_value = dataset
     writer = MagicMock()
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
@@ -254,16 +244,15 @@ def test_faster_rcnn_log_metric_val(mock_create, config, dataset):
         kfp_writer=kfp_writer,
     )
     epoch = 0
-    estimator.log_metric_val(dataset.label_mappings, epoch)
+    estimator.log_metric_val({"1": "car", "2": "bike"}, epoch)
 
     writer.add_scalars.assert_called_with("val/APIOU50-per-class", {}, epoch)
 
 
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_faster_rcnn_save(mock_create, config, dataset):
+def test_faster_rcnn_save(config):
     """test save model."""
-    mock_create.return_value = dataset
-    log_dir = tmp_name + "/test_save/"
+
+    log_dir = tmp_name + "/train/"
     config.system.logdir = log_dir
     kfp_writer = MagicMock()
     writer = MagicMock()
@@ -279,17 +268,19 @@ def test_faster_rcnn_save(mock_create, config, dataset):
         checkpointer=checkpointer,
         kfp_writer=kfp_writer,
     )
-    estimator.save(log_dir + "FasterRCNN_test")
+    estimator.save(log_dir + "FasterRCNN.estimator")
 
     assert any(
-        [name.startswith("FasterRCNN_test") for name in os.listdir(log_dir)]
+        [
+            name.startswith("FasterRCNN.estimator")
+            for name in os.listdir(log_dir)
+        ]
     )
 
 
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_faster_rcnn_load(mock_create, config, dataset):
+def test_faster_rcnn_load(config):
     """test load model."""
-    mock_create.return_value = dataset
+
     ckpt_dir = tmp_name + "/train/FasterRCNN.estimator"
     config.checkpoint_file = ckpt_dir
     log_dir = tmp_name + "/load/"
@@ -312,66 +303,53 @@ def test_faster_rcnn_load(mock_create, config, dataset):
     assert os.listdir(log_dir)[0].startswith("events.out.tfevents")
 
 
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_create_dataset(mock_create, config, dataset):
+def test_len_dataset(config, dataset):
     """test download data."""
-    mock_create.return_value = dataset
-    train_dataset = create_dataset(config, TRAIN)
-    assert len(dataset.images) == len(train_dataset)
+    assert len(dataset.images) == len(dataset)
 
 
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_create_dryrun_dataset(mock_create, config, dataset):
+def test_create_dryrun_dataset(config, dataset):
     """test create dryrun dataset."""
-    mock_create.return_value = dataset
-    train_dataset = create_dataset(config, TRAIN)
+    train_dataset = dataset
     train_dataset = create_dryrun_dataset(config, train_dataset, TRAIN)
     assert config.train.batch_size * 2 == len(train_dataset)
 
 
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_create_sampler(mock_create, config, dataset):
+def test_create_sampler(config, dataset):
     """test create sampler."""
-    mock_create.return_value = dataset
-    train_dataset = create_dataset(config, TRAIN)
+
     is_distributed = config.system.distributed
     train_sampler = FasterRCNN.create_sampler(
-        is_distributed=is_distributed, dataset=train_dataset, is_train=True
+        is_distributed=is_distributed, dataset=dataset, is_train=True
     )
     assert len(dataset.images) == len(train_sampler)
 
 
 @patch("datasetinsights.estimators.faster_rcnn.torch.utils.data.DataLoader")
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_dataloader_creator(mock_create, mock_loader, config, dataset):
+def test_dataloader_creator(mock_loader, config, dataset):
     """test create dataloader."""
-    mock_create.return_value = dataset
     mock_loader.return_value = MagicMock()
-    train_dataset = create_dataset(config, TRAIN)
     is_distributed = config.system.distributed
     train_sampler = FasterRCNN.create_sampler(
-        is_distributed=is_distributed, dataset=train_dataset, is_train=True
+        is_distributed=is_distributed, dataset=dataset, is_train=True
     )
-    train_loader = dataloader_creator(
-        config, train_dataset, train_sampler, TRAIN
-    )
+    train_loader = dataloader_creator(config, dataset, train_sampler, TRAIN)
     assert isinstance(train_loader, MagicMock)
 
 
 @patch("datasetinsights.estimators.faster_rcnn.torch.utils.data.DataLoader")
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_create_dataloader(mock_create, mock_loader, config, dataset):
+def test_create_dataloader(mock_loader, config, dataset):
     """test load data."""
-    mock_create.return_value = dataset
+
     mock_loader.return_value = MagicMock()
-    train_dataset = create_dataset(config, TRAIN)
+
     is_distributed = config.system.distributed
     train_sampler = FasterRCNN.create_sampler(
-        is_distributed=is_distributed, dataset=train_dataset, is_train=True
+        is_distributed=is_distributed, dataset=dataset, is_train=True
     )
     dataloader = create_dataloader(
         config=config,
-        dataset=train_dataset,
+        dataset=dataset,
         batch_size=config.train.batch_size,
         sampler=train_sampler,
         collate_fn=FasterRCNN.collate_fn,
@@ -384,13 +362,11 @@ def test_create_dataloader(mock_create, mock_loader, config, dataset):
 @patch(
     "datasetinsights.estimators.faster_rcnn.torch.optim.lr_scheduler.LambdaLR"
 )
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_create_optimizer(mock_create, mock_lr, mock_adm, config, dataset):
+def test_create_optimizer(mock_lr, mock_adm, config, dataset):
     """test create optimizer."""
     mock_lr.return_value = MagicMock()
     mock_adm.return_value = MagicMock()
 
-    mock_create.return_value = dataset
     writer = MagicMock()
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
@@ -408,10 +384,9 @@ def test_create_optimizer(mock_create, mock_lr, mock_adm, config, dataset):
     assert isinstance(lr_scheduler, MagicMock)
 
 
-@patch("datasetinsights.estimators.faster_rcnn.Dataset.create")
-def test_faster_rcnn_predict(mock_create, config, dataset):
+def test_faster_rcnn_predict(config, dataset):
     """test predict."""
-    mock_create.return_value = dataset
+
     ckpt_dir = tmp_name + "/train/FasterRCNN.estimator"
 
     config.checkpoint_file = ckpt_dir

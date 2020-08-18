@@ -8,15 +8,15 @@ import pandas as pd
 import pytest
 import responses
 
-from datasetinsights.datasets.unity_perception.usim import (
-    Downloader,
-    FileType,
-    _filter_unsuccessful_attempts,
-)
 from datasetinsights.io.download import (
     compute_checksum,
     download_file,
     validate_checksum,
+)
+from datasetinsights.io.downloader.unity_simulation import (
+    Downloader,
+    FileType,
+    _filter_unsuccessful_attempts,
 )
 from datasetinsights.io.exceptions import ChecksumError, DownloadError
 
@@ -59,7 +59,7 @@ def test_download_bad_request():
 def test_download_rows(downloader):
     n_rows = len(downloader.manifest)
     with patch(
-        "datasetinsights.datasets.unity_perception.usim.download_file"
+        "datasetinsights.io.downloader.unity_simulation.download_file"
     ) as mocked_dl:
         matched_rows = pd.Series(np.zeros(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
@@ -67,7 +67,7 @@ def test_download_rows(downloader):
         mocked_dl.assert_not_called()
 
     with patch(
-        "datasetinsights.datasets.unity_perception.usim.download_file"
+        "datasetinsights.io.downloader.unity_simulation.download_file"
     ) as mocked_dl:
         matched_rows = pd.Series(np.ones(n_rows).astype(bool))
         downloaded = downloader._download_rows(matched_rows)
@@ -78,7 +78,7 @@ def test_download_rows(downloader):
 def test_download_all(downloader):
     n_rows = len(downloader.manifest)
     with patch(
-        "datasetinsights.datasets.unity_perception.usim.download_file"
+        "datasetinsights.io.downloader.unity_simulation.download_file"
     ) as mocked_dl:
         downloader.download_references()
         downloader.download_captures()

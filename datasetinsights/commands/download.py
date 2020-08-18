@@ -4,6 +4,7 @@ import re
 import click
 
 import datasetinsights.constants as const
+from datasetinsights.io.downloader.base import create_downloader
 
 logger = logging.getLogger(__name__)
 
@@ -43,29 +44,21 @@ class SourceURI(click.ParamType):
     context_settings=const.CONTEXT_SETTINGS,
 )
 @click.option(
-    "-n",
-    "--name",
-    type=click.STRING,
-    required=True,
-    help="The dataset registry name.",
-)
-@click.option(
-    "-d",
-    "--data-root",
-    type=click.Path(exists=True, file_okay=False, writable=True),
-    default=const.DEFAULT_DATA_ROOT,
-    help="Root directory on localhost where datasets should be downloaded.",
-)
-@click.option(
     "-s",
     "--source-uri",
     type=SourceURI(),
-    default=None,
+    required=True,
     help=(
         "URI of where this data should be downloaded. "
-        "If not supplied, default path from the dataset registry will be used. "
         f"Supported source uri patterns {SourceURI.PREFIX_PATTERN}"
     ),
+)
+@click.option(
+    "-o",
+    "--output",
+    type=click.Path(exists=True, file_okay=False, writable=True),
+    default=const.DEFAULT_DATA_ROOT,
+    help="Directory on localhost where datasets should be downloaded.",
 )
 @click.option(
     "-b",
@@ -80,51 +73,21 @@ class SourceURI(click.ParamType):
     ),
 )
 @click.option(
-    "--dataset-version",
-    type=click.STRING,
-    default=const.DEFAULT_DATASET_VERSION,
-    help=(
-        "The dataset version. This only applies to some dataset "
-        "where different versions are available."
-    ),
-)
-@click.option(
-    "--project-id",
-    type=click.STRING,
+    "--access-token",
+    type=str,
     default=None,
-    help=(
-        "Unity project-id used for Unity Simulation runs. This will override "
-        "synthetic datasets source-uri for Unity Simulation."
-    ),
-)
-@click.option(
-    "--run-execution-id",
-    type=click.STRING,
-    default=None,
-    help=(
-        "Unity Simulation run-execution-id. This will override synthetic "
-        "datasets source-uri for Unity Simulation."
-    ),
-)
-@click.option(
-    "--auth-token",
-    type=click.STRING,
-    default=None,
-    help=(
-        "Unity Simulation auth token. This will override synthetic "
-        "datasets source-uri for Unity Simulation."
-    ),
+    help="Unity Simulation access token. "
+    "This will override synthetic datasets source-uri for Unity Simulation",
 )
 def cli(
-    name,
-    data_root,
-    source_uri,
-    include_binary,
-    dataset_version,
-    project_id,
-    run_execution_id,
-    auth_token,
+    source_uri, output, include_binary, access_token,
 ):
     ctx = click.get_current_context()
     logger.debug(f"Called download command with parameters: {ctx.params}")
-    # TODO: Call download dataset command here.
+
+    downloader = create_downloader(
+        source_uri=source_uri, access_token=access_token
+    )
+    downloader.download(
+        source_uri=source_uri, output=output, include_binary=include_binary
+    )
