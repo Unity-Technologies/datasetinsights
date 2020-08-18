@@ -280,7 +280,6 @@ class FasterRCNN(Estimator):
         optimizer.zero_grad()
         n_examples = len(data_loader.dataset)
         for i, (images, targets) in enumerate(data_loader):
-            print(i)
             images = list(image.to(self.device) for image in images)
             targets = [
                 {k: v.to(self.device) for k, v in t.items()} for t in targets
@@ -322,7 +321,6 @@ class FasterRCNN(Estimator):
             loss_metric.compute(),
             loss_metric.num_examples,
         )
-        print(epoch)
         self.writer.add_scalar(
             "training/lr", optimizer.param_groups[0]["lr"], epoch
         )
