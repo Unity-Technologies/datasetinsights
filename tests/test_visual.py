@@ -101,10 +101,13 @@ def test_plot_bboxes():
     img = Image.open(
         str(cur_dir / "mock_data" / "simrun" / "captures" / "camera_000.png")
     )
+    label_mappings = pd.DataFrame(
+        {"Label ID": [1, 2, 3], "Label Name": ["car", "tree", "light"]}
+    )
     boxes = [
-        BBox2D(label="car", x=1, y=1, w=2, h=3),
-        BBox2D(label="tree", x=7, y=6, w=3, h=4),
-        BBox2D(label="light", x=2, y=6, w=2, h=4),
+        BBox2D(label=1, x=1, y=1, w=2, h=3),
+        BBox2D(label=1, x=7, y=6, w=3, h=4),
+        BBox2D(label=1, x=2, y=6, w=2, h=4),
     ]
     colors = [
         ImageColor.getcolor("green", "RGB"),
@@ -113,9 +116,7 @@ def test_plot_bboxes():
     ]
 
     with patch(
-        "datasetinsights.stats.visualization.plots.ImageDraw.Draw"
+        "datasetinsights.stats.visualization.plots._add_labeled_bbox"
     ) as mock:
-        instance = mock.return_value
-        plot_bboxes(img, boxes, colors)
-        assert instance.rectangle.call_count == len(boxes)
-        assert instance.multiline_text.call_count == len(boxes)
+        plot_bboxes(img, boxes, label_mappings, colors=colors)
+        assert mock.call_count == len(boxes)

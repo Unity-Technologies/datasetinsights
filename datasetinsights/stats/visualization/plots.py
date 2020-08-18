@@ -399,16 +399,28 @@ def _add_labeled_bbox(
     if label and not color:
         color_index = random.randint(0, len(color_names) - 1)
         color = color_names[color_index]
-    colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
-    color, color_text = colors
+    box_color, text_color = [item for item in _COLOR_NAME_TO_RGB[color]]
 
     cv2.rectangle(image, (left, top), (right, bottom), color, box_line_width)
-    _render_label(image, label, left, top, color_text, color, font_size)
+    _render_label_on_bbox(
+        image, label, (left, top), text_color, box_color, font_size
+    )
 
 
-def _get_label_image(
+def _get_label(
     text, font_color_tuple_bgr, background_color_tuple_bgr, font_size
 ):
+    """ Add text and background color for one label.
+
+    Args:
+        text (str): label name.
+        font_color_tuple_bgr (tuple): font RGB color.
+        background_color_tuple_bgr (tuple): background RGB color.
+        font_size (int): font size for the label text.
+
+    Returns:
+        a numpy array for a rendered label.
+    """
     FONT = ImageFont.truetype(str(CUR_DIR / "font" / "arial.ttf"), font_size)
     text_image = FONT.getmask(text)
     shape = list(reversed(text_image.size))
@@ -426,10 +438,23 @@ def _get_label_image(
     return np.concatenate(image).transpose(1, 2, 0)
 
 
-def _render_label(image, label, left, top, color_text, color, font_size):
-    _, image_width, _ = image.shape
+def _render_label_on_bbox(
+    image, label, location, text_color, box_color, font_size
+):
+    """ Render a label text on a bounding box.
 
-    label_image = _get_label_image(label, color_text, color, font_size)
+    Args:
+        image (numpy array): a numpy array for an image.
+        label (str): the label name.
+        location (tuple): top left axis for the bounding box.
+        text_color (tuple): font RGB color.
+        box_color (tuple): background RGB color.
+        font_size (int): font size for the label text.
+    """
+    _, image_width, _ = image.shape
+    left, top = location
+
+    label_image = _get_label(label, text_color, box_color, font_size)
     label_height, label_width, _ = label_image.shape
 
     rectangle_height, rectangle_width = 1 + label_height, 1 + label_width
@@ -454,5 +479,5 @@ def _render_label(image, label, left, top, color_text, color, font_size):
     rec_left_top = (rectangle_left, rectangle_top)
     rec_right_bottom = (rectangle_right, rectangle_bottom)
 
-    cv2.rectangle(image, rec_left_top, rec_right_bottom, color, -1)
+    cv2.rectangle(image, rec_left_top, rec_right_bottom, box_color, -1)
     image[label_top:label_bottom, label_left:label_right, :] = label_image
