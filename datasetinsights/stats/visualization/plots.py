@@ -339,7 +339,7 @@ def plot_bboxes(
         boxes (list): a list of BBox2D objects.
         colors (list): a color list for boxes. Defaults to None.
         If colors = None, it will randomly assign PIL.COLORS for each box.
-        box_line_width (int): line width of the bounding boxes. Defaults to 1.
+        box_line_width (int): line width of the bounding boxes. Defaults to 15.
         font_size (int): font size for each label. Defaults to 100.
 
     Returns:
@@ -354,7 +354,7 @@ def plot_bboxes(
         label = label_mappings.iloc[box.label]["Label Name"]
 
         if not colors:
-            _add_label_bbox(
+            _add_labeled_bbox(
                 np_image,
                 location,
                 label=label,
@@ -364,7 +364,7 @@ def plot_bboxes(
             )
         else:
             label = f"{label}: {box.score * 100: .2f}%"
-            _add_label_bbox(
+            _add_labeled_bbox(
                 np_image,
                 location,
                 label=label,
@@ -376,9 +376,23 @@ def plot_bboxes(
     return Image.fromarray(np_image)
 
 
-def _add_label_bbox(
+def _add_labeled_bbox(
     image, location, label, color=None, font_size=100, box_line_width=15
 ):
+    """ Add labeled bounding box on a given image.
+
+    Args:
+        image (numpy array): a numpy array for an image.
+        location (list): the location of one bounding box.
+        [left, top, right, bottom]
+        color (str): a color for one boundign box. Defaults to None.
+        If color = None, it will randomly assign a color for each box.
+        box_line_width (int): line width of the bounding boxes. Defaults to 15.
+        font_size (int): font size for each label. Defaults to 100.
+
+    Returns:
+        a PIL image with bounding boxes drawn.
+    """
     color_names = list(_COLOR_NAME_TO_RGB.keys())
     left, top, right, bottom = list(map(int, location))
 
