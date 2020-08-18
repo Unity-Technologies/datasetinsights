@@ -1,7 +1,7 @@
 import cv2
 import logging
 import pathlib
-from hashlib import md5
+import random
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -330,7 +330,7 @@ def rotation_plot(df, x, y, z=None, max_samples=None, title=None, **kwargs):
 
 
 def plot_bboxes(
-    image, boxes, label_mappings, colors=None, box_line_width=1, font_size=100
+    image, boxes, label_mappings, colors=None, box_line_width=15, font_size=100
 ):
     """ Plot an image with bounding boxes.
 
@@ -345,8 +345,7 @@ def plot_bboxes(
     Returns:
         a PIL image with bounding boxes drawn.
     """
-    combined = image.copy()
-
+    np_image = np.array(image)
     for i, box in enumerate(boxes):
 
         left, top = (box.x, box.y)
@@ -355,28 +354,42 @@ def plot_bboxes(
         label = label_mappings.iloc[box.label]["Label Name"]
 
         if not colors:
-            _add_bbox(
-                combined,
+            _add_label_bbox(
+                np_image,
                 location,
                 label=label,
                 color=None,
                 font_size=font_size,
+                box_line_width=box_line_width,
             )
         else:
             label = f"{label}: {box.score * 100: .2f}%"
-            _add_bbox(
-                combined,
+            _add_label_bbox(
+                np_image,
                 location,
                 label=label,
                 color=colors[i],
                 font_size=font_size,
+                box_line_width=box_line_width,
             )
 
-    return Image.fromarray(combined)
+    return Image.fromarray(np_image)
 
 
-def _color_image(image, font_color, background_color):
-    return background_color + (font_color - background_color) * image / 255
+def _add_label_bbox(
+    image, location, label, color=None, font_size=100, box_line_width=15
+):
+    color_names = list(_COLOR_NAME_TO_RGB.keys())
+    left, top, right, bottom = list(map(int, location))
+
+    if label and not color:
+        color_index = random.randint(0, len(color_names) - 1)
+        color = color_names[color_index]
+    colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
+    color, color_text = colors
+
+    cv2.rectangle(image, (left, top), (right, bottom), color, box_line_width)
+    _render_label(image, label, left, top, color_text, color, font_size)
 
 
 def _get_label_image(
@@ -388,7 +401,9 @@ def _get_label_image(
     bw_image = np.array(text_image).reshape(shape)
 
     image = [
-        _color_image(bw_image, font_color, background_color)[None, ...]
+        (background_color + (font_color - background_color) * bw_image / 255)[
+            None, ...
+        ]
         for font_color, background_color in zip(
             font_color_tuple_bgr, background_color_tuple_bgr
         )
@@ -397,50 +412,33 @@ def _get_label_image(
     return np.concatenate(image).transpose(1, 2, 0)
 
 
-def _add_bbox(image, location, label=None, color=None, font_size=100):
-    image = np.array(image)
-    color_names = list(_COLOR_NAME_TO_RGB)
-    left, top, right, bottom = location
+def _render_label(image, label, left, top, color_text, color, font_size):
+    _, image_width, _ = image.shape
 
-    if label and not color:
-        hex_digest = md5(label.encode()).hexdigest()
-        color_index = int(hex_digest, 16) % len(_COLOR_NAME_TO_RGB)
-        color = color_names[color_index]
+    label_image = _get_label_image(label, color_text, color, font_size)
+    label_height, label_width, _ = label_image.shape
 
-    colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
-    color, color_text = colors
+    rectangle_height, rectangle_width = 1 + label_height, 1 + label_width
 
-    cv2.rectangle(image, (left, top), (right, bottom), color, thickness=15)
+    rectangle_bottom = top
+    rectangle_left = max(0, min(left - 1, image_width - rectangle_width))
 
-    if label:
-        _, image_width, _ = image.shape
+    rectangle_top = rectangle_bottom - rectangle_height
+    rectangle_right = rectangle_left + rectangle_width
 
-        label_image = _get_label_image(label, color_text, color, font_size)
-        label_height, label_width, _ = label_image.shape
+    label_top = rectangle_top + 1
 
-        rectangle_height, rectangle_width = 1 + label_height, 1 + label_width
+    if rectangle_top < 0:
+        rectangle_top = top
+        rectangle_bottom = rectangle_top + label_height + 1
+        label_top = rectangle_top
 
-        rectangle_bottom = top
-        rectangle_left = max(0, min(left - 1, image_width - rectangle_width))
+    label_left = rectangle_left + 1
+    label_bottom = label_top + label_height
+    label_right = label_left + label_width
 
-        rectangle_top = rectangle_bottom - rectangle_height
-        rectangle_right = rectangle_left + rectangle_width
+    rec_left_top = (rectangle_left, rectangle_top)
+    rec_right_bottom = (rectangle_right, rectangle_bottom)
 
-        label_top = rectangle_top + 1
-
-        if rectangle_top < 0:
-            rectangle_top = top
-            rectangle_bottom = rectangle_top + label_height + 1
-
-            label_top = rectangle_top
-
-        label_left = rectangle_left + 1
-        label_bottom = label_top + label_height
-        label_right = label_left + label_width
-
-        rec_left_top = (rectangle_left, rectangle_top)
-        rec_right_bottom = (rectangle_right, rectangle_bottom)
-
-        cv2.rectangle(image, rec_left_top, rec_right_bottom, color, -1)
-
-        image[label_top:label_bottom, label_left:label_right, :] = label_image
+    cv2.rectangle(image, rec_left_top, rec_right_bottom, color, -1)
+    image[label_top:label_bottom, label_left:label_right, :] = label_image
