@@ -42,10 +42,10 @@ datasetinsights.io.transforms
    :undoc-members:
    :show-inheritance:
 
-datasetinsights.io.usim
+datasetinsights.datasets.unity_perception.usim
 -----------------------
 
-.. automodule:: datasetinsights.io.usim
+.. automodule:: datasetinsights.datasets.unity_perception.usim
    :members:
    :undoc-members:
    :show-inheritance:
