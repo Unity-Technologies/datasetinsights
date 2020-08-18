@@ -39,14 +39,15 @@ for more information on AP.
 9. Once your run has completed you can find the metrics in the logs, to find mAR search for the log `AR has mean result:` for mAP search for `AP has mean result:` and to find validation loss look for `validation loss is` alternately you can look at the tensorboard for this run (there will only be one datapoint per graph)
 
 ## Create New Pipeline
-You need a python environment with [kfp==0.5.1](https://pypi.org/project/kfp/) installed.
+
+The development virtual environment have [kfp](https://pypi.org/project/kfp/) installed.
 This is currently not required by datasetinsignts framework unless we want to directly use CLI to create/submit new pipelines.
 
 Compile Kubeflow pipeline
 
 ```
-cd kubeflow
-python train_pipeline.py
+dsl-compile --py=pipelines.py --function=<function> --output=compiled/<function>.yaml
 ```
 
-This will create a file `train_pipeline.py.tar.gz` which can be uploaded to kubeflow pipeline for executions. Next, go to kubeflow dashboard, upload and create new pipeline using the above pipeline. You should be able to create a new parameterize experiment to run kubeflow pipeline following this [tutorial](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart).
+Replace `<function>` to the pipeline function you want to compile.
+This will create a file `compiled/<function>.yaml` which can be uploaded to kubeflow pipeline for executions. Next, go to kubeflow dashboard, upload and create new pipeline using the above pipeline. You should be able to create a new parameterize experiment to run kubeflow pipeline following this [tutorial](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart).
