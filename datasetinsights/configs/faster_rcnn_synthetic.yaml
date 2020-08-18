@@ -47,3 +47,4 @@ optimizer:
     lr: 2.0e-4
 pretrained: False
 pretrained_backbone: True
+val_interval: 1
