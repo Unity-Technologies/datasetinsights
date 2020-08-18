@@ -280,6 +280,7 @@ class FasterRCNN(Estimator):
         optimizer.zero_grad()
         n_examples = len(data_loader.dataset)
         for i, (images, targets) in enumerate(data_loader):
+            print(i)
             images = list(image.to(self.device) for image in images)
             targets = [
                 {k: v.to(self.device) for k, v in t.items()} for t in targets
@@ -306,7 +307,9 @@ class FasterRCNN(Estimator):
                     f"{intermediate_loss}"
                 )
                 self.writer.add_scalar(
-                    "training/running_loss", intermediate_loss, examples_seen
+                    "training/intermediate_loss",
+                    intermediate_loss,
+                    examples_seen,
                 )
             losses_grad.backward()
             if (i + 1) % accumulation_steps == 0:
@@ -319,6 +322,7 @@ class FasterRCNN(Estimator):
             loss_metric.compute(),
             loss_metric.num_examples,
         )
+        print(epoch)
         self.writer.add_scalar(
             "training/lr", optimizer.param_groups[0]["lr"], epoch
         )

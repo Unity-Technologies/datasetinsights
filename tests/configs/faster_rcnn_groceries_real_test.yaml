@@ -43,12 +43,3 @@ optimizer:
 pretrained: False
 pretrained_backbone: True
 synchronize_metrics: True
-system:
-  auth_token: None
-  dryrun: True
-  gpus_per_node: 1
-  logdir: /tmp
-  no_cuda: False
-  val_interval: 1
-  verbose: False
-  workers: 0

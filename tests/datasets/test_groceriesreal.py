@@ -26,11 +26,9 @@ def test_groceriesreal_download_http(
             source_uri=dummy_uri, dest_path=tmp_dir
         )
         mocked_validate.assert_called_with(tmp_dir, expected_checksum)
-
         mocked_download.side_effect = DownloadError()
         with pytest.raises(DownloadError):
             GroceriesReal._download_http(dummy_uri, tmp_dir, version)
-
         mocked_download.side_effect = None
         mocked_validate.side_effect = ChecksumError()
         with pytest.raises(ChecksumError):
@@ -39,16 +37,11 @@ def test_groceriesreal_download_http(
 
 
 @patch("datasetinsights.datasets.groceries_real.os.path.exists")
-@patch("datasetinsights.datasets.groceries_real.os.remove")
 @patch("datasetinsights.datasets.groceries_real.validate_checksum")
 @patch("datasetinsights.datasets.groceries_real.GroceriesReal._extract_file")
 @patch("datasetinsights.datasets.groceries_real.GroceriesReal._download_http")
 def test_groceriesreal_download(
-    mocked_download,
-    mocked_extract,
-    mocked_validate,
-    mocked_remove,
-    mocked_exists,
+    mocked_download, mocked_extract, mocked_validate, mocked_exists,
 ):
     version = "v3"
     source_uri = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[version].source_uri
@@ -62,42 +55,15 @@ def test_groceriesreal_download(
         GroceriesReal.download(tmp_dir, version)
         mocked_validate.assert_called_with(dest_path, expected_checksum)
         mocked_extract.assert_called_with(dest_path, extract_folder)
-
         mocked_exists.return_value = False
         GroceriesReal.download(tmp_dir, version)
         mocked_download.assert_called_with(source_uri, dest_path, version)
         mocked_extract.assert_called_with(dest_path, extract_folder)
 
 
-@patch("datasetinsights.datasets.groceries_real.os.path.exists")
-@patch("datasetinsights.datasets.groceries_real.os.remove")
-@patch("datasetinsights.datasets.groceries_real.validate_checksum")
-@patch("datasetinsights.datasets.groceries_real.GroceriesReal._extract_file")
-@patch("datasetinsights.datasets.groceries_real.GroceriesReal._download_http")
-def test_groceriesreal_download_raises(
-    mocked_download,
-    mocked_extract,
-    mocked_validate,
-    mocked_remove,
-    mocked_exists,
-):
-    version = "v3"
+def test_groceriesreal_download_raises():
     bad_version = "v_bad"
-    source_uri = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[version].source_uri
     with tempfile.TemporaryDirectory() as tmp_dir:
-        dest_path = os.path.join(tmp_dir, f"{version}.zip")
-        extract_folder = tmp_dir
+
         with pytest.raises(ValueError):
             GroceriesReal.download(tmp_dir, bad_version)
-
-        mocked_exists.return_value = True
-        mocked_validate.side_effect = ChecksumError()
-        GroceriesReal.download(tmp_dir, version)
-        mocked_remove.assert_called_with(dest_path)
-        mocked_extract.assert_called_with(dest_path, extract_folder)
-
-        mocked_exists.return_value = False
-        mocked_validate.side_effect = None
-        GroceriesReal.download(tmp_dir, version)
-        mocked_extract.assert_called_with(dest_path, extract_folder)
-        mocked_download.assert_called_with(source_uri, dest_path, version)
