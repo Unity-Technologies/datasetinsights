@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: evaluate-the-model-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0, pipelines.kubeflow.org/pipeline_compilation_time: '2020-08-17T17:40:54.794115',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0, pipelines.kubeflow.org/pipeline_compilation_time: '2020-08-17T17:50:23.371936',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Evaluate the model", "inputs":
       [{"default": "unitytechnologies/datasetinsights:latest", "name": "docker", "optional":
       true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip",

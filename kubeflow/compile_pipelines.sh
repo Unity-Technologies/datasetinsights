@@ -1,6 +1,7 @@
 FUNCTIONS=(
     "train_on_synthdet_sample"
     "train_on_real_world_dataset"
+    "train_on_synthetic_and_real_dataset"
     "evaluate_the_model"
 )
 
