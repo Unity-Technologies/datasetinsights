@@ -4,9 +4,18 @@ import kfp.gcp as gcp
 DATA_PATH = "/data"
 
 
-def volume_op(volume_size):
-    # Create large persistant volume to store data.
+def volume_op(*, volume_size):
+    """ Create Kubernetes persistant volume to store data.
 
+    https://kubernetes.io/docs/concepts/storage/volumes/#persistentvolumeclaim
+
+    Args:
+        volume_size (str): Size of the persistant volume claim.
+
+    Returns:
+        kfp.dsl.VolumeOp: Represents an op which will be translated into a
+            resource template which will be creating a PVC.
+    """
     vop = dsl.VolumeOp(
         name="pvc",
         resource_name="pvc",
@@ -17,7 +26,21 @@ def volume_op(volume_size):
     return vop
 
 
-def download_op(docker, source_uri, output, volume, memory_limit):
+def download_op(*, docker, source_uri, output, volume, memory_limit):
+    """ Create a Kubeflow ContainerOp to download a dataset.
+
+    Args:
+        docker (str): Docker image registry URI.
+        source_uri (str): Source URI of the dataset.
+        output (str): Path where dataset should be downloaded.
+        volume (kfp.dsl.PipelineVolume): The volume where data will be stored.
+        memory_limit (str): Set memory limit for this operator. For simplicity,
+            we set memory_request = memory_limit.
+
+    Returns:
+        kfp.dsl.ContainerOp: Represents an op implemented by a container image
+            to download a dataset.
+    """
     download = dsl.ContainerOp(
         name="download",
         image=docker,
@@ -31,11 +54,13 @@ def download_op(docker, source_uri, output, volume, memory_limit):
     )
     download.set_memory_request(memory_limit)
     download.set_memory_limit(memory_limit)
+    download.apply(gcp.use_gcp_secret("user-gcp-sa"))
 
     return download
 
 
 def train_op(
+    *,
     docker,
     config,
     train_data,
@@ -47,6 +72,25 @@ def train_op(
     num_gpu,
     gpu_type,
 ):
+    """ Create a Kubeflow ContainerOp to train an estimator.
+
+    Args:
+        docker (str): Docker image registry URI.
+        config (str): Path to estimator config file.
+        train_data (str): Path to train dataset directory.
+        val_data (str): Path to val dataset directory.
+        tb_log_dir (str): Path to tensorbload log directory.
+        checkpoint_dir (str): Path to checkpoint file directory.
+        volume (kfp.dsl.PipelineVolume): The volume where datasets are stored.
+        memory_limit (str): Set memory limit for this operator. For simplicity,
+            we set memory_request = memory_limit.
+        num_gpu (int): Set the number of GPU for this operator
+        gpu_type (str): Set the type of GPU
+
+    Returns:
+        kfp.dsl.ContainerOp: Represents an op implemented by a container image
+            to train an estimator.
+    """
     train = dsl.ContainerOp(
         name="train",
         image=docker,
@@ -65,7 +109,6 @@ def train_op(
             f"--tb_log_dir={tb_log_dir}",
             f"--checkpoint_dir={checkpoint_dir}",
         ],
-        # Refer to pvloume in previous step to explicitly call out dependency
         pvolumes={DATA_PATH: volume},
     )
     # GPU
@@ -77,10 +120,13 @@ def train_op(
     train.set_memory_request(memory_limit)
     train.set_memory_limit(memory_limit)
 
+    train.apply(gcp.use_gcp_secret("user-gcp-sa"))
+
     return train
 
 
 def evaluate_op(
+    *,
     docker,
     config,
     checkpoint_file,
@@ -91,6 +137,25 @@ def evaluate_op(
     num_gpu,
     gpu_type,
 ):
+    """ Create a Kubeflow ContainerOp to evaluate an estimator.
+
+    Args:
+        docker (str): Docker image registry URI.
+        config (str): Path to estimator config file.
+        checkpoint_file (str): Path to an estimator checkpoint file.
+        test_data (str): Path to test dataset directory.
+        tb_log_dir (str): Path to tensorbload log directory.
+        checkpoint_dir (str): Path to checkpoint file directory.
+        volume (kfp.dsl.PipelineVolume): The volume where datasets are stored.
+        memory_limit (str): Set memory limit for this operator. For simplicity,
+            we set memory_request = memory_limit.
+        num_gpu (int): Set the number of GPU for this operator
+        gpu_type (str): Set the type of GPU
+
+    Returns:
+        kfp.dsl.ContainerOp: Represents an op implemented by a container image
+            to evaluate an estimator.
+    """
     evaluate = dsl.ContainerOp(
         name="evaluate",
         image=docker,
@@ -101,7 +166,6 @@ def evaluate_op(
             f"--test-data={test_data}",
             f"--tb_log_dir={tb_log_dir}",
         ],
-        # Refer to pvloume in previous step to explicitly call out dependency
         pvolumes={DATA_PATH: volume},
     )
     # GPU
@@ -112,6 +176,8 @@ def evaluate_op(
 
     evaluate.set_memory_request(memory_limit)
     evaluate.set_memory_limit(memory_limit)
+
+    evaluate.apply(gcp.use_gcp_secret("user-gcp-sa"))
 
     return evaluate
 
@@ -141,25 +207,28 @@ def train_on_synthdet_sample(
     gpu_type = "nvidia-tesla-v100"
 
     # Pipeline definition
-    vop = volume_op(volume_size)
-    download = download_op(docker, source_uri, output, vop.volume, memory_limit)
+    vop = volume_op(volume_size=volume_size)
+    download = download_op(
+        docker=docker,
+        source_uri=source_uri,
+        output=output,
+        volume=vop.volume,
+        memory_limit=memory_limit,
+    )
     train = train_op(
-        docker,
-        config,
-        train_data,
-        val_data,
-        tb_log_dir,
-        checkpoint_dir,
-        download.pvolumes[DATA_PATH],
-        memory_limit,
-        num_gpu,
-        gpu_type,
+        docker=docker,
+        config=config,
+        train_data=train_data,
+        val_data=val_data,
+        tb_log_dir=tb_log_dir,
+        checkpoint_dir=checkpoint_dir,
+        volume=download.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+        num_gpu=num_gpu,
+        gpu_type=gpu_type,
     )
 
-    # Use GCP Service Accounts to allow writing logs to GCS
-    ops = [download, train]
-    for op in ops:
-        op.apply(gcp.use_gcp_secret("user-gcp-sa"))
+    return train
 
 
 @dsl.pipeline(
@@ -188,21 +257,24 @@ def evaluate_the_model(
     gpu_type = "nvidia-tesla-v100"
 
     # Pipeline definition
-    vop = volume_op(volume_size)
-    download = download_op(docker, source_uri, output, vop.volume, memory_limit)
+    vop = volume_op(volume_size=volume_size)
+    download = download_op(
+        docker=docker,
+        source_uri=source_uri,
+        output=output,
+        volume=vop.volume,
+        memory_limit=memory_limit,
+    )
     evaluate = evaluate_op(
-        docker,
-        config,
-        checkpoint_file,
-        test_data,
-        tb_log_dir,
-        download.pvolumes[DATA_PATH],
-        memory_limit,
-        num_gpu,
-        gpu_type,
+        docker=docker,
+        config=config,
+        checkpoint_file=checkpoint_file,
+        test_data=test_data,
+        tb_log_dir=tb_log_dir,
+        volume=download.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+        num_gpu=num_gpu,
+        gpu_type=gpu_type,
     )
 
-    # Use GCP Service Accounts to allow writing logs to GCS
-    ops = [download, evaluate]
-    for op in ops:
-        op.apply(gcp.use_gcp_secret("user-gcp-sa"))
+    return evaluate
