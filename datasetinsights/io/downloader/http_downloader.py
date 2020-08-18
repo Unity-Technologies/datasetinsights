@@ -9,8 +9,6 @@ from datasetinsights.io.exceptions import ChecksumError
 
 logger = logging.getLogger(__name__)
 
-DATASETS = ["synthetic", "groceries_real"]
-
 
 class HTTPDownloader(DatasetDownloader, protocol="http://"):
     def download(self, source_uri, output, checksum_file=None, **kwargs):
@@ -40,7 +38,7 @@ class HTTPDownloader(DatasetDownloader, protocol="http://"):
                 download_file(source_uri=filepath, dest_path=checksum_file_path)
                 return HTTPDownloader.read_checksum_from_txt(checksum_file_path)
 
-        elif filepath.startswith("/"):
+        elif os.path.isfile(filepath):
             checksum_file_path = filepath
             return HTTPDownloader.read_checksum_from_txt(checksum_file_path)
 

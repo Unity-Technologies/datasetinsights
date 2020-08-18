@@ -1,10 +1,7 @@
-import shutil
-import tempfile
 from pathlib import Path
 
 import pandas as pd
 
-import datasetinsights.constants as const
 from datasetinsights.datasets.synthetic import (
     SynDetection2D,
     _get_split,
@@ -16,16 +13,12 @@ from datasetinsights.io.bbox import BBox2D
 def test_syn_detection_2d():
     parent_dir = Path(__file__).parent.parent.absolute()
     mock_data_dir = str(parent_dir / "mock_data" / "simrun")
+    syn_det_2d = SynDetection2D(data_root=mock_data_dir)
 
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        dest_path = str(Path(tmp_dir) / const.SYNTHETIC_SUBFOLDER)
-        shutil.copytree(mock_data_dir, dest_path)
-        syn_det_2d = SynDetection2D(data_root=tmp_dir)
-
-        # From mock data, only one of the capture has 2D bounding box
-        # annotations.
-        assert len(syn_det_2d) == 1
-        assert len(syn_det_2d[0]) == 2
+    # From mock data, only one of the capture has 2D bounding box
+    # annotations.
+    assert len(syn_det_2d) == 1
+    assert len(syn_det_2d[0]) == 2
 
 
 def test_read_bounding_box_2d():
