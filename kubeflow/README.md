@@ -51,8 +51,3 @@ dsl-compile --py=pipelines.py --function=<function> --output=compiled/<function>
 
 Replace `<function>` to the pipeline function you want to compile.
 This will create a file `compiled/<function>.yaml` which can be uploaded to kubeflow pipeline for executions. Next, go to kubeflow dashboard, upload and create new pipeline using the above pipeline. You should be able to create a new parameterize experiment to run kubeflow pipeline following this [tutorial](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart).
-
-
-```
-dsl-compile --py=pipelines.py --function=train_on_synthdet_sample --output=compiled/train_on_synthdet_sample.yaml
-```
