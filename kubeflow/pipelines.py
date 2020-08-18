@@ -41,15 +41,17 @@ def download_op(*, docker, source_uri, output, volume, memory_limit):
         kfp.dsl.ContainerOp: Represents an op implemented by a container image
             to download a dataset.
     """
+    arguments = [
+        f"--source-uri={source_uri}",
+        f"--output={output}",
+        f"--include-binary",
+    ]
+
     download = dsl.ContainerOp(
         name="download",
         image=docker,
         command=["datasetinsights", "download"],
-        arguments=[
-            f"--source-uri={source_uri}",
-            f"--output={output}",
-            f"--include-binary",
-        ],
+        arguments=arguments,
         pvolumes={DATA_PATH: volume},
     )
     download.set_memory_request(memory_limit)
@@ -388,6 +390,56 @@ def train_on_synthetic_and_real_dataset(
         num_gpu=num_gpu,
         gpu_type=gpu_type,
         checkpoint_file=checkpoint_file,
+    )
+
+    return train
+
+
+@dsl.pipeline(
+    name="Train on synthetic dataset Unity Simulation",
+    description="Train on synthetic dataset Unity Simulation",
+)
+def train_on_synthetic_dataset_unity_simulation(
+    docker: str = "unitytechnologies/datasetinsights:latest",
+    project_id: str = "<unity-project-id>",
+    run_execution_id: str = "<unity-simulation-run-execution-id>",
+    access_token: str = "<unity-simulation-access-token>",
+    config: str = "datasetinsights/configs/faster_rcnn_synthetic.yaml",
+    tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
+    checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
+    volume_size: str = "100Gi",
+):
+    output = train_data = val_data = DATA_PATH
+
+    # The following parameters can't be `PipelineParam` due to this issue:
+    # https://github.com/kubeflow/pipelines/issues/1956
+    # Instead, they have to be configured when the pipeline is compiled.
+    memory_limit = "64Gi"
+    num_gpu = 8
+    gpu_type = "nvidia-tesla-v100"
+
+    source_uri = f"usim://{access_token}@{project_id}/{run_execution_id}"
+
+    # Pipeline definition
+    vop = volume_op(volume_size=volume_size)
+    download = download_op(
+        docker=docker,
+        source_uri=source_uri,
+        output=output,
+        volume=vop.volume,
+        memory_limit=memory_limit,
+    )
+    train = train_op(
+        docker=docker,
+        config=config,
+        train_data=train_data,
+        val_data=val_data,
+        tb_log_dir=tb_log_dir,
+        checkpoint_dir=checkpoint_dir,
+        volume=download.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+        num_gpu=num_gpu,
+        gpu_type=gpu_type,
     )
 
     return train

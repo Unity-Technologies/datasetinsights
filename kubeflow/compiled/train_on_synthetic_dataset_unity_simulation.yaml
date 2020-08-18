@@ -1,24 +1,28 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: train-on-the-synthdet-sample-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0, pipelines.kubeflow.org/pipeline_compilation_time: '2020-08-17T18:01:23.743686',
-    pipelines.kubeflow.org/pipeline_spec: '{"description": "Train on the SynthDet
-      sample", "inputs": [{"default": "unitytechnologies/datasetinsights:latest",
-      "name": "docker", "optional": true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/data/synthetic/SynthDet.zip",
-      "name": "source_uri", "optional": true, "type": "String"}, {"default": "datasetinsights/configs/faster_rcnn_synthetic.yaml",
+  generateName: train-on-synthetic-dataset-unity-simulation-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0, pipelines.kubeflow.org/pipeline_compilation_time: '2020-08-17T18:01:26.193532',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "Train on synthetic dataset
+      Unity Simulation", "inputs": [{"default": "unitytechnologies/datasetinsights:latest",
+      "name": "docker", "optional": true, "type": "String"}, {"default": "<unity-project-id>",
+      "name": "project_id", "optional": true, "type": "String"}, {"default": "<unity-simulation-run-execution-id>",
+      "name": "run_execution_id", "optional": true, "type": "String"}, {"default":
+      "<unity-simulation-access-token>", "name": "access_token", "optional": true,
+      "type": "String"}, {"default": "datasetinsights/configs/faster_rcnn_synthetic.yaml",
       "name": "config", "optional": true, "type": "String"}, {"default": "gs://<bucket>/runs/yyyymmdd-hhmm",
       "name": "tb_log_dir", "optional": true, "type": "String"}, {"default": "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
       "name": "checkpoint_dir", "optional": true, "type": "String"}, {"default": "100Gi",
       "name": "volume_size", "optional": true, "type": "String"}], "name": "Train
-      on the SynthDet sample"}'}
+      on synthetic dataset Unity Simulation"}'}
   labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0}
 spec:
-  entrypoint: train-on-the-synthdet-sample
+  entrypoint: train-on-synthetic-dataset-unity-simulation
   templates:
   - name: download
     container:
-      args: ['--source-uri={{inputs.parameters.source_uri}}', --output=/data, --include-binary]
+      args: ['--source-uri=usim://{{inputs.parameters.access_token}}@{{inputs.parameters.project_id}}/{{inputs.parameters.run_execution_id}}',
+        --output=/data, --include-binary]
       command: [datasetinsights, download]
       env:
       - {name: GOOGLE_APPLICATION_CREDENTIALS, value: /secret/gcp-credentials/user-gcp-sa.json}
@@ -32,9 +36,11 @@ spec:
       - {mountPath: /secret/gcp-credentials, name: gcp-credentials-user-gcp-sa}
     inputs:
       parameters:
+      - {name: access_token}
       - {name: docker}
+      - {name: project_id}
       - {name: pvc-name}
-      - {name: source_uri}
+      - {name: run_execution_id}
     volumes:
     - name: gcp-credentials-user-gcp-sa
       secret: {secretName: user-gcp-sa}
@@ -94,13 +100,15 @@ spec:
       secret: {secretName: user-gcp-sa}
     - name: pvc
       persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
-  - name: train-on-the-synthdet-sample
+  - name: train-on-synthetic-dataset-unity-simulation
     inputs:
       parameters:
+      - {name: access_token}
       - {name: checkpoint_dir}
       - {name: config}
       - {name: docker}
-      - {name: source_uri}
+      - {name: project_id}
+      - {name: run_execution_id}
       - {name: tb_log_dir}
       - {name: volume_size}
     dag:
@@ -110,9 +118,11 @@ spec:
         dependencies: [pvc]
         arguments:
           parameters:
+          - {name: access_token, value: '{{inputs.parameters.access_token}}'}
           - {name: docker, value: '{{inputs.parameters.docker}}'}
+          - {name: project_id, value: '{{inputs.parameters.project_id}}'}
           - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
-          - {name: source_uri, value: '{{inputs.parameters.source_uri}}'}
+          - {name: run_execution_id, value: '{{inputs.parameters.run_execution_id}}'}
       - name: pvc
         template: pvc
         arguments:
@@ -131,7 +141,9 @@ spec:
   arguments:
     parameters:
     - {name: docker, value: 'unitytechnologies/datasetinsights:latest'}
-    - {name: source_uri, value: 'https://storage.googleapis.com/datasetinsights/data/synthetic/SynthDet.zip'}
+    - {name: project_id, value: <unity-project-id>}
+    - {name: run_execution_id, value: <unity-simulation-run-execution-id>}
+    - {name: access_token, value: <unity-simulation-access-token>}
     - {name: config, value: datasetinsights/configs/faster_rcnn_synthetic.yaml}
     - {name: tb_log_dir, value: 'gs://<bucket>/runs/yyyymmdd-hhmm'}
     - {name: checkpoint_dir, value: 'gs://<bucket>/checkpoints/yyyymmdd-hhmm'}
