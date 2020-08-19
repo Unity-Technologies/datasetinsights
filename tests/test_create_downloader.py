@@ -11,7 +11,6 @@ from datasetinsights.io.downloader.unity_simulation import (
     "source_uri", ["http://", "https://"],
 )
 def test_create_downloader_http_downloader(source_uri):
-    # arrange
 
     # act
     downloader = create_downloader(source_uri=source_uri)

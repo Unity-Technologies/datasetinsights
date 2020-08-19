@@ -53,7 +53,7 @@ class HTTPDownloader(DatasetDownloader, protocol="http://"):
                 os.remove(dataset_path)
                 raise e
 
-        HTTPDownloader.unzip_file(dataset_path, output)
+        self.unzip_file(dataset_path, output)
 
     @staticmethod
     def get_checksum_from_file(filepath):
