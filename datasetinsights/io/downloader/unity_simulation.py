@@ -53,6 +53,7 @@ class UnitySimulationDownloader(DatasetDownloader, protocol="usim://"):
             access_token: Access token to be used to authenticate to
             unity simulation for downloading the dataset
         """
+        super().__init__(**kwargs)
         self.access_token = access_token
         self.run_execution_id = None
         self.project_id = None
