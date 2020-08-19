@@ -43,9 +43,10 @@ class HTTPDownloader(DatasetDownloader, protocol="http://"):
         download_file(source_uri, dataset_path)
 
         if checksum_file:
-
+            logger.debug("Reading checksum from checksum file.")
             checksum = HTTPDownloader.get_checksum_from_file(checksum_file)
             try:
+                logger.debug("Validating checksum!!")
                 validate_checksum(dataset_path, checksum)
             except ChecksumError as e:
                 logger.info("Checksum mismatch. Deleting the downloaded file.")
