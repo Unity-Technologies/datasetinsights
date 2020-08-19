@@ -14,4 +14,3 @@ test:
 optimizer:
   name: Adam
   lr: 1.0e-4
-checkpoint_file: None

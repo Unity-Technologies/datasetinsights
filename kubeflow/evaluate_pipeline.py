@@ -14,6 +14,7 @@ def evaluate_pipeline(
     volume_size: str = "20Gi",
     data_name: str = "GroceriesReal",
     test_split="test",
+    config_file: str = "datasetinsights/configs/faster_rcnn_synthetic.yaml",
     logdir: str = "gs://thea-dev/runs/yyyymmdd-hhmm",
     docker_image: str = (
         "gcr.io/unity-ai-thea-test/datasetinsights:<git-comit-sha>"
@@ -50,20 +51,18 @@ def evaluate_pipeline(
     evaluate = dsl.ContainerOp(
         name="evaluate",
         image=docker_image,
-        command=["python", "-m", "torch.distributed.launch"],
-        arguments=[
-            f"--nproc_per_node={num_proc}",
+        command=[
+            "python",
             "-m",
-            "datasetinsights.cli",
+            "torch.distributed.launch",
+            f"--nproc_per_node={num_proc}",
+        ],
+        arguments=[
+            "datasetinsights",
             "evaluate",
-            "--verbose",
-            "--metricsdir=/",
-            "--config=datasetinsights/configs/faster_rcnn_synthetic.yaml",
-            f"--logdir={logdir}",
-            f"checkpoint_file",
-            checkpoint_file,
-            f"test.dataset.args.split",
-            test_split,
+            f"--config={config_file}",
+            f"--tb-log-dir={logdir}",
+            f"--checkpoint-file={checkpoint_file}",
         ],
         file_outputs={"mlpipeline-metrics": "/mlpipeline-metrics.json"},
         # Refer to pvloume in previous step to explicitly call out dependency

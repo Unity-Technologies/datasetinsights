@@ -14,7 +14,6 @@ from PIL import Image
 from torchvision.transforms import Compose
 from torchvision.transforms.functional import to_tensor
 
-import datasetinsights.constants as const
 from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics import EvaluationMetric
 from datasetinsights.io.loader import create_loader
@@ -160,7 +159,9 @@ class DenseDepth(Estimator):
         optimizer: pytorch optimizer
     """
 
-    def __init__(self, config, writer, checkpointer, device, **kwargs):
+    def __init__(
+        self, config, writer, checkpointer, device, checkpoint_file, **kwargs
+    ):
         """
         Args:
         config: estimator config
@@ -177,11 +178,11 @@ class DenseDepth(Estimator):
         self.model = DenseDepthModel()
         logger.info("DenseDepth model is created.")
 
-        opname = config.optimizer.name
+        opname = self.config.optimizer.name
 
         if opname == "Adam":
             optimizer = torch.optim.Adam(
-                self.model.parameters(), config.optimizer.lr
+                self.model.parameters(), self.config.optimizer.lr
             )
         else:
             raise ValueError(f"Unsupported optimizer type {opname}")
@@ -189,9 +190,8 @@ class DenseDepth(Estimator):
         self.optimizer = optimizer
 
         # load estimators from file if checkpoint_file exists
-        ckpt_file = config.checkpoint_file
-        if ckpt_file != const.NULL_STRING:
-            checkpointer.load(self, ckpt_file)
+        if checkpoint_file:
+            self.checkpointer.load(self, checkpoint_file)
 
     @staticmethod
     def _NYU_transforms(is_train=True):
@@ -415,6 +415,8 @@ class DenseDepth(Estimator):
             writer.add_scalar("Training/Loss", epoch_loss, epoch)
             self.checkpointer.save(self, epoch=epoch)
 
+        self.writer.close()
+
     def evaluate(self, **kwargs):
         config = self.config
         test_dataset = Dataset.create(
@@ -433,6 +435,7 @@ class DenseDepth(Estimator):
         logger.info("Start evaluating estimator: %s", type(self).__name__)
         self.model.to(self.device)
         self._evaluate_one_epoch(test_loader, 1, 1)
+        self.writer.close()
 
     def save(self, path):
         """ Serialize Estimator to path

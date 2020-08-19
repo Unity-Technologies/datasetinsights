@@ -8,7 +8,6 @@ from ignite.metrics import Loss
 from torchvision import transforms as T
 from torchvision.transforms import functional as F
 
-import datasetinsights.constants as const
 from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics import EvaluationMetric
 from datasetinsights.io.loader import create_loader
@@ -94,25 +93,33 @@ class DeeplabV3(Estimator):
         lr_scheduler: pytorch learning rate scheduler
     """
 
-    def __init__(self, *, config, writer, checkpointer, device, **kwargs):
+    def __init__(
+        self,
+        *,
+        config,
+        writer,
+        checkpointer,
+        device,
+        checkpoint_file=None,
+        **kwargs,
+    ):
         self.config = config
-
-        self.backbone = config.backbone
-        self.num_classes = config.num_classes
-
-        model_name = "deeplabv3_" + self.backbone
-        self.model = torchvision.models.segmentation.__dict__[model_name](
-            num_classes=self.num_classes
-        )
-
         self.writer = writer
         self.checkpointer = checkpointer
         self.device = device
 
-        opname = config.optimizer.name
+        self.backbone = config.backbone
+        self.num_classes = config.num_classes
+
+        model_name = "deeplabv3_" + config.backbone
+        self.model = torchvision.models.segmentation.__dict__[model_name](
+            num_classes=self.num_classes
+        )
+
+        opname = self.config.optimizer.name
         if opname == "Adam":
             optimizer = torch.optim.Adam(
-                self.model.parameters(), **config.optimizer.args
+                self.model.parameters(), **self.config.optimizer.args
             )
 
             # use fixed learning rate when using Adam
@@ -126,9 +133,8 @@ class DeeplabV3(Estimator):
         self.lr_scheduler = lr_scheduler
 
         # load estimators from file if checkpoint_file exists
-        ckpt_file = config.checkpoint_file
-        if ckpt_file != const.NULL_STRING:
-            checkpointer.load(self, ckpt_file)
+        if checkpoint_file:
+            self.checkpointer.load(self, checkpoint_file)
 
     @staticmethod
     def _transforms(is_train=True, crop_size=769):
@@ -326,6 +332,8 @@ class DeeplabV3(Estimator):
 
             self.checkpointer.save(self, epoch=epoch)
 
+        self.writer.close()
+
     def evaluate(self, **kwargs):
         config = self.config
         test_dataset = Dataset.create(
@@ -344,6 +352,7 @@ class DeeplabV3(Estimator):
         logger.info("Start evaluating estimator: %s", type(self).__name__)
         self.model.to(self.device)
         self._evaluate_one_epoch(test_loader, epoch=1)
+        self.writer.close()
 
     def save(self, path):
         """ Serialize Estimator to path
