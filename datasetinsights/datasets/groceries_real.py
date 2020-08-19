@@ -51,7 +51,8 @@ class GroceriesReal(Dataset):
 
 
     Attributes:
-        root (str): Local directory where groceries_real dataset is saved
+        dataset_directory (str): Local directory where groceries_real dataset
+            is saved.
         split (str): Indicate split type of the dataset. Allowed value are
             (train|val|test|test_high_ratio|test_low_ratio)
             test_high_ratio: Split of test dataset with high
@@ -116,9 +117,11 @@ class GroceriesReal(Dataset):
         )
 
         self.version = version
-        self.root = data_root
+        self.dataset_directory = data_root
         self.transforms = transforms
-        if not os.path.isdir(os.path.join(self.root, f"{version}")):
+        if not os.path.isdir(
+            os.path.join(self.dataset_directory, f"{version}")
+        ):
             raise DatasetNotFoundError(
                 "Cannot find the dataset. Please download it first."
             )
@@ -152,7 +155,7 @@ class GroceriesReal(Dataset):
     def _filepath(self, filename):
         """Local file path relative to root
         """
-        return os.path.join(self.root, self.version, filename)
+        return os.path.join(self.dataset_directory, self.version, filename)
 
     def _load_annotations(self):
         """Load annotation from annotations.json file

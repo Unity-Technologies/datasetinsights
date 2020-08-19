@@ -19,11 +19,10 @@ class HTTPDownloader(DatasetDownloader, protocol="http://"):
         if checksum_file:
 
             checksum = HTTPDownloader.get_checksum_from_file(checksum_file)
-
             try:
                 validate_checksum(dataset_path, checksum)
             except ChecksumError as e:
-                logger.info("Checksum mismatch. Delete the downloaded file.")
+                logger.info("Checksum mismatch. Deleting the downloaded file.")
                 os.remove(dataset_path)
                 raise e
 
@@ -39,15 +38,14 @@ class HTTPDownloader(DatasetDownloader, protocol="http://"):
                 return HTTPDownloader.read_checksum_from_txt(checksum_file_path)
 
         elif os.path.isfile(filepath):
-            checksum_file_path = filepath
-            return HTTPDownloader.read_checksum_from_txt(checksum_file_path)
+            return HTTPDownloader.read_checksum_from_txt(filepath)
 
         else:
             raise ValueError(f"Can not get checksum from path: {filepath}")
 
     @staticmethod
     def read_checksum_from_txt(filepath):
-        with open(filepath, "rb") as file:
+        with open(filepath) as file:
             checksum = file.read()
         return int(checksum)
 
