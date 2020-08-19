@@ -401,7 +401,9 @@ def _add_labeled_bbox(
         color = color_names[color_index]
     box_color, text_color = [item for item in _COLOR_NAME_TO_RGB[color]]
 
-    cv2.rectangle(image, (left, top), (right, bottom), color, box_line_width)
+    cv2.rectangle(
+        image, (left, top), (right, bottom), box_color, box_line_width
+    )
     _render_label_on_bbox(
         image, label, (left, top), text_color, box_color, font_size
     )
