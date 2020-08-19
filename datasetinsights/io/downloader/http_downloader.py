@@ -11,7 +11,30 @@ logger = logging.getLogger(__name__)
 
 
 class HTTPDownloader(DatasetDownloader, protocol="http://"):
+    """ This class is used to download data from any HTTP or HTTPS public url
+        and perform function such as downloading the dataset and checksum
+        validation.
+    """
+
     def download(self, source_uri, output, checksum_file=None, **kwargs):
+        """ This method is used to download the dataset from HTTP or HTTPS url.
+
+        Args:
+            source_uri (str): This is the downloader-uri that indicates where
+                              the dataset should be downloaded from.
+
+            output (str): This is the path to the directory where the download
+                          will store the dataset.
+
+            checksum_file (str): This is path of the txt file that contains
+                                 checksum of the dataset to be downloaded. It
+                                 can be HTTP or HTTPS url or local path.
+
+        Raises:
+            ChecksumError: This will raise this error if checksum doesn't
+                           matches
+
+        """
 
         dataset_path = os.path.join(output, "dataset.zip")
         download_file(source_uri, dataset_path)
@@ -30,6 +53,16 @@ class HTTPDownloader(DatasetDownloader, protocol="http://"):
 
     @staticmethod
     def get_checksum_from_file(filepath):
+        """ This method return checksum of the file whose filepath is given.
+
+        Args:
+            filepath (str): Path of the checksum file.
+
+        Raises:
+            ValueError: Raises this error if filepath is not local or not
+                        HTTP or HTTPS url.
+
+        """
 
         if filepath.startswith(("http://", "https://")):
             with tempfile.TemporaryDirectory() as tmp:
@@ -45,6 +78,12 @@ class HTTPDownloader(DatasetDownloader, protocol="http://"):
 
     @staticmethod
     def read_checksum_from_txt(filepath):
+        """ This method reads checksum from a txt file and returns it.
+
+        Args:
+            filepath (str): Local filepath of the checksum file.
+
+        """
         with open(filepath) as file:
             checksum = file.read()
         return int(checksum)

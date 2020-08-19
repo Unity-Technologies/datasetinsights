@@ -10,7 +10,7 @@ from datasetinsights.io.exceptions import ChecksumError
 def test_read_checksum_from_txt():
     with tempfile.NamedTemporaryFile(mode="w+") as tmp:
         tmp.write("123456")
-        tmp.read()
+        tmp.flush()
         assert HTTPDownloader.get_checksum_from_file(tmp.name) == 123456
 
 
