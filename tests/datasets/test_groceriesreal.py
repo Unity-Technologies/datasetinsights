@@ -49,10 +49,8 @@ def test_groceriesreal_download(
         version
     ].checksum
     with tempfile.TemporaryDirectory() as tmp_dir:
-        extract_folder = os.path.join(tmp_dir, GroceriesReal.LOCAL_PATH)
-        dest_path = os.path.join(
-            tmp_dir, GroceriesReal.LOCAL_PATH, f"{version}.zip"
-        )
+        extract_folder = tmp_dir
+        dest_path = os.path.join(tmp_dir, f"{version}.zip")
         mocked_exists.return_value = True
         GroceriesReal.download(tmp_dir, version)
         mocked_validate.assert_called_with(dest_path, expected_checksum)

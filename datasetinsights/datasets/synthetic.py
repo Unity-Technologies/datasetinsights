@@ -138,7 +138,7 @@ class SynDetection2D(Dataset):
     def __init__(
         self,
         *,
-        data_root=const.DEFAULT_DATA_ROOT,
+        data_path=None,
         split="all",
         transforms=None,
         version=SCHEMA_VERSION,
@@ -150,6 +150,7 @@ class SynDetection2D(Dataset):
         """
         Args:
             data_root (str): root directory prefix of dataset
+            data_path (str): Directory of the dataset
             transforms: callable transformation that applies to a pair of
             capture, annotation.
             version(str): synthetic dataset schema version
@@ -157,9 +158,7 @@ class SynDetection2D(Dataset):
             random_seed (int): random seed used for splitting dataset into
                 train and val
         """
-        self.dataset_directory = os.path.join(
-            data_root, const.SYNTHETIC_SUBFOLDER
-        )
+        self.dataset_directory = data_path
 
         captures = Captures(self.dataset_directory, version)
         annotation_definition = AnnotationDefinitions(
