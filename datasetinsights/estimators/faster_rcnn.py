@@ -325,10 +325,10 @@ class FasterRCNN(Estimator):
         )
         loss_metric.reset()
 
-    def evaluate(self, data_root, **kwargs):
+    def evaluate(self, test_data, **kwargs):
         """evaluate given dataset."""
         config = self.config
-        test_dataset = create_dataset(config, data_root, TEST)
+        test_dataset = create_dataset(config, test_data, TEST)
         label_mappings = test_dataset.label_mappings
         test_sampler = FasterRCNN.create_sampler(
             is_distributed=self.distributed,

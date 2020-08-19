@@ -34,6 +34,7 @@ class EstimatorCheckpoint:
     """
 
     def __init__(self, estimator_name, log_dir, distributed):
+        # Todo: rename log_dir to checkpint_dir
         self.distributed = distributed
         self._writer = self._create_writer(log_dir, estimator_name)
 
@@ -48,6 +49,9 @@ class EstimatorCheckpoint:
         Returns:
             Writer object (GCS or Local).
         """
+        # TODO: This will fail if user specified an empty log_dir. This should
+        # be fixed to support uses case when user does not want to specify
+        # logdir
         if log_dir.startswith(const.GCS_BASE_STR):
             writer = GCSEstimatorWriter(log_dir, estimator_name)
         else:
