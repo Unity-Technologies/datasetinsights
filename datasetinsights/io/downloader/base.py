@@ -49,7 +49,6 @@ def create_downloader(source_uri, **kwargs):
 
 
 class DatasetDownloader(ABC):
-
     def __init__(self, **kwargs):
         pass
 
