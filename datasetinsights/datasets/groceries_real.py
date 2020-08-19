@@ -90,7 +90,7 @@ class GroceriesReal(Dataset):
     def __init__(
         self,
         *,
-        data_root=const.DEFAULT_DATA_ROOT,
+        data_path=const.DEFAULT_DATA_ROOT,
         split="train",
         transforms=None,
         version="v3",
@@ -98,11 +98,13 @@ class GroceriesReal(Dataset):
     ):
         """
         Args:
-            data_root (str): Root directory prefix of datasets
+            data_path (str): Directory on localhost where datasets are located.
             split (str): Indicate split type of the dataset.
             transforms: callable transformation
             version (str): version of GroceriesReal dataset
         """
+        self.data_path = data_path
+
         valid_splits = tuple(self.SPLITS.keys())
         if split not in valid_splits:
             raise ValueError(
@@ -117,11 +119,10 @@ class GroceriesReal(Dataset):
         )
 
         self.version = version
-        self.dataset_directory = data_root
+
         self.transforms = transforms
-        if not os.path.isdir(
-            os.path.join(self.dataset_directory, f"{version}")
-        ):
+
+        if not os.path.isdir(self.data_path):
             raise DatasetNotFoundError(
                 "Cannot find the dataset. Please download it first."
             )
@@ -153,9 +154,9 @@ class GroceriesReal(Dataset):
         return len(self.split_indices)
 
     def _filepath(self, filename):
-        """Local file path relative to root
+        """Local file path relative to data_path
         """
-        return os.path.join(self.dataset_directory, self.version, filename)
+        return os.path.join(self.data_path, filename)
 
     def _load_annotations(self):
         """Load annotation from annotations.json file

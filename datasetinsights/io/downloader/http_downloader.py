@@ -16,7 +16,6 @@ class HTTPDownloader(DatasetDownloader, protocol="http://"):
         validation.
     """
 
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
