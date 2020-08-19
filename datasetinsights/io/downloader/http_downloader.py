@@ -1,9 +1,12 @@
 import logging
 import os
-import tempfile
 import zipfile
 
-from datasetinsights.io.download import download_file, validate_checksum
+from datasetinsights.io.download import (
+    download_file,
+    get_checksum_from_file,
+    validate_checksum,
+)
 from datasetinsights.io.downloader.base import DatasetDownloader
 from datasetinsights.io.exceptions import ChecksumError
 
@@ -44,7 +47,7 @@ class HTTPDownloader(DatasetDownloader, protocol="http://"):
 
         if checksum_file:
             logger.debug("Reading checksum from checksum file.")
-            checksum = HTTPDownloader.get_checksum_from_file(checksum_file)
+            checksum = get_checksum_from_file(checksum_file)
             try:
                 logger.debug("Validating checksum!!")
                 validate_checksum(dataset_path, checksum)
@@ -54,43 +57,6 @@ class HTTPDownloader(DatasetDownloader, protocol="http://"):
                 raise e
 
         self.unzip_file(dataset_path, output)
-
-    @staticmethod
-    def get_checksum_from_file(filepath):
-        """ This method return checksum of the file whose filepath is given.
-
-        Args:
-            filepath (str): Path of the checksum file.
-
-        Raises:
-            ValueError: Raises this error if filepath is not local or not
-                        HTTP or HTTPS url.
-
-        """
-
-        if filepath.startswith(("http://", "https://")):
-            with tempfile.TemporaryDirectory() as tmp:
-                checksum_file_path = os.path.join(tmp, "checksum.txt")
-                download_file(source_uri=filepath, dest_path=checksum_file_path)
-                return HTTPDownloader.read_checksum_from_txt(checksum_file_path)
-
-        elif os.path.isfile(filepath):
-            return HTTPDownloader.read_checksum_from_txt(filepath)
-
-        else:
-            raise ValueError(f"Can not get checksum from path: {filepath}")
-
-    @staticmethod
-    def read_checksum_from_txt(filepath):
-        """ This method reads checksum from a txt file and returns it.
-
-        Args:
-            filepath (str): Local filepath of the checksum file.
-
-        """
-        with open(filepath) as file:
-            checksum = file.read()
-        return int(checksum)
 
     @staticmethod
     def unzip_file(filepath, destination):

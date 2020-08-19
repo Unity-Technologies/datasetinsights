@@ -11,6 +11,7 @@ import responses
 from datasetinsights.io.download import (
     compute_checksum,
     download_file,
+    get_checksum_from_file,
     validate_checksum,
 )
 from datasetinsights.io.downloader.unity_simulation import (
@@ -178,3 +179,46 @@ def test_validate_checksum():
         mocked.return_value = wrong_checksum
         with pytest.raises(ChecksumError):
             validate_checksum("filepath/not/important", expected_checksum)
+
+
+def test_read_checksum_from_local_file():
+    # arrange
+    with tempfile.NamedTemporaryFile(mode="w+") as tmp:
+        tmp.write("123456")
+        tmp.flush()
+        # act
+        checksum = get_checksum_from_file(tmp.name)
+        # assert
+        assert checksum == 123456
+
+
+@pytest.mark.parametrize("filepath", ["http://some/path", "https://some/path"])
+@patch("datasetinsights.io.download.download_file")
+@patch("datasetinsights.io.download.read_checksum_from_txt")
+def test_get_checksum_from_http_source(
+    mock_read_checksum_from_txt, mock_download_file, filepath
+):
+    # arrange
+    mock_read_checksum_from_txt.return_value = 123456
+    # act
+    checksum = get_checksum_from_file(filepath)
+    # assert
+    mock_download_file.assert_called_once()
+    assert checksum == 123456
+
+
+@patch("datasetinsights.io.download.download_file")
+@patch("datasetinsights.io.download.read_checksum_from_txt")
+def test_get_checksum_from_non_existing_file(
+    mock_read_checksum_from_txt, mock_download_file
+):
+    # arrange
+    filepath = "some/wrong/path"
+    # assert
+    with pytest.raises(ValueError):
+        # act
+        get_checksum_from_file(filepath)
+
+    # assert
+    mock_download_file.assert_not_called()
+    mock_read_checksum_from_txt.assert_not_called()
