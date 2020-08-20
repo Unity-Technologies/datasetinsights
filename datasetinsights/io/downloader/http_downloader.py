@@ -1,6 +1,5 @@
 import logging
 import os
-import zipfile
 
 from datasetinsights.io.download import (
     download_file,
@@ -16,7 +15,7 @@ logger = logging.getLogger(__name__)
 class HTTPDownloader(DatasetDownloader, protocol="http://"):
     """ This class is used to download data from any HTTP or HTTPS public url
         and perform function such as downloading the dataset and checksum
-        validation.
+        validation if checksum file path is provided.
     """
 
     def __init__(self, **kwargs):
@@ -42,7 +41,7 @@ class HTTPDownloader(DatasetDownloader, protocol="http://"):
 
         """
 
-        dataset_path = os.path.join(output, "dataset.zip")
+        dataset_path = os.path.join(output, "dataset")
         download_file(source_uri, dataset_path)
 
         if checksum_file:
@@ -55,17 +54,3 @@ class HTTPDownloader(DatasetDownloader, protocol="http://"):
                 logger.info("Checksum mismatch. Deleting the downloaded file.")
                 os.remove(dataset_path)
                 raise e
-
-        self.unzip_file(dataset_path, output)
-
-    @staticmethod
-    def unzip_file(filepath, destination):
-        """Unzips a zip file to the destination and delete the zip file.
-
-        Args:
-            filepath (str): File path of the zip file.
-            destination (str): Path where to unzip contents of zipped file.
-        """
-        with zipfile.ZipFile(filepath) as file:
-            logger.info(f"Unzipping file: {filepath} to {destination}")
-            file.extractall(destination)
