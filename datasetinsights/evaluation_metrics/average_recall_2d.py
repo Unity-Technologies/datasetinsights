@@ -84,11 +84,11 @@ class AverageRecall(EvaluationMetric):
                 average_recall[label] = 0
                 continue
 
-            pred_infos = _label_records[label].pred_infos
+            match_results = _label_records[label].match_results
             _gt_bboxes_count = self._gt_bboxes_count[label]
 
             # The number of TP
-            sum_tp = sum(list(zip(*pred_infos))[1])
+            sum_tp = sum(list(zip(*match_results))[1])
 
             max_recall = sum_tp / _gt_bboxes_count
 

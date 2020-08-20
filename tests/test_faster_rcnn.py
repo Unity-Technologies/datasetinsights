@@ -244,7 +244,7 @@ def test_faster_rcnn_evaluate(
     estimator.writer = writer
     estimator.kfp_writer = kfp_writer
     estimator.checkpointer = checkpointer
-    estimator.evaluate(data_root=None)
+    estimator.evaluate(None)
     mock_evaluate_per_epoch.assert_called_once()
 
 
@@ -437,7 +437,6 @@ def test_faster_rcnn_predict(config, dataset):
     estimator.device = torch.device("cpu")
     image_size = (256, 256)
     image = Image.fromarray(np.random.random(image_size), "L")
-    image = torchvision.transforms.functional.to_tensor(image)
 
     result = estimator.predict(image)
     assert result == []

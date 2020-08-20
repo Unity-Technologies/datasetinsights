@@ -97,11 +97,11 @@ class AveragePrecision(EvaluationMetric):
             if label not in _label_records:
                 average_precision[label] = 0
                 continue
-            pred_infos = _label_records[label].pred_infos
+            match_results = _label_records[label].match_results
             _gt_bboxes_count = self._gt_bboxes_count[label]
 
-            pred_infos = sorted(pred_infos, reverse=True)
-            true_pos = np.array(list(zip(*pred_infos))[1]).astype(int)
+            match_results = sorted(match_results, reverse=True)
+            true_pos = np.array(list(zip(*match_results))[1]).astype(int)
             false_pos = 1 - true_pos
 
             acc_tp = np.cumsum(true_pos)
