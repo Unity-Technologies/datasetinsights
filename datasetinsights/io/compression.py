@@ -58,7 +58,7 @@ class GZipCompression:
             out_f.write(zip_f.read())
 
 
-def get_file_type_from_filepath(filepath):
+def _get_file_type_from_filepath(filepath):
     """ Detects file type of a file.
 
     Args:
@@ -81,7 +81,7 @@ def compression_factory(filepath):
 
     Returns: Compression class object.
     """
-    file_type = get_file_type_from_filepath(filepath)
+    file_type = _get_file_type_from_filepath(filepath)
     compression_class = {
         "zip": ZipFileCompression,
         "gz": GZipCompression,
