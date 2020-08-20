@@ -19,9 +19,6 @@ class HTTPDownloader(DatasetDownloader, protocol="http://"):
         validation.
     """
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     def download(self, source_uri, output, checksum_file=None, **kwargs):
         """ This method is used to download the dataset from HTTP or HTTPS url.
 
