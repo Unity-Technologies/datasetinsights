@@ -12,9 +12,8 @@ def _find_downloader(source_uri):
         Args:
             source_uri: URI of where this data should be downloaded.
 
-            Returns: The dataset downloader class that is
-             registered with the source-uri protocol
-
+        Returns: The dataset downloader class that is registered with the
+                 source-uri protocol.
 
     """
     protocols = "|".join(_registry.keys())
@@ -49,9 +48,6 @@ def create_downloader(source_uri, **kwargs):
 
 
 class DatasetDownloader(ABC):
-    def __init__(self, **kwargs):
-        pass
-
     @classmethod
     def __init_subclass__(cls, protocol=None, **kwargs):
         if protocol:

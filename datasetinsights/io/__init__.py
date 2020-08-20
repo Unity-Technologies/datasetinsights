@@ -1,6 +1,6 @@
 from .bbox import BBox2D
 from .checkpoint import EstimatorCheckpoint
-from .downloader.base import create_downloader
+from .downloader import create_downloader
 from .kfp_output import KubeflowPipelineWriter
 
 __all__ = [

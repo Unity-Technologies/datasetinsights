@@ -1,4 +1,6 @@
 import logging
+import os
+import tempfile
 import zlib
 from pathlib import Path
 
@@ -122,3 +124,40 @@ def _crc32_checksum(filepath):
         checksum = zlib.crc32(f.read())
 
     return checksum
+
+
+def get_checksum_from_file(filepath):
+    """ This method return checksum of the file whose filepath is given.
+
+    Args:
+        filepath (str): Path of the checksum file.
+
+    Raises:
+        ValueError: Raises this error if filepath is not local or not
+                    HTTP or HTTPS url.
+
+    """
+
+    if filepath.startswith(("http://", "https://")):
+        with tempfile.TemporaryDirectory() as tmp:
+            checksum_file_path = os.path.join(tmp, "checksum.txt")
+            download_file(source_uri=filepath, dest_path=checksum_file_path)
+            return read_checksum_from_txt(checksum_file_path)
+
+    elif os.path.isfile(filepath):
+        return read_checksum_from_txt(filepath)
+
+    else:
+        raise ValueError(f"Can not get checksum from path: {filepath}")
+
+
+def read_checksum_from_txt(filepath):
+    """ This method reads checksum from a txt file and returns it.
+
+    Args:
+        filepath (str): Local filepath of the checksum file.
+
+    """
+    with open(filepath) as file:
+        checksum = file.read()
+    return int(checksum)
