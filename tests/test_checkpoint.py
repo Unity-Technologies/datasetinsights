@@ -107,18 +107,24 @@ def test_create_writer():
         assert writer == mock_gcs_writer
 
 
-def test_get_loader_from_path():
+@pytest.mark.parametrize("filepath", ["https://some/path", "http://some/path"])
+def test_get_http_loader_from_path(filepath):
+    loader = EstimatorCheckpoint._get_loader_from_path(filepath)
+    assert loader == load_from_http
+
+
+def test_get_gcs_loader_from_path():
     loader = EstimatorCheckpoint._get_loader_from_path("gs://some/path")
     assert loader == load_from_gcs
 
-    loader = EstimatorCheckpoint._get_loader_from_path("http://some/path")
-    assert loader == load_from_http
 
-    loader = EstimatorCheckpoint._get_loader_from_path("https://some/path")
-    assert loader == load_from_http
+def test_get_local_loader_from_path():
+    with tempfile.TemporaryDirectory() as tmp:
+        loader = EstimatorCheckpoint._get_loader_from_path(tmp)
+        assert loader == load_local
 
-    loader = EstimatorCheckpoint._get_loader_from_path("/path/to/folder")
-    assert loader == load_local
 
+def test_get_loader_raises_error():
+    filepath = "some/wrong/path"
     with pytest.raises(ValueError, match=r"Given path:"):
-        EstimatorCheckpoint._get_loader_from_path("dfdge")
+        EstimatorCheckpoint._get_loader_from_path(filepath)
