@@ -48,6 +48,9 @@ def create_downloader(source_uri, **kwargs):
 
 
 class DatasetDownloader(ABC):
+    def __init__(self, **kwargs):
+        pass
+
     @classmethod
     def __init_subclass__(cls, protocol=None, **kwargs):
         if protocol:

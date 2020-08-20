@@ -207,13 +207,14 @@ def test_get_checksum_from_http_source(
     assert checksum == 123456
 
 
+@pytest.mark.parametrize(
+    "filepath", ["some/wrong/path", "zvsssdfsdg", "wrong/ path/file"]
+)
 @patch("datasetinsights.io.download.download_file")
 @patch("datasetinsights.io.download.read_checksum_from_txt")
-def test_get_checksum_from_non_existing_file(
-    mock_read_checksum_from_txt, mock_download_file
+def test_get_checksum_from_non_existing_file_or_wrong_path(
+    mock_read_checksum_from_txt, mock_download_file, filepath
 ):
-    # arrange
-    filepath = "some/wrong/path"
     # assert
     with pytest.raises(ValueError):
         # act
