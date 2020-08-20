@@ -18,9 +18,6 @@ class HTTPDownloader(DatasetDownloader, protocol="http://"):
         validation if checksum file path is provided.
     """
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     def download(self, source_uri, output, checksum_file=None, **kwargs):
         """ This method is used to download the dataset from HTTP or HTTPS url.
 
