@@ -102,10 +102,11 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
 
     This implementation computes Mean Average Recall (mAR) metric,
     which is implemented as the Average Recall average over all
-    labels and IOU thresholds [0.5:0.95:0.05]. The max detections
+    labels and IOU = 0.5:0.95:0.05. The max detections
     per image is limited to 100.
 
-    .. math:: mAR = mean_{label, IOU}AR(label, IOU)
+    .. math:: mAR^{IoU=0.5:0.95:0.05} = mean_{label,IoU}
+    AR^{label, IoU=0.5:0.95:0.05}
     """
 
     TYPE = "scalar"
@@ -128,7 +129,7 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
             mean_ar.update(mini_batch)
 
     def compute(self):
-        """Compute mAR over ious.
+        """Compute mAR over IOU.
         """
         result = np.mean(
             [

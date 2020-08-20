@@ -196,7 +196,7 @@ class AveragePrecision(EvaluationMetric):
 class AveragePrecisionIOU50(EvaluationMetric):
     """2D Bounding Box Average Precision at IOU = 50%.
 
-    This implementation would calculate AP@50IOU for each label.
+    This implementation would calculate AP at IOU = 50% for each label.
     """
 
     TYPE = "metric_per_label"
@@ -217,9 +217,9 @@ class AveragePrecisionIOU50(EvaluationMetric):
 class MeanAveragePrecisionIOU50(EvaluationMetric):
     """2D Bounding Box Mean Average Precision metrics at IOU=50%.
 
-    This implementation would calculate mAP@50IOU.
+    This implementation would calculate mAP at IOU=50%.
 
-    .. math:: mAP = mean_{label}AP(label)@IOU50
+    .. math:: mAP^{IoU=50} = mean_{label}AP^{label, IoU=50}
     """
 
     TYPE = "scalar"
@@ -246,9 +246,11 @@ class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
 
     This implementation computes Mean Average Precision (mAP) metric,
     which is implemented as the Average Precision average over all
-    labels and IOU thresholds [0.5:0.95:0.05]. The max detections
-    per image is limited to 100.
-    mAP = mean_{label, IOU}AP(label, IOU)
+    labels and IOU = 0.5:0.95:0.05. The max detections per image is
+    limited to 100.
+
+    .. math:: mAP^{IoU=0.5:0.95:0.05} = mean_{label,IoU}
+    AP^{label, IoU=0.5:0.95:0.05}
     """
 
     TYPE = "scalar"
@@ -270,7 +272,7 @@ class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
             mean_ap.update(mini_batch)
 
     def compute(self):
-        """Compute mAP over ious.
+        """Compute mAP over IOU.
         """
         result = np.mean(
             [
