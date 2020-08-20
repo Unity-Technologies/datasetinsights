@@ -69,7 +69,7 @@ class EstimatorCheckpoint:
             method = load_from_http
         elif path.startswith(const.GCS_BASE_STR):
             method = load_from_gcs
-        elif os.path.isdir(path):
+        elif os.path.isfile(path):
             method = load_local
         else:
             raise ValueError(

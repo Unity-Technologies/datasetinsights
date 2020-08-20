@@ -119,9 +119,11 @@ def test_get_gcs_loader_from_path():
 
 
 def test_get_local_loader_from_path():
+    file_name = "FasterRCNN.estimator"
     with tempfile.TemporaryDirectory() as tmp:
-        loader = EstimatorCheckpoint._get_loader_from_path(tmp)
-        assert loader == load_local
+        with open(os.path.join(tmp, file_name), "w") as f:
+            loader = EstimatorCheckpoint._get_loader_from_path(f.name)
+            assert loader == load_local
 
 
 def test_get_loader_raises_error():
