@@ -13,6 +13,7 @@ import torch.distributed as dist
 import torchvision
 from codetiming import Timer
 from tensorboardX import SummaryWriter
+from torchvision import transforms
 
 import datasetinsights.constants as const
 from datasetinsights.datasets import Dataset
@@ -505,8 +506,8 @@ class FasterRCNN(Estimator):
             filtered_pred_annotations (List[BBox2D]): high predicted score
             bboxes from the model.
         """
-        pil_img = pil_img.unsqueeze(0)
-        img_tensor = pil_img.to(self.device)
+        img_tensor = transforms.ToTensor()(pil_img).unsqueeze(0)
+        img_tensor = img_tensor.to(self.device)
         predicts = self.model_without_ddp(img_tensor)
         predict_annotations = convert_bboxes2canonical(predicts)[0]
         filtered_pred_annotations = [
