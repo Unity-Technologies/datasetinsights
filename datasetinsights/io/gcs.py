@@ -1,10 +1,18 @@
 import logging
 import os
+from os import makedirs
+from os.path import basename, isdir
 from pathlib import Path
 
 from google.cloud.storage import Client
 
+from datasetinsights.io.download import validate_checksum
+from datasetinsights.io.exceptions import ChecksumError, DownloadError
+
 logger = logging.getLogger(__name__)
+
+MD5 = "MD5"
+REPAD = "=="
 
 
 class GCSClient:
@@ -101,3 +109,52 @@ def download_file_from_gcs(cloud_path, local_path, filename, use_cache=True):
 
     # TODO(YC) Should run file checksum before return.
     return local_filepath
+
+
+def download_folder_from_gcs(cloud_path, local_path):
+    """Helper method to download list of files from GCS
+
+    Args:
+        cloud_path: Full path to a GCS folder
+        local_path: Local path to a folder where the file should be stored
+
+    Returns:
+        str: Full path to the downloaded file
+
+    Examples:
+        >>> cloud_path = "gs://bucket/folder"
+        >>> local_path = "/tmp/folder"
+        >>> filename = "file.txt"
+        >>> download_file_from_gcs(cloud_path, local_path, filename)
+        # download file gs://bucket/folder/file.txt to /tmp/folder/file.txt
+    """
+    bucket, prefix = gcs_bucket_and_path(cloud_path)
+    client = GCSClient().client
+    bucket = client.get_bucket(bucket)
+    blobs = bucket.list_blobs(prefix=prefix)
+    for blob in blobs:
+        blob_name = blob.name
+        dst_file_name = blob_name.replace(prefix, local_path)
+        dst_dir = dst_file_name.replace("/" + basename(dst_file_name), "")
+        if not isdir(dst_dir):
+            makedirs(dst_dir)
+        try:
+            logger.info(f"Downloading from {prefix} to {dst_file_name}.")
+            blob.download_to_filename(dst_file_name)
+        except DownloadError as e:
+            logger.info(
+                f"The request download from {prefix} -> {dst_file_name} can't "
+                f"be completed."
+            )
+            raise e
+        expected_checksum = blob.md5_hash
+        if expected_checksum:
+            expected_checksum += REPAD
+            try:
+                validate_checksum(
+                    dst_file_name, expected_checksum, algorithm=MD5
+                )
+            except ChecksumError as e:
+                logger.info("Checksum mismatch. Delete the downloaded files.")
+                os.remove(dst_file_name)
+                raise e
