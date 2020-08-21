@@ -71,15 +71,42 @@ Let package management system resolve for dependencies.
 See [poetry add](https://python-poetry.org/docs/cli/#add) for detail instructions.
 
 ## Codebase structure
+The datasetinsights contains the following modules.
 
-To be filled.
+datasetinsights
+*    [commands](datasetinsights/commands)
+        This module contains the cli commands.
+
+*    [configs](datasetinsights/configs)
+        This module contains estimator configuration files.
+
+*    [datasets](datasetinsights/datasets)
+        This module contains different datasets.
+        The dataset classes contain knowledge on how the
+        dataset should be loaded into memory.
+
+*    [estimators](datasetinsights/estimators)
+        This module contain estimatos are used for
+        training and evaluating models on the datasets.
+
+*    [evaluation_metrics](datasetinsights/evaluation_metrics)
+        This module contains metrics used by the different
+        estimators and are specific in the estimator config file.
+
+*    [io](datasetinsights/io)
+        This module contains functionality that relates to
+        writing/downloading/uploading to/from different sources.
+
+*    [stats](datasetinsights/stats)
+        This module contains code for visualizing and gathering
+        statistics on the dataset
 
 ## Train Model
 
 ```
-python -m datasetinsights.cli --local_rank=0 train \
-    --config=datasetinsights/configs/faster_rcnn.yaml \
-    --data-root=$HOME/data
+datasetinsights train \
+ --config=datasetinsights/configs/faster_rcnn.yaml \
+ --train-data=path_to_data
 ```
 
 ## Unit testing
