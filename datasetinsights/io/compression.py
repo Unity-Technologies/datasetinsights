@@ -58,19 +58,21 @@ class GZipCompression:
             out_f.write(zip_f.read())
 
 
-def _get_file_type_from_filepath(filepath):
+def _get_file_extension_from_filepath(filepath):
     """ Detects file type of a file.
+
+    See  <https://pypi.org/project/filetype/> for more info.
 
     Args:
         filepath (str): File path of the file.
 
-    Returns: a filetype <https://pypi.org/project/filetype/> object.
+    Returns: Extension of the file.
 
     """
-    file_type = filetype.guess(filepath)
-    if file_type is None:
+    file_type_obj = filetype.guess(filepath)
+    if file_type_obj is None:
         raise ValueError(f"Can not detect file type from path: {filepath}")
-    return file_type
+    return file_type_obj.extension
 
 
 def compression_factory(filepath):
@@ -81,17 +83,17 @@ def compression_factory(filepath):
 
     Returns: Compression class object.
     """
-    file_type = _get_file_type_from_filepath(filepath)
+    file_type = _get_file_extension_from_filepath(filepath)
     compression_class = {
         "zip": ZipFileCompression,
         "gz": GZipCompression,
         "tar": TarFileCompression,
     }
     try:
-        compressor = compression_class[file_type.extension]
+        compressor = compression_class[file_type]
     except KeyError:
         raise ValueError(
-            f"Compression type: {file_type.mime} not supported " f"currently."
+            f"Compression type: {file_type} not supported " f"currently."
         )
 
     return compressor
