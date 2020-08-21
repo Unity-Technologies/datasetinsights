@@ -39,9 +39,7 @@ class SourceURI(click.ParamType):
         return value
 
 
-@click.command(
-    context_settings=const.CONTEXT_SETTINGS,
-)
+@click.command(context_settings=const.CONTEXT_SETTINGS,)
 @click.option(
     "-s",
     "--source-uri",
