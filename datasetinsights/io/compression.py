@@ -1,66 +1,26 @@
-import gzip
 import logging
-import os
-import tarfile
-import zipfile
+import shutil
 
 import filetype
 
 logger = logging.getLogger(__name__)
 
 
-class ZipFileCompression:
+class Compression:
     @staticmethod
     def decompress(filepath, destination):
-        """ Unzips a zip file to the destination.
-
-        Args:
-            filepath (str): File path of the zip file.
-            destination (str): Path where to unzip contents of zipped file.
-
-        """
-        with zipfile.ZipFile(filepath, "r") as file:
-            logger.info(f"Unzipping file: {filepath} to {destination}")
-            file.extractall(destination)
-
-
-class TarFileCompression:
-    @staticmethod
-    def decompress(filepath, destination):
-        """Decompress a tar file to the destination.
-
-        Args:
-            filepath (str): File path of the tar file.
-            destination (str): Path where to decompress contents of tar file.
-
-        """
-        with tarfile.open(filepath, "r") as tar:
-            logger.info(f"Decompressing file: {filepath} to {destination}")
-            tar.extractall(destination)
-
-
-class GZipCompression:
-    @staticmethod
-    def decompress(filepath, destination):
-        """ Decompress a gzip file to the destination.
-
-        This will decompress a gzip file of name 'file.txt.gz' to 'file.txt'
-
-        Args:
-            filepath (str): File path of the gzip file.
-            destination (str): Path where to decompress contents of gzip file.
-
-        """
-        destination = os.path.join(
-            destination, os.path.splitext(os.path.basename(filepath))[0]
-        )
-        with open(destination, "wb") as out_f, gzip.GzipFile(filepath) as zip_f:
-            out_f.write(zip_f.read())
+        try:
+            extension = _get_file_extension_from_filepath(filepath)
+            shutil.unpack_archive(filepath, destination, extension)
+        except ValueError as e:
+            logger.debug(
+                f"Current file format is not supported for " f"decompression."
+            )
+            raise e
 
 
 def _get_file_extension_from_filepath(filepath):
     """ Detects file type of a file.
-
     See  <https://pypi.org/project/filetype/> for more info.
 
     Args:
@@ -73,27 +33,3 @@ def _get_file_extension_from_filepath(filepath):
     if file_type_obj is None:
         raise ValueError(f"Can not detect file type from path: {filepath}")
     return file_type_obj.extension
-
-
-def compression_factory(filepath):
-    """ Get compression class from filepath.
-
-    Args:
-        filepath (str): File path of the file.
-
-    Returns: Compression class object.
-    """
-    file_type = _get_file_extension_from_filepath(filepath)
-    compression_class = {
-        "zip": ZipFileCompression,
-        "gz": GZipCompression,
-        "tar": TarFileCompression,
-    }
-    try:
-        compressor = compression_class[file_type]
-    except KeyError:
-        raise ValueError(
-            f"Compression type: {file_type} not supported " f"currently."
-        )
-
-    return compressor

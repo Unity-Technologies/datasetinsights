@@ -1,45 +1,24 @@
-from unittest.mock import MagicMock, patch
+import os
+import tempfile
+from zipfile import ZIP_DEFLATED, ZipFile
 
 import pytest
 
-from datasetinsights.io.compression import (
-    GZipCompression,
-    TarFileCompression,
-    ZipFileCompression,
-    compression_factory,
+from datasetinsights.io.compression import Compression
+
+
+def test_compression_factory_returns_zipfile_compression():
+    with tempfile.NamedTemporaryFile() as tmp:
+        with ZipFile(tmp, "w", ZIP_DEFLATED) as archive:
+            archive.writestr("something.txt", "Some Content Here")
+        Compression.decompress(filepath=archive.filename, destination=tmp.name)
+        assert os.path.isfile(os.path.join(tmp.name, "something.txt"))
+
+
+@pytest.mark.parametrize(
+    "suffix", [".txt", ".zip", ".txt.gz", ".tar", ".tar.gz"],
 )
-
-
-@patch("datasetinsights.io.compression._get_file_extension_from_filepath")
-def test_compression_factory_returns_zipfile_compression(
-    mocked_get_file_extension,
-):
-    mocked_get_file_extension.return_value = "zip"
-    assert compression_factory(filepath=MagicMock()) == ZipFileCompression
-    mocked_get_file_extension.assert_called_once()
-
-
-@patch("datasetinsights.io.compression._get_file_extension_from_filepath")
-def test_compression_factory_returns_tarfile_compression(
-    mocked_get_file_extension,
-):
-    mocked_get_file_extension.return_value = "tar"
-    assert compression_factory(filepath=MagicMock()) == TarFileCompression
-    mocked_get_file_extension.assert_called_once()
-
-
-@patch("datasetinsights.io.compression._get_file_extension_from_filepath")
-def test_compression_factory_returns_gzip_compression(
-    mocked_get_file_extension,
-):
-    mocked_get_file_extension.return_value = "gz"
-    assert compression_factory(filepath=MagicMock()) == GZipCompression
-    mocked_get_file_extension.assert_called_once()
-
-
-@patch("datasetinsights.io.compression._get_file_extension_from_filepath")
-def test_compression_factory_raises_value_error(mocked_get_file_extension,):
-    mocked_get_file_extension.return_value = "epub"
-    with pytest.raises(ValueError):
-        compression_factory(filepath=MagicMock())
-        mocked_get_file_extension.assert_called_once()
+def test_compression_factory_raises_value_error(suffix):
+    with tempfile.NamedTemporaryFile(prefix="file", suffix=suffix) as tmp:
+        with pytest.raises(ValueError):
+            Compression.decompress(filepath=tmp.name, destination=tmp)
