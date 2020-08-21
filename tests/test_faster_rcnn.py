@@ -7,7 +7,6 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 import torch
-import torchvision
 from PIL import Image
 from tensorboardX import SummaryWriter
 from yacs.config import CfgNode as CN

@@ -96,6 +96,13 @@ def _process_label(bbox, label_mappings=None):
 
 def match_boxes(pred_bboxes, gt_bboxes):
     """ Provide a list of colors for pred annotations.
+
+    Args:
+        pred_bboxes (list[BBox2D]): a list of prediction bounding boxes
+        gt_bboxes (list[BBox2D]): a list of ground truth bounding boxes
+
+    Returns:
+        list: a list of color names. ["green", "red", ...]
     """
     records = prediction_records(gt_bboxes, pred_bboxes)
     match_results = records.match_results
@@ -112,6 +119,14 @@ def match_boxes(pred_bboxes, gt_bboxes):
 
 def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
     """ Plot an image with bounding boxes.
+
+    For ground truth image, a color is randomly selected for each bounding box.
+    For prediction, the color of a boundnig box is coded based on IOU value
+    between prediction and ground truth bounding boxes. It is considered true
+    positive if IOU >= 0.5. We only visualize prediction bounding box with
+    score >= 0.5. For prediction, it's a green box if the predicted bounding box
+    can be matched to a ground truth bounding boxes. It's a red box if the
+    predicted bounding box can't be matched to a ground truth bounding boxes.
 
     Args:
         image (PIL Image): a PIL image.

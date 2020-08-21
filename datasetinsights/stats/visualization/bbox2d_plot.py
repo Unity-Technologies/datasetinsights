@@ -1,12 +1,12 @@
 """Reference: https://github.com/nalepae/bounding-box
 """
 import os as _os
-import cv2 as _cv2
 import pathlib
-from PIL import ImageFont
-import numpy as _np
 from hashlib import md5 as _md5
 
+import cv2 as _cv2
+import numpy as _np
+from PIL import ImageFont
 
 FONT_PATH = _os.path.join(
     pathlib.Path(__file__).parent.absolute(), "font", "arial.ttf"
