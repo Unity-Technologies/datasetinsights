@@ -32,6 +32,38 @@ _COLOR_NAMES = list(_COLOR_NAME_TO_RGB)
 _DEFAULT_COLOR_NAME = "green"
 
 
+def add_single_bbox_on_image(
+    image, bbox, label, color, font_size=100, box_line_width=15
+):
+    """ Add single bounding box with label on a given image.
+
+    Args:
+        image (numpy array): a numpy array for an image.
+        bbox (BBox2D): a canonical bounding box.
+        color (str): a color name for one boundign box.
+        If color = None, it will randomly assign a color for each box.
+        font_size (int): font size for each label. Defaults to 100.
+        box_line_width (int): line width of the bounding boxes. Defaults to 15.
+
+    Returns:
+        a PIL image with bounding boxes drawn.
+    """
+    left, top = (bbox.x, bbox.y)
+    right, bottom = (bbox.x + bbox.w, bbox.y + bbox.h)
+
+    _add_single_bbox_on_image(
+        image,
+        left,
+        top,
+        right,
+        bottom,
+        label=label,
+        color=color,
+        font_size=font_size,
+        box_line_width=box_line_width,
+    )
+
+
 def _rgb_to_bgr(color):
     return list(reversed(color))
 
@@ -67,38 +99,6 @@ def _get_label_image(
     ]
 
     return _np.concatenate(image).transpose(1, 2, 0)
-
-
-def add_single_bbox_on_image(
-    image, bbox, label, color, font_size=100, box_line_width=15
-):
-    """ Add single bounding box with label on a given image.
-
-    Args:
-        image (numpy array): a numpy array for an image.
-        bbox (BBox2D): a canonical bounding box.
-        color (str): a color name for one boundign box.
-        If color = None, it will randomly assign a color for each box.
-        font_size (int): font size for each label. Defaults to 100.
-        box_line_width (int): line width of the bounding boxes. Defaults to 15.
-
-    Returns:
-        a PIL image with bounding boxes drawn.
-    """
-    left, top = (bbox.x, bbox.y)
-    right, bottom = (bbox.x + bbox.w, bbox.y + bbox.h)
-
-    _add_single_bbox_on_image(
-        image,
-        left,
-        top,
-        right,
-        bottom,
-        label=label,
-        color=color,
-        font_size=font_size,
-        box_line_width=box_line_width,
-    )
 
 
 def _add_single_bbox_on_image(
