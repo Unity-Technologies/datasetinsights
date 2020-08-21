@@ -1,5 +1,6 @@
 """ Simulation Dataset Catalog
 """
+import glob
 import logging
 import os
 from pathlib import Path
@@ -13,8 +14,10 @@ from datasetinsights.datasets.unity_perception import (
 )
 from datasetinsights.datasets.unity_perception.tables import SCHEMA_VERSION
 from datasetinsights.io.bbox import BBox2D
+from datasetinsights.io.compression import compression_factory
 
 from .base import Dataset
+from .exceptions import DatasetNotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -96,16 +99,32 @@ def read_bounding_box_2d(annotation, label_mappings=None):
 class SynDetection2D(Dataset):
     """Synthetic dataset for 2D object detection.
 
-    During the class instantiation, it would check whehter the data is
-    downloaded or not or if USIM run-execution-id or manifest file is
-    provided. If there is no dataset and USIM run-execution-id or manifest file
-    it would raise an error.
+    During the class instantiation, it would check whether the data files
+    such as annotations.json, images.png are present, if not it'll check
+    whether a compressed dataset file is present which contains the necessary
+    files, if not it'll raise an error.
 
-    Current public synthdet version are as follows:
-        v1: Subset SynthDet dataset containing around 5k images.
+    The dataset contain the following structures:
+
+    * DatasetXXX-XXX-XXX
+    .
+    .
+    * DatasetXXX-XXX-XXX
+        * annotation_definitions.json
+        * captures_XXX.json ... captures_XXX.json
+        * egos.json
+        * metric_definitions.json
+        * metrics_xxx.json ... metrics_XXX.json
+        * sensors.json
+
+    * RGBxXX-XXX-XXX
+    .
+    .
+    * RGBxXX-XXX-XXX
+        * rgb_XXX.jpg ... rgb_XXX.jpg
 
     Attributes:
-        root (str): root directory of the dataset
+        dataset_directory (str): root directory of the dataset
         catalog (list): catalog of all captures in this dataset
         transforms: callable transformation that applies to a pair of
             capture, annotation. Capture is the information captured by the
@@ -137,7 +156,31 @@ class SynDetection2D(Dataset):
             random_seed (int): random seed used for splitting dataset into
                 train and val
         """
-        self.dataset_directory = data_path
+        # check if dataset files are present
+        if SynDetection2D.is_synthetic_dataset_files_present(data_path):
+            self.dataset_directory = data_path
+
+        # check if compressed dataset file is present
+        elif os.path.isfile(os.path.join(data_path, "dataset")):
+            compressor = compression_factory(os.path.join(data_path, "dataset"))
+            compressor.decompress(
+                filepath=os.path.join(data_path, "dataset"),
+                destination=data_path,
+            )
+
+            # check if necessary files are present after decompression
+            if SynDetection2D.is_synthetic_dataset_files_present(data_path):
+                self.dataset_directory = data_path
+            else:
+                raise DatasetNotFoundError(
+                    f"Compressed dataset file does not "
+                    f"contain necessary files such as "
+                    f".png, .json etc."
+                )
+        else:
+            raise DatasetNotFoundError(
+                f"No dataset file(s) present at path" f":{data_path}"
+            )
 
         captures = Captures(self.dataset_directory, version)
         annotation_definition = AnnotationDefinitions(
@@ -247,3 +290,11 @@ class SynDetection2D(Dataset):
         keep_mask = catalog.filename.apply(exists)
 
         return catalog[keep_mask]
+
+    @staticmethod
+    def is_synthetic_dataset_files_present(dataset_directory):
+        return (
+            os.path.isdir(dataset_directory)
+            and glob.glob(f"{dataset_directory}/**/*.png")
+            and glob.glob(f"{dataset_directory}/**/*.json")
+        )

@@ -1,3 +1,4 @@
+import glob
 import json
 import logging
 import os
@@ -10,6 +11,7 @@ from PIL import Image
 
 import datasetinsights.constants as const
 from datasetinsights.io.bbox import BBox2D
+from datasetinsights.io.compression import compression_factory
 from datasetinsights.io.gcs import download_file_from_gcs
 
 from .base import Dataset
@@ -103,7 +105,31 @@ class GroceriesReal(Dataset):
             transforms: callable transformation
             version (str): version of GroceriesReal dataset
         """
-        self.data_path = data_path
+        # check if dataset files are present
+        if GroceriesReal.is_groceries_real_dataset_files_present(data_path):
+            self.dataset_directory = data_path
+
+        # check if compressed dataset file is present
+        elif os.path.isfile(os.path.join(data_path, "dataset")):
+            compressor = compression_factory(os.path.join(data_path, "dataset"))
+            compressor.decompress(
+                filepath=os.path.join(data_path, "dataset"),
+                destination=data_path,
+            )
+
+            # check if necessary files are present after decompression
+            if GroceriesReal.is_groceries_real_dataset_files_present(data_path):
+                self.dataset_directory = data_path
+            else:
+                raise DatasetNotFoundError(
+                    f"Compressed dataset file does not "
+                    f"contain necessary files such as "
+                    f".png, .json etc."
+                )
+        else:
+            raise DatasetNotFoundError(
+                f"No dataset file(s) present at path" f":{data_path}"
+            )
 
         valid_splits = tuple(self.SPLITS.keys())
         if split not in valid_splits:
@@ -119,13 +145,8 @@ class GroceriesReal(Dataset):
         )
 
         self.version = version
-
         self.transforms = transforms
 
-        if not os.path.isdir(self.data_path):
-            raise DatasetNotFoundError(
-                "Cannot find the dataset. Please download it first."
-            )
         self.annotations = self._load_annotations()
         self.split_indices = self._load_split_indices()
         self.label_mappings = self._load_label_mappings()
@@ -156,7 +177,7 @@ class GroceriesReal(Dataset):
     def _filepath(self, filename):
         """Local file path relative to data_path
         """
-        return os.path.join(self.data_path, filename)
+        return os.path.join(self.dataset_directory, filename)
 
     def _load_annotations(self):
         """Load annotation from annotations.json file
@@ -216,6 +237,15 @@ class GroceriesReal(Dataset):
             x=bbox[0], y=bbox[1], w=bbox[2], h=bbox[3], label=label
         )
         return canonical_bbox
+
+    @staticmethod
+    def is_groceries_real_dataset_files_present(dataset_directory):
+        return (
+            os.path.isdir(dataset_directory)
+            and glob.glob(f"{dataset_directory}/**/*.JPG")
+            and glob.glob(f"{dataset_directory}/*.json")
+            and glob.glob(f"{dataset_directory}/*.txt")
+        )
 
 
 class GoogleGroceriesReal(Dataset):
