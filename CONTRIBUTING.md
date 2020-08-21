@@ -18,8 +18,6 @@ If you are interested in contributing to datasetinsights, your contributions wil
 1. You want to propose a new models/datasets/evaluation metrics and implement it.
 2. You want to implement a feature or bug-fix for an outstanding issue.
 
-TODO. We want to have something like [this](https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md#contributing-to-pytorch)
-
 ## Developing datasetinsights
 
 Here are some steps to setup datasetinsights virtual environment with on your machine:
