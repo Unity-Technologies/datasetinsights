@@ -14,7 +14,7 @@ class Compression:
             shutil.unpack_archive(filepath, destination, extension)
         except ValueError as e:
             logger.debug(
-                f"Current file format is not supported for " f"decompression."
+                f"Current file format is not supported for decompression."
             )
             raise e
 

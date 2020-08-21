@@ -14,7 +14,7 @@ from datasetinsights.datasets.unity_perception import (
 )
 from datasetinsights.datasets.unity_perception.tables import SCHEMA_VERSION
 from datasetinsights.io.bbox import BBox2D
-from datasetinsights.io.compression import compression_factory
+from datasetinsights.io.compression import Compression
 
 from .base import Dataset
 from .exceptions import DatasetNotFoundError
@@ -162,8 +162,7 @@ class SynDetection2D(Dataset):
 
         # check if compressed dataset file is present
         elif os.path.isfile(os.path.join(data_path, "dataset")):
-            compressor = compression_factory(os.path.join(data_path, "dataset"))
-            compressor.decompress(
+            Compression.decompress(
                 filepath=os.path.join(data_path, "dataset"),
                 destination=data_path,
             )

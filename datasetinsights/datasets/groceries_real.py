@@ -11,7 +11,7 @@ from PIL import Image
 
 import datasetinsights.constants as const
 from datasetinsights.io.bbox import BBox2D
-from datasetinsights.io.compression import compression_factory
+from datasetinsights.io.compression import Compression
 from datasetinsights.io.gcs import download_file_from_gcs
 
 from .base import Dataset
@@ -111,8 +111,7 @@ class GroceriesReal(Dataset):
 
         # check if compressed dataset file is present
         elif os.path.isfile(os.path.join(data_path, "dataset")):
-            compressor = compression_factory(os.path.join(data_path, "dataset"))
-            compressor.decompress(
+            Compression.decompress(
                 filepath=os.path.join(data_path, "dataset"),
                 destination=data_path,
             )
