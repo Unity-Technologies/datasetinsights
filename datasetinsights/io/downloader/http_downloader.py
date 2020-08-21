@@ -12,7 +12,7 @@ from datasetinsights.io.exceptions import ChecksumError
 logger = logging.getLogger(__name__)
 
 
-class HTTPDownloader(DatasetDownloader, protocol="http://"):
+class HTTPDatasetDownloader(DatasetDownloader, protocol="http://"):
     """ This class is used to download data from any HTTP or HTTPS public url
         and perform function such as downloading the dataset and checksum
         validation if checksum file path is provided.
@@ -46,7 +46,7 @@ class HTTPDownloader(DatasetDownloader, protocol="http://"):
             checksum = get_checksum_from_file(checksum_file)
             try:
                 logger.debug("Validating checksum!!")
-                validate_checksum(dataset_path, checksum)
+                validate_checksum(dataset_path, int(checksum))
             except ChecksumError as e:
                 logger.info("Checksum mismatch. Deleting the downloaded file.")
                 os.remove(dataset_path)

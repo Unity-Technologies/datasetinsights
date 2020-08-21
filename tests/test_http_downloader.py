@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from datasetinsights.io.downloader.http_downloader import HTTPDownloader
+from datasetinsights.io.downloader.http_downloader import HTTPDatasetDownloader
 from datasetinsights.io.exceptions import ChecksumError
 
 
@@ -11,7 +11,7 @@ def test_download_without_checksum(mock_download_file):
     # arrange
     source_uri = "http://some/path"
     output = "/some/path/"
-    downloader = HTTPDownloader()
+    downloader = HTTPDatasetDownloader()
 
     # act
     downloader.download(source_uri=source_uri, output=output)
@@ -30,7 +30,7 @@ def test_download_with_checksum(
     source_uri = "http://some/path"
     checksum_file = "/some/checksum_file.txt"
     output = "/some/path/"
-    downloader = HTTPDownloader()
+    downloader = HTTPDatasetDownloader()
 
     # act
     downloader.download(
@@ -58,7 +58,7 @@ def test_download_with_wrong_checksum(
     output = "/some/path"
     source_uri = "http://some/path"
     checksum_file = "/some/checksum_file.txt"
-    downloader = HTTPDownloader()
+    downloader = HTTPDatasetDownloader()
 
     # act
     with pytest.raises(ChecksumError):
