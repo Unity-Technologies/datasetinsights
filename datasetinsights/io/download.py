@@ -131,6 +131,7 @@ def get_checksum_from_file(filepath):
 
     Args:
         filepath (str): Path of the checksum file.
+                        Path can be HTTP(s) url or local path.
 
     Raises:
         ValueError: Raises this error if filepath is not local or not
@@ -156,6 +157,9 @@ def read_checksum_from_txt(filepath):
 
     Args:
         filepath (str): Local filepath of the checksum file.
+
+    Returns:
+        str: checksum value from the checksum file.
 
     """
     with open(filepath) as file:
