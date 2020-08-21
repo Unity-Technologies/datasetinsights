@@ -52,7 +52,7 @@ def _get_label_image(
         font_size (int): font size for the label text.
 
     Returns:
-        a numpy array for a rendered label.
+        numpy array: a numpy array for a rendered label.
     """
     _FONT = ImageFont.truetype(FONT_PATH, font_size)
     text_image = _FONT.getmask(text)
@@ -70,6 +70,38 @@ def _get_label_image(
 
 
 def add_single_bbox_on_image(
+    image, bbox, label, color, font_size=100, box_line_width=15
+):
+    """ Add single bounding box with label on a given image.
+
+    Args:
+        image (numpy array): a numpy array for an image.
+        bbox (BBox2D): a canonical bounding box.
+        color (str): a color name for one boundign box.
+        If color = None, it will randomly assign a color for each box.
+        font_size (int): font size for each label. Defaults to 100.
+        box_line_width (int): line width of the bounding boxes. Defaults to 15.
+
+    Returns:
+        a PIL image with bounding boxes drawn.
+    """
+    left, top = (bbox.x, bbox.y)
+    right, bottom = (bbox.x + bbox.w, bbox.y + bbox.h)
+
+    _add_single_bbox_on_image(
+        image,
+        left,
+        top,
+        right,
+        bottom,
+        label=label,
+        color=color,
+        font_size=font_size,
+        box_line_width=box_line_width,
+    )
+
+
+def _add_single_bbox_on_image(
     image,
     left,
     top,
@@ -81,18 +113,6 @@ def add_single_bbox_on_image(
     box_line_width=15,
 ):
     """ Add single bounding box with label on a given image.
-
-    Args:
-        image (numpy array): a numpy array for an image.
-        location (list): the location of one bounding box.
-        [left, top, right, bottom]
-        color (str): a color name for one boundign box. Defaults to None.
-        If color = None, it will randomly assign a color for each box.
-        box_line_width (int): line width of the bounding boxes. Defaults to 15.
-        font_size (int): font size for each label. Defaults to 100.
-
-    Returns:
-        a PIL image with bounding boxes drawn.
     """
     try:
         left, top, right, bottom = int(left), int(top), int(right), int(bottom)

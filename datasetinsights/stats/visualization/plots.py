@@ -126,14 +126,9 @@ def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
     """
     np_image = np.array(image)
     for i, box in enumerate(bboxes):
-        left, top = (box.x, box.y)
-        right, bottom = (box.x + box.w, box.y + box.h)
         label = _process_label(box, label_mappings)
         color = colors[i] if colors else None
-
-        add_single_bbox_on_image(
-            np_image, left, top, right, bottom, label, color
-        )
+        add_single_bbox_on_image(np_image, box, label, color)
 
     return Image.fromarray(np_image)
 
