@@ -3,16 +3,20 @@ from unittest.mock import MagicMock, Mock, patch
 
 import numpy as np
 import pandas as pd
-from PIL import Image, ImageColor
+from PIL import Image
 from pytest import approx
 
 from datasetinsights.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
 from datasetinsights.io.bbox import BBox2D
+from datasetinsights.stats.visualization.bbox2d_plot import (
+    add_single_bbox_on_image,
+)
 from datasetinsights.stats.visualization.plots import (
     _convert_euler_rotations_to_scatter_points,
     bar_plot,
     decode_segmap,
     histogram_plot,
+    match_boxes,
     plot_bboxes,
 )
 
@@ -114,3 +118,22 @@ def test_plot_bboxes():
     ) as mock:
         plot_bboxes(img, boxes, label_mappings=label_mappings, colors=colors)
         assert mock.call_count == len(boxes)
+
+
+@patch("datasetinsights.evaluation_metrics.confusion_matrix.Records")
+def test_match_boxes(mock_record):
+    match_results = [(0.5, True), (0.6, False), (0.7, True)]
+    expected_colors = ["green", "red", "green"]
+    mock_record.return_value.match_results.return_value = match_results
+    colors = match_boxes(None, None)
+    for i in range(len(colors)):
+        assert colors[i] == expected_colors[i]
+
+
+@patch(
+    "datasetinsights.stats.visualization.bbox2d_plot._add_single_bbox_on_image"
+)
+def test_add_single_bbox_on_image(mock):
+    bbox = BBox2D(label=1, x=1, y=1, w=2, h=3)
+    add_single_bbox_on_image(None, bbox, None, None)
+    mock.assert_called_once()
