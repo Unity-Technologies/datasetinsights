@@ -40,7 +40,6 @@ class SourceURI(click.ParamType):
 
 
 @click.command(
-    help="Download datasets to localhost from known locations.",
     context_settings=const.CONTEXT_SETTINGS,
 )
 @click.option(
@@ -82,6 +81,24 @@ class SourceURI(click.ParamType):
 def cli(
     source_uri, output, include_binary, access_token,
 ):
+    """Download datasets to localhost from known locations.
+
+    The download command can support downloading from 3 sources
+    usim:// http(s):// gs://
+
+    Examples of --source-uri:
+
+    \b
+    Unity Simulation
+    usim://access_token@project_id/run_execution_id
+
+    Groceries
+    https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip
+
+    Synthetic Sample
+    https://storage.googleapis.com/datasetinsights/data/synthetic/SynthDet.zip
+
+    """
     ctx = click.get_current_context()
     logger.debug(f"Called download command with parameters: {ctx.params}")
 
