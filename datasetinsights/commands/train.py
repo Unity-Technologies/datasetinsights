@@ -109,6 +109,11 @@ def cli(
 
     config = CN.load_cfg(open(config, "r"))
 
+    if len(ctx.args) == 1:
+        config.merge_from_list(ctx.args[0].split(" "))
+    else:
+        config.merge_from_list(ctx.args)
+
     estimator = create_estimator(
         name=config.estimator,
         config=config,

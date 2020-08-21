@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: train-on-the-synthdet-sample-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0, pipelines.kubeflow.org/pipeline_compilation_time: '2020-08-18T15:23:47.802993',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 0.5.1, pipelines.kubeflow.org/pipeline_compilation_time: '2020-08-21T14:27:15.911777',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Train on the SynthDet
       sample", "inputs": [{"default": "unitytechnologies/datasetinsights:latest",
       "name": "docker", "optional": true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/data/synthetic/SynthDet.zip",
@@ -10,9 +10,10 @@ metadata:
       "name": "config", "optional": true, "type": "String"}, {"default": "gs://<bucket>/runs/yyyymmdd-hhmm",
       "name": "tb_log_dir", "optional": true, "type": "String"}, {"default": "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
       "name": "checkpoint_dir", "optional": true, "type": "String"}, {"default": "100Gi",
-      "name": "volume_size", "optional": true, "type": "String"}], "name": "Train
+      "name": "volume_size", "optional": true, "type": "String"}, {"default": "",
+      "name": "extra_arguments", "optional": true, "type": "String"}], "name": "Train
       on the SynthDet sample"}'}
-  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 0.5.1}
 spec:
   entrypoint: train-on-the-synthdet-sample
   templates:
@@ -35,6 +36,8 @@ spec:
       - {name: docker}
       - {name: pvc-name}
       - {name: source_uri}
+    metadata:
+      labels: {pipelines.kubeflow.org/pipeline-sdk-type: kfp}
     volumes:
     - name: gcp-credentials-user-gcp-sa
       secret: {secretName: user-gcp-sa}
@@ -65,10 +68,13 @@ spec:
         valueFrom: {jsonPath: '{.metadata.name}'}
       - name: pvc-size
         valueFrom: {jsonPath: '{.status.capacity.storage}'}
+    metadata:
+      labels: {pipelines.kubeflow.org/pipeline-sdk-type: kfp}
   - name: train
     container:
       args: ['--config={{inputs.parameters.config}}', --train-data=/data, --val-data=/data,
-        '--tb-log-dir={{inputs.parameters.tb_log_dir}}', '--checkpoint-dir={{inputs.parameters.checkpoint_dir}}']
+        '--tb-log-dir={{inputs.parameters.tb_log_dir}}', '--checkpoint-dir={{inputs.parameters.checkpoint_dir}}',
+        '{{inputs.parameters.extra_arguments}}']
       command: [python, -m, torch.distributed.launch, --nproc_per_node=8, datasetinsights,
         train]
       env:
@@ -86,9 +92,12 @@ spec:
       - {name: checkpoint_dir}
       - {name: config}
       - {name: docker}
+      - {name: extra_arguments}
       - {name: pvc-name}
       - {name: tb_log_dir}
     nodeSelector: {cloud.google.com/gke-accelerator: nvidia-tesla-v100}
+    metadata:
+      labels: {pipelines.kubeflow.org/pipeline-sdk-type: kfp}
     volumes:
     - name: gcp-credentials-user-gcp-sa
       secret: {secretName: user-gcp-sa}
@@ -100,6 +109,7 @@ spec:
       - {name: checkpoint_dir}
       - {name: config}
       - {name: docker}
+      - {name: extra_arguments}
       - {name: source_uri}
       - {name: tb_log_dir}
       - {name: volume_size}
@@ -126,6 +136,7 @@ spec:
           - {name: checkpoint_dir, value: '{{inputs.parameters.checkpoint_dir}}'}
           - {name: config, value: '{{inputs.parameters.config}}'}
           - {name: docker, value: '{{inputs.parameters.docker}}'}
+          - {name: extra_arguments, value: '{{inputs.parameters.extra_arguments}}'}
           - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
           - {name: tb_log_dir, value: '{{inputs.parameters.tb_log_dir}}'}
   arguments:
@@ -136,4 +147,5 @@ spec:
     - {name: tb_log_dir, value: 'gs://<bucket>/runs/yyyymmdd-hhmm'}
     - {name: checkpoint_dir, value: 'gs://<bucket>/checkpoints/yyyymmdd-hhmm'}
     - {name: volume_size, value: 100Gi}
+    - {name: extra_arguments, value: ''}
   serviceAccountName: pipeline-runner
