@@ -1,7 +1,7 @@
 import pytest
 
 from datasetinsights.io.downloader.base import create_downloader
-from datasetinsights.io.downloader.http_downloader import HTTPDownloader
+from datasetinsights.io.downloader.http_downloader import HTTPDatasetDownloader
 from datasetinsights.io.downloader.unity_simulation import (
     UnitySimulationDownloader,
 )
@@ -16,7 +16,7 @@ def test_create_downloader_http_downloader(source_uri):
     downloader = create_downloader(source_uri=source_uri)
 
     # assert
-    assert isinstance(downloader, HTTPDownloader)
+    assert isinstance(downloader, HTTPDatasetDownloader)
 
 
 def test_create_downloader_unity_simulation_downloader():
