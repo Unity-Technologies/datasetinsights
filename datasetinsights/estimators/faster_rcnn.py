@@ -4,6 +4,7 @@ import copy
 import logging
 import math
 import os
+from tqdm import tqdm
 from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
@@ -389,7 +390,7 @@ class FasterRCNN(Estimator):
         loss_metric = Loss()
         for metric in self.metrics.values():
             metric.reset()
-        for i, (images, targets) in enumerate(data_loader):
+        for i, (images, targets) in enumerate(tqdm(data_loader)):
             images = list(image.to(self.device) for image in images)
             targets_raw = [
                 {k: v.to(self.device) for k, v in t.items()} for t in targets
