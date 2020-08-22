@@ -131,6 +131,7 @@ def get_checksum_from_file(filepath):
 
     Args:
         filepath (str): Path of the checksum file.
+                        Path can be HTTP(s) url or local path.
 
     Raises:
         ValueError: Raises this error if filepath is not local or not
@@ -141,23 +142,28 @@ def get_checksum_from_file(filepath):
     if filepath.startswith(("http://", "https://")):
         with tempfile.TemporaryDirectory() as tmp:
             checksum_file_path = os.path.join(tmp, "checksum.txt")
-            download_file(source_uri=filepath, dest_path=checksum_file_path)
-            return read_checksum_from_txt(checksum_file_path)
+            file_path = download_file(
+                source_uri=filepath, dest_path=checksum_file_path
+            )
+            return _read_checksum_from_txt(file_path)
 
     elif os.path.isfile(filepath):
-        return read_checksum_from_txt(filepath)
+        return _read_checksum_from_txt(filepath)
 
     else:
         raise ValueError(f"Can not get checksum from path: {filepath}")
 
 
-def read_checksum_from_txt(filepath):
+def _read_checksum_from_txt(filepath):
     """ This method reads checksum from a txt file and returns it.
 
     Args:
         filepath (str): Local filepath of the checksum file.
 
+    Returns:
+        str: checksum value from the checksum file.
+
     """
     with open(filepath) as file:
         checksum = file.read()
-    return int(checksum)
+    return checksum
