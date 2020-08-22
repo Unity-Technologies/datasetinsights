@@ -4,7 +4,6 @@ import copy
 import logging
 import math
 import os
-from tqdm import tqdm
 from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
@@ -15,6 +14,7 @@ import torchvision
 from codetiming import Timer
 from tensorboardX import SummaryWriter
 from torchvision import transforms
+from tqdm import tqdm
 
 import datasetinsights.constants as const
 from datasetinsights.datasets import Dataset
