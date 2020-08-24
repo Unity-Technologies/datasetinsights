@@ -1,7 +1,7 @@
 import pytest
 
 from datasetinsights.io.downloader.base import create_downloader
-from datasetinsights.io.downloader.http_downloader import HTTPDownloader
+from datasetinsights.io.downloader.http_downloader import HTTPDatasetDownloader
 from datasetinsights.io.downloader.unity_simulation import (
     UnitySimulationDownloader,
 )
@@ -11,13 +11,12 @@ from datasetinsights.io.downloader.unity_simulation import (
     "source_uri", ["http://", "https://"],
 )
 def test_create_downloader_http_downloader(source_uri):
-    # arrange
 
     # act
     downloader = create_downloader(source_uri=source_uri)
 
     # assert
-    assert isinstance(downloader, HTTPDownloader)
+    assert isinstance(downloader, HTTPDatasetDownloader)
 
 
 def test_create_downloader_unity_simulation_downloader():
@@ -28,3 +27,21 @@ def test_create_downloader_unity_simulation_downloader():
 
     # assert
     assert isinstance(downloader, UnitySimulationDownloader)
+
+
+def test_create_downloader_invalid_input():
+    # arrange
+    source_uri = "invalid_protocol://"
+    # assert
+    with pytest.raises(ValueError):
+        # act
+        create_downloader(source_uri=source_uri)
+
+
+def test_create_downloader_none_input():
+    # arrange
+    source_uri = None
+    # assert
+    with pytest.raises(TypeError):
+        # act
+        create_downloader(source_uri=source_uri)
