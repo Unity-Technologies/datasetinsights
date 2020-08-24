@@ -106,7 +106,7 @@ Depending on where the dataset is stored there are different options for downloa
 You can specify project_it, run_execution_id, access_token in source-uri
 
 Downloading from Unity Simulation
-```    
+```
 datasetinsights download
 --source-uri=usim://<access_token>@<project_id>/<run_execution_id>
 --output=$HOME/data
