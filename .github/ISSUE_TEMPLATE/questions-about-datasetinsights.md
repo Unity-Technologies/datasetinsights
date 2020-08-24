@@ -1,13 +1,11 @@
 ---
-name: Questions about datasetinsights project
+name: Questions about datasetinsights
 about: Ask your question or about any confusion that you have about this project
-title: 
-labels: 
-assignees: 
+title: ''
+labels: ''
+assignees: ''
 
 ---
-
-/kind question
 
 **Question:**
 [You can ask any question about this project.]

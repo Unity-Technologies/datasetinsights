@@ -1,12 +1,11 @@
 ---
 name: Bug report
 about: Report a bug with datasetinsights
+title: ''
+labels: bug
+assignees: ''
 
 ---
-
-/kind bug
-
-
 
 **Describe the Bug:**
 [A clear and concise description of what the bug is.]
@@ -27,7 +26,7 @@ Please wrap in [triple backticks (```)](https://help.github.com/en/articles/crea
 
 **Environment:**
 
-- OS + version: [e.g. Windows 10]
+- OS + version: [e.g. Ubuntu 20.04.1 LTS]
 - datasetinsights version
 - _Environment_: (which example environment you used to reproduce the error)
 - Other environment settings
