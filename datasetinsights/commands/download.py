@@ -76,8 +76,16 @@ class SourceURI(click.ParamType):
     help="Unity Simulation access token. "
     "This will override synthetic datasets source-uri for Unity Simulation",
 )
+@click.option(
+    "--checksum-file",
+    type=str,
+    default=None,
+    help="Dataset checksum text file path. "
+    "Path can be a HTTP(S) url or a local file path. This will help check the "
+    "integrity of the downloaded dataset.",
+)
 def cli(
-    source_uri, output, include_binary, access_token,
+    source_uri, output, include_binary, access_token, checksum_file,
 ):
     """Download datasets to localhost from known locations.
 
@@ -122,5 +130,8 @@ def cli(
         source_uri=source_uri, access_token=access_token
     )
     downloader.download(
-        source_uri=source_uri, output=output, include_binary=include_binary
+        source_uri=source_uri,
+        output=output,
+        include_binary=include_binary,
+        checksum_file=checksum_file,
     )
