@@ -181,4 +181,3 @@ def _read_checksum_from_txt(filepath):
     with open(filepath) as file:
         checksum = file.read()
     return checksum
-
