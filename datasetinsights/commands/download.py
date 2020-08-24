@@ -84,17 +84,35 @@ def cli(
     The download command can support downloading from 3 sources
     usim:// http(s):// gs://
 
-    Examples of --source-uri:
 
     \b
-    Unity Simulation
-    usim://access_token@project_id/run_execution_id
+    Download from Unity Simulation:
 
-    Groceries
-    https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip
+    You can specify project_it, run_execution_id, access_token in source-uri
 
-    Synthetic Sample
-    https://storage.googleapis.com/datasetinsights/data/synthetic/SynthDet.zip
+    datasetinsights download
+    --source-uri=usim://<access_token>@<project_id>/<run_execution_id>
+    --output=$HOME/data
+
+    Alternatively, you can also override access_token such as
+
+    datasetinsights download --source-uri=usim://<project_id>/<run_execution_id>
+     --output=$HOME/data --access-token=<access_token>
+
+    Downloading from a http source:
+
+    datasetinsights download --source-uri=http://url.to.file.zip
+     --output=$HOME/data
+
+    Downloading from a gcs source:
+
+    datasetinsights download --source-uri=gs://url/to/file.zip
+     --output=$HOME/data
+
+    or
+
+    datasetinsights download --source-uri=gs://url/to/folder
+     --output=$HOME/data
 
     """
     ctx = click.get_current_context()
