@@ -22,10 +22,14 @@ def test_gcs_client_warpper():
         mocked_bucket.blob = MagicMock(return_value=mocked_blob)
 
         mocked_blob.download_to_filename = MagicMock()
-        client.download(bucket_name, object_key, localfile)
+        client.download(
+            local_path=localfile, bucket_name=bucket_name, key=object_key
+        )
         mocked_gcs_client.get_bucket.assert_called_with(bucket_name)
-        mocked_bucket.blob.assert_called_with(object_key)
-        mocked_blob.download_to_filename.assert_called_with(localfile)
+        mocked_bucket.list_blobs.assert_called_with(prefix=object_key)
+        # # mocked_bucket.blob.assert_called_with(object_key)
+        # mocked_blob.download_to_filename.assert_called_with(localfile)
+        # todo file download test and folder download test # mock anyblob
 
         mocked_blob.upload_from_filename = MagicMock()
         client.upload(localfile, bucket_name, object_key)

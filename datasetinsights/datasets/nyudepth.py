@@ -134,7 +134,11 @@ class NyuDepth(Dataset):
                 f"Downloading file {zip_file} from gs://{const.GCS_BUCKET}/"
                 f"{object_key}"
             )
-            client.download(const.GCS_BUCKET, object_key, zip_file)
+            client.download(
+                local_path=zip_file,
+                bucket_name=const.GCS_BUCKET,
+                key=object_key,
+            )
 
         if os.path.isdir(unzip_dir):
             logger.debug(f"File {unzip_dir} exists. Skip unzip.")
