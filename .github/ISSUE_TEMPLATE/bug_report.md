@@ -1,9 +1,7 @@
 ---
 name: Bug report
 about: Report a bug with datasetinsights
-title: ''
 labels: bug
-assignees: ''
 
 ---
 
