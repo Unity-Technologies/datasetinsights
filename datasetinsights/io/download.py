@@ -1,6 +1,8 @@
 import base64
 import hashlib
 import logging
+import os
+import tempfile
 import zlib
 from pathlib import Path
 
@@ -136,3 +138,47 @@ def _md5_checksum(filename):
         for chunk in iter(lambda: f.read(4096), b""):
             md5.update(chunk)
     return base64.b64encode(md5.digest()).decode("utf-8")
+
+
+def get_checksum_from_file(filepath):
+    """ This method return checksum of the file whose filepath is given.
+
+    Args:
+        filepath (str): Path of the checksum file.
+                        Path can be HTTP(s) url or local path.
+
+    Raises:
+        ValueError: Raises this error if filepath is not local or not
+                    HTTP or HTTPS url.
+
+    """
+
+    if filepath.startswith(("http://", "https://")):
+        with tempfile.TemporaryDirectory() as tmp:
+            checksum_file_path = os.path.join(tmp, "checksum.txt")
+            file_path = download_file(
+                source_uri=filepath, dest_path=checksum_file_path
+            )
+            return _read_checksum_from_txt(file_path)
+
+    elif os.path.isfile(filepath):
+        return _read_checksum_from_txt(filepath)
+
+    else:
+        raise ValueError(f"Can not get checksum from path: {filepath}")
+
+
+def _read_checksum_from_txt(filepath):
+    """ This method reads checksum from a txt file and returns it.
+
+    Args:
+        filepath (str): Local filepath of the checksum file.
+
+    Returns:
+        str: checksum value from the checksum file.
+
+    """
+    with open(filepath) as file:
+        checksum = file.read()
+    return checksum
+

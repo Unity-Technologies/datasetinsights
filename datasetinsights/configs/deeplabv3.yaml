@@ -19,4 +19,3 @@ optimizer:
   name: Adam
   args:
     lr: 1.0e-2
-checkpoint_file: None

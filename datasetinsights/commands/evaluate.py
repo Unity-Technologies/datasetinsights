@@ -1,8 +1,10 @@
 import logging
 
 import click
+from yacs.config import CfgNode as CN
 
 import datasetinsights.constants as const
+from datasetinsights.estimators.base import create_estimator
 
 logger = logging.getLogger(__name__)
 
@@ -26,11 +28,11 @@ logger = logging.getLogger(__name__)
     help="URI to a checkpoint file.",
 )
 @click.option(
-    "-d",
-    "--data-root",
+    "-t",
+    "--test-data",
     type=click.Path(exists=True, file_okay=False),
-    default=const.DEFAULT_DATA_ROOT,
-    help="Root directory on localhost where datasets are located.",
+    required=True,
+    help="Directory on localhost where test dataset is located.",
 )
 @click.option(
     "-l",
@@ -78,7 +80,7 @@ logger = logging.getLogger(__name__)
 def cli(
     config,
     checkpoint_file,
-    data_root,
+    test_data,
     tb_log_dir,
     workers,
     kfp_metrics_dir,
@@ -88,4 +90,16 @@ def cli(
     ctx = click.get_current_context()
     logger.debug(f"Called evaluate command with parameters: {ctx.params}")
     logger.debug(f"Override estimator config with args: {ctx.args}")
-    # TODO: Call evaluate command here.
+    config = CN.load_cfg(open(config, "r"))
+    estimator = create_estimator(
+        config=config,
+        name=config.estimator,
+        checkpoint_file=checkpoint_file,
+        tb_log_dir=tb_log_dir,
+        workers=workers,
+        kfp_metrics_dir=kfp_metrics_dir,
+        kfp_metrics_filename=kfp_metrics_filename,
+        no_cuda=no_cuda,
+    )
+
+    estimator.evaluate(test_data=test_data)

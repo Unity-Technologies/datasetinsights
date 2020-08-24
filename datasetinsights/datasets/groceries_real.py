@@ -2,7 +2,6 @@ import json
 import logging
 import os
 import zipfile
-from collections import namedtuple
 from pathlib import Path
 
 import tensorflow as tf
@@ -11,8 +10,6 @@ from PIL import Image
 
 import datasetinsights.constants as const
 from datasetinsights.io.bbox import BBox2D
-from datasetinsights.io.download import download_file, validate_checksum
-from datasetinsights.io.exceptions import ChecksumError, DownloadError
 from datasetinsights.io.gcs import download_file_from_gcs
 
 from .base import Dataset
@@ -20,12 +17,6 @@ from .exceptions import DatasetNotFoundError
 from .protos import string_int_label_map_pb2
 
 logger = logging.getLogger(__name__)
-PUBLIC_GROCERIES_REAL_PATH = (
-    "https://storage.googleapis.com/datasetinsights/data/groceries"
-)
-GroceriesRealTable = namedtuple(
-    "GroceriesRealTable", ("version", "filename", "source_uri", "checksum")
-)
 
 
 class GroceriesReal(Dataset):
@@ -60,7 +51,8 @@ class GroceriesReal(Dataset):
 
 
     Attributes:
-        root (str): Local directory where groceries_real dataset is saved
+        dataset_directory (str): Local directory where groceries_real dataset
+            is saved.
         split (str): Indicate split type of the dataset. Allowed value are
             (train|val|test|test_high_ratio|test_low_ratio)
             test_high_ratio: Split of test dataset with high
@@ -76,7 +68,6 @@ class GroceriesReal(Dataset):
         default version="v3".
     """
 
-    LOCAL_PATH = "groceries"
     SPLITS = {
         "train": "groceries_real_train.txt",
         "val": "groceries_real_val.txt",
@@ -93,19 +84,13 @@ class GroceriesReal(Dataset):
         "test_high_contrast": "groceries_real_test_high_contrast.txt",
     }
 
-    GROCERIES_REAL_DATASET_TABLES = {
-        "v3": GroceriesRealTable(
-            "v3", "v3.zip", f"{PUBLIC_GROCERIES_REAL_PATH}/v3.zip", 2322380006,
-        ),
-    }
-
     ANNOTATION_FILE = "annotations.json"
     DEFINITION_FILE = "annotation_definitions.json"
 
     def __init__(
         self,
         *,
-        data_root=const.DEFAULT_DATA_ROOT,
+        data_path=const.DEFAULT_DATA_ROOT,
         split="train",
         transforms=None,
         version="v3",
@@ -113,11 +98,13 @@ class GroceriesReal(Dataset):
     ):
         """
         Args:
-            data_root (str): Root directory prefix of datasets
+            data_path (str): Directory on localhost where datasets are located.
             split (str): Indicate split type of the dataset.
             transforms: callable transformation
             version (str): version of GroceriesReal dataset
         """
+        self.data_path = data_path
+
         valid_splits = tuple(self.SPLITS.keys())
         if split not in valid_splits:
             raise ValueError(
@@ -126,21 +113,16 @@ class GroceriesReal(Dataset):
             )
         self.split = split
 
-        valid_versions = tuple(self.GROCERIES_REAL_DATASET_TABLES.keys())
-        if version not in valid_versions:
-            raise ValueError(
-                f"A valid dataset version should be set. "
-                f"Available versions are: {valid_versions}"
-            )
         logger.info(
             f"Using split {split} and version {version} for groceries real "
             "dataset."
         )
 
         self.version = version
-        self.root = os.path.join(data_root, self.LOCAL_PATH)
+
         self.transforms = transforms
-        if not os.path.isdir(os.path.join(self.root, f"{version}")):
+
+        if not os.path.isdir(self.data_path):
             raise DatasetNotFoundError(
                 "Cannot find the dataset. Please download it first."
             )
@@ -172,95 +154,9 @@ class GroceriesReal(Dataset):
         return len(self.split_indices)
 
     def _filepath(self, filename):
-        """Local file path relative to root
+        """Local file path relative to data_path
         """
-        return os.path.join(self.root, self.version, filename)
-
-    @staticmethod
-    def _download_http(source_uri, dest_path, version):
-        """ Download dataset from Public HTTP URL.
-
-        Args:
-            source_uri (str): source url where the file should be downloaded
-            dest_path (str): destination path of the file
-
-        Raises:
-            DownloadError if the download file failed
-            ChecksumError if the download file checksum does not match
-        """
-
-        try:
-            logger.info("Downloading the dataset.")
-            download_file(source_uri=source_uri, dest_path=dest_path)
-        except DownloadError as e:
-            logger.info(
-                f"The request download from {source_uri} -> {dest_path} can't "
-                f"be completed."
-            )
-            raise e
-        expected_checksum = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[
-            version
-        ].checksum
-        try:
-            validate_checksum(dest_path, expected_checksum)
-        except ChecksumError as e:
-            logger.info("Checksum mismatch. Delete the downloaded files.")
-            os.remove(dest_path)
-            raise e
-
-    @staticmethod
-    def _extract_file(dest_path, root_dir):
-        """ Unzip the downloaded file.
-        """
-        logger.info("Unzipping the dataset file.")
-        with zipfile.ZipFile(dest_path, "r") as zip_dir:
-            zip_dir.extractall(root_dir)
-
-    @staticmethod
-    def download(data_root, version):
-        """ Download dataset from Public HTTP URL.
-
-        If the file already exists and the checksum matches, it will skip the
-        download step. If not, it would delete the previous file and download
-        it again. If the file doesn't exist, it would download the file.
-
-        Args:
-            data_root (str): Root directory prefix of datasets
-            version (str): version of GroceriesReal dataset, e.g. "v3"
-
-        Raises:
-            ValueError if the dataset version is not supported
-            ChecksumError if the download file checksum does not match
-            DownloadError if the download file failed
-        """
-        if version not in GroceriesReal.GROCERIES_REAL_DATASET_TABLES.keys():
-            raise ValueError(
-                f"A valid dataset version is required. Available versions are:"
-                f"{GroceriesReal.GROCERIES_REAL_DATASET_TABLES.keys()}"
-            )
-        dest_path = os.path.join(
-            data_root, GroceriesReal.LOCAL_PATH, f"{version}.zip"
-        )
-        expected_checksum = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[
-            version
-        ].checksum
-        extract_folder = os.path.join(data_root, GroceriesReal.LOCAL_PATH)
-        if os.path.exists(dest_path):
-            logger.info("The dataset file exists. Skip download.")
-            try:
-                validate_checksum(dest_path, expected_checksum)
-            except ChecksumError:
-                logger.info(
-                    "The checksum of the previous dataset mismatches. "
-                    "Delete the previously downloaded dataset."
-                )
-                os.remove(dest_path)
-        if not os.path.exists(dest_path):
-            source_uri = GroceriesReal.GROCERIES_REAL_DATASET_TABLES[
-                version
-            ].source_uri
-            GroceriesReal._download_http(source_uri, dest_path, version)
-        GroceriesReal._extract_file(dest_path, extract_folder)
+        return os.path.join(self.data_path, filename)
 
     def _load_annotations(self):
         """Load annotation from annotations.json file
