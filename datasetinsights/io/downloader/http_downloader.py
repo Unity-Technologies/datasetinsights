@@ -50,7 +50,7 @@ class HTTPDatasetDownloader(DatasetDownloader, protocol="http://"):
                            matches
 
         """
-        dataset_path = download_file(source_uri, output)
+        dataset_path = download_dataset_from_http_url(source_uri, output)
 
         if checksum_file:
             logger.debug("Reading checksum from checksum file.")
@@ -64,7 +64,17 @@ class HTTPDatasetDownloader(DatasetDownloader, protocol="http://"):
                 raise e
 
 
-def download_file(source_uri, output):
+def download_dataset_from_http_url(source_uri, output):
+    """ Downloads dataset from HTTP(S) URL and detects name of the file to be
+        downloaded.
+
+        Args
+            source_uri (str): This is the downloader-uri that indicates where
+                              the dataset should be downloaded from.
+
+            output (str): This is the path to the directory where the
+                          download will store the dataset.
+    """
     output = Path(output)
 
     adapter = TimeoutHTTPAdapter(
@@ -97,6 +107,15 @@ def download_file(source_uri, output):
 
 
 def get_filename_from_response(response):
+    """ Gets filename from requests response object
+
+        Args:
+            response: requests.Response() object that contains the server's
+            response to the HTTP request.
+
+        Returns:
+            filename (str): Name of the file to be downloaded
+    """
     cd = response.headers.get("content-disposition")
     if not cd:
         return None
@@ -107,4 +126,10 @@ def get_filename_from_response(response):
 
 
 def get_file_name_from_uri(uri):
+    """ Gets filename from URI
+
+    Args:
+        uri (str): URI
+
+    """
     return uri.split("/")[-1]
