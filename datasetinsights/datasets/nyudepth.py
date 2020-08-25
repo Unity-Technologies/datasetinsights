@@ -135,9 +135,7 @@ class NyuDepth(Dataset):
                 f"{object_key}"
             )
             client.download(
-                local_path=zip_file,
-                bucket_name=const.GCS_BUCKET,
-                key=object_key,
+                local_path=self.root, bucket=const.GCS_BUCKET, key=object_key,
             )
 
         if os.path.isdir(unzip_dir):

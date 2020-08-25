@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from datasetinsights.io.gcs import GCSClient, gcs_bucket_and_path
+from datasetinsights.io.gcs import GCSClient, parse_gcs_location
 
 
 def test_gcs_client_warpper():
@@ -23,7 +23,7 @@ def test_gcs_client_warpper():
 
         mocked_blob.download_to_filename = MagicMock()
         client.download(
-            local_path=localfile, bucket_name=bucket_name, key=object_key
+            local_path=localfile, bucket=bucket_name, key=object_key
         )
         mocked_gcs_client.get_bucket.assert_called_with(bucket_name)
         mocked_bucket.list_blobs.assert_called_with(prefix=object_key)
@@ -36,14 +36,14 @@ def test_gcs_client_warpper():
         mocked_blob.upload_from_filename.assert_called_with(localfile)
 
 
-def test_gcs_bucket_and_path():
+def test_parse_gcs_location():
     th_bucket = "some_bucket_name"
     th_path = "some/cloud/path"
     url = "gs://some_bucket_name/some/cloud/path"
 
-    bucket, path = gcs_bucket_and_path(url)
+    bucket, path = parse_gcs_location(url)
     assert (bucket, path) == (th_bucket, th_path)
 
     bad_url = "s3://path/to/bad/url"
     with pytest.raises(ValueError, match=r"Specified destination prefix:"):
-        gcs_bucket_and_path(bad_url)
+        parse_gcs_location(bad_url)

@@ -161,14 +161,12 @@ class NuscenesDataLoader(Dataset):
             local_dest = os.path.join(self.root, os.path.basename(data))
             trainval_tars.append(local_dest)
             self.cloud_client.download(
-                local_path=local_dest, bucket_name=const.GCS_BUCKET, key=data
+                local_path=self.root, bucket=const.GCS_BUCKET, key=data
             )
         meta_gcs_key = f"{NUSCENES_GCS_PATH}/v1.0-trainval_meta.tar"
         meta_local_path = os.path.join(self.root, "v1.0-trainval_meta.tar")
         self.cloud_client.download(
-            local_path=meta_local_path,
-            bucket_name=const.GCS_BUCKET,
-            key=meta_gcs_key,
+            local_path=self.root, bucket=const.GCS_BUCKET, key=meta_gcs_key,
         )
         return meta_local_path, trainval_tars
 
@@ -177,9 +175,7 @@ class NuscenesDataLoader(Dataset):
         local_tar_path = f"{self.root}/v1.0-mini.tar"
         logger.info("downloading mini dataset from gcs")
         self.cloud_client.download(
-            local_path=local_tar_path,
-            bucket_name=const.GCS_BUCKET,
-            key=mini_tar_path,
+            local_path=self.root, bucket=const.GCS_BUCKET, key=mini_tar_path,
         )
         with tarfile.open(local_tar_path) as t:
             t.extractall(self.root)

@@ -6,7 +6,7 @@ import tempfile
 
 import datasetinsights.constants as const
 from datasetinsights.io.download import download_file
-from datasetinsights.io.gcs import GCSClient, gcs_bucket_and_path
+from datasetinsights.io.gcs import GCSClient, parse_gcs_location
 from datasetinsights.torch_distributed import is_master
 
 logger = logging.getLogger(__name__)
@@ -178,7 +178,7 @@ class GCSEstimatorWriter:
     def __init__(self, cloud_path, prefix, *, suffix=DEFAULT_SUFFIX):
         self._tempdir = tempfile.TemporaryDirectory().name
         self._client = GCSClient()
-        self._bucket, self._gcs_path = gcs_bucket_and_path(cloud_path)
+        self._bucket, self._gcs_path = parse_gcs_location(cloud_path)
         self._writer = LocalEstimatorWriter(
             self._tempdir, prefix, create_dir=True, suffix=suffix
         )
@@ -223,14 +223,14 @@ def load_from_gcs(estimator, full_cloud_path):
         full_cloud_path: full path to the checkpoint file
 
     """
-    bucket, object_key = gcs_bucket_and_path(full_cloud_path)
+    bucket, object_key = parse_gcs_location(full_cloud_path)
     filename = os.path.basename(object_key)
     with tempfile.TemporaryDirectory() as temp_dir:
         path = os.path.join(temp_dir, filename)
         logger.debug(f"Downloading estimator from {full_cloud_path} to {path}")
         client = GCSClient()
 
-        client.download(local_path=path, bucket_name=bucket, key=object_key)
+        client.download(local_path=temp_dir, bucket=bucket, key=object_key)
         estimator.load(path)
 
 

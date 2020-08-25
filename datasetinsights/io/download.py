@@ -1,4 +1,3 @@
-import base64
 import hashlib
 import logging
 import os
@@ -137,7 +136,7 @@ def _md5_checksum(filename):
     with open(filename, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             md5.update(chunk)
-    return base64.b64encode(md5.digest()).decode("utf-8")
+    return md5.hexdigest()
 
 
 def get_checksum_from_file(filepath):

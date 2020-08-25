@@ -2,7 +2,7 @@ from datasetinsights.io.downloader.base import DatasetDownloader
 from datasetinsights.io.gcs import GCSClient
 
 
-class GCSDownloader(DatasetDownloader, protocol="gs://"):
+class GCSDatasetDownloader(DatasetDownloader, protocol="gs://"):
     """ This class is used to download data from GCS
     """
 
@@ -23,8 +23,5 @@ class GCSDownloader(DatasetDownloader, protocol="gs://"):
             output: This is the path to the directory
                 where the download will store the dataset.
                 Examples:
-            >>> cloud_path = "gs://bucket/folder or gs://bucket/folder/data.zip"
-            >>> local_path = "/tmp/folder"
-            >>> output ="/tmp/folder or /tmp/folder/data.zip"
         """
-        return self.client.download(output, url=source_uri)
+        self.client.download(local_path=output, url=source_uri)
