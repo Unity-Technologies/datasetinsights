@@ -23,7 +23,7 @@ class SourceURI(click.ParamType):
     """
 
     name = "source_uri"
-    PREFIX_PATTERN = r"^gs://|^http(s)?://|^usim://"
+    PREFIX_PATTERN = r"^usim://"
 
     def convert(self, value, param, ctx):
         """ Validate source URI and Converts the value.
