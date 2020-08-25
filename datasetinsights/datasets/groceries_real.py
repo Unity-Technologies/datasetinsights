@@ -88,6 +88,8 @@ class GroceriesReal(Dataset):
 
     ANNOTATION_FILE = "annotations.json"
     DEFINITION_FILE = "annotation_definitions.json"
+    ARCHIVE_FILES = {"v3", "v3.zip"}
+    SUBFOLDER = "groceries"
 
     def __init__(
         self,
@@ -105,7 +107,7 @@ class GroceriesReal(Dataset):
             transforms: callable transformation
             version (str): version of GroceriesReal dataset
         """
-        self._data_path = self._preprocess_dataset(data_path=data_path)
+        self._data_path = self._preprocess_dataset(data_path)
 
         valid_splits = tuple(self.SPLITS.keys())
         if split not in valid_splits:
@@ -215,31 +217,21 @@ class GroceriesReal(Dataset):
         return canonical_bbox
 
     @staticmethod
-    def _preprocess_dataset(data_path):
-        # check if compressed dataset file is present
-        if os.path.isfile(os.path.join(data_path, "dataset")):
-            unzip_folder = os.path.join(data_path, "groceries_real")
-            decompress(
-                filepath=os.path.join(data_path, "dataset"),
-                destination=unzip_folder,
-            )
-
-            # check if necessary files are present after decompression
-            if GroceriesReal.is_dataset_files_present(unzip_folder):
-                return unzip_folder
-            else:
-                raise DatasetNotFoundError(
-                    f"No dataset file(s) present at path" f":{unzip_folder}"
-                )
-
-        # check if dataset files are present
+    def _preprocess_dataset(data_path, version):
+        """"""
         if GroceriesReal.is_dataset_files_present(data_path):
             return data_path
 
-        else:
+        archive_file = Path(data_path) / GroceriesReal.ARCHIVE_FILE[version]
+        if not archive_file.exists():
             raise DatasetNotFoundError(
-                f"No dataset file(s) present at path" f":{data_path}"
+                f"Expecting a file {archive_file} under {data_path} "
             )
+
+        unarchived_path = Path(data_path) / GroceriesReal.SUBFOLDER
+        decompress(filepath=archive_file, destination=unarchived_path)
+
+        return unarchived_path
 
     @staticmethod
     def is_dataset_files_present(data_directory):
