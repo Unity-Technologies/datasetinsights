@@ -88,7 +88,7 @@ class GroceriesReal(Dataset):
 
     ANNOTATION_FILE = "annotations.json"
     DEFINITION_FILE = "annotation_definitions.json"
-    ARCHIVE_FILES = {"v3", "v3.zip"}
+    ARCHIVE_FILES = {"v3": "v3.zip"}
     SUBFOLDER = "groceries"
 
     def __init__(
@@ -107,7 +107,7 @@ class GroceriesReal(Dataset):
             transforms: callable transformation
             version (str): version of GroceriesReal dataset
         """
-        self._data_path = self._preprocess_dataset(data_path)
+        self._data_path = self._preprocess_dataset(data_path, version)
 
         valid_splits = tuple(self.SPLITS.keys())
         if split not in valid_splits:
@@ -218,14 +218,22 @@ class GroceriesReal(Dataset):
 
     @staticmethod
     def _preprocess_dataset(data_path, version):
-        """"""
+        """ Preprocess dataset inside data_path and un-archive if necessary.
+
+            Args:
+                data_path (str): Path where dataset is stored.
+                version (str): groceries_real dataset version.
+
+            Return:
+                Path of the dataset files.
+            """
         if GroceriesReal.is_dataset_files_present(data_path):
             return data_path
 
-        archive_file = Path(data_path) / GroceriesReal.ARCHIVE_FILE[version]
+        archive_file = Path(data_path) / GroceriesReal.ARCHIVE_FILES[version]
         if not archive_file.exists():
             raise DatasetNotFoundError(
-                f"Expecting a file {archive_file} under {data_path} "
+                f"Expecting a file {archive_file} under {data_path}"
             )
 
         unarchived_path = Path(data_path) / GroceriesReal.SUBFOLDER
@@ -235,8 +243,10 @@ class GroceriesReal(Dataset):
 
     @staticmethod
     def is_dataset_files_present(data_directory):
-        return os.path.isdir(data_directory) and any(
-            glob.glob(f"{data_directory}/*")
+        return (
+            os.path.isdir(data_directory)
+            and any(glob.glob(f"{data_directory}/*.json"))
+            and any(glob.glob(f"{data_directory}/*.txt"))
         )
 
 
