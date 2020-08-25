@@ -1,4 +1,7 @@
-"""Reference: https://github.com/nalepae/bounding-box
+""" Use a bounding box library to plot pretty bounding boxes
+with a simple Python API. This library helps to display pretty bounding boxes
+with a chosen set of colors.
+Reference: https://github.com/nalepae/bounding-box
 """
 import os as _os
 import pathlib
@@ -40,13 +43,10 @@ def add_single_bbox_on_image(
     Args:
         image (numpy array): a numpy array for an image.
         bbox (BBox2D): a canonical bounding box.
-        color (str): a color name for one boundign box.
+        color (str): a color name for one bounding box.
         If color = None, it will randomly assign a color for each box.
         font_size (int): font size for each label. Defaults to 100.
         box_line_width (int): line width of the bounding boxes. Defaults to 15.
-
-    Returns:
-        a PIL image with bounding boxes drawn.
     """
     left, top = (bbox.x, bbox.y)
     right, bottom = (bbox.x + bbox.w, bbox.y + bbox.h)

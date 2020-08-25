@@ -85,6 +85,11 @@ def grid_plot(images, figsize=(3, 5), img_type="rgb", titles=None):
 
 def _process_label(bbox, label_mappings=None):
     """Create a label text for the bbox.
+
+    Args:
+        bbox (BBox2D): a bounding box
+        label_mappings (dict): a dict of {label_id: label_name} mapping
+        Defaults to None.
     """
     if label_mappings is not None:
         label = label_mappings[bbox.label]
@@ -102,7 +107,11 @@ def match_boxes(pred_bboxes, gt_bboxes):
         gt_bboxes (list[BBox2D]): a list of ground truth bounding boxes
 
     Returns:
-        list: a list of color names. ["green", "red", ...]
+        list: a list of color names (either "green" or "red").
+        green: if the predicted bounding box can be matched to a ground
+        truth bounding box.
+        red: if the predicted bounding box can't be matched to a ground
+        truth bounding box.
     """
     records = prediction_records(gt_bboxes, pred_bboxes)
     match_results = records.match_results
@@ -130,11 +139,11 @@ def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
 
     Args:
         image (PIL Image): a PIL image.
-        boxes (list): a list of BBox2D objects.
+        bboxes (list): a list of BBox2D objects.
+        label_mappings (dict): a dict of {label_id: label_name} mapping
+        Defaults to None.
         colors (list): a color list for boxes. Defaults to None.
         If colors = None, it will randomly assign PIL.COLORS for each box.
-        box_line_width (int): line width of the bounding boxes. Defaults to 15.
-        font_size (int): font size for each label. Defaults to 100.
 
     Returns:
         PIL Image: a PIL image with bounding boxes drawn.
