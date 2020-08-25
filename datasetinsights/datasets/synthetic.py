@@ -14,7 +14,7 @@ from datasetinsights.datasets.unity_perception import (
 )
 from datasetinsights.datasets.unity_perception.tables import SCHEMA_VERSION
 from datasetinsights.io.bbox import BBox2D
-from datasetinsights.io.compression import Compression
+from datasetinsights.io.compression import decompress
 
 from .base import Dataset
 from .exceptions import DatasetNotFoundError
@@ -42,7 +42,7 @@ def _get_split(*, split, catalog, train_percentage=0.9, random_seed=47):
 
     """
     if split == ALL:
-        logger.info(f"spit specified was 'all' using entire synthetic dataset")
+        logger.info(f"split specified was 'all' using entire synthetic dataset")
         return catalog
     train, val = train_test_split(
         catalog, train_size=train_percentage, random_state=random_seed
@@ -104,24 +104,8 @@ class SynDetection2D(Dataset):
     whether a compressed dataset file is present which contains the necessary
     files, if not it'll raise an error.
 
-    The dataset contain the following structures:
-
-    * DatasetXXX-XXX-XXX
-    .
-    .
-    * DatasetXXX-XXX-XXX
-        * annotation_definitions.json
-        * captures_XXX.json ... captures_XXX.json
-        * egos.json
-        * metric_definitions.json
-        * metrics_xxx.json ... metrics_XXX.json
-        * sensors.json
-
-    * RGBxXX-XXX-XXX
-    .
-    .
-    * RGBxXX-XXX-XXX
-        * rgb_XXX.jpg ... rgb_XXX.jpg
+    See synthetic dataset schema documentation for more details.
+    <https://datasetinsights.readthedocs.io/en/latest/Synthetic_Dataset_Schema.html>
 
     Attributes:
         dataset_directory (str): root directory of the dataset
@@ -156,35 +140,10 @@ class SynDetection2D(Dataset):
             random_seed (int): random seed used for splitting dataset into
                 train and val
         """
-        # check if dataset files are present
-        if SynDetection2D.is_synthetic_dataset_files_present(data_path):
-            self.dataset_directory = data_path
+        self._data_path = self._preprocess_dataset(data_path=data_path)
 
-        # check if compressed dataset file is present
-        elif os.path.isfile(os.path.join(data_path, "dataset")):
-            Compression.decompress(
-                filepath=os.path.join(data_path, "dataset"),
-                destination=data_path,
-            )
-
-            # check if necessary files are present after decompression
-            if SynDetection2D.is_synthetic_dataset_files_present(data_path):
-                self.dataset_directory = data_path
-            else:
-                raise DatasetNotFoundError(
-                    f"Compressed dataset file does not "
-                    f"contain necessary files such as "
-                    f".png, .json etc."
-                )
-        else:
-            raise DatasetNotFoundError(
-                f"No dataset file(s) present at path" f":{data_path}"
-            )
-
-        captures = Captures(self.dataset_directory, version)
-        annotation_definition = AnnotationDefinitions(
-            self.dataset_directory, version
-        )
+        captures = Captures(self._data_path, version)
+        annotation_definition = AnnotationDefinitions(self._data_path, version)
         catalog = captures.filter(def_id)
         self.catalog = self._cleanup(catalog)
         init_definition = annotation_definition.get_definition(def_id)
@@ -220,7 +179,7 @@ class SynDetection2D(Dataset):
         capture_file = cap.filename
         ann = cap["annotation.values"]
 
-        capture = Image.open(os.path.join(self.dataset_directory, capture_file))
+        capture = Image.open(os.path.join(self._data_path, capture_file))
         capture = capture.convert("RGB")  # Remove alpha channel
         annotation = read_bounding_box_2d(ann, self.label_mappings)
 
@@ -245,7 +204,7 @@ class SynDetection2D(Dataset):
 
         """
         catalog = self._remove_captures_with_missing_files(
-            self.dataset_directory, catalog
+            self._data_path, catalog
         )
         catalog = self._remove_captures_without_bboxes(catalog)
 
@@ -291,9 +250,34 @@ class SynDetection2D(Dataset):
         return catalog[keep_mask]
 
     @staticmethod
-    def is_synthetic_dataset_files_present(dataset_directory):
-        return (
-            os.path.isdir(dataset_directory)
-            and glob.glob(f"{dataset_directory}/**/*.png")
-            and glob.glob(f"{dataset_directory}/**/*.json")
+    def _preprocess_dataset(data_path):
+        # check if dataset files are present at data_path
+        if SynDetection2D.is_dataset_files_present(data_path):
+            return data_path
+
+        # check if compressed dataset file is present at data_path
+        elif os.path.isfile(os.path.join(data_path, "dataset")):
+            unzip_folder = os.path.join(data_path, "synthetic")
+            decompress(
+                filepath=os.path.join(data_path, "dataset"),
+                destination=unzip_folder,
+            )
+
+            # check if necessary files are present after decompression
+            if SynDetection2D.is_dataset_files_present(unzip_folder):
+                return unzip_folder
+            else:
+                raise DatasetNotFoundError(
+                    f"No dataset file(s) present at path" f":{unzip_folder}"
+                )
+
+        else:
+            raise DatasetNotFoundError(
+                f"No dataset file(s) present at path" f":{data_path}"
+            )
+
+    @staticmethod
+    def is_dataset_files_present(data_directory):
+        return os.path.isdir(data_directory) and any(
+            glob.glob(f"{data_directory}/**/*")
         )

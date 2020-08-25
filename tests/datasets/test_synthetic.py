@@ -64,18 +64,16 @@ def test_get_split():
     pd.testing.assert_frame_equal(expected_val, actual_val)
 
 
-def test_is_synthetic_dataset_files_present_returns_true():
+def test_is_dataset_files_present_returns_true():
     with tempfile.TemporaryDirectory() as tmp:
-        temp_dataset_dir = os.path.join(tmp, "Dataset893-908")
-        temp_rgb_dir = os.path.join(tmp, "RGB893-908")
-        os.mkdir(temp_dataset_dir)
-        os.mkdir(temp_rgb_dir)
-        open(os.path.join(temp_dataset_dir, "annotation.json"), "x")
-        open(os.path.join(temp_rgb_dir, "rgb123.png"), "x")
-
-        assert SynDetection2D.is_synthetic_dataset_files_present(tmp)
+        temp_dir = os.path.join(tmp, "temp_name")
+        os.mkdir(temp_dir)
+        with open(os.path.join(temp_dir, "annotation.json"), "x"):
+            assert SynDetection2D.is_dataset_files_present(tmp)
 
 
-def test_is_synthetic_dataset_files_present_returns_false():
+def test_is_dataset_files_present_returns_false():
     with tempfile.TemporaryDirectory() as tmp:
-        assert not SynDetection2D.is_synthetic_dataset_files_present(tmp)
+        temp_dir = os.path.join(tmp, "temp_name")
+        os.mkdir(temp_dir)
+        assert not SynDetection2D.is_dataset_files_present(tmp)

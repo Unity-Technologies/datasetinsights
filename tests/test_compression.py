@@ -2,7 +2,7 @@ import tempfile
 
 import pytest
 
-from datasetinsights.io.compression import Compression
+from datasetinsights.io.compression import decompress
 
 
 @pytest.mark.parametrize(
@@ -11,4 +11,4 @@ from datasetinsights.io.compression import Compression
 def test_decompress_raises_value_error(suffix):
     with tempfile.NamedTemporaryFile(prefix="file", suffix=suffix) as tmp:
         with pytest.raises(ValueError):
-            Compression.decompress(filepath=tmp.name, destination=tmp)
+            decompress(filepath=tmp.name, destination=tmp)

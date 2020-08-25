@@ -6,17 +6,13 @@ import filetype
 logger = logging.getLogger(__name__)
 
 
-class Compression:
-    @staticmethod
-    def decompress(filepath, destination):
-        try:
-            extension = _get_file_extension_from_filepath(filepath)
-            shutil.unpack_archive(filepath, destination, extension)
-        except ValueError as e:
-            logger.debug(
-                f"Current file format is not supported for decompression."
-            )
-            raise e
+def decompress(filepath, destination):
+    try:
+        extension = _get_file_extension_from_filepath(filepath)
+        shutil.unpack_archive(filepath, destination, extension)
+    except ValueError as e:
+        logger.debug(f"Current file format is not supported for decompression.")
+        raise e
 
 
 def _get_file_extension_from_filepath(filepath):
