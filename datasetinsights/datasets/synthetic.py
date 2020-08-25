@@ -3,6 +3,7 @@
 import glob
 import logging
 import os
+import shutil
 from pathlib import Path
 
 from PIL import Image
@@ -14,7 +15,6 @@ from datasetinsights.datasets.unity_perception import (
 )
 from datasetinsights.datasets.unity_perception.tables import SCHEMA_VERSION
 from datasetinsights.io.bbox import BBox2D
-from datasetinsights.io.compression import decompress
 
 from .base import Dataset
 from .exceptions import DatasetNotFoundError
@@ -279,7 +279,9 @@ class SynDetection2D(Dataset):
             )
 
         unarchived_path = Path(data_path) / SynDetection2D.SUBFOLDER
-        decompress(filepath=archive_file, destination=unarchived_path)
+        shutil.unpack_archive(
+            filename=archive_file, extract_dir=unarchived_path
+        )
 
         return unarchived_path
 

@@ -2,6 +2,7 @@ import glob
 import json
 import logging
 import os
+import shutil
 import zipfile
 from pathlib import Path
 
@@ -11,7 +12,6 @@ from PIL import Image
 
 import datasetinsights.constants as const
 from datasetinsights.io.bbox import BBox2D
-from datasetinsights.io.compression import decompress
 from datasetinsights.io.gcs import download_file_from_gcs
 
 from .base import Dataset
@@ -237,7 +237,9 @@ class GroceriesReal(Dataset):
             )
 
         unarchived_path = Path(data_path) / GroceriesReal.SUBFOLDER
-        decompress(filepath=archive_file, destination=unarchived_path)
+        shutil.unpack_archive(
+            filename=archive_file, extract_dir=unarchived_path
+        )
 
         return unarchived_path
 
