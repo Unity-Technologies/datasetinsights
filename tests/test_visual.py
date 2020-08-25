@@ -1,4 +1,5 @@
 import pathlib
+import pytest
 from unittest.mock import MagicMock, Mock, patch
 
 import numpy as np
@@ -9,6 +10,7 @@ from pytest import approx
 from datasetinsights.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
 from datasetinsights.io.bbox import BBox2D
 from datasetinsights.stats.visualization.bbox2d_plot import (
+    _add_single_bbox_on_image,
     add_single_bbox_on_image,
 )
 from datasetinsights.stats.visualization.plots import (
@@ -128,6 +130,16 @@ def test_match_boxes(mock_record):
     colors = match_boxes(None, None)
     for i in range(len(colors)):
         assert colors[i] == expected_colors[i]
+
+
+@patch("datasetinsights.stats.visualization.bbox2d_plot._cv2.rectangle")
+def test__add_single_bbox_on_image(mock):
+    image = np.zeros((100, 200, 3))
+    left, top, right, bottom = 0, 0, 1, 1
+    _add_single_bbox_on_image(image, left, top, right, bottom, label="car")
+    assert mock.call_count == 2
+    with pytest.raises(TypeError):
+        _add_single_bbox_on_image(image, "bad", top, right, bottom, label="car")
 
 
 @patch(
