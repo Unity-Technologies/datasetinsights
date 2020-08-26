@@ -10,6 +10,7 @@ from pytest import approx
 from datasetinsights.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
 from datasetinsights.io.bbox import BBox2D
 from datasetinsights.stats.visualization.bbox2d_plot import (
+    _COLOR_NAME_TO_RGB,
     _add_single_bbox_on_image,
     add_single_bbox_on_image,
 )
@@ -136,10 +137,31 @@ def test_match_boxes(mock_record):
 def test__add_single_bbox_on_image(mock):
     image = np.zeros((100, 200, 3))
     left, top, right, bottom = 0, 0, 1, 1
-    _add_single_bbox_on_image(image, left, top, right, bottom, label="car")
-    assert mock.call_count == 2
+    color = "green"
+    box_line_width = 15
+    colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
+    rgb_color, _ = colors
+    _add_single_bbox_on_image(
+        image,
+        left,
+        top,
+        right,
+        bottom,
+        label="car",
+        color=color,
+        box_line_width=box_line_width,
+    )
+    mock.assert_any_call(
+        image, (left, top), (right, bottom), rgb_color, box_line_width
+    )
+
+
+def test__add_single_bbox_on_image_throw_exception():
+    image = np.zeros((100, 200, 3))
     with pytest.raises(TypeError):
-        _add_single_bbox_on_image(image, "bad", top, right, bottom, label="car")
+        _add_single_bbox_on_image(
+            image, "bad", "bad", "bad", "bad", label="car"
+        )
 
 
 @patch(
