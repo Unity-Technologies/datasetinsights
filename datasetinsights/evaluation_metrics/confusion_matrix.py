@@ -9,13 +9,13 @@ def prediction_records(gt_bboxes, pred_bboxes, iou_thresh=0.5):
         pred_bboxes (List[BBox2D]): a list of predicted bounding boxes.
         iou_thresh (float): iou threshold. Defaults to 0.5.
 
-    Returns (list):
-        A list of tuple of prediction results, e.g. [(score1, TP), (score, FP)].
+    Returns:
+        Records: a Records class contains match results.
 
     """
     records = Records(iou_threshold=iou_thresh)
     records.add_records(gt_bboxes, pred_bboxes)
-    return records.pred_infos
+    return records
 
 
 def precision_recall(gt_bboxes, pred_bboxes, iou_thresh=0.5):
@@ -26,13 +26,14 @@ def precision_recall(gt_bboxes, pred_bboxes, iou_thresh=0.5):
         pred_bboxes (List[BBox2D]): a list of predicted bounding boxes.
         iou_thresh (float): iou threshold. Defaults to 0.5.
 
-    Returns (tuple):
-        a tuple. (precision_per_image, recall_per_image).
+    Returns:
+        tuple: (precision_per_image, recall_per_image).
 
     """
     records = prediction_records(gt_bboxes, pred_bboxes, iou_thresh)
+    match_results = records.match_results
     tp_count = 0
-    for score, res in records:
+    for score, res in match_results:
         if res:
             tp_count += 1
-    return tp_count / (len(records)), tp_count / len(gt_bboxes)
+    return tp_count / (len(match_results)), tp_count / len(gt_bboxes)
