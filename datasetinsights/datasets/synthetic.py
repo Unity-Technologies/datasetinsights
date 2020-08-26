@@ -286,7 +286,5 @@ class SynDetection2D(Dataset):
         return unarchived_path
 
     @staticmethod
-    def is_dataset_files_present(data_directory):
-        return os.path.isdir(data_directory) and any(
-            glob.glob(f"{data_directory}/**/*")
-        )
+    def is_dataset_files_present(data_path):
+        return os.path.isdir(data_path) and any(glob.glob(f"{data_path}/**/*"))
