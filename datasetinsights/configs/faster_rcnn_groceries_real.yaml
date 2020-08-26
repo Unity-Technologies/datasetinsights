@@ -42,4 +42,3 @@ optimizer:
 pretrained: False
 pretrained_backbone: True
 synchronize_metrics: True
-val_interval: 1

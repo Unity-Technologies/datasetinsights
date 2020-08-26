@@ -1,18 +1,22 @@
 import logging
-import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from PIL import ImageColor, ImageDraw, ImageFont
+from PIL import Image, ImageColor
 
 from datasetinsights.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
+from datasetinsights.evaluation_metrics.confusion_matrix import (
+    prediction_records,
+)
+from datasetinsights.stats.visualization.bbox2d_plot import (
+    add_single_bbox_on_image,
+)
 
 logger = logging.getLogger(__name__)
 COLORS = list(ImageColor.colormap.values())
-CUR_DIR = pathlib.Path(__file__).parent.absolute()
 
 
 def decode_segmap(labels, dataset="cityscapes"):
@@ -45,14 +49,12 @@ def decode_segmap(labels, dataset="cityscapes"):
 
 def grid_plot(images, figsize=(3, 5), img_type="rgb", titles=None):
     """ Plot 2D array of images in grid.
-
     Args:
         images (list): 2D array of images.
         figsize (tuple): target figure size of each image in the grid.
         Defaults to (3, 5).
         img_type (string): image plot type ("rgb", "gray"). Defaults to "rgb".
         titles (list[str]): a list of titles. Defaults to None.
-
     Returns:
         matplotlib figure the combined grid plot.
     """
@@ -76,49 +78,83 @@ def grid_plot(images, figsize=(3, 5), img_type="rgb", titles=None):
                 plt.imshow(img, cmap="gray")
             else:
                 plt.imshow(img, plt.cm.binary)
+    plt.show()
 
     return figure
 
 
-def plot_bboxes(image, boxes, colors=None, box_line_width=1, font_scale=50):
+def _process_label(bbox, label_mappings=None):
+    """Create a label text for the bbox.
+
+    Args:
+        bbox (BBox2D): a bounding box
+        label_mappings (dict): a dict of {label_id: label_name} mapping
+        Defaults to None.
+    """
+    if label_mappings is not None:
+        label = label_mappings[bbox.label]
+    if bbox.score != 1.0:
+        return f"{label}: {bbox.score * 100: .2f}%"
+    else:
+        return label
+
+
+def match_boxes(pred_bboxes, gt_bboxes):
+    """ Provide a list of colors for pred annotations.
+
+    Args:
+        pred_bboxes (list[BBox2D]): a list of prediction bounding boxes
+        gt_bboxes (list[BBox2D]): a list of ground truth bounding boxes
+
+    Returns:
+        list: a list of color names (either "green" or "red").
+        green: if the predicted bounding box can be matched to a ground
+        truth bounding box.
+        red: if the predicted bounding box can't be matched to a ground
+        truth bounding box.
+    """
+    records = prediction_records(gt_bboxes, pred_bboxes)
+    match_results = records.match_results
+
+    def get_color(match):
+        if match:
+            return "green"
+        else:
+            return "red"
+
+    colors = [get_color(match) for _, match in match_results]
+    return colors
+
+
+def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
     """ Plot an image with bounding boxes.
+
+    For ground truth image, a color is randomly selected for each bounding box.
+    For prediction, the color of a boundnig box is coded based on IOU value
+    between prediction and ground truth bounding boxes. It is considered true
+    positive if IOU >= 0.5. We only visualize prediction bounding box with
+    score >= 0.5. For prediction, it's a green box if the predicted bounding box
+    can be matched to a ground truth bounding boxes. It's a red box if the
+    predicted bounding box can't be matched to a ground truth bounding boxes.
 
     Args:
         image (PIL Image): a PIL image.
-        boxes (list): a list of BBox2D objects.
+        bboxes (list): a list of BBox2D objects.
+        label_mappings (dict): a dict of {label_id: label_name} mapping
+        Defaults to None.
         colors (list): a color list for boxes. Defaults to None.
         If colors = None, it will randomly assign PIL.COLORS for each box.
-        box_line_width (int): line width of the bounding boxes. Defaults to 1.
-        font_scale (int): how many chars can be filled in the image
-        horizontally. Defaults to 50.
 
     Returns:
-        a PIL image with bounding boxes drawn.
+        PIL Image: a PIL image with bounding boxes drawn.
     """
-    combined = image.copy()
-    draw = ImageDraw.Draw(combined)
-    image_width = combined.size[0]
+    np_image = np.array(image)
+    for i, box in enumerate(bboxes):
+        label = _process_label(box, label_mappings)
+        color = colors[i] if colors else None
+        add_single_bbox_on_image(np_image, box, label, color)
 
-    for i, box in enumerate(boxes):
-
-        x0y0 = (box.x, box.y)
-        x1y1 = (box.x + box.w, box.y + box.h)
-        xcyc = (
-            box.x + 0.5 * box.w - image_width // font_scale,
-            box.y + 0.5 * box.h - image_width // font_scale,
-        )
-        if not colors:
-            color_idx = i % len(COLORS)
-            color = COLORS[color_idx]
-        else:
-            color = colors[i]
-        draw.rectangle((x0y0, x1y1), outline=color, width=box_line_width)
-        font_file = str(CUR_DIR / "font" / "arial.ttf")
-        font = ImageFont.truetype(font_file, image_width // font_scale)
-        text = f"{box.label}\n{box.score:.2f}"
-        draw.multiline_text(xcyc, text, font=font, fill=color)
-
-    return combined
+    return Image.fromarray(np_image)
 
 
 def bar_plot(

@@ -3,16 +3,23 @@ from unittest.mock import MagicMock, Mock, patch
 
 import numpy as np
 import pandas as pd
-from PIL import Image, ImageColor
+import pytest
+from PIL import Image
 from pytest import approx
 
 from datasetinsights.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
 from datasetinsights.io.bbox import BBox2D
+from datasetinsights.stats.visualization.bbox2d_plot import (
+    _COLOR_NAME_TO_RGB,
+    _add_single_bbox_on_image,
+    add_single_bbox_on_image,
+)
 from datasetinsights.stats.visualization.plots import (
     _convert_euler_rotations_to_scatter_points,
     bar_plot,
     decode_segmap,
     histogram_plot,
+    match_boxes,
     plot_bboxes,
 )
 
@@ -101,21 +108,66 @@ def test_plot_bboxes():
     img = Image.open(
         str(cur_dir / "mock_data" / "simrun" / "captures" / "camera_000.png")
     )
+    label_mappings = {1: "car", 2: "tree", 3: "light"}
     boxes = [
-        BBox2D(label="car", x=1, y=1, w=2, h=3),
-        BBox2D(label="tree", x=7, y=6, w=3, h=4),
-        BBox2D(label="light", x=2, y=6, w=2, h=4),
+        BBox2D(label=1, x=1, y=1, w=2, h=3),
+        BBox2D(label=1, x=7, y=6, w=3, h=4),
+        BBox2D(label=1, x=2, y=6, w=2, h=4),
     ]
-    colors = [
-        ImageColor.getcolor("green", "RGB"),
-        ImageColor.getcolor("red", "RGB"),
-        ImageColor.getcolor("green", "RGB"),
-    ]
+    colors = ["green", "red", "green"]
 
     with patch(
-        "datasetinsights.stats.visualization.plots.ImageDraw.Draw"
+        "datasetinsights.stats.visualization.plots.add_single_bbox_on_image"
     ) as mock:
-        instance = mock.return_value
-        plot_bboxes(img, boxes, colors)
-        assert instance.rectangle.call_count == len(boxes)
-        assert instance.multiline_text.call_count == len(boxes)
+        plot_bboxes(img, boxes, label_mappings=label_mappings, colors=colors)
+        assert mock.call_count == len(boxes)
+
+
+@patch("datasetinsights.evaluation_metrics.confusion_matrix.Records")
+def test_match_boxes(mock_record):
+    match_results = [(0.5, True), (0.6, False), (0.7, True)]
+    expected_colors = ["green", "red", "green"]
+    mock_record.return_value.match_results.return_value = match_results
+    colors = match_boxes(None, None)
+    for i in range(len(colors)):
+        assert colors[i] == expected_colors[i]
+
+
+@patch("datasetinsights.stats.visualization.bbox2d_plot._cv2.rectangle")
+def test__add_single_bbox_on_image(mock):
+    image = np.zeros((100, 200, 3))
+    left, top, right, bottom = 0, 0, 1, 1
+    color = "green"
+    box_line_width = 15
+    colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
+    rgb_color, _ = colors
+    _add_single_bbox_on_image(
+        image,
+        left,
+        top,
+        right,
+        bottom,
+        label="car",
+        color=color,
+        box_line_width=box_line_width,
+    )
+    mock.assert_any_call(
+        image, (left, top), (right, bottom), rgb_color, box_line_width
+    )
+
+
+def test__add_single_bbox_on_image_throw_exception():
+    image = np.zeros((100, 200, 3))
+    with pytest.raises(TypeError):
+        _add_single_bbox_on_image(
+            image, "bad", "bad", "bad", "bad", label="car"
+        )
+
+
+@patch(
+    "datasetinsights.stats.visualization.bbox2d_plot._add_single_bbox_on_image"
+)
+def test_add_single_bbox_on_image(mock):
+    bbox = BBox2D(label=1, x=1, y=1, w=2, h=3)
+    add_single_bbox_on_image(None, bbox, None, None)
+    mock.assert_called_once()
