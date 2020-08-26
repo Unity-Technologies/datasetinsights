@@ -101,7 +101,7 @@ def _get_label_image(
     return _np.concatenate(image).transpose(1, 2, 0)
 
 
-def _add_single_bbox_on_image(
+def function_that_does_something(
     image,
     left,
     top,
@@ -112,17 +112,13 @@ def _add_single_bbox_on_image(
     font_size=100,
     box_line_width=15,
 ):
-    """ Add single bounding box with label on a given image.
-    """
     try:
         left, top, right, bottom = int(left), int(top), int(right), int(bottom)
     except ValueError:
         raise TypeError("'left', 'top', 'right' & 'bottom' must be a number")
 
     if label and not color:
-        hex_digest = _md5(label.encode()).hexdigest()
-        color_index = int(hex_digest, 16) % len(_COLOR_NAME_TO_RGB)
-        color = _COLOR_NAMES[color_index]
+        color = _COLOR_NAMES[5]
     colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
     color, color_text = colors
 
@@ -132,13 +128,13 @@ def _add_single_bbox_on_image(
         _, image_width, _ = image.shape
 
         label_image = _get_label_image(label, color_text, color, font_size)
+
         label_height, label_width, _ = label_image.shape
 
         rectangle_height, rectangle_width = 1 + label_height, 1 + label_width
 
         rectangle_bottom = top
         rectangle_left = max(0, min(left - 1, image_width - rectangle_width))
-
         rectangle_top = rectangle_bottom - rectangle_height
         rectangle_right = rectangle_left + rectangle_width
 
