@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from datasetinsights.io.downloader import GCSDatasetDownloader
@@ -9,10 +10,12 @@ md5_hash = "abc=="
 md5_hash_hex = "12345"
 
 
-def test_gcs_client_upload():
+@patch("datasetinsights.io.gcs.os.path.isdir")
+def test_gcs_client_upload_file(mock_isdir):
     object_key = "path/to/object"
     localfile = "path/to/local/file"
     mocked_gcs_client = MagicMock()
+    mock_isdir.return_value = False
     with patch(
         "datasetinsights.io.gcs.Client",
         MagicMock(return_value=mocked_gcs_client),
@@ -25,6 +28,33 @@ def test_gcs_client_upload():
         mocked_blob.upload_from_filename = MagicMock()
         client.upload(local_path=localfile, bucket=bucket_name, key=object_key)
         mocked_blob.upload_from_filename.assert_called_with(localfile)
+
+
+@patch("datasetinsights.io.gcs.Path.glob")
+@patch("datasetinsights.io.gcs.os.path.isdir")
+def test_gcs_client_upload_folder(mock_isdir, mock_glob):
+    object_key = "path/to/object"
+    localfile = "data/io/data.zip"
+    mocked_gcs_client = MagicMock()
+    mock_isdir.return_value = True
+    mock_glob.return_value = [Path(localfile)]
+    with patch(
+        "datasetinsights.io.gcs.Client",
+        MagicMock(return_value=mocked_gcs_client),
+    ):
+        client = GCSClient()
+        client._upload_file = MagicMock()
+        mocked_bucket = MagicMock()
+        mocked_blob = MagicMock()
+        mocked_gcs_client.get_bucket = MagicMock(return_value=mocked_bucket)
+        mocked_bucket.blob = MagicMock(return_value=mocked_blob)
+        mocked_blob.upload_from_filename = MagicMock()
+        client.upload(local_path=local_path, bucket=bucket_name, key=object_key)
+        client._upload_file.assert_called_with(
+            bucket=mocked_bucket,
+            key=object_key + "/data.zip",
+            local_path=localfile,
+        )
 
 
 @patch("datasetinsights.io.gcs.validate_checksum")

@@ -8,7 +8,11 @@ from pathlib import Path
 from google.cloud.storage import Client
 
 from datasetinsights.io.download import validate_checksum
-from datasetinsights.io.exceptions import ChecksumError, DownloadError
+from datasetinsights.io.exceptions import (
+    ChecksumError,
+    DownloadError,
+    UploadError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -149,51 +153,75 @@ class GCSClient:
 
         return bucket, path
 
-    def upload(self, *, local_path=None, bucket=None, key=None, url=None):
-        """ Upload a single object to GCS
+    def upload(
+        self, *, local_path=None, bucket=None, key=None, url=None, pattern="*"
+    ):
+        """ Upload a file or list of files from directory to GCS
 
             Args:
                 url (str): This is the gcs location that indicates where
                                   the dataset should be uploaded.
 
-                local_path (str): This is the path to the directory where the
-                              data is stored.
+                local_path (str): This is the path to the directory or file
+                                  where the data is stored.
 
                 bucket (str): gcs bucket name
                 key (str): object key path
+                pattern: Unix glob patterns. Use **/* for recursive glob.
 
                 Examples:
-                    >>> url = "gs://bucket/folder/data.zip"
-                    >>> local_path = "/tmp/folder/data.zip"
-                    >>> bucket ="bucket"
-                    >>> key ="folder/data.zip"
+                    For file upload:
+                        >>> url = "gs://bucket/folder/data.zip"
+                        >>> local_path = "/tmp/folder/data.zip"
+                        >>> bucket ="bucket"
+                        >>> key ="folder/data.zip"
+                    For directory upload:
+                        >>> url = "gs://bucket/folder"
+                        >>> local_path = "/tmp/folder"
+                        >>> bucket ="bucket"
+                        >>> key ="folder"
+                        >>> key ="**/*"
+
         """
         if not (bucket and key) and url:
             bucket, key = self._parse(url)
 
-        bucket = self.client.get_bucket(bucket)
-        blob = bucket.blob(key)
+        bucket_obj = self.client.get_bucket(bucket)
+        if os.path.isdir(local_path):
+            self._upload_folder(
+                local_path=local_path,
+                bucket=bucket_obj,
+                key=key,
+                pattern=pattern,
+            )
+        else:
+            self._upload_file(local_path=local_path, bucket=bucket_obj, key=key)
 
-        blob.upload_from_filename(local_path)
-
-    def copy_folder_to_gcs(self, url, local_path, pattern="*"):
-        """Copy all files within a folder to GCS
-
-        Args:
-            url (str): This is the downloader-uri that indicates where
-                              the dataset should be downloaded from.
-
-            local_path (str): This is the path to the directory where the
-                          download will store the dataset.
-            pattern: Unix glob patterns. Use **/* for recursive glob.
+    def _upload_file(self, local_path=None, bucket=None, key=None):
+        """ Upload a single object to GCS
         """
-        bucket, prefix = self._parse(url)
+        blob = bucket.blob(key)
+        try:
+            logger.info(f"Uploading from {local_path} to {key}.")
+            blob.upload_from_filename(local_path)
+        except UploadError as e:
+            logger.info(
+                f"The request upload from {local_path} -> {key} can't "
+                f"be completed."
+            )
+            raise e
+
+    def _upload_folder(
+        self, local_path=None, bucket=None, key=None, pattern="*"
+    ):
+        """Upload all files from a folder to GCS based on pattern
+        """
         for path in Path(local_path).glob(pattern):
             if path.is_dir():
                 continue
             full_path = str(path)
             relative_path = str(path.relative_to(local_path))
-            object_key = os.path.join(prefix, relative_path)
-            self.client.upload(
+            object_key = os.path.join(key, relative_path)
+            self._upload_file(
                 local_path=full_path, bucket=bucket, key=object_key
             )
