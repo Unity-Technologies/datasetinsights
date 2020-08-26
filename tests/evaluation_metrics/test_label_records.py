@@ -31,8 +31,8 @@ def test_label_records():
         gt_bbox, pred_bbox = bbox
         records.add_records([gt_bbox], [pred_bbox])
 
-    tp_count = sum(list(zip(*records.pred_infos))[1])
+    tp_count = sum(list(zip(*records.match_results))[1])
     assert tp_count == 1
 
     records.reset()
-    assert records.pred_infos == []
+    assert records.match_results == []

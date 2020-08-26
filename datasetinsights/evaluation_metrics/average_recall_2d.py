@@ -84,11 +84,11 @@ class AverageRecall(EvaluationMetric):
                 average_recall[label] = 0
                 continue
 
-            pred_infos = _label_records[label].pred_infos
+            match_results = _label_records[label].match_results
             _gt_bboxes_count = self._gt_bboxes_count[label]
 
             # The number of TP
-            sum_tp = sum(list(zip(*pred_infos))[1])
+            sum_tp = sum(list(zip(*match_results))[1])
 
             max_recall = sum_tp / _gt_bboxes_count
 
@@ -102,10 +102,11 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
 
     This implementation computes Mean Average Recall (mAR) metric,
     which is implemented as the Average Recall average over all
-    labels and IOU thresholds [0.5:0.95:0.05]. The max detections
+    labels and IOU = 0.5:0.95:0.05. The max detections
     per image is limited to 100.
 
-    .. math:: mAR = mean_{label, IOU}AR(label, IOU)
+    .. math:: mAR^{IoU=0.5:0.95:0.05} = mean_{label,IoU}
+    AR^{label, IoU=0.5:0.95:0.05}
     """
 
     TYPE = "scalar"
@@ -128,7 +129,7 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
             mean_ar.update(mini_batch)
 
     def compute(self):
-        """Compute mAR over ious.
+        """Compute mAR over IOU.
         """
         result = np.mean(
             [

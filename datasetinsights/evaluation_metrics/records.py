@@ -7,17 +7,17 @@ class Records:
 
     Attributes:
         iou_threshold (float): iou threshold
-        pred_infos (list): save the results (TP/FP)
+        match_results (list): save the results (TP/FP)
     Args:
         iou_threshold (float): iou threshold (default: 0.5)
     """
 
     def __init__(self, iou_threshold=0.5):
         self.iou_threshold = iou_threshold
-        self.pred_infos = []
+        self.match_results = []
 
     def reset(self):
-        self.pred_infos = []
+        self.match_results = []
 
     def add_records(self, gt_bboxes, pred_bboxes):
         """Add ground truth and prediction records.
@@ -41,8 +41,8 @@ class Records:
             if max_iou >= self.iou_threshold:
                 if not gt_seen[max_idx]:
                     gt_seen[max_idx] = True
-                    self.pred_infos.append((pred_bbox.score, TP))
+                    self.match_results.append((pred_bbox.score, TP))
                 else:
-                    self.pred_infos.append((pred_bbox.score, FP))
+                    self.match_results.append((pred_bbox.score, FP))
             else:
-                self.pred_infos.append((pred_bbox.score, FP))
+                self.match_results.append((pred_bbox.score, FP))

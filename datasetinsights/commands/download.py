@@ -39,10 +39,7 @@ class SourceURI(click.ParamType):
         return value
 
 
-@click.command(
-    help="Download dataset to localhost from known locations.",
-    context_settings=const.CONTEXT_SETTINGS,
-)
+@click.command(context_settings=const.CONTEXT_SETTINGS,)
 @click.option(
     "-s",
     "--source-uri",
@@ -90,6 +87,42 @@ class SourceURI(click.ParamType):
 def cli(
     source_uri, output, include_binary, access_token, checksum_file,
 ):
+    """Download datasets to localhost from known locations.
+
+    The download command can support downloading from 3 sources
+    usim:// http(s):// gs://
+
+
+    \b
+    Download from Unity Simulation:
+
+    You can specify project_it, run_execution_id, access_token in source-uri
+
+    datasetinsights download
+    --source-uri=usim://<access_token>@<project_id>/<run_execution_id>
+    --output=$HOME/data
+
+    Alternatively, you can also override access_token such as
+
+    datasetinsights download --source-uri=usim://<project_id>/<run_execution_id>
+     --output=$HOME/data --access-token=<access_token>
+
+    Downloading from a http source:
+
+    datasetinsights download --source-uri=http://url.to.file.zip
+     --output=$HOME/data
+
+    Downloading from a gcs source:
+
+    datasetinsights download --source-uri=gs://url/to/file.zip
+     --output=$HOME/data
+
+    or
+
+    datasetinsights download --source-uri=gs://url/to/folder
+     --output=$HOME/data
+
+    """
     ctx = click.get_current_context()
     logger.debug(f"Called download command with parameters: {ctx.params}")
 

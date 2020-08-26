@@ -15,11 +15,11 @@ def test_prediction_records(get_gt_pred_bbox):
     # test iou threshold = 0.5
     pred_info1 = prediction_records(
         img1_gt_bboxes, img1_pred_bboxes, iou_thresh=0.5
-    )
+    ).match_results
     true_res1 = [False, False, True, False]
     pred_info2 = prediction_records(
         img2_gt_bboxes, img2_pred_bboxes, iou_thresh=0.5
-    )
+    ).match_results
     true_res2 = [True, False, False]
 
     for i in range(len(pred_info1)):
@@ -33,11 +33,11 @@ def test_prediction_records(get_gt_pred_bbox):
     # test iou threshold = 0.3
     pred_info1 = prediction_records(
         img1_gt_bboxes, img1_pred_bboxes, iou_thresh=0.3
-    )
+    ).match_results
     true_res1 = [True, True, True, False]
     pred_info2 = prediction_records(
         img2_gt_bboxes, img2_pred_bboxes, iou_thresh=0.3
-    )
+    ).match_results
     true_res2 = [True, False, False]
 
     for i in range(len(pred_info1)):

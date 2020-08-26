@@ -13,6 +13,8 @@ import torch.distributed as dist
 import torchvision
 from codetiming import Timer
 from tensorboardX import SummaryWriter
+from torchvision import transforms
+from tqdm import tqdm
 
 import datasetinsights.constants as const
 from datasetinsights.datasets import Dataset
@@ -325,10 +327,10 @@ class FasterRCNN(Estimator):
         )
         loss_metric.reset()
 
-    def evaluate(self, data_root, **kwargs):
+    def evaluate(self, test_data, **kwargs):
         """evaluate given dataset."""
         config = self.config
-        test_dataset = create_dataset(config, data_root, TEST)
+        test_dataset = create_dataset(config, test_data, TEST)
         label_mappings = test_dataset.label_mappings
         test_sampler = FasterRCNN.create_sampler(
             is_distributed=self.distributed,
@@ -388,7 +390,7 @@ class FasterRCNN(Estimator):
         loss_metric = Loss()
         for metric in self.metrics.values():
             metric.reset()
-        for i, (images, targets) in enumerate(data_loader):
+        for i, (images, targets) in enumerate(tqdm(data_loader)):
             images = list(image.to(self.device) for image in images)
             targets_raw = [
                 {k: v.to(self.device) for k, v in t.items()} for t in targets
@@ -505,8 +507,8 @@ class FasterRCNN(Estimator):
             filtered_pred_annotations (List[BBox2D]): high predicted score
             bboxes from the model.
         """
-        pil_img = pil_img.unsqueeze(0)
-        img_tensor = pil_img.to(self.device)
+        img_tensor = transforms.ToTensor()(pil_img).unsqueeze(0)
+        img_tensor = img_tensor.to(self.device)
         predicts = self.model_without_ddp(img_tensor)
         predict_annotations = convert_bboxes2canonical(predicts)[0]
         filtered_pred_annotations = [

@@ -35,7 +35,7 @@ def create_estimator(
     # todo this makes it so that we lose the tensorboard
     #  writer of non-master processes which could make debugging harder
 
-    writer = SummaryWriter(tb_log_dir,)
+    writer = SummaryWriter(tb_log_dir)
     kfp_writer = KubeflowPipelineWriter(
         filename=kfp_metrics_dir, filepath=kfp_metrics_filename,
     )
