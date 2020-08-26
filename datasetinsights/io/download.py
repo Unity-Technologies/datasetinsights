@@ -29,25 +29,17 @@ class TimeoutHTTPAdapter(HTTPAdapter):
         return super().send(request, **kwargs)
 
 
-def download_file(
-    source_uri: str, dest_path: str, use_cache: bool = True, file_name=None
-):
+def download_file(source_uri: str, dest_path: str, file_name: str = None):
     """Download a file specified from a source uri
 
     Args:
         source_uri (str): source url where the file should be downloaded
         dest_path (str): destination path of the file
         file_name (str): file name of the file to be downloaded
-        use_cache (bool): use_cache (bool): use cache instead of
-        re-download if file exists
 
     Returns:
         String of destination path.
     """
-    dest_path = Path(dest_path)
-    if dest_path.exists() and use_cache:
-        return dest_path
-
     logger.debug(f"Trying to download file from {source_uri} -> {dest_path}")
     adapter = TimeoutHTTPAdapter(
         timeout=DEFAULT_TIMEOUT, max_retries=Retry(total=DEFAULT_MAX_RETRIES)
@@ -66,6 +58,7 @@ def download_file(
 
             raise DownloadError(err_msg)
         else:
+            dest_path = Path(dest_path)
             if not file_name:
                 file_name = _parse_filename(response, source_uri)
                 dest_path = dest_path / file_name
