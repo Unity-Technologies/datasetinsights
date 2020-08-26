@@ -63,8 +63,7 @@ def test_gcs_estimator_checkpoint_save():
     prefix = "good_model"
     suffix = "ckpt"
     path = "/path/does/not/matter/" + ".".join([prefix, suffix])
-    object_key = os.path.join(gcs_path, ".".join([prefix, suffix]))
-
+    url = "gs://some_bucket/path/to/directory/good_model.ckpt"
     estimator = Mock()
     mocked_ckpt = Mock()
     mocked_ckpt.save = MagicMock(return_value=path)
@@ -83,7 +82,7 @@ def test_gcs_estimator_checkpoint_save():
 
             mocked_ckpt.save.assert_called_once_with(estimator, None)
             mocked_gcs_client.upload.assert_called_once_with(
-                path, bucket, object_key
+                local_path=path, url=url
             )
 
 

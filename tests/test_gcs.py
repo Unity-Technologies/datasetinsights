@@ -1,15 +1,17 @@
 from unittest.mock import MagicMock, patch
 
-import pytest
+from datasetinsights.io.downloader import GCSDatasetDownloader
+from datasetinsights.io.gcs import GCSClient
 
-from datasetinsights.io.gcs import GCSClient, parse_gcs_location
+bucket_name = "fake_bucket"
+local_path = "data/io"
+md5_hash = "abc=="
+md5_hash_hex = "12345"
 
 
-def test_gcs_client_warpper():
-    bucket_name = "fake_bucket"
+def test_gcs_client_upload():
     object_key = "path/to/object"
     localfile = "path/to/local/file"
-
     mocked_gcs_client = MagicMock()
     with patch(
         "datasetinsights.io.gcs.Client",
@@ -20,30 +22,102 @@ def test_gcs_client_warpper():
         mocked_blob = MagicMock()
         mocked_gcs_client.get_bucket = MagicMock(return_value=mocked_bucket)
         mocked_bucket.blob = MagicMock(return_value=mocked_blob)
-
-        mocked_blob.download_to_filename = MagicMock()
-        client.download(
-            local_path=localfile, bucket=bucket_name, key=object_key
-        )
-        mocked_gcs_client.get_bucket.assert_called_with(bucket_name)
-        mocked_bucket.list_blobs.assert_called_with(prefix=object_key)
-        # # mocked_bucket.blob.assert_called_with(object_key)
-        # mocked_blob.download_to_filename.assert_called_with(localfile)
-        # todo file download test and folder download test # mock anyblob
-
         mocked_blob.upload_from_filename = MagicMock()
-        client.upload(localfile, bucket_name, object_key)
+        client.upload(local_path=localfile, bucket=bucket_name, key=object_key)
         mocked_blob.upload_from_filename.assert_called_with(localfile)
 
 
-def test_parse_gcs_location():
-    th_bucket = "some_bucket_name"
-    th_path = "some/cloud/path"
-    url = "gs://some_bucket_name/some/cloud/path"
+@patch("datasetinsights.io.gcs.validate_checksum")
+def test_gcs_client_download_file(mock_checksum):
+    object_key = "path/to/object.zip"
+    local_file_path = "data/io/object.zip"
+    url = "gs://fake_bucket/path/to/object.zip"
+    mocked_gcs_client = MagicMock()
+    with patch(
+        "datasetinsights.io.gcs.Client",
+        MagicMock(return_value=mocked_gcs_client),
+    ):
+        client = GCSClient()
+        mocked_bucket = MagicMock()
+        mocked_blob = MagicMock()
+        mocked_gcs_client.get_bucket = MagicMock(return_value=mocked_bucket)
+        mocked_bucket.get_blob = MagicMock(return_value=mocked_blob)
+        mocked_blob.name = object_key
+        mocked_blob.md5_hash = md5_hash
+        client._is_file = MagicMock(return_value=True)
+        client._MD5_hex = MagicMock(return_value=md5_hash_hex)
+        client.download(
+            local_path=local_path, bucket=bucket_name, key=object_key
+        )
+        mocked_gcs_client.get_bucket.assert_called_with(bucket_name)
+        mocked_blob.download_to_filename.assert_called_with(local_file_path)
 
-    bucket, path = parse_gcs_location(url)
-    assert (bucket, path) == (th_bucket, th_path)
+        mock_checksum.assert_called_once()
+        mock_checksum.assert_called_with(
+            local_file_path, md5_hash_hex, algorithm="MD5"
+        )
 
-    bad_url = "s3://path/to/bad/url"
-    with pytest.raises(ValueError, match=r"Specified destination prefix:"):
-        parse_gcs_location(bad_url)
+        client.download(local_path=local_path, url=url)
+        mocked_gcs_client.get_bucket.assert_called_with(bucket_name)
+        mocked_blob.download_to_filename.assert_called_with(local_file_path)
+
+        mock_checksum.assert_called_with(
+            local_file_path, md5_hash_hex, algorithm="MD5"
+        )
+        assert mock_checksum.call_count == 2
+
+
+@patch("datasetinsights.io.gcs.validate_checksum")
+def test_gcs_client_download_folder(mock_checksum):
+    object_key = "path/to"
+    local_file_path = "data/io/object.zip"
+    url = "gs://fake_bucket/path/to"
+
+    mocked_gcs_client = MagicMock()
+    with patch(
+        "datasetinsights.io.gcs.Client",
+        MagicMock(return_value=mocked_gcs_client),
+    ):
+        client = GCSClient()
+        client._is_file = MagicMock(return_value=False)
+        client._MD5_hex = MagicMock(return_value=md5_hash_hex)
+        mocked_bucket = MagicMock()
+        mocked_blob = MagicMock()
+        mocked_gcs_client.get_bucket = MagicMock(return_value=mocked_bucket)
+        mocked_bucket.list_blobs = MagicMock(return_value=[mocked_blob])
+        mocked_blob.name = object_key + "/object.zip"
+        mocked_blob.md5_hash = md5_hash
+        client.download(
+            local_path=local_path, bucket=bucket_name, key=object_key
+        )
+        mocked_gcs_client.get_bucket.assert_called_with(bucket_name)
+        mocked_blob.download_to_filename.assert_called_with(local_file_path)
+
+        mock_checksum.assert_called_once()
+        mock_checksum.assert_called_with(
+            local_file_path, md5_hash_hex, algorithm="MD5"
+        )
+
+        client.download(local_path=local_path, url=url)
+        mocked_gcs_client.get_bucket.assert_called_with(bucket_name)
+        mocked_blob.download_to_filename.assert_called_with(local_file_path)
+
+        mock_checksum.assert_called_with(
+            local_file_path, md5_hash_hex, algorithm="MD5"
+        )
+        assert mock_checksum.call_count == 2
+
+
+def test_gcs_downloader():
+    url = "gs://fake_bucket/path/to"
+    mocked_gcs_client = MagicMock()
+    with patch(
+        "datasetinsights.io.downloader.gcs_downloader.GCSClient",
+        MagicMock(return_value=mocked_gcs_client),
+    ):
+
+        downloader = GCSDatasetDownloader()
+        downloader.download(url, local_path)
+        mocked_gcs_client.download.assert_called_with(
+            local_path=local_path, url=url
+        )

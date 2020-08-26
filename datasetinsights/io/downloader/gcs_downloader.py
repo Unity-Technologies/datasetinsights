@@ -22,6 +22,5 @@ class GCSDatasetDownloader(DatasetDownloader, protocol="gs://"):
 
             output: This is the path to the directory
                 where the download will store the dataset.
-                Examples:
         """
         self.client.download(local_path=output, url=source_uri)

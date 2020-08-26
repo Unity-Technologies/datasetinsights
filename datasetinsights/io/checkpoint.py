@@ -6,7 +6,7 @@ import tempfile
 
 import datasetinsights.constants as const
 from datasetinsights.io.download import download_file
-from datasetinsights.io.gcs import GCSClient, parse_gcs_location
+from datasetinsights.io.gcs import GCSClient
 from datasetinsights.torch_distributed import is_master
 
 logger = logging.getLogger(__name__)
@@ -178,7 +178,7 @@ class GCSEstimatorWriter:
     def __init__(self, cloud_path, prefix, *, suffix=DEFAULT_SUFFIX):
         self._tempdir = tempfile.TemporaryDirectory().name
         self._client = GCSClient()
-        self._bucket, self._gcs_path = parse_gcs_location(cloud_path)
+        self.cloud_path = cloud_path
         self._writer = LocalEstimatorWriter(
             self._tempdir, prefix, create_dir=True, suffix=suffix
         )
@@ -197,13 +197,9 @@ class GCSEstimatorWriter:
         """
         path = self._writer.save(estimator, epoch)
         filename = os.path.basename(path)
-        object_key = os.path.join(self._gcs_path, filename)
-
-        full_cloud_path = f"gs://{self._bucket}/{object_key}"
-
+        full_cloud_path = os.path.join(self.cloud_path, filename)
         logger.debug(f"Copying estimator from {path} to {full_cloud_path}")
-        self._client.upload(path, self._bucket, object_key)
-
+        self._client.upload(local_path=path, url=full_cloud_path)
         return full_cloud_path
 
 
@@ -223,14 +219,12 @@ def load_from_gcs(estimator, full_cloud_path):
         full_cloud_path: full path to the checkpoint file
 
     """
-    bucket, object_key = parse_gcs_location(full_cloud_path)
-    filename = os.path.basename(object_key)
+    filename = os.path.basename(full_cloud_path)
     with tempfile.TemporaryDirectory() as temp_dir:
         path = os.path.join(temp_dir, filename)
         logger.debug(f"Downloading estimator from {full_cloud_path} to {path}")
         client = GCSClient()
-
-        client.download(local_path=temp_dir, bucket=bucket, key=object_key)
+        client.download(local_path=temp_dir, url=full_cloud_path)
         estimator.load(path)
 
 
