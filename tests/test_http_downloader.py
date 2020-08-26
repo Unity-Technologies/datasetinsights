@@ -6,7 +6,10 @@ from datasetinsights.io.downloader.http_downloader import HTTPDatasetDownloader
 from datasetinsights.io.exceptions import ChecksumError
 
 
-@patch("datasetinsights.io.downloader.http_downloader.download_file")
+@patch(
+    "datasetinsights.io.downloader.http_downloader."
+    "download_dataset_from_http_url"
+)
 def test_download_without_checksum(mock_download_file):
     # arrange
     source_uri = "http://some/path"
@@ -20,7 +23,10 @@ def test_download_without_checksum(mock_download_file):
     mock_download_file.assert_called_once()
 
 
-@patch("datasetinsights.io.downloader.http_downloader.download_file")
+@patch(
+    "datasetinsights.io.downloader.http_downloader."
+    "download_dataset_from_http_url"
+)
 @patch("datasetinsights.io.downloader.http_downloader.validate_checksum")
 @patch("datasetinsights.io.downloader.http_downloader.get_checksum_from_file")
 def test_download_with_checksum(
@@ -44,7 +50,10 @@ def test_download_with_checksum(
 
 
 @patch("os.remove")
-@patch("datasetinsights.io.downloader.http_downloader.download_file")
+@patch(
+    "datasetinsights.io.downloader.http_downloader."
+    "download_dataset_from_http_url"
+)
 @patch("datasetinsights.io.downloader.http_downloader.validate_checksum")
 @patch("datasetinsights.io.downloader.http_downloader.get_checksum_from_file")
 def test_download_with_wrong_checksum(
