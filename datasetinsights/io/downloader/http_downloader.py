@@ -37,9 +37,7 @@ class HTTPDatasetDownloader(DatasetDownloader, protocol="http://"):
                            matches
 
         """
-
-        dataset_path = os.path.join(output, "dataset")
-        download_file(source_uri, dataset_path)
+        dataset_path = download_file(source_uri, output)
 
         if checksum_file:
             logger.debug("Reading checksum from checksum file.")

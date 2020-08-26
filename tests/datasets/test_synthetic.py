@@ -1,3 +1,5 @@
+import os
+import tempfile
 from pathlib import Path
 
 import pandas as pd
@@ -60,3 +62,18 @@ def test_get_split():
     expected_val = pd.DataFrame({"id": [2, 1, 4, 5]})
     pd.testing.assert_frame_equal(expected_train, actual_train)
     pd.testing.assert_frame_equal(expected_val, actual_val)
+
+
+def test_is_dataset_files_present_returns_true():
+    with tempfile.TemporaryDirectory() as tmp:
+        temp_dir = os.path.join(tmp, "temp_name")
+        os.mkdir(temp_dir)
+        with open(os.path.join(temp_dir, "annotation.json"), "x"):
+            assert SynDetection2D.is_dataset_files_present(tmp)
+
+
+def test_is_dataset_files_present_returns_false():
+    with tempfile.TemporaryDirectory() as tmp:
+        temp_dir = os.path.join(tmp, "temp_name")
+        os.mkdir(temp_dir)
+        assert not SynDetection2D.is_dataset_files_present(tmp)

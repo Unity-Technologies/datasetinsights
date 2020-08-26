@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import tempfile
 import zlib
 from pathlib import Path
@@ -28,12 +29,15 @@ class TimeoutHTTPAdapter(HTTPAdapter):
         return super().send(request, **kwargs)
 
 
-def download_file(source_uri: str, dest_path: str, use_cache: bool = True):
+def download_file(
+    source_uri: str, dest_path: str, use_cache: bool = True, file_name=None
+):
     """Download a file specified from a source uri
 
     Args:
         source_uri (str): source url where the file should be downloaded
         dest_path (str): destination path of the file
+        file_name (str): file name of the file to be downloaded
         use_cache (bool): use_cache (bool): use cache instead of
         re-download if file exists
 
@@ -62,6 +66,9 @@ def download_file(source_uri: str, dest_path: str, use_cache: bool = True):
 
             raise DownloadError(err_msg)
         else:
+            if not file_name:
+                file_name = _parse_filename(response, source_uri)
+                dest_path = dest_path / file_name
             dest_path.parent.mkdir(parents=True, exist_ok=True)
             with open(dest_path, "wb") as f:
                 f.write(response.content)
@@ -167,3 +174,39 @@ def _read_checksum_from_txt(filepath):
     with open(filepath) as file:
         checksum = file.read()
     return checksum
+
+
+def _parse_filename(response, uri):
+    file_name = _get_filename_from_response(response)
+    if file_name is None:
+        file_name = _get_file_name_from_uri(uri)
+    return file_name
+
+
+def _get_filename_from_response(response):
+    """ Gets filename from requests response object
+
+        Args:
+            response: requests.Response() object that contains the server's
+            response to the HTTP request.
+
+        Returns:
+            filename (str): Name of the file to be downloaded
+    """
+    cd = response.headers.get("content-disposition")
+    if not cd:
+        return None
+    file_name = re.findall("filename=(.+)", cd)
+    if len(file_name) == 0:
+        return None
+    return file_name[0]
+
+
+def _get_file_name_from_uri(uri):
+    """ Gets filename from URI
+
+    Args:
+        uri (str): URI
+
+    """
+    return uri.split("/")[-1]
