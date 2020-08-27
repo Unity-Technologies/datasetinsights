@@ -187,7 +187,7 @@ class GCSClient:
             bucket, key = self._parse(url)
 
         bucket_obj = self.client.get_bucket(bucket)
-        if os.path.isdir(local_path):
+        if isdir(local_path):
             self._upload_folder(
                 local_path=local_path,
                 bucket=bucket_obj,
