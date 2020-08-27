@@ -24,6 +24,8 @@ from datasetinsights.estimators.faster_rcnn import (
 )
 from datasetinsights.io.checkpoint import EstimatorCheckpoint
 
+# XXX This should not be a global variable. A tempdir should be a fixture and
+# automatically cleanup after EVERY unit test finished execution.
 tmp_dir = tempfile.TemporaryDirectory()
 tmp_name = tmp_dir.name
 
@@ -47,6 +49,12 @@ def config():
 def test_faster_rcnn_train_one_epoch(config, dataset):
     """test train one epoch."""
     writer = MagicMock()
+
+    # XXX This is just a hot fix to prevent a mysterious folder such as:
+    # <MagicMock name='mock.logdir' id='140420520377936'> showed up after
+    # running this test.
+    writer.logdir = tmp_name
+
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
     estimator = FasterRCNN(
@@ -94,6 +102,12 @@ def test_faster_rcnn_train_all(
     mock_loss.return_value = loss_val
     log_dir = tmp_name + "/train/"
     writer = MagicMock()
+
+    # XXX This is just a hot fix to prevent a mysterious folder such as:
+    # <MagicMock name='mock.logdir' id='140420520377936'> showed up after
+    # running this test.
+    writer.logdir = tmp_name
+
     kfp_writer = MagicMock()
 
     checkpointer = EstimatorCheckpoint(
@@ -154,6 +168,12 @@ def test_faster_rcnn_train(
 
     kfp_writer = MagicMock()
     writer = MagicMock()
+
+    # XXX This is just a hot fix to prevent a mysterious folder such as:
+    # <MagicMock name='mock.logdir' id='140420520377936'> showed up after
+    # running this test.
+    writer.logdir = tmp_name
+
     writer.add_scalar = MagicMock()
     writer.add_scalars = MagicMock()
     writer.add_figure = MagicMock()
@@ -180,6 +200,12 @@ def test_faster_rcnn_evaluate_per_epoch(mock_loss, config, dataset):
     ckpt_dir = tmp_name + "/train/FasterRCNN.estimator"
     config.checkpoint_file = ckpt_dir
     writer = MagicMock()
+
+    # XXX This is just a hot fix to prevent a mysterious folder such as:
+    # <MagicMock name='mock.logdir' id='140420520377936'> showed up after
+    # running this test.
+    writer.logdir = tmp_name
+
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
     writer.add_scalar = MagicMock()
@@ -230,6 +256,12 @@ def test_faster_rcnn_evaluate(
     ckpt_dir = tmp_name + "/train/FasterRCNN.estimator"
     config.checkpoint_file = ckpt_dir
     writer = MagicMock()
+
+    # XXX This is just a hot fix to prevent a mysterious folder such as:
+    # <MagicMock name='mock.logdir' id='140420520377936'> showed up after
+    # running this test.
+    writer.logdir = tmp_name
+
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
     writer.add_scalar = MagicMock()
@@ -250,6 +282,12 @@ def test_faster_rcnn_evaluate(
 def test_faster_rcnn_log_metric_val(config):
     """test log metric val."""
     writer = MagicMock()
+
+    # XXX This is just a hot fix to prevent a mysterious folder such as:
+    # <MagicMock name='mock.logdir' id='140420520377936'> showed up after
+    # running this test.
+    writer.logdir = tmp_name
+
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
     writer.add_scalar = MagicMock()
@@ -273,12 +311,21 @@ def test_faster_rcnn_log_metric_val(config):
     writer.add_scalars.assert_called_with("val/APIOU50-per-class", {}, epoch)
 
 
+# XXX: test_faster_rcnn_save and test_faster_rcnn_load are not independent
+# unittests. If test_faster_rcnn_save is removed, test_faster_rcnn_load will
+# fail. They should be completely independent.
 def test_faster_rcnn_save(config):
     """test save model."""
 
     log_dir = tmp_name + "/train/"
     kfp_writer = MagicMock()
     writer = MagicMock()
+
+    # XXX This is just a hot fix to prevent a mysterious folder such as:
+    # <MagicMock name='mock.logdir' id='140420520377936'> showed up after
+    # running this test.
+    writer.logdir = tmp_name
+
     checkpointer = EstimatorCheckpoint(
         estimator_name=config.estimator, log_dir=log_dir, distributed=False,
     )
@@ -391,6 +438,12 @@ def test_create_optimizer(mock_lr, mock_adm, config, dataset):
     mock_adm.return_value = MagicMock()
 
     writer = MagicMock()
+
+    # XXX This is just a hot fix to prevent a mysterious folder such as:
+    # <MagicMock name='mock.logdir' id='140420520377936'> showed up after
+    # running this test.
+    writer.logdir = tmp_name
+
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
     estimator = FasterRCNN(
@@ -418,6 +471,12 @@ def test_faster_rcnn_predict(config, dataset):
     checkpoint_file = tmp_name + "/train/FasterRCNN.estimator"
     kfp_writer = MagicMock()
     writer = MagicMock()
+
+    # XXX This is just a hot fix to prevent a mysterious folder such as:
+    # <MagicMock name='mock.logdir' id='140420520377936'> showed up after
+    # running this test.
+    writer.logdir = tmp_name
+
     checkpointer = EstimatorCheckpoint(
         estimator_name=config.estimator, log_dir="/tmp", distributed=False,
     )
@@ -441,6 +500,8 @@ def test_faster_rcnn_predict(config, dataset):
     assert result == []
 
 
+# XXX This test should be completely removed. A tempdir cleanup should happen
+# EVERY unit test is finished execution.
 def test_clean_dir():
     """clean tmp dir."""
     if os.path.exists(tmp_dir.name):
