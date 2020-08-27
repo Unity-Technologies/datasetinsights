@@ -18,8 +18,6 @@ If you are interested in contributing to datasetinsights, your contributions wil
 1. You want to propose a new models/datasets/evaluation metrics and implement it.
 2. You want to implement a feature or bug-fix for an outstanding issue.
 
-TODO. We want to have something like [this](https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md#contributing-to-pytorch)
-
 ## Developing datasetinsights
 
 Here are some steps to setup datasetinsights virtual environment with on your machine:
@@ -71,15 +69,82 @@ Let package management system resolve for dependencies.
 See [poetry add](https://python-poetry.org/docs/cli/#add) for detail instructions.
 
 ## Codebase structure
+The datasetinsights contains the following modules.
 
-To be filled.
+datasetinsights
+*    [commands](datasetinsights/commands)
+        This module contains the cli commands.
+
+*    [configs](datasetinsights/configs)
+        This module contains estimator configuration files.
+
+*    [datasets](datasetinsights/datasets)
+        This module contains different datasets.
+        The dataset classes contain knowledge on how the
+        dataset should be loaded into memory.
+
+*    [estimators](datasetinsights/estimators)
+        This module contain estimatos are used for
+        training and evaluating models on the datasets.
+
+*    [evaluation_metrics](datasetinsights/evaluation_metrics)
+        This module contains metrics used by the different
+        estimators and are specific in the estimator config file.
+
+*    [io](datasetinsights/io)
+        This module contains functionality that relates to
+        writing/downloading/uploading to/from different sources.
+
+*    [stats](datasetinsights/stats)
+        This module contains code for visualizing and gathering
+        statistics on the dataset
+
+## Download dataset
+
+Depending on where the dataset is stored there are different options for downloading datasets
+
+You can specify project_it, run_execution_id, access_token in source-uri
+
+Downloading from Unity Simulation
+```
+datasetinsights download
+--source-uri=usim://<access_token>@<project_id>/<run_execution_id>
+--output=$HOME/data
+```
+Alternatively, you can also override access_token such as
+```
+datasetinsights download --source-uri=usim://<project_id>/<run_execution_id>
+ --output=$HOME/data --access-token=<access_token>
+```
+Downloading from a http source:
+```
+datasetinsights download --source-uri=http://url.to.file.zip
+ --output=$HOME/data
+
+```
+Downloading from a gcs source:
+```
+datasetinsights download --source-uri=gs://url/to/file.zip
+ --output=$HOME/data
+
+datasetinsights download --source-uri=gs://url/to/folder
+ --output=$HOME/data
+```
 
 ## Train Model
 
 ```
-python -m datasetinsights.cli --local_rank=0 train \
-    --config=datasetinsights/configs/faster_rcnn.yaml \
-    --data-root=$HOME/data
+datasetinsights train \
+ --config=datasetinsights/configs/faster_rcnn.yaml \
+ --train-data=path_to_data
+```
+
+## Evaluate model
+
+```
+datasetinsights train \
+ --config=datasetinsights/configs/faster_rcnn.yaml \
+ --test-data=path_to_data
 ```
 
 ## Unit testing
@@ -108,9 +173,7 @@ In addition to Black, we use [isort](https://github.com/timothycrosley/isort) to
 Before submitting a pull request, run:
 
 ```
-black .
-isort -rc .
-flake8
+pre-commit run --all-files
 ```
 
 Fix all issues that were highlighted by flake8. If you want to skip exceptions such as long url lines in docstring, add `# noqa: E501 <describe reason>` for the specific line violation. See [this](https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html) to learn more about how to ignore flake8 errors.
