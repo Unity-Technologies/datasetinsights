@@ -72,7 +72,7 @@ def test_gcs_client_upload_folder(mock_isdir, mock_glob):
 
         client.upload(local_path=local_path, url=url)
         mocked_gcs_client.get_bucket.assert_called_with(bucket_name)
-        assert mocked_blob.upload_from_filename.call_count == 2
+        assert client._upload_file.call_count == 2
 
 
 @patch("datasetinsights.io.gcs.isdir")
