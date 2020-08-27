@@ -1,6 +1,8 @@
+import glob
 import json
 import logging
 import os
+import shutil
 import zipfile
 from pathlib import Path
 
@@ -86,6 +88,8 @@ class GroceriesReal(Dataset):
 
     ANNOTATION_FILE = "annotations.json"
     DEFINITION_FILE = "annotation_definitions.json"
+    ARCHIVE_FILES = {"v3": "v3.zip"}
+    SUBFOLDER = "groceries"
 
     def __init__(
         self,
@@ -103,7 +107,7 @@ class GroceriesReal(Dataset):
             transforms: callable transformation
             version (str): version of GroceriesReal dataset
         """
-        self.data_path = data_path
+        self._data_path = self._preprocess_dataset(data_path, version)
 
         valid_splits = tuple(self.SPLITS.keys())
         if split not in valid_splits:
@@ -119,13 +123,8 @@ class GroceriesReal(Dataset):
         )
 
         self.version = version
-
         self.transforms = transforms
 
-        if not os.path.isdir(self.data_path):
-            raise DatasetNotFoundError(
-                "Cannot find the dataset. Please download it first."
-            )
         self.annotations = self._load_annotations()
         self.split_indices = self._load_split_indices()
         self.label_mappings = self._load_label_mappings()
@@ -156,7 +155,7 @@ class GroceriesReal(Dataset):
     def _filepath(self, filename):
         """Local file path relative to data_path
         """
-        return os.path.join(self.data_path, filename)
+        return os.path.join(self._data_path, filename)
 
     def _load_annotations(self):
         """Load annotation from annotations.json file
@@ -216,6 +215,41 @@ class GroceriesReal(Dataset):
             x=bbox[0], y=bbox[1], w=bbox[2], h=bbox[3], label=label
         )
         return canonical_bbox
+
+    @staticmethod
+    def _preprocess_dataset(data_path, version):
+        """ Preprocess dataset inside data_path and un-archive if necessary.
+
+            Args:
+                data_path (str): Path where dataset is stored.
+                version (str): groceries_real dataset version.
+
+            Return:
+                Path of the dataset files.
+            """
+        if GroceriesReal.is_dataset_files_present(data_path):
+            return data_path
+
+        archive_file = Path(data_path) / GroceriesReal.ARCHIVE_FILES[version]
+        if not archive_file.exists():
+            raise DatasetNotFoundError(
+                f"Expecting a file {archive_file} under {data_path}"
+            )
+
+        unarchived_path = Path(data_path) / GroceriesReal.SUBFOLDER
+        shutil.unpack_archive(
+            filename=archive_file, extract_dir=unarchived_path
+        )
+
+        return unarchived_path
+
+    @staticmethod
+    def is_dataset_files_present(data_path):
+        return (
+            os.path.isdir(data_path)
+            and any(glob.glob(f"{data_path}/*.json"))
+            and any(glob.glob(f"{data_path}/*.txt"))
+        )
 
 
 class GoogleGroceriesReal(Dataset):

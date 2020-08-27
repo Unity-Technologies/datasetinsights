@@ -84,15 +84,12 @@ class UnitySimulationDownloader(DatasetDownloader, protocol="usim://"):
         """
         self.parse_source_uri(source_uri)
         manifest_file = os.path.join(output, f"{self.run_execution_id}.csv")
-        try:
-            manifest_file = download_manifest(
-                self.run_execution_id,
-                manifest_file,
-                self.access_token,
-                project_id=self.project_id,
-            )
-        except DownloadError as error:
-            raise error
+        manifest_file = download_manifest(
+            self.run_execution_id,
+            manifest_file,
+            self.access_token,
+            project_id=self.project_id,
+        )
 
         dl_worker = Downloader(manifest_file, output)
         dl_worker.download_references()
@@ -173,7 +170,6 @@ class Downloader:
         manifest (DataFrame): the csv manifest file stored in a pandas dataframe
         data_root (str): root directory where the simulation output should
             be downloaded
-        use_cache (bool): use cache instead of re-download if file exists
     """
 
     MANIFEST_FILE_COLUMNS = (
@@ -185,16 +181,13 @@ class Downloader:
         "download_uri",
     )
 
-    def __init__(
-        self, manifest_file: str, data_root: str, use_cache: bool = True
-    ):
+    def __init__(self, manifest_file: str, data_root: str):
         """ Initialize Downloader
 
         Args:
             manifest_file (str): path to a manifest file
             data_root (str): root directory where the simulation output should
                 be downloaded
-            use_cache (bool): use cache instead of re-download if file exists
         """
         self.manifest = pd.read_csv(
             manifest_file, header=0, names=self.MANIFEST_FILE_COLUMNS
@@ -202,7 +195,6 @@ class Downloader:
         self.manifest = _filter_unsuccessful_attempts(manifest_df=self.manifest)
         self.manifest["filetype"] = self.match_filetypes(self.manifest)
         self.data_root = data_root
-        self.use_cache = use_cache
 
     @staticmethod
     def match_filetypes(manifest):
@@ -320,10 +312,11 @@ class Downloader:
         with concurrent.futures.ThreadPoolExecutor(MAX_WORKER) as executor:
             for _, row in self.manifest[matched_rows].iterrows():
                 source_uri = row.download_uri
-                relative_path = row.file_name
-                dest_path = os.path.join(self.data_root, relative_path)
+                relative_path = Path(self.data_root, row.file_name)
+                dest_path = relative_path.parent
+                file_name = relative_path.name
                 future = executor.submit(
-                    download_file, source_uri, dest_path, self.use_cache
+                    download_file, source_uri, dest_path, file_name
                 )
                 future_downloaded.append(future)
 
