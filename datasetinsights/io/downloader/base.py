@@ -48,6 +48,8 @@ def create_downloader(source_uri, **kwargs):
 
 
 class DatasetDownloader(ABC):
+    """This is the base class for all dataset downloaders"""
+
     def __init__(self, **kwargs):
         pass
 
@@ -63,4 +65,14 @@ class DatasetDownloader(ABC):
 
     @abstractmethod
     def download(self, source_uri, output, **kwargs):
+        """
+
+        Args:
+            source_uri: URI that points to the dataset that should be downloaded
+            output: path to local folder where the dataset should be stored
+            **kwargs:
+
+        Returns:
+
+        """
         raise NotImplementedError("Subclass needs to implement this method")
