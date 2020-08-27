@@ -133,10 +133,33 @@ def test_match_boxes(mock_record):
         assert colors[i] == expected_colors[i]
 
 
+# @patch("datasetinsights.stats.visualization.bbox2d_plot._cv2.rectangle")
+# def test__add_single_bbox_on_image(mock):
+#     image = np.zeros((100, 200, 3))
+#     left, top, right, bottom = 0, 0, 1, 1
+#     color = "green"
+#     box_line_width = 15
+#     colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
+#     rgb_color, _ = colors
+#     _add_single_bbox_on_image(
+#         image,
+#         left,
+#         top,
+#         right,
+#         bottom,
+#         label="car",
+#         color=color,
+#         box_line_width=box_line_width,
+#     )
+#     mock.assert_any_call(
+#         image, (left, top), (right, bottom), rgb_color, box_line_width
+#     )
+
+
 @patch("datasetinsights.stats.visualization.bbox2d_plot._cv2.rectangle")
-def test__add_single_bbox_on_image(mock):
+def test__add_single_bbox_on_image_edge_case(mock):
     image = np.zeros((100, 200, 3))
-    left, top, right, bottom = 0, 0, 1, 1
+    left, top, right, bottom = 0, 150, 50, 200
     color = "green"
     box_line_width = 15
     colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
@@ -169,5 +192,20 @@ def test__add_single_bbox_on_image_throw_exception():
 )
 def test_add_single_bbox_on_image(mock):
     bbox = BBox2D(label=1, x=1, y=1, w=2, h=3)
-    add_single_bbox_on_image(None, bbox, None, None)
-    mock.assert_called_once()
+    image = np.zeros((100, 200, 3))
+    label = "car"
+    color = "red"
+    left, top = (bbox.x, bbox.y)
+    right, bottom = (bbox.x + bbox.w, bbox.y + bbox.h)
+    add_single_bbox_on_image(image, bbox, label, color)
+    mock.assert_called_with(
+        image,
+        left,
+        top,
+        right,
+        bottom,
+        label=label,
+        color=color,
+        font_size=100,
+        box_line_width=15,
+    )
