@@ -3,7 +3,7 @@ backbone: resnet50
 num_classes: 64
 task: object_detection
 train:
-  epochs: 80
+  epochs: 100
   batch_size: 8
   accumulation_steps: 8
   log_frequency: 30
