@@ -6,8 +6,6 @@ train:
   dataset:
     name: SynDetection2D
     args:
-      run_execution_id: zMvGEV0
-      version: 0.0.1
       def_id: c31620e3-55ff-4af6-ae86-884aa0daa9b2
       random_seed: 47
       split: train
@@ -19,8 +17,6 @@ val:
   dataset:
     name: SynDetection2D
     args:
-      run_execution_id: zMvGEV0
-      version: 0.0.1
       def_id: c31620e3-55ff-4af6-ae86-884aa0daa9b2
       random_seed: 47
       split: val

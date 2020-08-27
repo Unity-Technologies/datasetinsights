@@ -345,7 +345,7 @@ def train_on_synthetic_and_real_dataset(
     source_uri: str = (
         "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip"
     ),
-    config: str = "datasetinsights/configs/faster_rcnn_groceries_real.yaml",
+    config: str = "datasetinsights/configs/faster_rcnn_fine_tune.yaml",
     checkpoint_file: str = (
         "https://storage.googleapis.com/datasetinsights/models/"
         "sim2real/FasterRCNN.estimator"
