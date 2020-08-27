@@ -133,33 +133,10 @@ def test_match_boxes(mock_record):
         assert colors[i] == expected_colors[i]
 
 
-# @patch("datasetinsights.stats.visualization.bbox2d_plot._cv2.rectangle")
-# def test__add_single_bbox_on_image(mock):
-#     image = np.zeros((100, 200, 3))
-#     left, top, right, bottom = 0, 0, 1, 1
-#     color = "green"
-#     box_line_width = 15
-#     colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
-#     rgb_color, _ = colors
-#     _add_single_bbox_on_image(
-#         image,
-#         left,
-#         top,
-#         right,
-#         bottom,
-#         label="car",
-#         color=color,
-#         box_line_width=box_line_width,
-#     )
-#     mock.assert_any_call(
-#         image, (left, top), (right, bottom), rgb_color, box_line_width
-#     )
-
-
 @patch("datasetinsights.stats.visualization.bbox2d_plot._cv2.rectangle")
-def test__add_single_bbox_on_image_edge_case(mock):
+def test__add_single_bbox_on_image(mock):
     image = np.zeros((100, 200, 3))
-    left, top, right, bottom = 0, 150, 50, 200
+    left, top, right, bottom = 0, 0, 1, 1
     color = "green"
     box_line_width = 15
     colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
@@ -171,6 +148,29 @@ def test__add_single_bbox_on_image_edge_case(mock):
         right,
         bottom,
         label="car",
+        color=color,
+        box_line_width=box_line_width,
+    )
+    mock.assert_any_call(
+        image, (left, top), (right, bottom), rgb_color, box_line_width
+    )
+
+
+@patch("datasetinsights.stats.visualization.bbox2d_plot._cv2.rectangle")
+def test__add_single_bbox_on_image_crop_label(mock):
+    image = np.zeros((100, 200, 3))
+    left, top, right, bottom = 0, 70, 50, 99
+    color = "green"
+    box_line_width = 15
+    colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
+    rgb_color, _ = colors
+    _add_single_bbox_on_image(
+        image,
+        left,
+        top,
+        right,
+        bottom,
+        label="human",
         color=color,
         box_line_width=box_line_width,
     )

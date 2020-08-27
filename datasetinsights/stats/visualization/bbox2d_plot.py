@@ -129,7 +129,7 @@ def _add_single_bbox_on_image(
     _cv2.rectangle(image, (left, top), (right, bottom), color, box_line_width)
 
     if label:
-        _, image_width, _ = image.shape
+        image_height, image_width, _ = image.shape
 
         label_image = _get_label_image(label, color_text, color, font_size)
         label_height, label_width, _ = label_image.shape
@@ -159,4 +159,21 @@ def _add_single_bbox_on_image(
 
         _cv2.rectangle(image, rec_left_top, rec_right_bottom, color, -1)
 
-        image[label_top:label_bottom, label_left:label_right, :] = label_image
+        label_top = max(0, label_top)
+        label_bottom = min(image_height, label_bottom)
+        label_left = max(0, label_left)
+        label_right = min(image_width, label_right)
+        label_actual_width = label_right - label_left
+        label_actual_height = label_bottom - label_top
+        label_actual_size = label_actual_width * label_actual_height
+        # crop label image if it cross the image border
+        if label_actual_size < label_height * label_width:
+            image[
+                label_top:label_bottom, label_left:label_right, :
+            ] = label_image[
+                : (label_bottom - label_top), : (label_right - label_left), :
+            ]
+        else:
+            image[
+                label_top:label_bottom, label_left:label_right, :
+            ] = label_image
