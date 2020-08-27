@@ -42,7 +42,7 @@ def test_download_file_from_url():
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         dest_path = os.path.join(tmp_dir, "test.txt")
-        download_file(source_uri, dest_path, False, file_name="file.txt")
+        download_file(source_uri, dest_path, file_name="file.txt")
 
         assert os.path.exists(dest_path)
         assert open(dest_path, "rb").read() == body

@@ -247,8 +247,7 @@ def load_from_http(estimator, url):
 
     """
     with tempfile.TemporaryDirectory() as temp_dir:
-        path = os.path.join(temp_dir, "estimator_checkpoint")
-        logger.debug(f"Downloading estimator from {url} to {path}")
-        download_file(source_uri=url, dest_path=path)
+        logger.debug(f"Downloading estimator from {url} to {temp_dir}")
+        path = download_file(source_uri=url, dest_path=temp_dir)
         logger.debug(f"Loading estimator from {path}")
         estimator.load(path)
