@@ -92,7 +92,9 @@ def test_faster_rcnn_train_all(
     """test train on all epochs."""
     loss_val = 0.1
     mock_loss.return_value = loss_val
-    log_dir = tmp_name + "/train/"
+    log_dir = os.path.join(tmp_name, "train")
+    if not os.path.exists(log_dir):
+        os.mkdir(log_dir)
     writer = MagicMock()
     kfp_writer = MagicMock()
 

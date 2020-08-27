@@ -51,6 +51,8 @@ class EstimatorCheckpoint:
 
         if checkpoint_dir is None:
             checkpoint_dir = const.DEFAULT_CHECKPOINT_DIR
+            if not os.path.exists(checkpoint_dir):
+                os.makedirs(checkpoint_dir)
 
         if checkpoint_dir.startswith(const.GCS_BASE_STR):
             writer = GCSEstimatorWriter(checkpoint_dir, estimator_name)
@@ -58,7 +60,7 @@ class EstimatorCheckpoint:
             writer = LocalEstimatorWriter(checkpoint_dir, estimator_name)
         else:
             raise ValueError(
-                f"Can not use {checkpoint_dir} as checkpoint " f"directory."
+                f"Can not use {checkpoint_dir} as checkpoint directory."
             )
 
         return writer
