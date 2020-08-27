@@ -21,9 +21,9 @@ from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
 from datasetinsights.io.bbox import BBox2D
 from datasetinsights.io.transforms import Compose
+from datasetinsights.torch_distributed import get_world_size, is_master
 
 from .base import Estimator
-from .torch_distributed import get_world_size, is_master
 
 MAX_BOXES_PER_IMAGE = 100
 logger = logging.getLogger(__name__)

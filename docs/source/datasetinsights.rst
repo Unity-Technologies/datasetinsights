@@ -29,6 +29,14 @@ datasetinsights.main
    :undoc-members:
    :show-inheritance:
 
+datasetinsights.torch\_distributed
+----------------------------------
+
+.. automodule:: datasetinsights.torch_distributed
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 
 .. automodule:: datasetinsights

@@ -34,14 +34,6 @@ datasetinsights.estimators.faster\_rcnn
    :undoc-members:
    :show-inheritance:
 
-datasetinsights.estimators.torch\_distributed
----------------------------------------------
-
-.. automodule:: datasetinsights.estimators.torch_distributed
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 
 
 .. automodule:: datasetinsights.estimators
