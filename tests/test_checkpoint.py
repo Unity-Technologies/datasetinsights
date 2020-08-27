@@ -130,3 +130,16 @@ def test_get_loader_raises_error():
     filepath = "some/wrong/path"
     with pytest.raises(ValueError, match=r"Given path:"):
         EstimatorCheckpoint._get_loader_from_path(filepath)
+
+
+def test_create_writer_when_checkpoint_dir_none():
+    mock_local_writer = Mock()
+    with patch(
+        "datasetinsights.io.checkpoint.LocalEstimatorWriter",
+        MagicMock(return_value=mock_local_writer),
+    ):
+        writer = EstimatorCheckpoint._create_writer(
+            checkpoint_dir=None, estimator_name="abc"
+        )
+
+        assert writer == mock_local_writer
