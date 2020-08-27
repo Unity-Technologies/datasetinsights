@@ -97,7 +97,9 @@ def test_faster_rcnn_train_all(
     kfp_writer = MagicMock()
 
     checkpointer = EstimatorCheckpoint(
-        estimator_name=config.estimator, log_dir=log_dir, distributed=False,
+        estimator_name=config.estimator,
+        checkpoint_dir=log_dir,
+        distributed=False,
     )
 
     estimator = FasterRCNN(
@@ -280,7 +282,9 @@ def test_faster_rcnn_save(config):
     kfp_writer = MagicMock()
     writer = MagicMock()
     checkpointer = EstimatorCheckpoint(
-        estimator_name=config.estimator, log_dir=log_dir, distributed=False,
+        estimator_name=config.estimator,
+        checkpoint_dir=log_dir,
+        distributed=False,
     )
     estimator = FasterRCNN(
         config=config,
@@ -313,7 +317,9 @@ def test_faster_rcnn_load(config):
     kfp_writer = MagicMock()
     writer = SummaryWriter(config.logdir, write_to_disk=True)
     checkpointer = EstimatorCheckpoint(
-        estimator_name=config.estimator, log_dir=log_dir, distributed=False,
+        estimator_name=config.estimator,
+        checkpoint_dir=log_dir,
+        distributed=False,
     )
     estimator = FasterRCNN(
         config=config,
@@ -419,7 +425,9 @@ def test_faster_rcnn_predict(config, dataset):
     kfp_writer = MagicMock()
     writer = MagicMock()
     checkpointer = EstimatorCheckpoint(
-        estimator_name=config.estimator, log_dir="/tmp", distributed=False,
+        estimator_name=config.estimator,
+        checkpoint_dir="/tmp",
+        distributed=False,
     )
     estimator = FasterRCNN(
         config=config,
