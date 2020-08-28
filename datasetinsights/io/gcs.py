@@ -1,6 +1,7 @@
 import base64
 import logging
 import os
+import re
 from os import makedirs
 from os.path import basename, isdir
 from pathlib import Path
@@ -8,11 +9,7 @@ from pathlib import Path
 from google.cloud.storage import Client
 
 from datasetinsights.io.download import validate_checksum
-from datasetinsights.io.exceptions import (
-    ChecksumError,
-    DownloadError,
-    UploadError,
-)
+from datasetinsights.io.exceptions import ChecksumError
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +19,9 @@ class GCSClient:
         and perform function such as downloading the dataset and checksum
         validation.
     """
+
+    GCS_PREFIX = "^gs://"
+    KEY_SEPARATOR = "/"
 
     def __init__(self, **kwargs):
         """ Initialize a client to google cloud storage (GCS).
@@ -82,24 +82,17 @@ class GCSClient:
     def _download_blob(self, blob, local_file_path):
         """ download blob from gcs
         Raises:
-            DownloadError: This will raise this error if download doesn't
-                           complete
+            NotFound: This will raise when object not found
         """
         dst_dir = local_file_path.replace("/" + basename(local_file_path), "")
         key = blob.name
         if not isdir(dst_dir):
             makedirs(dst_dir)
-        try:
-            logger.info(f"Downloading from {key} to {local_file_path}.")
-            blob.download_to_filename(local_file_path)
-        except DownloadError as e:
-            logger.info(
-                f"The request download from {key} -> {local_file_path} can't "
-                f"be completed."
-            )
-            raise e
 
-    def _checksum(self, blob, dst_file_name):
+        logger.info(f"Downloading from {key} to {local_file_path}.")
+        blob.download_to_filename(local_file_path)
+
+    def _checksum(self, blob, filename):
         """validate checksum and delete file if checksum does not match
 
         Raises:
@@ -108,24 +101,24 @@ class GCSClient:
         """
         expected_checksum = blob.md5_hash
         if expected_checksum:
-            expected_checksum_hex = self._MD5_hex(expected_checksum)
+            expected_checksum_hex = self._md5_hex(expected_checksum)
             try:
                 validate_checksum(
-                    dst_file_name, expected_checksum_hex, algorithm="MD5"
+                    filename, expected_checksum_hex, algorithm="MD5"
                 )
             except ChecksumError as e:
-                logger.info("Checksum mismatch. Delete the downloaded files.")
-                os.remove(dst_file_name)
+                logger.exception(
+                    "Checksum mismatch. Delete the downloaded files."
+                )
+                os.remove(filename)
                 raise e
 
     def _is_file(self, bucket, key):
-        """given key is file or directory"""
+        """Check if the key is a file or directory"""
         blob = bucket.get_blob(key)
-        if blob:
-            return blob.name == key
-        return False
+        return blob and blob.name == key
 
-    def _MD5_hex(self, checksum):
+    def _md5_hex(self, checksum):
         """fix the missing padding if requires and converts into hex"""
         missing_padding = len(checksum) % 4
         if missing_padding != 0:
@@ -134,20 +127,19 @@ class GCSClient:
 
     def _parse(self, url):
         """Split an GCS-prefixed URL into bucket and path."""
-        gcs_prefix = "gs://"
-        key_separator = "/"
-        if not url.startswith(gcs_prefix):
+        match = re.search(self.GCS_PREFIX, url)
+        if not match:
             raise ValueError(
                 f"Specified destination prefix: {url} does not start "
-                f"with {gcs_prefix}"
+                f"with {self.GCS_PREFIX}"
             )
-        url = url[len(gcs_prefix) :]
-        if key_separator not in url:
+        url = url[len(self.GCS_PREFIX) - 1 :]
+        if self.KEY_SEPARATOR not in url:
             raise ValueError(
-                f"Specified destination prefix: {gcs_prefix + url} does "
+                f"Specified destination prefix: {self.GCS_PREFIX + url} does "
                 f"not have object key "
             )
-        idx = url.index("/")
+        idx = url.index(self.KEY_SEPARATOR)
         bucket = url[:idx]
         path = url[(idx + 1) :]
 
@@ -160,10 +152,10 @@ class GCSClient:
 
             Args:
                 url (str): This is the gcs location that indicates where
-                                  the dataset should be uploaded.
+                the dataset should be uploaded.
 
                 local_path (str): This is the path to the directory or file
-                                  where the data is stored.
+                where the data is stored.
 
                 bucket (str): gcs bucket name
                 key (str): object key path
@@ -201,15 +193,8 @@ class GCSClient:
         """ Upload a single object to GCS
         """
         blob = bucket.blob(key)
-        try:
-            logger.info(f"Uploading from {local_path} to {key}.")
-            blob.upload_from_filename(local_path)
-        except UploadError as e:
-            logger.info(
-                f"The request upload from {local_path} -> {key} can't "
-                f"be completed."
-            )
-            raise e
+        logger.info(f"Uploading from {local_path} to {key}.")
+        blob.upload_from_filename(local_path)
 
     def _upload_folder(
         self, local_path=None, bucket=None, key=None, pattern="*"
