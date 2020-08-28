@@ -124,29 +124,29 @@ class FasterRCNN(Estimator):
             self.rank = 0
             logger.info("Not using distributed mode")
             self.distributed = False
+            return
 
-        if self.gpu != 0 and self.rank != 0:
-            device_count = torch.cuda.device_count()
-            logger.info(f"device count: {torch.cuda.device_count()}")
-            logger.info(f"world size: {self.world_size}")
-            logger.info(f"gpu: {self.gpu}")
-            logger.info(f"local rank {self.rank}")
-            if device_count == 0:
-                logger.info("No cuda devices found, will not parallelize")
-                self.distributed = False
-            else:
-                if not is_master():
-                    logging.disable(logging.ERROR)
-                self.distributed = True
-                torch.cuda.set_device(self.gpu)
+        device_count = torch.cuda.device_count()
+        logger.info(f"device count: {torch.cuda.device_count()}")
+        logger.info(f"world size: {self.world_size}")
+        logger.info(f"gpu: {self.gpu}")
+        logger.info(f"local rank {self.rank}")
+        if device_count == 0:
+            logger.info("No cuda devices found, will not parallelize")
+            self.distributed = False
+            return
+        if not is_master():
+            logging.disable(logging.ERROR)
+        self.distributed = True
+        torch.cuda.set_device(self.gpu)
 
-                torch.distributed.init_process_group(
-                    backend="nccl",
-                    init_method="env://",
-                    world_size=self.world_size,
-                    rank=self.rank,
-                )
-                torch.distributed.barrier()
+        torch.distributed.init_process_group(
+            backend="nccl",
+            init_method="env://",
+            world_size=self.world_size,
+            rank=self.rank,
+        )
+        torch.distributed.barrier()
 
     def _init_device(self):
         if torch.cuda.is_available() and not self.no_cuda:
