@@ -87,26 +87,6 @@ def test_gcs_estimator_checkpoint_save():
             )
 
 
-def test_create_writer():
-    mock_local_writer = Mock()
-    with patch(
-        "datasetinsights.io.checkpoint.LocalEstimatorWriter",
-        MagicMock(return_value=mock_local_writer),
-    ):
-        writer = EstimatorCheckpoint._create_writer("/path/to/folder", "abc")
-
-        assert writer == mock_local_writer
-
-    mock_gcs_writer = Mock()
-    with patch(
-        "datasetinsights.io.checkpoint.GCSEstimatorWriter",
-        MagicMock(return_value=mock_gcs_writer),
-    ):
-        writer = EstimatorCheckpoint._create_writer("gs://abucket/path", "def")
-
-        assert writer == mock_gcs_writer
-
-
 @pytest.mark.parametrize("filepath", ["https://some/path", "http://some/path"])
 def test_get_http_loader_from_path(filepath):
     loader = EstimatorCheckpoint._get_loader_from_path(filepath)
@@ -130,3 +110,46 @@ def test_get_loader_raises_error():
     filepath = "some/wrong/path"
     with pytest.raises(ValueError, match=r"Given path:"):
         EstimatorCheckpoint._get_loader_from_path(filepath)
+
+
+def test_create_writer_when_checkpoint_dir_none():
+    mock_local_writer = Mock()
+    with patch(
+        "datasetinsights.io.checkpoint.LocalEstimatorWriter",
+        MagicMock(return_value=mock_local_writer),
+    ):
+        writer = EstimatorCheckpoint._create_writer(
+            checkpoint_dir=None, estimator_name="abc"
+        )
+
+        assert writer == mock_local_writer
+
+
+def test_create_writer_when_checkpoint_dir_gcs():
+    mock_gcs_writer = Mock()
+    with patch(
+        "datasetinsights.io.checkpoint.GCSEstimatorWriter",
+        MagicMock(return_value=mock_gcs_writer),
+    ):
+        writer = EstimatorCheckpoint._create_writer("gs://abucket/path", "def")
+
+        assert writer == mock_gcs_writer
+
+
+def test_create_writer_when_checkpoint_dir_local():
+    mock_local_writer = Mock()
+    with patch(
+        "datasetinsights.io.checkpoint.LocalEstimatorWriter",
+        MagicMock(return_value=mock_local_writer),
+    ):
+        with tempfile.TemporaryDirectory() as tmp:
+            writer = EstimatorCheckpoint._create_writer(tmp, "abc")
+
+            assert writer == mock_local_writer
+
+
+def test_create_raises_value_error():
+    incorrect_checkpoint_dir = "http://some/path"
+
+    with pytest.raises(ValueError):
+        EstimatorCheckpoint._create_writer(incorrect_checkpoint_dir, "abc")
