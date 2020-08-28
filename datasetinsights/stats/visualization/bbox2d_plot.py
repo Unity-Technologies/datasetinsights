@@ -161,22 +161,44 @@ def _add_single_bbox_on_image(
         rec_right_bottom = (rectangle_right, rectangle_bottom)
 
         _cv2.rectangle(image, rec_left_top, rec_right_bottom, color, -1)
+        _add_label_on_image(
+            label_left,
+            label_top,
+            label_right,
+            label_bottom,
+            label_image,
+            image_height,
+            image_width,
+            image,
+        )
 
-        label_top = max(0, label_top)
-        label_bottom = min(image_height, label_bottom)
-        label_left = max(0, label_left)
-        label_right = min(image_width, label_right)
-        label_actual_width = label_right - label_left
-        label_actual_height = label_bottom - label_top
-        label_actual_size = label_actual_width * label_actual_height
-        # crop label image if it cross the image border
-        if label_actual_size < label_height * label_width:
-            image[
-                label_top:label_bottom, label_left:label_right, :
-            ] = label_image[
-                : (label_bottom - label_top), : (label_right - label_left), :
-            ]
-        else:
-            image[
-                label_top:label_bottom, label_left:label_right, :
-            ] = label_image
+
+def _add_label_on_image(
+    label_left,
+    label_top,
+    label_right,
+    label_bottom,
+    label_image,
+    image_height,
+    image_width,
+    image,
+):
+    """Add a label on a bounding box.
+
+    Add a label on a bounding box. Crop the label image if it cross the image
+    border.
+    """
+    label_height, label_width, _ = label_image.shape
+    label_top = max(0, label_top)
+    label_bottom = min(image_height, label_bottom)
+    label_left = max(0, label_left)
+    label_right = min(image_width, label_right)
+    label_actual_width = label_right - label_left
+    label_actual_height = label_bottom - label_top
+    label_actual_size = label_actual_width * label_actual_height
+    if label_actual_size < label_height * label_width:
+        image[label_top:label_bottom, label_left:label_right, :] = label_image[
+            : (label_bottom - label_top), : (label_right - label_left), :
+        ]
+    else:
+        image[label_top:label_bottom, label_left:label_right, :] = label_image
