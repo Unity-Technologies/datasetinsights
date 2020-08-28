@@ -1,10 +1,33 @@
 import logging
+from pathlib import Path
 
 import datasetinsights.constants as const
 from datasetinsights.datasets.unity_perception import MetricDefinitions, Metrics
 from datasetinsights.datasets.unity_perception.tables import SCHEMA_VERSION
+from datasetinsights.io.downloader.unity_simulation import Downloader
 
 logger = logging.getLogger(__name__)
+
+
+def download(data_root, manifest_file, use_cache=True):
+    """Download dataset for dataset statistics
+    Args:
+        data_root (str): root directory where the dataset should be downloaded.
+        manifest_file (str): path to USim simulation manifest file.
+        use_cache (bool): set to False to override already downloaded files
+
+    Returns
+        str: root directory where the dataset is downloaded.
+    """
+    path = Path(data_root)
+    path.mkdir(parents=True, exist_ok=True)
+
+    dl = Downloader(manifest_file, data_root, use_cache=use_cache)
+    dl.download_metrics()
+    dl.download_references()
+    dl.download_captures()
+
+    return data_root
 
 
 class RenderedObjectInfo:
