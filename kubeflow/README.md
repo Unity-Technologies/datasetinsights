@@ -43,7 +43,7 @@ for more information on AP.
 The development virtual environment have [kfp](https://pypi.org/project/kfp/) installed.
 This is currently not required by datasetinsignts framework unless we want to directly use CLI to create/submit new pipelines.
 
-Compile Kubeflow pipeline
+Run the following commands from `kubeflow` directory to compile Kubeflow pipeline:
 
 ```
 dsl-compile --py=pipelines.py --function=<function> --output=compiled/<function>.yaml

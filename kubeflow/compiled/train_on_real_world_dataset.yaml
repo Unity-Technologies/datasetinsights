@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: train-on-real-world-dataset-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0, pipelines.kubeflow.org/pipeline_compilation_time: '2020-08-18T15:23:48.521992',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 0.5.1, pipelines.kubeflow.org/pipeline_compilation_time: '2020-08-27T17:25:14.445243',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Train on real world dataset",
       "inputs": [{"default": "unitytechnologies/datasetinsights:latest", "name": "docker",
       "optional": true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip",
@@ -12,7 +12,7 @@ metadata:
       "name": "checkpoint_dir", "optional": true, "type": "String"}, {"default": "100Gi",
       "name": "volume_size", "optional": true, "type": "String"}], "name": "Train
       on real world dataset"}'}
-  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 0.5.1}
 spec:
   entrypoint: train-on-real-world-dataset
   templates:
@@ -35,6 +35,8 @@ spec:
       - {name: docker}
       - {name: pvc-name}
       - {name: source_uri}
+    metadata:
+      labels: {pipelines.kubeflow.org/pipeline-sdk-type: kfp}
     volumes:
     - name: gcp-credentials-user-gcp-sa
       secret: {secretName: user-gcp-sa}
@@ -65,6 +67,8 @@ spec:
         valueFrom: {jsonPath: '{.metadata.name}'}
       - name: pvc-size
         valueFrom: {jsonPath: '{.status.capacity.storage}'}
+    metadata:
+      labels: {pipelines.kubeflow.org/pipeline-sdk-type: kfp}
   - name: train
     container:
       args: ['--config={{inputs.parameters.config}}', --train-data=/data, --val-data=/data,
@@ -88,6 +92,8 @@ spec:
       - {name: pvc-name}
       - {name: tb_log_dir}
     nodeSelector: {cloud.google.com/gke-accelerator: nvidia-tesla-v100}
+    metadata:
+      labels: {pipelines.kubeflow.org/pipeline-sdk-type: kfp}
     volumes:
     - name: gcp-credentials-user-gcp-sa
       secret: {secretName: user-gcp-sa}
