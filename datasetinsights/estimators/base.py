@@ -40,7 +40,7 @@ def create_estimator(
         filename=kfp_metrics_dir, filepath=kfp_metrics_filename,
     )
     checkpointer = EstimatorCheckpoint(
-        estimator_name=name, log_dir=checkpoint_dir, distributed=False,
+        estimator_name=name, checkpoint_dir=checkpoint_dir, distributed=False,
     )
 
     return estimators_cls(

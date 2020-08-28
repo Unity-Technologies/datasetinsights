@@ -100,7 +100,9 @@ def test_faster_rcnn_train_all(
     """test train on all epochs."""
     loss_val = 0.1
     mock_loss.return_value = loss_val
-    log_dir = tmp_name + "/train/"
+    log_dir = os.path.join(tmp_name, "train")
+    if not os.path.exists(log_dir):
+        os.mkdir(log_dir)
     writer = MagicMock()
 
     # XXX This is just a hot fix to prevent a mysterious folder such as:
@@ -111,7 +113,9 @@ def test_faster_rcnn_train_all(
     kfp_writer = MagicMock()
 
     checkpointer = EstimatorCheckpoint(
-        estimator_name=config.estimator, log_dir=log_dir, distributed=False,
+        estimator_name=config.estimator,
+        checkpoint_dir=log_dir,
+        distributed=False,
     )
 
     estimator = FasterRCNN(
@@ -327,7 +331,9 @@ def test_faster_rcnn_save(config):
     writer.logdir = tmp_name
 
     checkpointer = EstimatorCheckpoint(
-        estimator_name=config.estimator, log_dir=log_dir, distributed=False,
+        estimator_name=config.estimator,
+        checkpoint_dir=log_dir,
+        distributed=False,
     )
     estimator = FasterRCNN(
         config=config,
@@ -360,7 +366,9 @@ def test_faster_rcnn_load(config):
     kfp_writer = MagicMock()
     writer = SummaryWriter(config.logdir, write_to_disk=True)
     checkpointer = EstimatorCheckpoint(
-        estimator_name=config.estimator, log_dir=log_dir, distributed=False,
+        estimator_name=config.estimator,
+        checkpoint_dir=log_dir,
+        distributed=False,
     )
     estimator = FasterRCNN(
         config=config,
@@ -478,7 +486,9 @@ def test_faster_rcnn_predict(config, dataset):
     writer.logdir = tmp_name
 
     checkpointer = EstimatorCheckpoint(
-        estimator_name=config.estimator, log_dir="/tmp", distributed=False,
+        estimator_name=config.estimator,
+        checkpoint_dir="/tmp",
+        distributed=False,
     )
     estimator = FasterRCNN(
         config=config,
