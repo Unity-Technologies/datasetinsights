@@ -84,4 +84,6 @@ class Cityscapes(Dataset):
                 f"Downloading file {localfile} from gs://{const.GCS_BUCKET}/"
                 f"{object_key}"
             )
-            client.download(const.GCS_BUCKET, object_key, localfile)
+            client.download(
+                local_path=self.root, bucket=const.GCS_BUCKET, key=object_key
+            )
