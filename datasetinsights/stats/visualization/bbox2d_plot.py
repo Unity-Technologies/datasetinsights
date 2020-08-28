@@ -113,6 +113,9 @@ def _add_single_bbox_on_image(
     box_line_width=15,
 ):
     """ Add single bounding box with label on a given image.
+
+    Add single bounding box and a label text with label on a given image. If the
+    label text exceeds the original image border, it would be cropped.
     """
     try:
         left, top, right, bottom = int(left), int(top), int(right), int(bottom)
