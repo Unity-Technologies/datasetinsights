@@ -47,7 +47,6 @@ def config():
 def test_faster_rcnn_train_one_epoch(config, dataset):
     """test train one epoch."""
     writer = MagicMock()
-    writer.logdir = tmp_name
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
     estimator = FasterRCNN(
@@ -97,7 +96,6 @@ def test_faster_rcnn_train_all(
     if not os.path.exists(log_dir):
         os.mkdir(log_dir)
     writer = MagicMock()
-    writer.logdir = tmp_name
     kfp_writer = MagicMock()
 
     checkpointer = EstimatorCheckpoint(
@@ -160,7 +158,6 @@ def test_faster_rcnn_train(
 
     kfp_writer = MagicMock()
     writer = MagicMock()
-    writer.logdir = tmp_name
     writer.add_scalar = MagicMock()
     writer.add_scalars = MagicMock()
     writer.add_figure = MagicMock()
@@ -187,7 +184,6 @@ def test_faster_rcnn_evaluate_per_epoch(mock_loss, config, dataset):
     ckpt_dir = tmp_name + "/train/FasterRCNN.estimator"
     config.checkpoint_file = ckpt_dir
     writer = MagicMock()
-    writer.logdir = tmp_name
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
     writer.add_scalar = MagicMock()
@@ -238,7 +234,6 @@ def test_faster_rcnn_evaluate(
     ckpt_dir = tmp_name + "/train/FasterRCNN.estimator"
     config.checkpoint_file = ckpt_dir
     writer = MagicMock()
-    writer.logdir = tmp_name
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
     writer.add_scalar = MagicMock()
@@ -259,7 +254,6 @@ def test_faster_rcnn_evaluate(
 def test_faster_rcnn_log_metric_val(config):
     """test log metric val."""
     writer = MagicMock()
-    writer.logdir = tmp_name
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
     writer.add_scalar = MagicMock()
@@ -289,7 +283,6 @@ def test_faster_rcnn_save(config):
     log_dir = tmp_name + "/train/"
     kfp_writer = MagicMock()
     writer = MagicMock()
-    writer.logdir = tmp_name
     checkpointer = EstimatorCheckpoint(
         estimator_name=config.estimator,
         checkpoint_dir=log_dir,
@@ -406,7 +399,6 @@ def test_create_optimizer(mock_lr, mock_adm, config, dataset):
     mock_adm.return_value = MagicMock()
 
     writer = MagicMock()
-    writer.logdir = tmp_name
     kfp_writer = MagicMock()
     checkpointer = MagicMock()
     estimator = FasterRCNN(
@@ -434,7 +426,6 @@ def test_faster_rcnn_predict(config, dataset):
     checkpoint_file = tmp_name + "/train/FasterRCNN.estimator"
     kfp_writer = MagicMock()
     writer = MagicMock()
-    writer.logdir = tmp_name
     checkpointer = EstimatorCheckpoint(
         estimator_name=config.estimator,
         checkpoint_dir="/tmp",
