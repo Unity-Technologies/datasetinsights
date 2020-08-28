@@ -2,8 +2,8 @@ import logging
 
 import click
 
-from .commands import Entrypoint
-from .constants import CONTEXT_SETTINGS
+from datasetinsights.commands import Entrypoint
+from datasetinsights.constants import CONTEXT_SETTINGS
 
 logging.basicConfig(
     level=logging.INFO,
