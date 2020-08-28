@@ -12,7 +12,7 @@ from PIL import Image
 
 import datasetinsights.constants as const
 from datasetinsights.io.bbox import BBox2D
-from datasetinsights.io.gcs import download_file_from_gcs
+from datasetinsights.io.gcs import GCSClient
 
 from .base import Dataset
 from .exceptions import DatasetNotFoundError
@@ -358,17 +358,16 @@ class GoogleGroceriesReal(Dataset):
         """Download dataset from GCS
         """
         cloud_path = f"gs://{const.GCS_BUCKET}/{self.GCS_PATH}"
+        client = GCSClient()
         # download label file
-        label_zip = download_file_from_gcs(
-            cloud_path, self.root, self.LABEL_ZIP
-        )
+        label_zip = self.LABEL_ZIP
+        client.download(url=cloud_path, local_path=self.root)
         with zipfile.ZipFile(label_zip, "r") as zip_dir:
             zip_dir.extractall(self.root)
 
         # download tfexamples for a dataset split
-        tfexamples_zip = download_file_from_gcs(
-            cloud_path, self.root, self.SPLITS_ZIP.get(self.split)
-        )
+        tfexamples_zip = self.SPLITS_ZIP.get(self.split)
+        client.download(url=cloud_path, local_path=self.root)
         with zipfile.ZipFile(tfexamples_zip, "r") as zip_dir:
             zip_dir.extractall(self.root)
 

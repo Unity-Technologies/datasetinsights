@@ -2,12 +2,12 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: train-on-synthetic-real-world-dataset-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0, pipelines.kubeflow.org/pipeline_compilation_time: '2020-08-18T15:23:49.249180',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0, pipelines.kubeflow.org/pipeline_compilation_time: '2020-08-28T12:34:16.260422',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Train on Synthetic + Real
       World Dataset", "inputs": [{"default": "unitytechnologies/datasetinsights:latest",
       "name": "docker", "optional": true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip",
-      "name": "source_uri", "optional": true, "type": "String"}, {"default": "datasetinsights/configs/faster_rcnn_groceries_real.yaml",
-      "name": "config", "optional": true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/models/sim2real/FasterRCNN.estimator",
+      "name": "source_uri", "optional": true, "type": "String"}, {"default": "datasetinsights/configs/faster_rcnn_fine_tune.yaml",
+      "name": "config", "optional": true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/models/Synthetic/FasterRCNN.estimator",
       "name": "checkpoint_file", "optional": true, "type": "String"}, {"default":
       "gs://<bucket>/runs/yyyymmdd-hhmm", "name": "tb_log_dir", "optional": true,
       "type": "String"}, {"default": "gs://<bucket>/checkpoints/yyyymmdd-hhmm", "name":
@@ -137,8 +137,8 @@ spec:
     parameters:
     - {name: docker, value: 'unitytechnologies/datasetinsights:latest'}
     - {name: source_uri, value: 'https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip'}
-    - {name: config, value: datasetinsights/configs/faster_rcnn_groceries_real.yaml}
-    - {name: checkpoint_file, value: 'https://storage.googleapis.com/datasetinsights/models/sim2real/FasterRCNN.estimator'}
+    - {name: config, value: datasetinsights/configs/faster_rcnn_fine_tune.yaml}
+    - {name: checkpoint_file, value: 'https://storage.googleapis.com/datasetinsights/models/Synthetic/FasterRCNN.estimator'}
     - {name: tb_log_dir, value: 'gs://<bucket>/runs/yyyymmdd-hhmm'}
     - {name: checkpoint_dir, value: 'gs://<bucket>/checkpoints/yyyymmdd-hhmm'}
     - {name: volume_size, value: 100Gi}
