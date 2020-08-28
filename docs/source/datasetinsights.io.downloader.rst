@@ -10,6 +10,14 @@ datasetinsights.io.downloader.base
    :undoc-members:
    :show-inheritance:
 
+datasetinsights.io.downloader.gcs\_downloader
+---------------------------------------------
+
+.. automodule:: datasetinsights.io.downloader.gcs_downloader
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 datasetinsights.io.downloader.http\_downloader
 ----------------------------------------------
 

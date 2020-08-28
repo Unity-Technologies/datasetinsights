@@ -385,9 +385,7 @@ class Kitti(Dataset):
         local_file = local_file or os.path.join(self.root, SAMPLEX_INDICES_FILE)
         object_key = object_key or f"{KITTI_GCS_PATH}/splits/{self.split}.txt"
         cloud_client.download(
-            bucket_name=const.GCS_BUCKET,
-            object_key=object_key,
-            localfile=local_file,
+            local_path=self.root, bucket=const.GCS_BUCKET, key=object_key
         )
         return local_file
 
@@ -404,7 +402,7 @@ class Kitti(Dataset):
         for z in all_zips:
             local_path = os.path.join(self.root, z.split("/")[-1])
             cloud_client.download(
-                bucket_name=const.GCS_BUCKET, object_key=z, localfile=local_path
+                local_path=self.root, bucket=const.GCS_BUCKET, key=z
             )
             local_zips.append(local_path)
 

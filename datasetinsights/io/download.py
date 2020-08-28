@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import os
 import re
@@ -40,7 +41,7 @@ def download_file(source_uri: str, dest_path: str, file_name: str = None):
     Returns:
         String of destination path.
     """
-    logger.debug(f"Trying to download file from {source_uri} -> {dest_path}")
+    logger.info(f"Trying to download file from {source_uri} -> {dest_path}")
     adapter = TimeoutHTTPAdapter(
         timeout=DEFAULT_TIMEOUT, max_retries=Retry(total=DEFAULT_MAX_RETRIES)
     )
@@ -111,6 +112,8 @@ def compute_checksum(filepath, algorithm="CRC32"):
     """
     if algorithm == "CRC32":
         chs = _crc32_checksum(filepath)
+    elif algorithm == "MD5":
+        chs = _md5_checksum(filepath)
     else:
         raise ValueError("Unsupported checksum algorithm!")
 
@@ -124,6 +127,16 @@ def _crc32_checksum(filepath):
         checksum = zlib.crc32(f.read())
 
     return checksum
+
+
+def _md5_checksum(filename):
+    """ Calculate the checksum of a file using MD5.
+    """
+    md5 = hashlib.md5()
+    with open(filename, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            md5.update(chunk)
+    return md5.hexdigest()
 
 
 def get_checksum_from_file(filepath):

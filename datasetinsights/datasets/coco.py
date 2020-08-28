@@ -153,9 +153,9 @@ class CocoDetection(Dataset):
         if not os.path.exists(annotations_zip_2017):
             logger.info(f"no annotations zip file found, will download.")
             client.download(
-                bucket_name=const.GCS_BUCKET,
-                object_key=annotations_zip_gcs,
-                localfile=annotations_zip_2017,
+                local_path=self.root,
+                bucket=const.GCS_BUCKET,
+                key=annotations_zip_gcs,
             )
             with zipfile.ZipFile(annotations_zip_2017, "r") as zip_dir:
                 zip_dir.extractall(self.root)
@@ -167,9 +167,7 @@ class CocoDetection(Dataset):
                 f" will download"
             )
             client.download(
-                bucket_name=const.GCS_BUCKET,
-                object_key=images_gcs,
-                localfile=images_local,
+                local_path=self.root, bucket=const.GCS_BUCKET, key=images_gcs,
             )
             with zipfile.ZipFile(images_local, "r") as zip_dir:
                 zip_dir.extractall(self.root)
