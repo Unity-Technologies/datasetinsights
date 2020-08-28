@@ -24,38 +24,44 @@ class EstimatorCheckpoint:
 
     Args:
         estimator_name (str): name of the estimator
-        log_dir (str): log directory
+        checkpoint_dir (str): Directory where checkpoints are stored
         distributed (bool): boolean to determine distributed training
 
     Attributes:
-        log_dir (str): log directory
+        checkpoint_dir (str): Directory where checkpoints are stored
         distributed (bool): boolean to determine distributed training
 
     """
 
-    def __init__(self, estimator_name, log_dir, distributed):
-        # Todo: rename log_dir to checkpint_dir
+    def __init__(self, estimator_name, checkpoint_dir, distributed):
         self.distributed = distributed
-        self._writer = self._create_writer(log_dir, estimator_name)
+        self._writer = self._create_writer(checkpoint_dir, estimator_name)
 
     @staticmethod
-    def _create_writer(log_dir, estimator_name):
+    def _create_writer(checkpoint_dir, estimator_name):
         """Creates writer object for saving checkpoints based on log_dir.
 
         Args:
-            log_dir: Directory where logging happens.
+            checkpoint_dir: Directory where checkpoints are stored
             estimator_name: Name of the estimator.
 
         Returns:
             Writer object (GCS or Local).
         """
-        # TODO: This will fail if user specified an empty log_dir. This should
-        # be fixed to support uses case when user does not want to specify
-        # logdir
-        if log_dir.startswith(const.GCS_BASE_STR):
-            writer = GCSEstimatorWriter(log_dir, estimator_name)
+
+        if checkpoint_dir is None:
+            checkpoint_dir = const.DEFAULT_CHECKPOINT_DIR
+            if not os.path.exists(checkpoint_dir):
+                os.makedirs(checkpoint_dir)
+
+        if checkpoint_dir.startswith(const.GCS_BASE_STR):
+            writer = GCSEstimatorWriter(checkpoint_dir, estimator_name)
+        elif os.path.isdir(checkpoint_dir):
+            writer = LocalEstimatorWriter(checkpoint_dir, estimator_name)
         else:
-            writer = LocalEstimatorWriter(log_dir, estimator_name)
+            raise ValueError(
+                f"Can not use {checkpoint_dir} as checkpoint directory."
+            )
 
         return writer
 
