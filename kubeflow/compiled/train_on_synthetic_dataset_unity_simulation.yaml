@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: train-on-synthetic-dataset-unity-simulation-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0, pipelines.kubeflow.org/pipeline_compilation_time: '2020-08-18T15:23:49.990041',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0, pipelines.kubeflow.org/pipeline_compilation_time: '2020-08-28T20:50:57.136369',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Train on synthetic dataset
       Unity Simulation", "inputs": [{"default": "unitytechnologies/datasetinsights:latest",
       "name": "docker", "optional": true, "type": "String"}, {"default": "<unity-project-id>",
@@ -75,7 +75,7 @@ spec:
     container:
       args: ['--config={{inputs.parameters.config}}', --train-data=/data, --val-data=/data,
         '--tb-log-dir={{inputs.parameters.tb_log_dir}}', '--checkpoint-dir={{inputs.parameters.checkpoint_dir}}']
-      command: [python, -m, torch.distributed.launch, --nproc_per_node=8, datasetinsights,
+      command: [python, -m, torch.distributed.launch, --nproc_per_node=8, -m, datasetinsights,
         train]
       env:
       - {name: GOOGLE_APPLICATION_CREDENTIALS, value: /secret/gcp-credentials/user-gcp-sa.json}
