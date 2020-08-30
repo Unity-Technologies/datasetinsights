@@ -11,6 +11,7 @@ from datasetinsights.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
 from datasetinsights.io.bbox import BBox2D
 from datasetinsights.stats.visualization.bbox2d_plot import (
     _COLOR_NAME_TO_RGB,
+    _add_label_on_image,
     _add_single_bbox_on_image,
     add_single_bbox_on_image,
 )
@@ -22,6 +23,14 @@ from datasetinsights.stats.visualization.plots import (
     match_boxes,
     plot_bboxes,
 )
+
+
+@pytest.fixture
+def get_image_and_bbox():
+    """prepare an image and bounding box."""
+    bbox = BBox2D(label=1, x=1, y=1, w=2, h=3)
+    image = np.zeros((100, 200, 3))
+    return image, bbox
 
 
 def test_decode_segmap():
@@ -157,42 +166,63 @@ def test__add_single_bbox_on_image(mock):
 
 
 @patch("datasetinsights.stats.visualization.bbox2d_plot._cv2.rectangle")
-def test__add_single_bbox_on_image_crop_label(mock):
-    image = np.zeros((100, 200, 3))
+@patch("datasetinsights.stats.visualization.bbox2d_plot._add_label_on_image")
+@patch("datasetinsights.stats.visualization.bbox2d_plot._get_label_image")
+def test__add_single_bbox_on_image_crop_label(
+    mock_get_label, mock_add_label, mock_rect, get_image_and_bbox
+):
+    image, _ = get_image_and_bbox
     left, top, right, bottom = 0, 70, 50, 99
     color = "green"
+    label = "human"
     box_line_width = 15
+    font_size = 100
     colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
-    rgb_color, _ = colors
+    rgb_color, text_color = colors
+    mock_get_label.return_value = image
     _add_single_bbox_on_image(
         image,
         left,
         top,
         right,
         bottom,
-        label="human",
+        label=label,
         color=color,
         box_line_width=box_line_width,
     )
-    mock.assert_any_call(
+    mock_rect.assert_called_with(
         image, (left, top), (right, bottom), rgb_color, box_line_width
     )
+    mock_get_label.assert_called_with(label, text_color, rgb_color, font_size)
+    mock_add_label.assert_called_with(image, image, left, top, rgb_color)
 
 
-def test__add_single_bbox_on_image_throw_exception():
-    image = np.zeros((100, 200, 3))
+def test__add_single_bbox_on_image_throw_exception(get_image_and_bbox):
+    image, _ = get_image_and_bbox
     with pytest.raises(TypeError):
         _add_single_bbox_on_image(
             image, "bad", "bad", "bad", "bad", label="car"
         )
 
 
+@patch("datasetinsights.stats.visualization.bbox2d_plot._cv2.rectangle")
+@patch(
+    "datasetinsights.stats.visualization.bbox2d_plot._fix_label_at_image_edge"
+)
+def test__add_label_on_image(mock_fix_label, mock_rect, get_image_and_bbox):
+    image, _ = get_image_and_bbox
+    left, top = 0, 70
+    color = (0, 0, 0)
+    _add_label_on_image(image, image, left, top, color)
+    mock_rect.assert_called_once()
+    mock_fix_label.assert_called_once()
+
+
 @patch(
     "datasetinsights.stats.visualization.bbox2d_plot._add_single_bbox_on_image"
 )
-def test_add_single_bbox_on_image(mock):
-    bbox = BBox2D(label=1, x=1, y=1, w=2, h=3)
-    image = np.zeros((100, 200, 3))
+def test_add_single_bbox_on_image(mock, get_image_and_bbox):
+    image, bbox = get_image_and_bbox
     label = "car"
     color = "red"
     left, top = (bbox.x, bbox.y)
