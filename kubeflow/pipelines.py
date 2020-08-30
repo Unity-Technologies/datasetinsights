@@ -102,7 +102,6 @@ def train_op(
             "-m",
             "torch.distributed.launch",
             f"--nproc_per_node={num_gpu}",
-            "--use_env",
             "datasetinsights",
             "train",
         ]
