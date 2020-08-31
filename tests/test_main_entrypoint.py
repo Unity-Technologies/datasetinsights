@@ -3,11 +3,11 @@ from unittest.mock import patch
 import pytest
 from click.testing import CliRunner
 
-from datasetinsights.main import entrypoint
+from datasetinsights.__main__ import entrypoint
 
 
 @pytest.mark.parametrize("args", [[], ["-v"], ["-v", "invalid_command"]])
-@patch("datasetinsights.main.logging")
+@patch("datasetinsights.__main__.logging")
 def test_entrypoint_except_not_called(logger_mock, args):
     # arrange
     runner = CliRunner()
@@ -21,7 +21,7 @@ def test_entrypoint_except_not_called(logger_mock, args):
 @pytest.mark.parametrize(
     "args", [["-v", "train"], ["-v", "evaluate"], ["-v", "download"]]
 )
-@patch("datasetinsights.main.logging")
+@patch("datasetinsights.__main__.logging")
 def test_entrypoint_except_called_once(logger_mock, args):
     # arrange
     runner = CliRunner()

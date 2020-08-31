@@ -92,7 +92,7 @@ exclude = '''
 docs = ["sphinx-rtd-theme", "recommonmark"]
 
 [tool.poetry.scripts]
-datasetinsights = "datasetinsights.main:entrypoint"
+datasetinsights = "datasetinsights.__main__:entrypoint"
 
 [build-system]
 requires = ["poetry>=1.0.5"]
