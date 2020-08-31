@@ -1,8 +1,7 @@
 import pytest
 from yacs.config import CfgNode as CN
 
-from datasetinsights.estimators import create_estimator
-from datasetinsights.estimators import FasterRCNN
+from datasetinsights.estimators import FasterRCNN, create_estimator
 
 
 @pytest.fixture
@@ -16,9 +15,6 @@ def config():
 
 def test_create_estimator_with_config_expect_faster_rcnn(config):
 
-    estimator = create_estimator(
-        name=config.estimator,
-        config=config,
-    )
+    estimator = create_estimator(name=config.estimator, config=config,)
 
     assert isinstance(estimator, FasterRCNN)
