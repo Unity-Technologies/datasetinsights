@@ -227,8 +227,8 @@ class GroceriesReal(Dataset):
             Return:
                 Path of the dataset files.
             """
-        if GroceriesReal.is_dataset_files_present(data_path):
-            return data_path
+        # if GroceriesReal.is_dataset_files_present(data_path):
+        #     return data_path
 
         archive_file = Path(data_path) / GroceriesReal.ARCHIVE_FILES[version]
         if not archive_file.exists():
