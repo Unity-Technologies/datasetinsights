@@ -113,6 +113,9 @@ def _add_single_bbox_on_image(
     box_line_width=15,
 ):
     """ Add single bounding box with label on a given image.
+
+    Add single bounding box and a label text with label on a given image. If the
+    label text exceeds the original image border, it would be cropped.
     """
     try:
         left, top, right, bottom = int(left), int(top), int(right), int(bottom)
@@ -129,34 +132,66 @@ def _add_single_bbox_on_image(
     _cv2.rectangle(image, (left, top), (right, bottom), color, box_line_width)
 
     if label:
-        _, image_width, _ = image.shape
-
         label_image = _get_label_image(label, color_text, color, font_size)
-        label_height, label_width, _ = label_image.shape
+        _add_label_on_image(label_image, image, left, top, color)
 
-        rectangle_height, rectangle_width = 1 + label_height, 1 + label_width
 
-        rectangle_bottom = top
-        rectangle_left = max(0, min(left - 1, image_width - rectangle_width))
+def _add_label_on_image(label_image, image, left, top, color):
+    """Add a label on a bounding box.
 
-        rectangle_top = rectangle_bottom - rectangle_height
-        rectangle_right = rectangle_left + rectangle_width
+    Add a label on a bounding box. Crop the label image if it cross the image
+    border.
+    """
+    image_height, image_width, _ = image.shape
+    label_height, label_width, _ = label_image.shape
+    rectangle_height, rectangle_width = 1 + label_height, 1 + label_width
 
-        label_top = rectangle_top + 1
+    rectangle_bottom = top
+    rectangle_left = max(0, min(left - 1, image_width - rectangle_width))
 
-        if rectangle_top < 0:
-            rectangle_top = top
-            rectangle_bottom = rectangle_top + label_height + 1
+    rectangle_top = rectangle_bottom - rectangle_height
+    rectangle_right = rectangle_left + rectangle_width
 
-            label_top = rectangle_top
+    label_top = rectangle_top + 1
 
-        label_left = rectangle_left + 1
-        label_bottom = label_top + label_height
-        label_right = label_left + label_width
+    if rectangle_top < 0:
+        rectangle_top = top
+        rectangle_bottom = rectangle_top + label_height + 1
 
-        rec_left_top = (rectangle_left, rectangle_top)
-        rec_right_bottom = (rectangle_right, rectangle_bottom)
+        label_top = rectangle_top
 
-        _cv2.rectangle(image, rec_left_top, rec_right_bottom, color, -1)
+    label_left = rectangle_left + 1
+    label_bottom = label_top + label_height
+    label_right = label_left + label_width
 
+    rec_left_top = (rectangle_left, rectangle_top)
+    rec_right_bottom = (rectangle_right, rectangle_bottom)
+
+    _cv2.rectangle(image, rec_left_top, rec_right_bottom, color, -1)
+    _fix_label_at_image_edge(
+        label_image, label_left, label_top, label_right, label_bottom, image
+    )
+
+
+def _fix_label_at_image_edge(
+    label_image, label_left, label_top, label_right, label_bottom, image
+):
+    """Fix the label at image edge.
+
+    Crop the label image if it cross the image border.
+    """
+    image_height, image_width, _ = image.shape
+    label_height, label_width, _ = label_image.shape
+    label_top = max(0, label_top)
+    label_bottom = min(image_height, label_bottom)
+    label_left = max(0, label_left)
+    label_right = min(image_width, label_right)
+    label_actual_width = label_right - label_left
+    label_actual_height = label_bottom - label_top
+    label_actual_size = label_actual_width * label_actual_height
+    if label_actual_size < label_height * label_width:
+        image[label_top:label_bottom, label_left:label_right, :] = label_image[
+            : (label_bottom - label_top), : (label_right - label_left), :
+        ]
+    else:
         image[label_top:label_bottom, label_left:label_right, :] = label_image

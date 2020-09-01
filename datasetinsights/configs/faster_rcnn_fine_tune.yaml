@@ -3,7 +3,7 @@ backbone: resnet50
 num_classes: 64
 task: object_detection
 train:
-  epochs: 100
+  epochs: 30
   batch_size: 8
   accumulation_steps: 8
   log_frequency: 30
@@ -38,7 +38,7 @@ metrics:
 optimizer:
   name: Adam
   args:
-    lr: 2.0e-4
+    lr: 2.0e-5
 pretrained: False
 pretrained_backbone: True
 synchronize_metrics: True

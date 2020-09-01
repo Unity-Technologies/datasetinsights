@@ -6,7 +6,7 @@ import tempfile
 
 import datasetinsights.constants as const
 from datasetinsights.io.download import download_file
-from datasetinsights.io.gcs import GCSClient, gcs_bucket_and_path
+from datasetinsights.io.gcs import GCSClient
 from datasetinsights.torch_distributed import is_master
 
 logger = logging.getLogger(__name__)
@@ -24,38 +24,44 @@ class EstimatorCheckpoint:
 
     Args:
         estimator_name (str): name of the estimator
-        log_dir (str): log directory
+        checkpoint_dir (str): Directory where checkpoints are stored
         distributed (bool): boolean to determine distributed training
 
     Attributes:
-        log_dir (str): log directory
+        checkpoint_dir (str): Directory where checkpoints are stored
         distributed (bool): boolean to determine distributed training
 
     """
 
-    def __init__(self, estimator_name, log_dir, distributed):
-        # Todo: rename log_dir to checkpint_dir
+    def __init__(self, estimator_name, checkpoint_dir, distributed):
         self.distributed = distributed
-        self._writer = self._create_writer(log_dir, estimator_name)
+        self._writer = self._create_writer(checkpoint_dir, estimator_name)
 
     @staticmethod
-    def _create_writer(log_dir, estimator_name):
+    def _create_writer(checkpoint_dir, estimator_name):
         """Creates writer object for saving checkpoints based on log_dir.
 
         Args:
-            log_dir: Directory where logging happens.
+            checkpoint_dir: Directory where checkpoints are stored
             estimator_name: Name of the estimator.
 
         Returns:
             Writer object (GCS or Local).
         """
-        # TODO: This will fail if user specified an empty log_dir. This should
-        # be fixed to support uses case when user does not want to specify
-        # logdir
-        if log_dir.startswith(const.GCS_BASE_STR):
-            writer = GCSEstimatorWriter(log_dir, estimator_name)
+
+        if checkpoint_dir is None:
+            checkpoint_dir = const.DEFAULT_CHECKPOINT_DIR
+            if not os.path.exists(checkpoint_dir):
+                os.makedirs(checkpoint_dir)
+
+        if checkpoint_dir.startswith(const.GCS_BASE_STR):
+            writer = GCSEstimatorWriter(checkpoint_dir, estimator_name)
+        elif os.path.isdir(checkpoint_dir):
+            writer = LocalEstimatorWriter(checkpoint_dir, estimator_name)
         else:
-            writer = LocalEstimatorWriter(log_dir, estimator_name)
+            raise ValueError(
+                f"Can not use {checkpoint_dir} as checkpoint directory."
+            )
 
         return writer
 
@@ -182,7 +188,7 @@ class GCSEstimatorWriter:
     def __init__(self, cloud_path, prefix, *, suffix=DEFAULT_SUFFIX):
         self._tempdir = tempfile.TemporaryDirectory().name
         self._client = GCSClient()
-        self._bucket, self._gcs_path = gcs_bucket_and_path(cloud_path)
+        self.cloud_path = cloud_path
         self._writer = LocalEstimatorWriter(
             self._tempdir, prefix, create_dir=True, suffix=suffix
         )
@@ -201,13 +207,9 @@ class GCSEstimatorWriter:
         """
         path = self._writer.save(estimator, epoch)
         filename = os.path.basename(path)
-        object_key = os.path.join(self._gcs_path, filename)
-
-        full_cloud_path = f"gs://{self._bucket}/{object_key}"
-
+        full_cloud_path = os.path.join(self.cloud_path, filename)
         logger.debug(f"Copying estimator from {path} to {full_cloud_path}")
-        self._client.upload(path, self._bucket, object_key)
-
+        self._client.upload(local_path=path, url=full_cloud_path)
         return full_cloud_path
 
 
@@ -227,13 +229,12 @@ def load_from_gcs(estimator, full_cloud_path):
         full_cloud_path: full path to the checkpoint file
 
     """
-    bucket, object_key = gcs_bucket_and_path(full_cloud_path)
-    filename = os.path.basename(object_key)
+    filename = os.path.basename(full_cloud_path)
     with tempfile.TemporaryDirectory() as temp_dir:
         path = os.path.join(temp_dir, filename)
         logger.debug(f"Downloading estimator from {full_cloud_path} to {path}")
         client = GCSClient()
-        client.download(bucket, object_key, path)
+        client.download(local_path=temp_dir, url=full_cloud_path)
         estimator.load(path)
 
 

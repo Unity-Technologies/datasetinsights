@@ -37,10 +37,10 @@ def create_estimator(
 
     writer = SummaryWriter(tb_log_dir)
     kfp_writer = KubeflowPipelineWriter(
-        filename=kfp_metrics_dir, filepath=kfp_metrics_filename,
+        filename=kfp_metrics_filename, filepath=kfp_metrics_dir,
     )
     checkpointer = EstimatorCheckpoint(
-        estimator_name=name, log_dir=checkpoint_dir, distributed=False,
+        estimator_name=name, checkpoint_dir=checkpoint_dir, distributed=False,
     )
 
     return estimators_cls(

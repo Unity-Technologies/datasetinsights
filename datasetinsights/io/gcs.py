@@ -1,103 +1,212 @@
+import base64
 import logging
 import os
+import re
+from os import makedirs
+from os.path import basename, isdir
 from pathlib import Path
 
 from google.cloud.storage import Client
+
+from datasetinsights.io.download import validate_checksum
+from datasetinsights.io.exceptions import ChecksumError
 
 logger = logging.getLogger(__name__)
 
 
 class GCSClient:
+    """ This class is used to download data from GCS location
+        and perform function such as downloading the dataset and checksum
+        validation.
+    """
+
+    GCS_PREFIX = "^gs://"
+    KEY_SEPARATOR = "/"
+
     def __init__(self, **kwargs):
         """ Initialize a client to google cloud storage (GCS).
         """
         self.client = Client(**kwargs)
 
-    def download(self, bucket_name, object_key, localfile):
-        """ Download a single object from GCS
+    def download(self, *, url=None, local_path=None, bucket=None, key=None):
+        """ This method is used to download the dataset from GCS.
+
+        Args:
+            url (str): This is the downloader-uri that indicates where
+                              the dataset should be downloaded from.
+
+            local_path (str): This is the path to the directory where the
+                          download will store the dataset.
+
+            bucket (str): gcs bucket name
+            key (str): object key path
+
+            Examples:
+                >>> url = "gs://bucket/folder or gs://bucket/folder/data.zip"
+                >>> local_path = "/tmp/folder"
+                >>> bucket ="bucket"
+                >>> key ="folder/data.zip" or "folder"
+
         """
-        bucket = self.client.get_bucket(bucket_name)
-        blob = bucket.blob(object_key)
+        if not (bucket and key) and url:
+            bucket, key = self._parse(url)
 
-        blob.download_to_filename(localfile)
+        bucket_obj = self.client.get_bucket(bucket)
+        if self._is_file(bucket_obj, key):
+            self._download_file(bucket_obj, key, local_path)
+        else:
+            self._download_folder(bucket_obj, key, local_path)
 
-    def upload(self, localfile, bucket_name, object_key):
+    def _download_folder(self, bucket, key, local_path):
+        """ download all files from directory
+        """
+        blobs = bucket.list_blobs(prefix=key)
+        for blob in blobs:
+            local_file_path = blob.name.replace(key, local_path)
+            self._download_validate(blob, local_file_path)
+
+    def _download_file(self, bucket, key, local_path):
+        """ download single file
+        """
+        blob = bucket.get_blob(key)
+        key_suffix = key.replace("/" + basename(key), "")
+        local_file_path = blob.name.replace(key_suffix, local_path)
+        self._download_validate(blob, local_file_path)
+
+    def _download_validate(self, blob, local_file_path):
+        """ download file and validate checksum
+        """
+        self._download_blob(blob, local_file_path)
+        self._checksum(blob, local_file_path)
+
+    def _download_blob(self, blob, local_file_path):
+        """ download blob from gcs
+        Raises:
+            NotFound: This will raise when object not found
+        """
+        dst_dir = local_file_path.replace("/" + basename(local_file_path), "")
+        key = blob.name
+        if not isdir(dst_dir):
+            makedirs(dst_dir)
+
+        logger.info(f"Downloading from {key} to {local_file_path}.")
+        blob.download_to_filename(local_file_path)
+
+    def _checksum(self, blob, filename):
+        """validate checksum and delete file if checksum does not match
+
+        Raises:
+            ChecksumError: This will raise this error if checksum doesn't
+                           matches
+        """
+        expected_checksum = blob.md5_hash
+        if expected_checksum:
+            expected_checksum_hex = self._md5_hex(expected_checksum)
+            try:
+                validate_checksum(
+                    filename, expected_checksum_hex, algorithm="MD5"
+                )
+            except ChecksumError as e:
+                logger.exception(
+                    "Checksum mismatch. Delete the downloaded files."
+                )
+                os.remove(filename)
+                raise e
+
+    def _is_file(self, bucket, key):
+        """Check if the key is a file or directory"""
+        blob = bucket.get_blob(key)
+        return blob and blob.name == key
+
+    def _md5_hex(self, checksum):
+        """fix the missing padding if requires and converts into hex"""
+        missing_padding = len(checksum) % 4
+        if missing_padding != 0:
+            checksum += "=" * (4 - missing_padding)
+        return base64.b64decode(checksum).hex()
+
+    def _parse(self, url):
+        """Split an GCS-prefixed URL into bucket and path."""
+        match = re.search(self.GCS_PREFIX, url)
+        if not match:
+            raise ValueError(
+                f"Specified destination prefix: {url} does not start "
+                f"with {self.GCS_PREFIX}"
+            )
+        url = url[len(self.GCS_PREFIX) - 1 :]
+        if self.KEY_SEPARATOR not in url:
+            raise ValueError(
+                f"Specified destination prefix: {self.GCS_PREFIX + url} does "
+                f"not have object key "
+            )
+        idx = url.index(self.KEY_SEPARATOR)
+        bucket = url[:idx]
+        path = url[(idx + 1) :]
+
+        return bucket, path
+
+    def upload(
+        self, *, local_path=None, bucket=None, key=None, url=None, pattern="*"
+    ):
+        """ Upload a file or list of files from directory to GCS
+
+            Args:
+                url (str): This is the gcs location that indicates where
+                the dataset should be uploaded.
+
+                local_path (str): This is the path to the directory or file
+                where the data is stored.
+
+                bucket (str): gcs bucket name
+                key (str): object key path
+                pattern: Unix glob patterns. Use **/* for recursive glob.
+
+                Examples:
+                    For file upload:
+                        >>> url = "gs://bucket/folder/data.zip"
+                        >>> local_path = "/tmp/folder/data.zip"
+                        >>> bucket ="bucket"
+                        >>> key ="folder/data.zip"
+                    For directory upload:
+                        >>> url = "gs://bucket/folder"
+                        >>> local_path = "/tmp/folder"
+                        >>> bucket ="bucket"
+                        >>> key ="folder"
+                        >>> key ="**/*"
+
+        """
+        if not (bucket and key) and url:
+            bucket, key = self._parse(url)
+
+        bucket_obj = self.client.get_bucket(bucket)
+        if isdir(local_path):
+            self._upload_folder(
+                local_path=local_path,
+                bucket=bucket_obj,
+                key=key,
+                pattern=pattern,
+            )
+        else:
+            self._upload_file(local_path=local_path, bucket=bucket_obj, key=key)
+
+    def _upload_file(self, local_path=None, bucket=None, key=None):
         """ Upload a single object to GCS
         """
-        bucket = self.client.get_bucket(bucket_name)
-        blob = bucket.blob(object_key)
+        blob = bucket.blob(key)
+        logger.info(f"Uploading from {local_path} to {key}.")
+        blob.upload_from_filename(local_path)
 
-        blob.upload_from_filename(localfile)
-
-
-def gcs_bucket_and_path(url):
-    """Split an GCS-prefixed URL into bucket and path."""
-    gcs_prefix = "gs://"
-    if not url.startswith(gcs_prefix):
-        raise ValueError(
-            f"Specified destination prefix: {url} does not start "
-            f"with {gcs_prefix}"
-        )
-    url = url[len(gcs_prefix) :]
-    idx = url.index("/")
-    bucket = url[:idx]
-    path = url[(idx + 1) :]
-
-    return bucket, path
-
-
-def copy_folder_to_gcs(cloud_path, folder, pattern="*"):
-    """Copy all files within a folder to GCS
-
-    Args:
-        pattern: Unix glob patterns. Use **/* for recursive glob.
-    """
-    client = GCSClient()
-    bucket, prefix = gcs_bucket_and_path(cloud_path)
-    for path in Path(folder).glob(pattern):
-        if path.is_dir():
-            continue
-        full_path = str(path)
-        relative_path = str(path.relative_to(folder))
-        object_key = os.path.join(prefix, relative_path)
-        client.upload(full_path, bucket, object_key)
-
-
-def download_file_from_gcs(cloud_path, local_path, filename, use_cache=True):
-    """Helper method to download a single file from GCS
-
-    Args:
-        cloud_path: Full path to a GCS folder
-        local_path: Local path to a folder where the file should be stored
-        filename: The filename to be downloaded
-
-    Returns:
-        str: Full path to the downloaded file
-
-    Examples:
-        >>> cloud_path = "gs://bucket/folder"
-        >>> local_path = "/tmp/folder"
-        >>> filename = "file.txt"
-        >>> download_file_from_gcs(cloud_path, local_path, filename)
-        # download file gs://bucket/folder/file.txt to /tmp/folder/file.txt
-    """
-    bucket, prefix = gcs_bucket_and_path(cloud_path)
-    object_key = os.path.join(prefix, filename)
-    local_filepath = os.path.join(local_path, filename)
-
-    path = Path(local_path)
-    path.mkdir(parents=True, exist_ok=True)
-    client = GCSClient()
-
-    if os.path.exists(local_filepath) and use_cache:
-        logger.info(
-            f"Found existing file in {local_filepath}. Skipping download."
-        )
-    else:
-        logger.info(
-            f"Downloading from {cloud_path}/{filename} to {local_filepath}."
-        )
-        client.download(bucket, object_key, local_filepath)
-
-    # TODO(YC) Should run file checksum before return.
-    return local_filepath
+    def _upload_folder(
+        self, local_path=None, bucket=None, key=None, pattern="*"
+    ):
+        """Upload all files from a folder to GCS based on pattern
+        """
+        for path in Path(local_path).glob(pattern):
+            if path.is_dir():
+                continue
+            full_path = str(path)
+            relative_path = str(path.relative_to(local_path))
+            object_key = os.path.join(key, relative_path)
+            self._upload_file(
+                local_path=full_path, bucket=bucket, key=object_key
+            )

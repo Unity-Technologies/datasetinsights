@@ -72,7 +72,5 @@ class DatasetDownloader(ABC):
             output: path to local folder where the dataset should be stored
             **kwargs:
 
-        Returns:
-
         """
         raise NotImplementedError("Subclass needs to implement this method")

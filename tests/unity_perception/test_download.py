@@ -167,6 +167,11 @@ def test_compute_checksum():
         mocked.return_value = expected_checksum
         computed = compute_checksum("filepath/not/important", "CRC32")
         assert computed == expected_checksum
+    expected_checksum_md5 = "123456"
+    with patch("datasetinsights.io.download._md5_checksum") as mocked:
+        mocked.return_value = expected_checksum_md5
+        computed = compute_checksum("filepath/not/important", "MD5")
+        assert computed == expected_checksum
 
     with pytest.raises(ValueError):
         compute_checksum("filepath/not/important", "UNSUPPORTED_ALGORITHM")
