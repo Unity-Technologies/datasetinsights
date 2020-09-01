@@ -7,11 +7,13 @@ RUN apt-get update \
         libsm6 \
         libxext6 \
         libxrender-dev \
+        libgl1-mesa-dev \
         python3.7-dev \
         python3-pip \
     && ln -s /usr/bin/python3.7 /usr/local/bin/python
 
-RUN python -m pip install --upgrade pip poetry setuptools
+# Pin setuptools to 49.x.x until this [issue](https://github.com/pypa/setuptools/issues/2350) is fixed.
+RUN python -m pip install --upgrade pip poetry setuptools==49.6.0
 
 # Add Tini
 ENV TINI_VERSION v0.18.0
