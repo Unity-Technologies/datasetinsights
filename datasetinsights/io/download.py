@@ -62,7 +62,7 @@ def download_file(source_uri: str, dest_path: str, file_name: str = None):
             dest_path = Path(dest_path)
             if not file_name:
                 file_name = _parse_filename(response, source_uri)
-                dest_path = dest_path / file_name
+            dest_path = dest_path / file_name
             dest_path.parent.mkdir(parents=True, exist_ok=True)
             with open(dest_path, "wb") as f:
                 f.write(response.content)
