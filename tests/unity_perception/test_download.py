@@ -1,4 +1,3 @@
-import os
 import pathlib
 import tempfile
 from unittest.mock import patch
@@ -33,7 +32,7 @@ def downloader():
 
 
 @responses.activate
-def test_download_file_from_url():
+def test_download_file_from_url_with_filename():
     source_uri = "https://mock.uri"
     body = b"some test string here"
     responses.add(
@@ -41,11 +40,38 @@ def test_download_file_from_url():
     )
 
     with tempfile.TemporaryDirectory() as tmp_dir:
-        dest_path = os.path.join(tmp_dir, "test.txt")
-        download_file(source_uri, dest_path, file_name="file.txt")
+        dest_path = pathlib.Path(tmp_dir)
+        expected_file_path = dest_path / "file.txt"
+        file_path = download_file(source_uri, tmp_dir, file_name="file.txt")
 
-        assert os.path.exists(dest_path)
-        assert open(dest_path, "rb").read() == body
+        assert file_path == expected_file_path
+        assert file_path.is_file()
+        with open(file_path, "rb") as f:
+            assert f.read() == body
+
+
+@responses.activate
+def test_download_file_from_url_without_filename():
+    source_uri = "https://mock.uri"
+    body = b"some test string here"
+
+    responses.add(
+        responses.GET,
+        url=source_uri,
+        body=body,
+        content_type="text/plain",
+        headers={"content-disposition": "attachment; filename=file.txt"},
+    )
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        dest_path = pathlib.Path(tmp_dir)
+        expected_file_path = dest_path / "file.txt"
+        file_path = download_file(source_uri, dest_path)
+
+        assert file_path == expected_file_path
+        assert file_path.is_file()
+        with open(file_path, "rb") as f:
+            assert f.read() == body
 
 
 def test_download_bad_request():
