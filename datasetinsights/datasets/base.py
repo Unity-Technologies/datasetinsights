@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
+def all_subclasses(cls):
+    return cls.__subclasses__() + [s for c in cls.__subclasses__() for s in all_subclasses(c)]
 
 class Dataset(metaclass=ABCMeta):
     """Abstract base class for datasets.
@@ -31,7 +33,7 @@ class Dataset(metaclass=ABCMeta):
         Returns:
             a label of the specified dataset subclass
         """
-        dataset_classes = Dataset.__subclasses__()
+        dataset_classes = all_subclasses(Dataset)
         dataset_names = [d.__name__ for d in dataset_classes]
         if name in dataset_names:
             dataset_cls = dataset_classes[dataset_names.index(name)]

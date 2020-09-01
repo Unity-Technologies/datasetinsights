@@ -1,0 +1,47 @@
+estimator: FasterRCNN
+backbone: resnet50
+num_classes: 64
+task: object_detection
+train:
+  dataset:
+    name: SynDetection2D
+    args:
+      def_id: c31620e3-55ff-4af6-ae86-884aa0daa9b2
+      random_seed: 47
+      split: train
+  batch_size: 4
+  accumulation_steps: 8
+  epochs: 10
+  log_frequency: 10
+val:
+  dataset:
+    name: SynDetection2D
+    args:
+      def_id: c31620e3-55ff-4af6-ae86-884aa0daa9b2
+      random_seed: 47
+      split: val
+  batch_size: 4
+test:
+  dataset:
+    name: ABGroceriesReal
+    args:
+      version: v3
+      split: test
+      target_label: drink_coffeebeans_kickinghorse
+  batch_size: 4
+metrics:
+  mAP:
+    name: MeanAveragePrecisionAverageOverIOU
+  mAPIOU50:
+    name: MeanAveragePrecisionIOU50
+  mAR:
+    name: MeanAverageRecallAverageOverIOU
+  APIOU50:
+    name: AveragePrecisionIOU50
+optimizer:
+  name: Adam
+  args:
+    lr: 2.0e-4
+pretrained: False
+pretrained_backbone: True
+val_interval: 1

@@ -434,3 +434,51 @@ def train_on_synthetic_dataset_unity_simulation(
         num_gpu=num_gpu,
         gpu_type=gpu_type,
     )
+
+
+@dsl.pipeline(
+    name="Train AB test on synthetic dataset Unity Simulation",
+    description="Train AB test on synthetic dataset Unity Simulation",
+)
+def train_ab_test_on_synthetic_dataset_unity_simulation(
+    docker: str = "unitytechnologies/datasetinsights:latest",
+    project_id: str = "<unity-project-id>",
+    run_execution_id: str = "<unity-simulation-run-execution-id>",
+    access_token: str = "<unity-simulation-access-token>",
+    config: str = "datasetinsights/configs/faster_rcnn_synthetic_ab_test.yaml",
+    tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
+    checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
+    volume_size: str = "100Gi",
+):
+    output = train_data = val_data = DATA_PATH
+
+    # The following parameters can't be `PipelineParam` due to this issue:
+    # https://github.com/kubeflow/pipelines/issues/1956
+    # Instead, they have to be configured when the pipeline is compiled.
+    memory_limit = "64Gi"
+    num_gpu = 8
+    gpu_type = "nvidia-tesla-v100"
+
+    source_uri = f"usim://{access_token}@{project_id}/{run_execution_id}"
+
+    # Pipeline definition
+    vop = volume_op(volume_size=volume_size)
+    download = download_op(
+        docker=docker,
+        source_uri=source_uri,
+        output=output,
+        volume=vop.volume,
+        memory_limit=memory_limit,
+    )
+    train_op(
+        docker=docker,
+        config=config,
+        train_data=train_data,
+        val_data=val_data,
+        tb_log_dir=tb_log_dir,
+        checkpoint_dir=checkpoint_dir,
+        volume=download.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+        num_gpu=num_gpu,
+        gpu_type=gpu_type,
+    )
