@@ -1,4 +1,3 @@
-import os
 import pathlib
 import tempfile
 from unittest.mock import patch
@@ -41,9 +40,12 @@ def test_download_file_from_url_with_filename():
     )
 
     with tempfile.TemporaryDirectory() as tmp_dir:
+        dest_path = pathlib.Path(tmp_dir)
+        expected_file_path = dest_path / "file.txt"
         file_path = download_file(source_uri, tmp_dir, file_name="file.txt")
 
-        assert os.path.exists(file_path)
+        assert file_path == expected_file_path
+        assert file_path.is_file()
         with open(file_path, "rb") as f:
             assert f.read() == body
 
@@ -64,10 +66,12 @@ def test_download_file_from_url_without_filename():
     with tempfile.TemporaryDirectory() as tmp_dir:
         dest_path = pathlib.Path(tmp_dir)
         expected_file_path = dest_path / "file.txt"
-        return_path = download_file(source_uri, dest_path)
+        file_path = download_file(source_uri, dest_path)
 
-        assert return_path == expected_file_path
-        assert return_path.is_file()
+        assert file_path == expected_file_path
+        assert file_path.is_file()
+        with open(file_path, "rb") as f:
+            assert f.read() == body
 
 
 def test_download_bad_request():
