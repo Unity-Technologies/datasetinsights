@@ -149,14 +149,21 @@ def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
         PIL Image: a PIL image with bounding boxes drawn.
     """
     np_image = np.array(image)
-    print(np_image.shape)
+    image_height, _, _ = np_image.shape
     for i, box in enumerate(bboxes):
         label = _process_label(box, label_mappings)
         color = colors[i] if colors else None
         add_single_bbox_on_image(np_image, box, label, color)
-        # font_size=100
-        # box_line_width=15
-        # add_single_bbox_on_image(np_image, box, label, color, font_size=font_size, box_line_width=box_line_width)
+        font_size = image_height // 35
+        box_line_width = image_height // 250
+        add_single_bbox_on_image(
+            np_image,
+            box,
+            label,
+            color,
+            font_size=font_size,
+            box_line_width=box_line_width,
+        )
 
     return Image.fromarray(np_image)
 
