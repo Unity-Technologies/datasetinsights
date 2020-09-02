@@ -20,6 +20,7 @@ COLORS = list(ImageColor.colormap.values())
 FONT_SCALE = 35
 LINE_WIDTH_SCALE = 250
 
+
 def decode_segmap(labels, dataset="cityscapes"):
     """Decode segmentation class labels into a color image.
 
