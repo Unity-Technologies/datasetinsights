@@ -48,6 +48,16 @@ def create_downloader(source_uri, **kwargs):
 
 
 class DatasetDownloader(ABC):
+    """This is the base class for all dataset downloaders
+    The DatasetDownloader can be subclasses in the following way
+
+    class NewDatasetDownloader(DatasetDownloader, protocol="protocol://")
+
+    Here the 'protocol://' should match the prefix that the method download
+    source_uri supports. Example http:// gs://
+
+    """
+
     def __init__(self, **kwargs):
         pass
 
@@ -63,4 +73,13 @@ class DatasetDownloader(ABC):
 
     @abstractmethod
     def download(self, source_uri, output, **kwargs):
+        """ This method downloads a dataset stored at the source_uri and stores it
+        in the output directory
+
+        Args:
+            source_uri: URI that points to the dataset that should be downloaded
+            output: path to local folder where the dataset should be stored
+            **kwargs:
+
+        """
         raise NotImplementedError("Subclass needs to implement this method")
