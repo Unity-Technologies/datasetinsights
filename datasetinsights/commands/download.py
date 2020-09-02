@@ -88,12 +88,9 @@ def cli(
     source_uri, output, include_binary, access_token, checksum_file,
 ):
     """Download datasets to localhost from known locations.
-
     The download command can support downloading from 3 sources
     usim:// http(s):// gs://
 
-
-    \b
     Download from Unity Simulation:
 
     You can specify project_it, run_execution_id, access_token in source-uri
