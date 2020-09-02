@@ -17,7 +17,8 @@ from datasetinsights.stats.visualization.bbox2d_plot import (
 
 logger = logging.getLogger(__name__)
 COLORS = list(ImageColor.colormap.values())
-
+FONT_SCALE = 35
+LINE_WIDTH_SCALE = 250
 
 def decode_segmap(labels, dataset="cityscapes"):
     """Decode segmentation class labels into a color image.
@@ -153,8 +154,8 @@ def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
     for i, box in enumerate(bboxes):
         label = _process_label(box, label_mappings)
         color = colors[i] if colors else None
-        font_size = image_height // 35
-        box_line_width = image_height // 250
+        font_size = image_height // FONT_SCALE
+        box_line_width = image_height // LINE_WIDTH_SCALE
         add_single_bbox_on_image(
             np_image,
             box,
