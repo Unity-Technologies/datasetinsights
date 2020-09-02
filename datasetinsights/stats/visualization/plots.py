@@ -17,6 +17,8 @@ from datasetinsights.stats.visualization.bbox2d_plot import (
 
 logger = logging.getLogger(__name__)
 COLORS = list(ImageColor.colormap.values())
+FONT_SCALE = 35
+LINE_WIDTH_SCALE = 250
 
 
 def decode_segmap(labels, dataset="cityscapes"):
@@ -149,10 +151,20 @@ def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
         PIL Image: a PIL image with bounding boxes drawn.
     """
     np_image = np.array(image)
+    image_height, _, _ = np_image.shape
     for i, box in enumerate(bboxes):
         label = _process_label(box, label_mappings)
         color = colors[i] if colors else None
-        add_single_bbox_on_image(np_image, box, label, color)
+        font_size = image_height // FONT_SCALE
+        box_line_width = image_height // LINE_WIDTH_SCALE
+        add_single_bbox_on_image(
+            np_image,
+            box,
+            label,
+            color,
+            font_size=font_size,
+            box_line_width=box_line_width,
+        )
 
     return Image.fromarray(np_image)
 
