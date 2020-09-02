@@ -153,7 +153,6 @@ def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
     for i, box in enumerate(bboxes):
         label = _process_label(box, label_mappings)
         color = colors[i] if colors else None
-        add_single_bbox_on_image(np_image, box, label, color)
         font_size = image_height // 35
         box_line_width = image_height // 250
         add_single_bbox_on_image(
