@@ -57,14 +57,14 @@ The code snippet below shows how you could filter the metrics to just display in
 
 
 
-SynthDet Quick Start
-====================
+Getting Started
+===============
 To get started using a sample project to generate synthetic data and to explore your dataset using this package please follow the `SynthDet Documentation <https://github.com/Unity-Technologies/SynthDet/blob/master/docs/Readme.md>`_
 
 
 Dataset Evaluation
 ------------------
-To use the pre-compiled pipeline that allow you to evaluate the quality of synthetic dataset, you cna follow the `Dataset Evaluation Documentation <Dataset_Evaluation.md>`_
+To use the pre-compiled pipeline that allow you to evaluate the quality of synthetic dataset, you cna follow the :doc:`Dataset_Evaluation` Documentation.
 
 
 .. toctree::
@@ -77,9 +77,10 @@ To use the pre-compiled pipeline that allow you to evaluate the quality of synth
 
 .. toctree::
    :maxdepth: 2
+   :hidden:
    :caption: Package Contents
 
-   datasetinsights
+   modules
 
 .. toctree::
    :maxdepth: 1
