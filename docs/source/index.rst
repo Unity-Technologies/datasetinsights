@@ -67,6 +67,15 @@ Dataset Evaluation
 To use the pre-compiled pipeline that allow you to evaluate the quality of synthetic dataset, you cna follow the :doc:`Dataset_Evaluation` Documentation.
 
 
+Package Content
+===============
+
+.. toctree::
+   :maxdepth: 3
+
+   modules
+
+
 .. toctree::
    :maxdepth: 1
    :hidden:
@@ -75,12 +84,6 @@ To use the pre-compiled pipeline that allow you to evaluate the quality of synth
    SynthDet Guide <https://github.com/Unity-Technologies/SynthDet/blob/master/docs/Readme.md>
    Dataset_Evaluation
 
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Package Contents
-
-   modules
 
 .. toctree::
    :maxdepth: 1
@@ -88,10 +91,6 @@ To use the pre-compiled pipeline that allow you to evaluate the quality of synth
    :caption: Synthetic Dataset
 
    Synthetic_Dataset_Schema
-
-
-Indices and tables
-==================
 
 * :ref:`genindex`
 * :ref:`modindex`
