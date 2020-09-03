@@ -21,14 +21,6 @@ datasetinsights.constants
    :undoc-members:
    :show-inheritance:
 
-datasetinsights.main
---------------------
-
-.. automodule:: datasetinsights.main
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 datasetinsights.torch\_distributed
 ----------------------------------
 
