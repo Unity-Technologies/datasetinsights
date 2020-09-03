@@ -27,6 +27,7 @@ then you can use :meth:`~datasetinsights.data.simulation.download.download_manif
     manifest_file = os.path.join(data_volume, f"{run_execution_id}.csv")
     download_manifest(run_execution_id, manifest_file, auth_token)
     dl = Downloader(manifest_file, data_root, use_cache=True)
+
 The first line of code defines your local path for the manifest file.
 The second line downloads the manifest from Unity Simulations to the local path.
 The third line, initializes the :class:`~datasetinsights.data.simulation.download.Downloader` object.
@@ -57,23 +58,35 @@ The code snippet below shows how you could filter the metrics to just display in
 
 
 SynthDet Quick Start
-===========
-To get started using a sample project to generate synthetic data and to explore your dataset using this package please follow the  `SynthDet Started Guide <https://github.com/Unity-Technologies/SynthDet/blob/master/docs/Readme.md>`_
+====================
+To get started using a sample project to generate synthetic data and to explore your dataset using this package please follow the `SynthDet Documentation <https://github.com/Unity-Technologies/SynthDet/blob/master/docs/Readme.md>`_
+
+
+Dataset Evaluation
+------------------
+To use the pre-compiled pipeline that allow you to evaluate the quality of synthetic dataset, you cna follow the `Dataset Evaluation Documentation <Dataset_Evaluation.md>`_
 
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Package Contents:
+   :maxdepth: 1
+   :hidden:
+   :caption: Getting Started
+
+   SynthDet Guide <https://github.com/Unity-Technologies/SynthDet/blob/master/docs/Readme.md>
+   Dataset_Evaluation
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Package Contents
 
    datasetinsights
 
 .. toctree::
-   :titlesonly:
-   :caption: Additional docs:
+   :maxdepth: 1
+   :hidden:
+   :caption: Synthetic Dataset
 
    Synthetic_Dataset_Schema
-   Dataset_Evaluation
-
 
 
 Indices and tables
