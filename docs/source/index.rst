@@ -72,6 +72,7 @@ To get started using a sample project to generate synthetic data and to explore 
    :caption: Additional docs:
 
    Synthetic_Dataset_Schema
+   Dataset_Evaluation
 
 
 
