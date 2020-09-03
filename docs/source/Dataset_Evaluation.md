@@ -34,10 +34,10 @@ This section shows you how to train a model on the sample synthetic dataset. Not
 
 To train the model, simply import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_synthdet_sample.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
-![upload pipeline](images/kubeflow/upload_pipeline.png)
+![upload pipeline](_images/kubeflow/upload_pipeline.png)
 
 Once your pipeline has been imported, you can run it via the web UI as shown below. Alternatively, you can use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool)
-![train on SynthDet sample](images/kubeflow/train_on_synthdet_sample.png)
+![train on SynthDet sample](_images/kubeflow/train_on_synthdet_sample.png)
 
 You have to specify run parameters required by this pipeline:
 
@@ -50,7 +50,7 @@ You have to specify run parameters required by this pipeline:
 
 > You'll want to change `tb_log_dir`, `checkpoint_dir` to point to a location that is convenient for you and your Kubernetes cluster have permissions to write to. This is typically a GCS path under the same GCP project. You want to keep a note on these directories that will be used for tensorboard visualization and model [evaluation](#part-3-evaluate-a-model). Note that an invalid location will cause the job to fail, whereas a path to the local filesystem may run but will be hard to monitor as you won't have easy access to these files inside a docker container.
 
-![pipeline graph](images/kubeflow/pipeline_graph.png)
+![pipeline graph](_images/kubeflow/pipeline_graph.png)
 
 To open tensorboard for training visualization, you can run the following command:
 
@@ -75,11 +75,11 @@ This section shows you how to train a model on the UnityGroceries-RealWorld data
 
 To train the model, simply import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_real_world_dataset.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
-![upload pipeline](images/kubeflow/upload_pipeline.png)
+![upload pipeline](_images/kubeflow/upload_pipeline.png)
 
 Once your pipeline has been imported, you can run it via the web UI as shown below. Alternatively, you can use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool)
 
-![train on real world dataset](images/kubeflow/train_on_real_world_dataset.png)
+![train on real world dataset](_images/kubeflow/train_on_real_world_dataset.png)
 
 You have to specify run parameters required by this pipeline:
 
@@ -92,7 +92,7 @@ You have to specify run parameters required by this pipeline:
 
 > You'll want to change `tb_log_dir`, `checkpoint_dir` to point to a location that is convenient for you and your Kubernetes cluster have permissions to write to. This is typically a GCS path under the same GCP project. You want to keep a note on these directories that will be used for tensorboard visualization and model [evaluation](#part-3-evaluate-a-model). Note that an invalid location will cause the job to fail, whereas a path to the local filesystem may run but will be hard to monitor as you won't have easy access to these files inside a docker container.
 
-![pipeline graph](images/kubeflow/pipeline_graph.png)
+![pipeline graph](_images/kubeflow/pipeline_graph.png)
 
 To open tensorboard for training visualization, you can run the following command:
 
@@ -117,11 +117,11 @@ This section shows you how to train a model on the UnityGroceries-Synthetic data
 
 To train the model, simply import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_synthetic_and_real_dataset.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
-![upload pipeline](images/kubeflow/upload_pipeline.png)
+![upload pipeline](_images/kubeflow/upload_pipeline.png)
 
 Once your pipeline has been imported, you can run it via the web UI as shown below. Alternatively, you can use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool)
 
-![train on synthetic and real world dataset](images/kubeflow/train_on_synthetic_and_real_world_dataset.png)
+![train on synthetic and real world dataset](_images/kubeflow/train_on_synthetic_and_real_world_dataset.png)
 
 You have to specify run parameters required by this pipeline:
 
@@ -135,7 +135,7 @@ You have to specify run parameters required by this pipeline:
 
 > You'll want to change `tb_log_dir`, `checkpoint_dir` to point to a location that is convenient for you and your Kubernetes cluster have permissions to write to. This is typically a GCS path under the same GCP project. You want to keep a note on these directories that will be used for tensorboard visualization and model [evaluation](#part-3-evaluate-a-model). Note that an invalid location will cause the job to fail, whereas a path to the local filesystem may run but will be hard to monitor as you won't have easy access to these files inside a docker container. You'll also want to change `checkpoint_file` to point to a estimator that give you the best validation result in [previous training run](#train-on-the-synthdet-sample). This pipeline will load this model and resume training using real world dataset.
 
-![pipeline graph](images/kubeflow/pipeline_graph.png)
+![pipeline graph](_images/kubeflow/pipeline_graph.png)
 
 To open tensorboard for training visualization, you can run the following command:
 
@@ -160,11 +160,11 @@ This section shows you how to train a model on your own dataset generated by run
 
 To train the model, simply import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_synthetic_dataset_unity_simulation.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
-![upload pipeline](images/kubeflow/upload_pipeline.png)
+![upload pipeline](_images/kubeflow/upload_pipeline.png)
 
 Once your pipeline has been imported, you can run it via the web UI as shown below. Alternatively, you can use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool)
 
-![train on synthetic dataset unity simulation](images/kubeflow/train_on_synthetic_dataset_unity_simulation.png)
+![train on synthetic dataset unity simulation](_images/kubeflow/train_on_synthetic_dataset_unity_simulation.png)
 
 You have to specify run parameters required by this pipeline:
 
@@ -179,7 +179,7 @@ You have to specify run parameters required by this pipeline:
 
 > You'll want to change `tb_log_dir`, `checkpoint_dir` to point to a location that is convenient for you and your Kubernetes cluster have permissions to write to. This is typically a GCS path under the same GCP project. You want to keep a note on these directories that will be used for tensorboard visualization and model [evaluation](#part-3-evaluate-a-model). Note that an invalid location will cause the job to fail, whereas a path to the local filesystem may run but will be hard to monitor as you won't have easy access to these files inside a docker container.
 
-![pipeline graph](images/kubeflow/pipeline_graph.png)
+![pipeline graph](_images/kubeflow/pipeline_graph.png)
 
 To open tensorboard for training visualization, you can run the following command:
 
@@ -204,7 +204,7 @@ In [part 2](#part-2-train-a-model), you have trained a model using one of our pr
 
 We have prepared another Kubeflow [pipeline](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/evaluate_the_model.yaml) for this. You can import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/evaluate_the_model.yaml) into your kubeflow cluster. Once your pipeline has been imported, you can run it via the web UI as shown below. Alternatively, you can use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool)
 
-![evaluate the model](images/kubeflow/evaluate_the_model.png)
+![evaluate the model](_images/kubeflow/evaluate_the_model.png)
 
 Whether you trained a model on synthetic, real or multiple datasets, you'll need to specify a model stored in the `checkpoint_dir` from previous pipelines. You can choose any checkpoint files such as `<checkpoint_dir>/FasterRCNN.ep1.estimator`, or you want to pick the checkpoint that give you the best validation result in the previous training process.
 
@@ -225,9 +225,9 @@ In addition to the logs, the performance metrics are also available in a Jupyter
 
 We recommend running our [docker image](https://hub.docker.com/r/unitytechnologies/datasetinsights) which includes Jupyter as well as our notebooks if you don't want to setup the environment on your own. We also recommend using [Kubeflow Notebooks](https://www.kubeflow.org/docs/notebooks/setup/) with GPU support to speed up model inference.
 
-![kubeflow notebook](images/kubeflow/notebook.png)
-![docker cpu memory](images/kubeflow/notebook_docker_cpu_memory.png)
-![gpu volume](images/kubeflow/notebook_gpu_volume.png)
+![kubeflow notebook](_images/kubeflow/notebook.png)
+![docker cpu memory](_images/kubeflow/notebook_docker_cpu_memory.png)
+![gpu volume](_images/kubeflow/notebook_gpu_volume.png)
 
 You should specify the following parameters:
 
@@ -255,6 +255,6 @@ We trained a model using `~400k` synthetic examples and then fine-tuned it using
 
 - [Real World (760)](https://storage.googleapis.com/datasetinsights/models/Real-World/FasterRCNN.estimator)
 - [Synthetic (400,000)](https://storage.googleapis.com/datasetinsights/models/Synthetic/FasterRCNN.estimator)
-- [Synthetic (400,000) + Real World (76)](https://storage.googleapis.com/datasetinsights/models/Synthetic-And-Real-World-76-images/FasterRCNN.estimator)
-- [Synthetic (400,000) + Real World (380)](https://storage.googleapis.com/datasetinsights/models/Synthetic-And-Real-World-380-images/FasterRCNN.estimator)
-- [Synthetic (400,000) + Real World (760)](https://storage.googleapis.com/datasetinsights/models/Synthetic-And-Real-World-760-images/FasterRCNN.estimator)
+- [Synthetic (400,000) + Real World (76)](https://storage.googleapis.com/datasetinsights/models/Synthetic-And-Real-World-76-_images/FasterRCNN.estimator)
+- [Synthetic (400,000) + Real World (380)](https://storage.googleapis.com/datasetinsights/models/Synthetic-And-Real-World-380-_images/FasterRCNN.estimator)
+- [Synthetic (400,000) + Real World (760)](https://storage.googleapis.com/datasetinsights/models/Synthetic-And-Real-World-760-_images/FasterRCNN.estimator)
