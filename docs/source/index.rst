@@ -64,11 +64,11 @@ To get started using a sample project to generate synthetic data and to explore 
 
 Dataset Evaluation
 ------------------
-To use the pre-compiled pipeline that allow you to evaluate the quality of synthetic dataset, you cna follow the :doc:`Dataset_Evaluation` Documentation.
+To use the pre-compiled pipeline that allow you to evaluate the quality of synthetic dataset, you cna follow the :doc:`Evaluation_Tutorial` Documentation.
 
 
-Package Content
-===============
+Contents
+========
 
 .. toctree::
    :maxdepth: 3
@@ -82,7 +82,7 @@ Package Content
    :caption: Getting Started
 
    SynthDet Guide <https://github.com/Unity-Technologies/SynthDet/blob/master/docs/Readme.md>
-   Dataset_Evaluation
+   Evaluation_Tutorial
 
 
 .. toctree::
@@ -91,6 +91,9 @@ Package Content
    :caption: Synthetic Dataset
 
    Synthetic_Dataset_Schema
+
+Indices and tables
+==================
 
 * :ref:`genindex`
 * :ref:`modindex`

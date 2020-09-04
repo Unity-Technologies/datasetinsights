@@ -14,7 +14,7 @@ A larger dataset of 400k we used in our experiments can be made available [upon 
 
 ### UnityGroceries-RealWorld dataset
 
-We've also made a new [dataset of 1.3k real images](https://github.com/Unity-Technologies/SynthDet/blob/master/docs/UnityGroceriesRealWorld.md) which contain groceries and corresponding bounding boxes. You can look at it if you wish, or simply [skip ahead](#part-2-training-a-model) if you're interested in training a model on this dataset. The test split of this dataset will be used in [part 3](#part-3-evaluate-a-model).
+We've also made a new [dataset of 1.3k real images](https://github.com/Unity-Technologies/SynthDet/blob/master/docs/UnityGroceriesRealWorld.md) which contain groceries and corresponding bounding boxes. You can look at it if you wish, or simply [skip ahead](#part-2-train-a-model) if you're interested in training a model on this dataset. The test split of this dataset will be used in [part 3](#part-3-evaluate-a-model).
 
 ### Create a new synthetic dataset using Unity Simulation (optional)
 
