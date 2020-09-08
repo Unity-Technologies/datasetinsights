@@ -64,7 +64,7 @@ To get started using a sample project to generate synthetic data and to explore 
 
 Dataset Evaluation
 ------------------
-To use the pre-compiled pipeline that allow you to evaluate the quality of synthetic dataset, you cna follow the :doc:`Evaluation_Tutorial` Documentation.
+To use the pre-compiled pipelines that allow you to evaluate the quality of synthetic dataset, you can follow the :doc:`Evaluation_Tutorial` Documentation.
 
 
 Contents
