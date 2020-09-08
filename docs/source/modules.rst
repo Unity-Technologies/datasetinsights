@@ -2,6 +2,6 @@ datasetinsights
 ===============
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    datasetinsights
