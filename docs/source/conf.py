@@ -34,7 +34,7 @@ extensions = [
     "sphinx.ext.autosectionlabel",
     "sphinx_rtd_theme",
     "sphinx.ext.napoleon",
-    "sphinx_click.ext",
+    "sphinx_click",
 ]
 
 source_suffix = {
