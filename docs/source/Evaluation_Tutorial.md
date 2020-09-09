@@ -4,17 +4,15 @@ This guide shows you how to evaluate the value/quality of a synthetic dataset by
 
 ## Part 1: Datasets
 
-> TODO: finalize name for datasets (i.e. real, synthetic large and small) and make sure the name is consistently used throughout the guide and blog post. We use placeholders `UnityGroceries-Synthetic` and `UnityGroceries-RealWorld` in this document.
-
 ### UnityGroceries-Synthetic dataset
 
 We've made a small sample from UnityGroceries-Synthetic dataset of 5k images generated using the [SynthDet](https://github.com/Unity-Technologies/SynthDet) Unity environment. To train a model on this dataset, you can skip directly to [part 2](#part-2-train-a-model) of this guide where you'll use a pre-compiled kubeflow pipeline that is already configured to fetch and then train on this sample dataset.
 
 A larger dataset of 400k we used in our experiments can be made available [upon request](https://forms.gle/2BmZYQJmziq3ipK88). This dataset is not required to follow this tutorial.
 
-### UnityGroceries-RealWorld dataset
+### UnityGroceries-Real dataset
 
-We've also made a new [dataset of 1.3k real images](https://github.com/Unity-Technologies/SynthDet/blob/master/docs/UnityGroceriesRealWorld.md) which contain groceries and corresponding bounding boxes. You can look at it if you wish, or simply [skip ahead](#part-2-train-a-model) if you're interested in training a model on this dataset. The test split of this dataset will be used in [part 3](#part-3-evaluate-a-model).
+We've also made a new [dataset of 1.3k real images](https://github.com/Unity-Technologies/SynthDet/blob/master/docs/UnityGroceriesReal.md) which contain groceries and corresponding bounding boxes. You can look at it if you wish, or simply [skip ahead](#part-2-train-a-model) if you're interested in training a model on this dataset. The test split of this dataset will be used in [part 3](#part-3-evaluate-a-model).
 
 ### Create a new synthetic dataset using Unity Simulation (optional)
 
@@ -28,9 +26,9 @@ Note that these instructions focus on the recommended containerized approach to 
 
 > Alternatively, you can use the same docker image on your own container-orchestration system following similar steps.
 
-### Train on UnityGroceries-Synthetic dataset
+### Train on UnityGroceries-SyntheticSample dataset
 
-This section shows you how to train a model on the sample synthetic dataset. Note that this is a small dataset which is the fastest to train but won't produce the best results; for that, you can train a model that uses a larger synthetic dataset and [fine tunes the model on real images](#train-on-synthetic-and-real-world-dataset-optional). To observe the best results we have obtained, you can follow the instructions to run one of our [pre-trained models](#using-our-pre-trained-models) below.
+This section shows you how to train a model on UnityGroceries-SyntheticSample dataset. Note that this is a small dataset which is the fastest to train but won't produce the best results; for that, you can train a model that uses a larger synthetic dataset and [fine tunes the model on real images](#train-on-synthetic-and-real-world-dataset-optional). To observe the best results we have obtained, you can follow the instructions to run one of our [pre-trained models](#using-our-pre-trained-models) below.
 
 To train the model, simply import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_synthdet_sample.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
@@ -69,9 +67,9 @@ Open `http://localhost:6006` in web browser to see tensorboard results. This com
 
 Next, follow the [instructions](#part-3-evaluate-a-model) to evaluate the performance of this model by running one more pipeline we have prepared. You'll need the location of your model in the next step.
 
-### Train on UnityGroceries-RealWorld dataset (optional)
+### Train on UnityGroceries-Real dataset (optional)
 
-This section shows you how to train a model on the UnityGroceries-RealWorld dataset. Note that this won't produce the best results; for that, you can train a model that uses a larger synthetic dataset and [fine tunes the model on real images](#train-on-synthetic-and-real-world-dataset-optional). To observe the best results we have obtained, you can follow the instructions to run one of our [pre-trained models](#using-our-pre-trained-models) below.
+This section shows you how to train a model on the UnityGroceries-Real dataset. Note that this won't produce the best results; for that, you can train a model that uses a larger synthetic dataset and [fine tunes the model on real images](#train-on-synthetic-and-real-world-dataset-optional). To observe the best results we have obtained, you can follow the instructions to run one of our [pre-trained models](#using-our-pre-trained-models) below.
 
 To train the model, simply import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_real_world_dataset.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
@@ -113,7 +111,7 @@ Next, follow the [instructions](#part-3-evaluate-a-model) to evaluate the perfor
 
 ### Train on synthetic and real-world dataset (optional)
 
-This section shows you how to train a model on the UnityGroceries-Synthetic dataset and then fine tune that model on the UnityGroceries-RealWorld dataset. This approach generally produces the best results. In this particular case, however, you'll be using a sample dataset to run the full pipeline more quickly. To observe the best results we have obtained, you can follow the instructions to run one of our [pre-trained models](#using-our-pre-trained-models)below.
+This section shows you how to train a model on the UnityGroceries-Synthetic dataset and then fine tune that model on the UnityGroceries-Real dataset. This approach generally produces the best results. In this particular case, however, you'll be using a sample dataset to run the full pipeline more quickly. To observe the best results we have obtained, you can follow the instructions to run one of our [pre-trained models](#using-our-pre-trained-models)below.
 
 To train the model, simply import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_synthetic_and_real_dataset.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
@@ -200,7 +198,7 @@ Next, follow the [instructions](#part-3-evaluate-a-model) to evaluate the perfor
 
 ## Part 3: Evaluate a model
 
-In [part 2](#part-2-train-a-model), you have trained a model using one of our pre-compiled pipeline. In this section, you will use a trained model from part 2 to generate predictions on the test split of UnityGroceries-RealWorld dataset and measure its performance using well-known object detection metrics like [mAP](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.evaluation_metrics.html#datasetinsights.evaluation_metrics.average_precision_2d.MeanAveragePrecisionAverageOverIOU) and [mAR](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.evaluation_metrics.html#datasetinsights.evaluation_metrics.average_recall_2d.MeanAverageRecallAverageOverIOU).
+In [part 2](#part-2-train-a-model), you have trained a model using one of our pre-compiled pipeline. In this section, you will use a trained model from part 2 to generate predictions on the test split of UnityGroceries-Real dataset and measure its performance using well-known object detection metrics like [mAP](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.evaluation_metrics.html#datasetinsights.evaluation_metrics.average_precision_2d.MeanAveragePrecisionAverageOverIOU) and [mAR](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.evaluation_metrics.html#datasetinsights.evaluation_metrics.average_recall_2d.MeanAverageRecallAverageOverIOU).
 
 We have prepared another Kubeflow [pipeline](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/evaluate_the_model.yaml) for this. You can import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/evaluate_the_model.yaml) into your kubeflow cluster. Once your pipeline has been imported, you can run it via the web UI as shown below. Alternatively, you can use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool)
 
