@@ -2,6 +2,8 @@
 
 This guide shows you how to evaluate the value/quality of a synthetic dataset by training a [Faster-RCNN](https://arxiv.org/abs/1506.01497) object detection model on it and testing the performance of that model on a well-known held out dataset of real images.
 
+<img src="_images/Synthetic Data pipeline-Dataset Validation.png" align="middle"/>
+
 ## Part 1: Datasets
 
 ### UnityGroceries-Synthetic dataset
