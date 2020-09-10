@@ -2,33 +2,33 @@
 
 This guide shows you how to use synthetic and real datasets to train [Faster-RCNN](https://arxiv.org/abs/1506.01497) object detection models and test the performance of those model on a well-known held out dataset of real images.
 
-This guide focuses on training using `UnityGroceries-Synthetic` and validate using `UnityGroceries-Real`. Additional flows using other datasets are described [at the end of the guide](#other-training-methods).
+This guide focuses on training using `UnityGroceries-SyntheticSample` and validate using `UnityGroceries-Real`. Additional flows using other datasets are described [at the end of the guide](#other-training-methods).
 
 These instructions focus on the recommended containerized approach to run a training job on a [Kubeflow](https://www.kubeflow.org/docs/gke/gcp-e2e) cluster on Google Kubernetes Engine ([GKE](https://cloud.google.com/kubernetes-engine)). We provide [pre-compiled Kubeflow pipelines](https://github.com/Unity-Technologies/datasetinsights/tree/master/kubeflow/compiled) and a [docker image](https://hub.docker.com/r/unitytechnologies/datasetinsights) for you to follow steps documented below. We do this to avoid reproducibility issues people may encounter on different platforms with different dependencies etc. We will assume you have access to a Kubeflow cluster going forward.
 
 You can use our docker image on your own container-orchestration system by following similar steps.
 
+<img src="_images/Synthetic Data pipeline-Dataset Validation.png" align="middle"/>
+
 ## Part 1: Dataset Overview
 
-> TODO: finalize name for datasets (i.e. real, synthetic large and small) and make sure the name is consistently used throughout the guide and blog post. We use placeholders `UnityGroceries-Synthetic` and `UnityGroceries-Real` in this document.
+### UnityGroceries-SyntheticSample dataset
 
-### UnityGroceries-Synthetic dataset
-
-We've made a small sample from UnityGroceries-Synthetic dataset of 5k images generated using the [SynthDet](https://github.com/Unity-Technologies/SynthDet) Unity environment. To train a model on this dataset, you can skip directly to [part 2](#part-2-train-a-model) of this guide where you'll use a pre-compiled kubeflow pipeline that is already configured to fetch and then train on this sample dataset.
+We've made a small sample of 5k images generated using the [SynthDet](https://github.com/Unity-Technologies/SynthDet) Unity environment. To train a model on this dataset, you can skip directly to [part 2](#part-2-train-a-model) of this guide where you'll use a pre-compiled kubeflow pipeline that is already configured to fetch and then train on this sample dataset.
 
 A larger dataset of 400k we used in our experiments can be made available [upon request](https://forms.gle/2BmZYQJmziq3ipK88). This dataset is not required to follow this tutorial.
 
 ### UnityGroceries-Real dataset
 
-We've also made a new [dataset of 1.3k real images](https://github.com/Unity-Technologies/SynthDet/blob/master/docs/UnityGroceriesRealWorld.md) which contain groceries and corresponding bounding boxes. You can look at it if you wish, or simply [skip ahead](#part-2-train-a-model) if you're interested in training a model on this dataset. The test split of this dataset will be used in [part 3](#part-3-evaluate-a-model).
+We've also made a new [dataset of 1.3k real images](https://github.com/Unity-Technologies/SynthDet/blob/master/docs/UnityGroceriesReal.md) which contain groceries and corresponding bounding boxes. You can look at it if you wish, or simply [skip ahead](#part-2-train-a-model) if you're interested in training a model on this dataset. The test split of this dataset will be used in [part 3](#part-3-evaluate-a-model).
 
 ### Create a new synthetic dataset using Unity Simulation (optional)
 
 If you want to run the full end-to-end pipeline including synthetic dataset generation you can follow [this guide](https://github.com/Unity-Technologies/SynthDet/blob/master/docs/RunningSynthDetCloud.md) and then continue to run [this training pipeline](#train-on-synthetic-dataset-generated-on-unity-simulation).
 
-## Part 2: Train a model on the UnityGroceries-Synthetic dataset
+## Part 2: Train a model on the UnityGroceries-SyntheticSample dataset
 
-This section shows you how to train a model on the sample synthetic dataset. Note that this is a small dataset which is the fastest to train but won't produce the best results; for that, you can train a model that uses a larger synthetic dataset and [fine tunes the model on real images](#train-on-synthetic-and-real-world-dataset-optional). To observe the best results we have obtained, you can follow the instructions to run one of our [pre-trained models](#using-our-pre-trained-models) below.
+This section shows you how to train a model on UnityGroceries-SyntheticSample dataset. Note that this is a small dataset which is the fastest to train but won't produce the best results; for that, you can train a model that uses a larger synthetic dataset and [fine tunes the model on real images](#train-on-synthetic-and-real-world-dataset-optional). To observe the best results we have obtained, you can follow the instructions to run one of our [pre-trained models](#using-our-pre-trained-models) below.
 
 To train the model, import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_synthdet_sample.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
