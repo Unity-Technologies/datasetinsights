@@ -18,13 +18,11 @@ class ABGroceriesReal(Dataset):
 
         self.label_mappings = {1: target_label}
 
-    def __getitem__(self, idx):
-        image, bboxes = self.groceries_real.__getitem__(idx)
-        for bbox in bboxes:
-            if isinstance(bbox, str):
-                raise ValueError(f"bbox for index {idx} is a string: {bbox}")
+        self._init_images_with_data()
 
-        bboxes = [BBox2D(x=bbox.x, y=bbox.y, w=bbox.w, h=bbox.h, label=1) for bbox in bboxes if bbox.label == self.target_id ]
+    def __getitem__(self, idx):
+        groceries_idx = self.image_indices_with_data[idx]
+        image, bboxes = self.get_image_and_bboxes_for_index(groceries_idx)
 
         if self.transforms:
             image, bboxes = self.transforms(image, bboxes)
@@ -32,4 +30,20 @@ class ABGroceriesReal(Dataset):
         return image, bboxes
 
     def __len__(self):
-        return self.groceries_real.__len__()
+        return self.image_indices_with_data.__len__()
+
+    def get_image_and_bboxes_for_index(self, idx):
+        image, bboxes = self.groceries_real.__getitem__(idx)
+        for bbox in bboxes:
+            if isinstance(bbox, str):
+                raise ValueError(f"bbox for index {idx} is a string: {bbox}")
+
+        bboxes = [BBox2D(x=bbox.x, y=bbox.y, w=bbox.w, h=bbox.h, label=1) for bbox in bboxes if bbox.label == self.target_id ]
+        return image, bboxes
+
+    def _init_images_with_data(self):
+        self.image_indices_with_data = []
+        for i in range(self.groceries_real.__len__()):
+            image, bboxes = self.get_image_and_bboxes_for_index(i)
+            if any(bboxes):
+                self.image_indices_with_data.append(i)
