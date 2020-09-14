@@ -139,3 +139,29 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
             ]
         )
         return result
+
+class MeanAverageRecallIOU50(EvaluationMetric):
+    """2D Bounding Box Mean Average Recall metrics at IOU=50%.
+
+    This implementation would calculate mAR at IOU=50%.
+
+    .. math:: mAR^{IoU=50} = mean_{label}AR^{label, IoU=50}
+    """
+
+    TYPE = "scalar"
+
+    def __init__(self):
+        self._ar = AverageRecall(iou_threshold=0.5)
+
+    def reset(self):
+        self._ar.reset()
+
+    def update(self, mini_batch):
+        self._ar.update(mini_batch)
+
+    def compute(self):
+        result = self._ar.compute()
+        mean_ar = np.mean(
+            [result_per_label for result_per_label in result.values()]
+        )
+        return mean_ar

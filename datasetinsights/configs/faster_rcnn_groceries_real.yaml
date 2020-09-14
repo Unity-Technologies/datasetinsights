@@ -34,7 +34,7 @@ metrics:
   mAR:
     name: MeanAverageRecallAverageOverIOU
   mARIOU50:
-    name: AverageRecall
+    name: MeanAverageRecallIOU50
   APIOU50:
     name: AveragePrecisionIOU50
 optimizer:
