@@ -14,6 +14,9 @@ from datasetinsights.evaluation_metrics.confusion_matrix import (
 from datasetinsights.stats.visualization.bbox2d_plot import (
     add_single_bbox_on_image,
 )
+from datasetinsights.stats.visualization.bbox3d_plot import (
+    add_single_bbox3d_on_image,
+)
 
 logger = logging.getLogger(__name__)
 COLORS = list(ImageColor.colormap.values())
@@ -127,6 +130,36 @@ def match_boxes(pred_bboxes, gt_bboxes):
     colors = [get_color(match) for _, match in match_results]
     return colors
 
+def plot_bboxes3d(image, bboxes, projection=None, colors=None):
+    """ Plot an image with 3D bounding boxes
+    
+    Currently only ground truth images are supported. If a list of colors is not
+    provided as an argument to this routine, the default color of green will be used.
+    
+    Args:
+        image (PIL Image): a PIL image. 
+        bboxes (list): a list of BBox3D objects 
+        projection: The perspective projection of the camera of the camera which
+        captured the ground truth. Defaults to none. If no projection is provided
+        the method will use the identity to matrix for projection. This will probably
+        lead to inaccurate results
+        colors (list): a color list for boxes. Defaults to none. If colors = None, it
+        will default to coloring all boxes green.
+
+    Returns:
+        PIL image: a PIL image with bounding boxes drawn on it.
+    """
+    np_image = np.array(image)
+    img_height, img_width, _ = np_image.shape
+
+    if projection is None:
+        projection = np.array([[1,0,0],[0,1,0],[0,0,1]])
+
+    for i, box in enumerate(bboxes):
+        color = colors[i] if colors else None
+        add_single_bbox3d_on_image(np_image, box, projection, color)
+
+    return Image.fromarray(np_image)
 
 def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
     """ Plot an image with bounding boxes.
