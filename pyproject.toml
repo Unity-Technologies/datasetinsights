@@ -90,9 +90,6 @@ exclude = '''
 )
 '''
 
-[tool.poetry.extras]
-docs = ["sphinx-rtd-theme", "recommonmark", "sphinx-click"]
-
 [tool.poetry.scripts]
 datasetinsights = "datasetinsights.__main__:entrypoint"
 

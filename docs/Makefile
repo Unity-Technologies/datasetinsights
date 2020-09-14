@@ -12,11 +12,11 @@ help:
 
 clean:
 	rm -rf $(BUILDDIR)
-	find $(SOURCEDIR) -name "*.rst" | grep -v index | xargs rm -f
 
 apidoc:
-	sphinx-apidoc -f --templatedir=$(TEMPLATEDIR) -o $(SOURCEDIR) ../datasetinsights/ ../datasetinsights/stats/visualization ../datasetinsights/dashboard.py ../datasetinsights/datasets/protos
-html: apidoc
+	sphinx-apidoc --templatedir=$(TEMPLATEDIR) -o $(SOURCEDIR) -d 2 ../datasetinsights/ ../datasetinsights/stats/visualization ../datasetinsights/dashboard.py ../datasetinsights/datasets/protos
+
+html:
 	sphinx-build -b html $(SOURCEDIR) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML doumentation pages are in $(BUILDDIR)/html."

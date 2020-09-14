@@ -3,7 +3,7 @@ datasetinsights.datasets
 
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    datasetinsights.datasets.dummy
    datasetinsights.datasets.unity_perception

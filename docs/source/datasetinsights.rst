@@ -3,7 +3,7 @@ datasetinsights
 
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    datasetinsights.commands
    datasetinsights.datasets
@@ -17,14 +17,6 @@ datasetinsights.constants
 -------------------------
 
 .. automodule:: datasetinsights.constants
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-datasetinsights.main
---------------------
-
-.. automodule:: datasetinsights.main
    :members:
    :undoc-members:
    :show-inheritance:

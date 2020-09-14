@@ -3,7 +3,7 @@ datasetinsights.io
 
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    datasetinsights.io.downloader
 
