@@ -8,7 +8,7 @@ These instructions focus on the recommended containerized approach to run a trai
 
 You can use our docker image on your own container-orchestration system by following similar steps.
 
-<img src="_images/Synthetic Data pipeline-Dataset Validation.png" align="middle"/>
+![Synthetic Data pipeline](_images/Synthetic Data pipeline-Dataset Validation.png)
 
 ## Part 1: Dataset Overview
 
@@ -32,11 +32,10 @@ This section shows you how to train a model on UnityGroceries-SyntheticSample da
 
 To train the model, import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_synthdet_sample.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
-<img src="_images/kubeflow/upload_pipeline.png" alt="drawing" width="600"/>
+![upload pipeline](_images/kubeflow/upload_pipeline.png)
 
 Once your pipeline has been imported, you can run it via the web UI as shown below. Alternatively, you can use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool)
-
-<img src="_images/kubeflow/train_on_synthdet_sample.png" alt="drawing" width="600"/>
+![train on SynthDet sample](_images/kubeflow/train_on_synthdet_sample.png)
 
 You have to specify run parameters required by this pipeline:
 
@@ -76,7 +75,7 @@ In [part 2](#part-2-train-a-model), you trained a model using one of our pre-com
 
 We have prepared another Kubeflow [pipeline](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/evaluate_the_model.yaml) for this. You can import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/evaluate_the_model.yaml) into your kubeflow cluster. Once your pipeline has been imported, you can run it via the web UI as shown below. Alternatively, you can use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool)
 
-<img src="_images/kubeflow/evaluate_the_model.png" alt="drawing" width="600"/>
+![evaluate the model](_images/kubeflow/evaluate_the_model.png)
 
 Whether you trained a model on synthetic, real or multiple datasets, you'll need to specify a model stored in the `checkpoint_dir` from previous pipelines. You can choose any checkpoint files such as `<checkpoint_dir>/FasterRCNN.ep1.estimator`, or you want to pick the checkpoint that give you the best validation result in the previous training process.
 
@@ -132,11 +131,10 @@ To further improve model performance, you may also fine-tune your model on the U
 
 To train the model, import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_synthetic_and_real_dataset.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
-<img src="_images/kubeflow/upload_pipeline.png" alt="drawing" width="600"/>
-
+![upload pipeline](_images/kubeflow/upload_pipeline.png)
 Once your pipeline has been imported, you can run it via the web UI as shown below. Alternatively, you can use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool)
 
-<img src="_images/kubeflow/train_on_synthetic_and_real_world_dataset.png" alt="drawing" width="600"/>
+![train on synthetic and real world dataset](_images/kubeflow/train_on_synthetic_and_real_world_dataset.png)
 
 You have to specify run parameters required by this pipeline:
 
@@ -162,11 +160,11 @@ This section shows you how to train a model on the UnityGroceries-Real dataset. 
 
 To train the model, simply import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_real_world_dataset.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
-<img src="_images/kubeflow/upload_pipeline.png" alt="drawing" width="600"/>
+![upload pipeline](_images/kubeflow/upload_pipeline.png)
 
 Once your pipeline has been imported, you can run it via the web UI as shown below. Alternatively, you can use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool)
 
-<img src="_images/kubeflow/train_on_real_world_dataset.png" alt="drawing" width="600"/>
+![train on synthetic dataset unity simulation](_images/kubeflow/train_on_synthetic_dataset_unity_simulation.png)
 
 You have to specify run parameters required by this pipeline:
 
@@ -189,11 +187,11 @@ This section shows you how to train a model on your own dataset generated by run
 
 To train the model, simply import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_synthetic_dataset_unity_simulation.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
-<img src="_images/kubeflow/upload_pipeline.png" alt="drawing" width="600"/>
+![upload pipeline](_images/kubeflow/upload_pipeline.png)
 
 Once your pipeline has been imported, you can run it via the web UI as shown below. Alternatively, you can use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool)
 
-<img src="_images/kubeflow/train_on_synthetic_dataset_unity_simulation.png" alt="drawing" width="600"/>
+![train on synthetic dataset unity simulation](_images/kubeflow/train_on_synthetic_dataset_unity_simulation.png)
 
 You have to specify run parameters required by this pipeline:
 
