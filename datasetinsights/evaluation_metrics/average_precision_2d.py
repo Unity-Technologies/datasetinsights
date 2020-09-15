@@ -1,7 +1,9 @@
 r"""Reference.
 
-https://github.com/rafaelpadilla/Object-Detection-Metrics#average-precision\.
-Update algorithm from:
+We implement the average precision metrics for object detection based on this:
+https://github.com/rafaelpadilla/Object-Detection-Metrics#average-precision\
+
+We optimize the metric update algorithm based on this:
 https://github.com/rafaelpadilla/Object-Detection-Metrics/blob/master/lib/Evaluator.py
 """
 import collections
