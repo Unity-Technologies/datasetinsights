@@ -47,12 +47,11 @@ class AverageRecall(EvaluationMetric):
         """Update records per mini batch.
 
         Args:
-            mini_batch (list(list)): a list which contains batch_size of
-            gt bboxes and pred bboxes pair in each image.
-            For example, if batch size = 2, mini_batch looks like:
-            [[gt_bboxes1, pred_bboxes1], [gt_bboxes2, pred_bboxes2]]
-            where gt_bboxes1, pred_bboxes1 contain gt bboxes and pred bboxes
-            in one image
+            mini_batch (list(list)): a list which contains batch_size of gt
+              bboxes and pred bboxes pair in each image. For example, if batch
+              size = 2, mini_batch looks like: [[gt_bboxes1, pred_bboxes1],
+              [gt_bboxes2, pred_bboxes2]] where gt_bboxes1, pred_bboxes1 contain
+              gt bboxes and pred bboxes in one image.
         """
         for bboxes in mini_batch:
             gt_bboxes, pred_bboxes = bboxes
@@ -106,7 +105,7 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
     per image is limited to 100.
 
     .. math:: mAR^{IoU=0.5:0.95:0.05} = mean_{label,IoU}
-    AR^{label, IoU=0.5:0.95:0.05}
+    .. math:: AR^{label, IoU=0.5:0.95:0.05}
     """
 
     TYPE = "scalar"

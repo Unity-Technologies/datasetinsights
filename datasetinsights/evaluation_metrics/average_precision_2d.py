@@ -1,6 +1,6 @@
 r"""Reference.
 
-https://github.com/rafaelpadilla/Object-Detection-Metrics#average-precision\
+https://github.com/rafaelpadilla/Object-Detection-Metrics#average-precision\.
 Update algorithm from:
 https://github.com/rafaelpadilla/Object-Detection-Metrics/blob/master/lib/Evaluator.py
 """
@@ -60,12 +60,11 @@ class AveragePrecision(EvaluationMetric):
         """Update records per mini batch
 
         Args:
-            mini_batch (list(list)): a list which contains batch_size of
-            gt bboxes and pred bboxes pair in each image.
-            For example, if batch size = 2, mini_batch looks like:
-            [[gt_bboxes1, pred_bboxes1], [gt_bboxes2, pred_bboxes2]]
-            where gt_bboxes1, pred_bboxes1 contain gt bboxes and pred bboxes
-            in one image
+            mini_batch (list(list)): a list which contains batch_size of gt
+              bboxes and pred bboxes pair in each image. For example, if batch
+              size = 2, mini_batch looks like: [[gt_bboxes1, pred_bboxes1],
+              [gt_bboxes2, pred_bboxes2]] where gt_bboxes1, pred_bboxes1 contain
+              gt bboxes and pred bboxes in one image.
         """
         for bboxes in mini_batch:
             gt_bboxes, pred_bboxes = bboxes
@@ -250,7 +249,7 @@ class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
     limited to 100.
 
     .. math:: mAP^{IoU=0.5:0.95:0.05} = mean_{label,IoU}
-    AP^{label, IoU=0.5:0.95:0.05}
+    .. math:: AP^{label, IoU=0.5:0.95:0.05}
     """
 
     TYPE = "scalar"
