@@ -56,22 +56,59 @@ Example persistent data paths from [SynthDet](https://github.com/Unity-Technolog
 datasetinsights download \
   --source-uri=<xxx> \
   --output=$HOME/data \
-  --auth-token=<xxx>
+  --access-token=<xxx>
 ```
-The `source-uri` is the URI of where this data should be downloaded. Supported source uri patterns ^gs://|^http(s)?://|^usim://. The `output` is the directory on localhost where datasets should be (Default: /data). The `auth-token` can be generated using the Unity Simulation [CLI](https://github.com/Unity-Technologies/Unity-Simulation-Docs/blob/master/doc/cli.md#usim-inspect-auth). This script will download the synthetic dataset for the requested [run-execution-id](https://github.com/Unity-Technologies/Unity-Simulation-Docs/blob/master/doc/cli.md#argument-descriptions).
+The `source-uri` is the URI of where this data should be downloaded. Supported source uri patterns ^gs://|^http(s)?://|^usim://. The `output` is the directory on localhost where datasets should be (Default: /data). The `access-token` can be generated using the Unity Simulation [CLI](https://github.com/Unity-Technologies/Unity-Simulation-Docs/blob/master/doc/cli.md#usim-inspect-auth). This script will download the synthetic dataset for the requested [run-execution-id](https://github.com/Unity-Technologies/Unity-Simulation-Docs/blob/master/doc/cli.md#argument-descriptions).
 
 If the `--include-binary` flag is present, the images will also be downloaded. This might take a long time, depending on the size of the generated dataset.
 
-### Download SynthDet Dataset
+## Download dataset
 
-Download SynthDet public dataset from GCS, including `UnityGroceries-Real` and `UnityGroceries-SyntheticSample` dataset. You can use the provided cli script to download public dataset to reproduce our work. Here is the command line for GroceriesReal dataset download:
+Depending on where the dataset is stored there are different options for downloading datasets
 
-```bash
-datasetinsights download \
-  --source-uri=<xxx> \
-  --output=$HOME/data \
+You can specify project_it, run_execution_id, access_token in source-uri
+
+Downloading from Unity Simulation
 ```
-The `source-uri` is the URI of where this data should be downloaded. Supported source uri patterns ^gs://|^http(s)?://|^usim://. The `output` is the directory on localhost where datasets should be (Default: /data).
+datasetinsights download
+--source-uri=usim://<access_token>@<project_id>/<run_execution_id>
+--output=$HOME/data
+```
+Alternatively, you can also override access_token such as
+```
+datasetinsights download --source-uri=usim://<project_id>/<run_execution_id>
+ --output=$HOME/data --access-token=<access_token>
+```
+Downloading from a http source:
+```
+datasetinsights download --source-uri=http://url.to.file.zip
+ --output=$HOME/data
+```
 Available public datasets:
 * UnityGroceries-Real: `https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip`
 * UnityGroceries-SyntheticSample: `https://storage.googleapis.com/datasetinsights/data/synthetic/SynthDet.zip`
+
+Downloading from a gcs source:
+```
+datasetinsights download --source-uri=gs://url/to/file.zip
+ --output=$HOME/data
+
+datasetinsights download --source-uri=gs://url/to/folder
+ --output=$HOME/data
+```
+
+## Train Model
+
+```
+datasetinsights train \
+ --config=datasetinsights/configs/faster_rcnn.yaml \
+ --train-data=path_to_data
+```
+
+## Evaluate model
+
+```
+datasetinsights train \
+ --config=datasetinsights/configs/faster_rcnn.yaml \
+ --test-data=path_to_data
+```

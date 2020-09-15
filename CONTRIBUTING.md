@@ -99,54 +99,6 @@ datasetinsights
         This module contains code for visualizing and gathering
         statistics on the dataset
 
-## Download dataset
-
-Depending on where the dataset is stored there are different options for downloading datasets
-
-You can specify project_it, run_execution_id, access_token in source-uri
-
-Downloading from Unity Simulation
-```
-datasetinsights download
---source-uri=usim://<access_token>@<project_id>/<run_execution_id>
---output=$HOME/data
-```
-Alternatively, you can also override access_token such as
-```
-datasetinsights download --source-uri=usim://<project_id>/<run_execution_id>
- --output=$HOME/data --access-token=<access_token>
-```
-Downloading from a http source:
-```
-datasetinsights download --source-uri=http://url.to.file.zip
- --output=$HOME/data
-
-```
-Downloading from a gcs source:
-```
-datasetinsights download --source-uri=gs://url/to/file.zip
- --output=$HOME/data
-
-datasetinsights download --source-uri=gs://url/to/folder
- --output=$HOME/data
-```
-
-## Train Model
-
-```
-datasetinsights train \
- --config=datasetinsights/configs/faster_rcnn.yaml \
- --train-data=path_to_data
-```
-
-## Evaluate model
-
-```
-datasetinsights train \
- --config=datasetinsights/configs/faster_rcnn.yaml \
- --test-data=path_to_data
-```
-
 ## Unit testing
 
 We use [pytest](https://docs.pytest.org/en/latest/) to run tests located under `tests/`. Run the entire test suite with
