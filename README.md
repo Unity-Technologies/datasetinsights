@@ -32,7 +32,7 @@ docker run \
   -t unitytechnologies/datasetinsights:latest
 ```
 This command mounts directory `$HOME/data` in your local filesystem to `/data` inside the container.
-If you are loading a dataset generated locally from a Unity app, replace this path with the root of your app's persistent data folder. This command assumes you have an environment variable GOOGLE_APPLICATION_CREDENTIALS in the host machine that points to a GCP service account credential file. 
+If you are loading a dataset generated locally from a Unity app, replace this path with the root of your app's persistent data folder. This command assumes you have an environment variable GOOGLE_APPLICATION_CREDENTIALS in the host machine that points to a GCP service account credential file.
 
 Example persistent data paths from [SynthDet](https://github.com/Unity-Technologies/synthdet):
 * OSX: `~/Library/Application\ Support/UnityTechnologies/SynthDet`
@@ -71,7 +71,7 @@ datasetinsights download \
   --source-uri=<xxx> \
   --output=$HOME/data \
 ```
-The `source-uri` is the URI of where this data should be downloaded. Supported source uri patterns ^gs://|^http(s)?://|^usim://. The `output` is the directory on localhost where datasets should be (Default: /data). 
+The `source-uri` is the URI of where this data should be downloaded. Supported source uri patterns ^gs://|^http(s)?://|^usim://. The `output` is the directory on localhost where datasets should be (Default: /data).
 Available public datasets:
 * UnityGroceries-Real: `https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip`
 * UnityGroceries-SyntheticSample: `https://storage.googleapis.com/datasetinsights/data/synthetic/SynthDet.zip`
