@@ -98,7 +98,9 @@ def _process_label(bbox, label_mappings=None):
     """
     if label_mappings is not None:
         label = label_mappings[bbox.label]
-    if bbox.score != 1.0:
+    else:
+        label = None
+    if bbox.score != 1.0 and label:
         return f"{label}: {bbox.score * 100: .2f}%"
     else:
         return label

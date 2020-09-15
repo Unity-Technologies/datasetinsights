@@ -6,6 +6,7 @@ Reference: https://github.com/nalepae/bounding-box
 import os as _os
 import pathlib
 from hashlib import md5 as _md5
+import random as _random
 
 import cv2 as _cv2
 import numpy as _np
@@ -126,8 +127,15 @@ def _add_single_bbox_on_image(
         hex_digest = _md5(label.encode()).hexdigest()
         color_index = int(hex_digest, 16) % len(_COLOR_NAME_TO_RGB)
         color = _COLOR_NAMES[color_index]
+    elif not label:
+        color = _random.choice(_COLOR_NAMES)
+
     colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
     color, color_text = colors
+
+    if len(color) < 4:
+        color.append(255)
+        color_text.append(255)
 
     _cv2.rectangle(image, (left, top), (right, bottom), color, box_line_width)
 
