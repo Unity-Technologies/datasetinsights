@@ -4,6 +4,8 @@ This guide shows you how to use synthetic and real datasets to train [Faster-RCN
 
 This guide focuses on training using `UnityGroceries-SyntheticSample` and validate using `UnityGroceries-Real`. Additional flows using other datasets are described [at the end of the guide](#other-training-methods).
 
+![dataset evaluation](_images/synthetic_data_pipeline_dataset_evaluation.png)
+
 These instructions focus on the recommended containerized approach to run a training job on a [Kubeflow](https://www.kubeflow.org/docs/gke/gcp-e2e) cluster on Google Kubernetes Engine ([GKE](https://cloud.google.com/kubernetes-engine)). We provide [pre-compiled Kubeflow pipelines](https://github.com/Unity-Technologies/datasetinsights/tree/master/kubeflow/compiled) and a [docker image](https://hub.docker.com/r/unitytechnologies/datasetinsights) for you to follow steps documented below. We do this to avoid reproducibility issues people may encounter on different platforms with different dependencies etc. We will assume you have access to a Kubeflow cluster going forward.
 
 You can use our docker image on your own container-orchestration system by following similar steps.
