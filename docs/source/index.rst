@@ -5,12 +5,13 @@
 
 Welcome to the Unity Dataset Insights documentation!
 ====================================================
-Unity Dataset Insights is a python package for understanding synthetic datasets.
-This package enables users to analyze synthetic datasets generated using the `Perception SDK <https://github.com/Unity-Technologies/com.unity.perception>`_
-for the `Unity game engine <https://unity.com/>`_ and, optionally, at scale using
-`Unity Simulations <https://unity.com/products/simulation>`_. Dataset Insights exposes the metrics collected when the dataset
-was created e.g. object count, label distribution, etc. To use our sample notebooks pull our docker image
-`unitytechnologies/datasetinsights <https://hub.docker.com/r/unitytechnologies/datasetinsights>`_
+Unity Dataset Insights is a python package for understanding synthetic datasets. This package enables users to analyze synthetic datasets generated using the `Perception SDK <https://github.com/Unity-Technologies/com.unity.perception>`_
+for the `Unity game engine <https://unity.com/>`_ and, optionally, at scale using `Unity Simulations <https://unity.com/products/simulation>`_. Dataset Insights exposes the metrics collected when the dataset was created e.g. object count, label distribution, etc. To use our sample notebooks pull our docker image `unitytechnologies/datasetinsights <https://hub.docker.com/r/unitytechnologies/datasetinsights>`_. It can also train and evaluate your model.
+Dataset Insights in three points:
+* Understand their synthetic datasets by exposing the metrics collected when the dataset
+was created e.g. object count, label distribution, etc. 
+* Train a model based on the selected dataset
+* Evaluate the model
 
 
 
