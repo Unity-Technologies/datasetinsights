@@ -400,14 +400,14 @@ def train_on_synthetic_dataset_unity_simulation(
     config: str = "datasetinsights/configs/faster_rcnn_synthetic.yaml",
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
-    volume_size: str = "100Gi",
+    volume_size: str = "1.5Ti",
 ):
     output = train_data = val_data = DATA_PATH
 
     # The following parameters can't be `PipelineParam` due to this issue:
     # https://github.com/kubeflow/pipelines/issues/1956
     # Instead, they have to be configured when the pipeline is compiled.
-    memory_limit = "64Gi"
+    memory_limit = "256Gi"
     num_gpu = 8
     gpu_type = "nvidia-tesla-v100"
 
