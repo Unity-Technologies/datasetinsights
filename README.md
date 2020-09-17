@@ -1,86 +1,60 @@
-Dataset Insights
-================
-Unity Dataset Insights is a python package for understanding synthetic datasets. This package enables users to analyze synthetic datasets generated using the `Perception SDK <https://github.com/Unity-Technologies/com.unity.perception>`_
-for the `Unity game engine <https://unity.com/>`_ and, optionally, at scale using `Unity Simulations <https://unity.com/products/simulation>`_. Dataset Insights exposes the metrics collected when the dataset was created e.g. object count, label distribution, etc. To use our sample notebooks pull our docker image `unitytechnologies/datasetinsights <https://hub.docker.com/r/unitytechnologies/datasetinsights>`_. It can also train and evaluate your model.
-Dataset Insights in three points:
-* Understand their synthetic datasets by exposing the metrics collected when the dataset
-was created e.g. object count, label distribution, etc.
-* Train a model based on the selected dataset
-* Evaluate the model
+# Dataset Insights
 
-Installing
-============
-Install and update using `pip <https://pip.pypa.io/en/stable/quickstart/>`_.
-```bash
-pip install datasetinsights
-```
+Unity Dataset Insights is a python package for understanding synthetic datasets.
+This package enables users to analyze synthetic datasets generated using the [Perception SDK](https://github.com/Unity-Technologies/com.unity.perception).
 
-Quick Start
-============
-The Dataset Insight notebooks assume that the user has already generated a synthetic dataset using the Unity Perception package. To learn how to create a synthetic dataset using Unity please see the
-[perception documentation](https://github.com/Unity-Technologies/com.unity.perception).
+## Installing
 
-## Running the Dataset Insights Jupyter Notebook Locally
-You can either run the notebook by installing our python package or by using our docker image.
+Dataset Insights maintains a pip package for easy installation. It can work in any standard Python environment using `pip install datasetinsights` command. We support Python 3 (>= 3.7).
 
-### Running a Notebook Locally Using Docker
-The easiest way to use Dataset Insights is to run our jupyter notebook provided in our docker image `unitytechnologies/datasetinsights <https://hub.docker.com/r/unitytechnologies/datasetinsights>`_.
+## Getting Started
 
-#### Requirements
-[Docker](https://docs.docker.com/get-docker/) installed.
+### Dataset Statistics
 
-#### Steps
-1. Run notebook server using docker
+We provide sample [notebook](notebooks/SynthDet_Statistics.ipynb) to help you get started with dataset statistics for the [SynthDet](https://github.com/Unity-Technologies/SynthDet) project. We plan to support other sample Unity projects in the future.
+
+### Dataset Evaluation
+
+Dataset evaluation provide tools to train and evaluate ML models for different datasets. You can run `download`, `train` and `evaluate` commands:
+
+[Download Dataset](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-download)
 
 ```bash
-docker run \
-  -p 8888:8888 \
-  -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/key.json \
-  -v $GOOGLE_APPLICATION_CREDENTIALS:/tmp/key.json:ro \
-  -v $HOME/data:/data \
-  -t unitytechnologies/datasetinsights:latest
+datasetinsights download \
+  --source-uri=<xxx> \
+  --output=$HOME/data
 ```
 
-2. Go to `http://localhost:8888` in a web browser to open the Jupyter browser.
-3. Open and run the [example notebook](https://hub.docker.com/r/unitytechnologies/datasetinsights) or create your own.
-
-## Running a Dataset Insights Jupyter Notebook Locally
-
-#### Requirements
-Install all dependencies using `poetry <https://python-poetry.org/docs/#installation>`_.
-```bash
-poetry install
-```
-#### Steps
-1. Run notebook server locally. Go to `dataset-insights/` folder, and type:
-```bash
-jupyter notebook
-```
-2. Go to `http://localhost:8888` in a web browser to open the Jupyter browser.
-
-## Download Dataset
-
-You can download your dataset from three different places:
-* [Unity Simulation](https://unity.com/products/simulation)
-* our public datasets: [UnityGroceries-Real](https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip) and [UnityGroceries-SyntheticSample](https://storage.googleapis.com/datasetinsights/data/synthetic/SynthDet.zip)
-* GCS source `gs://`.
+[Train](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-train)
 
 ```bash
-datasetinsights download --source-uri=<xxx> --output=$HOME/data
-```
-
-## Train Model
-
-```
 datasetinsights train \
  --config=datasetinsights/configs/faster_rcnn.yaml \
- --train-data=path_to_data
+ --train-data=$HOME/data
 ```
 
-## Evaluate Model
+[Evaluate](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-evaluate)
 
-```
+```bash
 datasetinsights evaluate \
  --config=datasetinsights/configs/faster_rcnn.yaml \
- --test-data=<path_to_data>
+ --test-data=$HOME/data
 ```
+
+To learn more, see this [tutorial](https://datasetinsights.readthedocs.io/en/latest/Evaluation_Tutorial.html).
+
+## Docker
+
+You can use the pre-build docker image [unitytechnologies/datasetinsights](https://hub.docker.com/r/unitytechnologies/datasetinsights) to run similar commands.
+
+## Documentation
+
+You can find the API documentation on [readthedocs](https://datasetinsights.readthedocs.io/en/latest/)
+
+## Contributing
+
+Please let us know if you encounter a bug by filing an issue. To learn more about making a contribution to Dataset Insights, please see our Contribution [page](CONTRIBUTING.md).
+
+## License
+
+Dataset Insights is licensed under the Apache License, Version 2.0. See [LICENSE](LICENCE) for the full license text.
