@@ -91,6 +91,12 @@ def cli(
     logger.debug(f"Called evaluate command with parameters: {ctx.params}")
     logger.debug(f"Override estimator config with args: {ctx.args}")
     config = CN.load_cfg(open(config, "r"))
+
+    if len(ctx.args) == 1:
+        config.merge_from_list(ctx.args[0].split(" "))
+    else:
+        config.merge_from_list(ctx.args)
+
     estimator = create_estimator(
         config=config,
         name=config.estimator,

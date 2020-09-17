@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: evaluate-the-model-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0, pipelines.kubeflow.org/pipeline_compilation_time: '2020-08-18T15:23:50.716642',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0, pipelines.kubeflow.org/pipeline_compilation_time: '2020-09-17T14:20:03.309048',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Evaluate the model", "inputs":
       [{"default": "unitytechnologies/datasetinsights:latest", "name": "docker", "optional":
       true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip",
@@ -11,6 +11,7 @@ metadata:
       "name": "checkpoint_file", "optional": true, "type": "String"}, {"default":
       "gs://<bucket>/runs/yyyymmdd-hhmm", "name": "tb_log_dir", "optional": true,
       "type": "String"}, {"default": "100Gi", "name": "volume_size", "optional": true,
+      "type": "String"}, {"default": "", "name": "extra_arguments", "optional": true,
       "type": "String"}], "name": "Evaluate the model"}'}
   labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0}
 spec:
@@ -43,7 +44,7 @@ spec:
   - name: evaluate
     container:
       args: ['--config={{inputs.parameters.config}}', '--checkpoint-file={{inputs.parameters.checkpoint_file}}',
-        --test-data=/data, '--tb-log-dir={{inputs.parameters.tb_log_dir}}']
+        --test-data=/data, '--tb-log-dir={{inputs.parameters.tb_log_dir}}', '{{inputs.parameters.extra_arguments}}']
       command: [datasetinsights, evaluate]
       env:
       - {name: GOOGLE_APPLICATION_CREDENTIALS, value: /secret/gcp-credentials/user-gcp-sa.json}
@@ -60,6 +61,7 @@ spec:
       - {name: checkpoint_file}
       - {name: config}
       - {name: docker}
+      - {name: extra_arguments}
       - {name: pvc-name}
       - {name: tb_log_dir}
     nodeSelector: {cloud.google.com/gke-accelerator: nvidia-tesla-v100}
@@ -74,6 +76,7 @@ spec:
       - {name: checkpoint_file}
       - {name: config}
       - {name: docker}
+      - {name: extra_arguments}
       - {name: source_uri}
       - {name: tb_log_dir}
       - {name: volume_size}
@@ -95,6 +98,7 @@ spec:
           - {name: checkpoint_file, value: '{{inputs.parameters.checkpoint_file}}'}
           - {name: config, value: '{{inputs.parameters.config}}'}
           - {name: docker, value: '{{inputs.parameters.docker}}'}
+          - {name: extra_arguments, value: '{{inputs.parameters.extra_arguments}}'}
           - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
           - {name: tb_log_dir, value: '{{inputs.parameters.tb_log_dir}}'}
       - name: pvc
@@ -135,4 +139,5 @@ spec:
     - {name: checkpoint_file, value: 'https://storage.googleapis.com/datasetinsights/models/fine-tuned-sim2real/FasterRCNN.estimator'}
     - {name: tb_log_dir, value: 'gs://<bucket>/runs/yyyymmdd-hhmm'}
     - {name: volume_size, value: 100Gi}
+    - {name: extra_arguments}
   serviceAccountName: pipeline-runner

@@ -74,10 +74,12 @@ def train_op(
     num_gpu,
     gpu_type,
     checkpoint_file=None,
+    extra_arguments="",
 ):
     """ Create a Kubeflow ContainerOp to train an estimator.
 
     Args:
+
         docker (str): Docker image registry URI.
         config (str): Path to estimator config file.
         train_data (str): Path to train dataset directory.
@@ -91,6 +93,8 @@ def train_op(
             we set memory_request = memory_limit.
         num_gpu (int): Set the number of GPU for this operator
         gpu_type (str): Set the type of GPU
+        extra_arguments: extra arguments passed to the
+            cli to override estimator yaml config
 
     Returns:
         kfp.dsl.ContainerOp: Represents an op implemented by a container image
@@ -118,6 +122,9 @@ def train_op(
     ]
     if checkpoint_file:
         arguments.append(f"--checkpoint-file={checkpoint_file}")
+        arguments.append(extra_arguments)
+    else:
+        arguments.append(extra_arguments)
 
     train = dsl.ContainerOp(
         name="train",
@@ -151,6 +158,7 @@ def evaluate_op(
     memory_limit,
     num_gpu,
     gpu_type,
+    extra_arguments="",
 ):
     """ Create a Kubeflow ContainerOp to evaluate an estimator.
 
@@ -166,6 +174,8 @@ def evaluate_op(
             we set memory_request = memory_limit.
         num_gpu (int): Set the number of GPU for this operator
         gpu_type (str): Set the type of GPU
+        extra_arguments: extra arguments passed to the
+            cli to override estimator yaml config
 
     Returns:
         kfp.dsl.ContainerOp: Represents an op implemented by a container image
@@ -180,6 +190,7 @@ def evaluate_op(
             f"--checkpoint-file={checkpoint_file}",
             f"--test-data={test_data}",
             f"--tb-log-dir={tb_log_dir}",
+            extra_arguments,
         ],
         pvolumes={DATA_PATH: volume},
     )
@@ -211,6 +222,7 @@ def train_on_synthdet_sample(
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
     volume_size: str = "100Gi",
+    extra_arguments: str = "",
 ):
     output = train_data = val_data = DATA_PATH
 
@@ -241,6 +253,7 @@ def train_on_synthdet_sample(
         memory_limit=memory_limit,
         num_gpu=num_gpu,
         gpu_type=gpu_type,
+        extra_arguments=extra_arguments,
     )
 
 
@@ -259,6 +272,7 @@ def evaluate_the_model(
     ),
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     volume_size: str = "100Gi",
+    extra_arguments: str = "",
 ):
     output = test_data = DATA_PATH
 
@@ -288,6 +302,7 @@ def evaluate_the_model(
         memory_limit=memory_limit,
         num_gpu=num_gpu,
         gpu_type=gpu_type,
+        extra_arguments=extra_arguments,
     )
 
 
@@ -304,6 +319,7 @@ def train_on_real_world_dataset(
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
     volume_size: str = "100Gi",
+    extra_arguments: str = "",
 ):
     output = train_data = val_data = DATA_PATH
 
@@ -334,6 +350,7 @@ def train_on_real_world_dataset(
         memory_limit=memory_limit,
         num_gpu=num_gpu,
         gpu_type=gpu_type,
+        extra_arguments=extra_arguments,
     )
 
 
@@ -354,6 +371,7 @@ def train_on_synthetic_and_real_dataset(
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
     volume_size: str = "100Gi",
+    extra_arguments: str = "",
 ):
     output = train_data = val_data = DATA_PATH
 
@@ -385,6 +403,7 @@ def train_on_synthetic_and_real_dataset(
         num_gpu=num_gpu,
         gpu_type=gpu_type,
         checkpoint_file=checkpoint_file,
+        extra_arguments=extra_arguments,
     )
 
 
@@ -401,6 +420,7 @@ def train_on_synthetic_dataset_unity_simulation(
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
     volume_size: str = "100Gi",
+    extra_arguments: str = "",
 ):
     output = train_data = val_data = DATA_PATH
 
@@ -433,6 +453,7 @@ def train_on_synthetic_dataset_unity_simulation(
         memory_limit=memory_limit,
         num_gpu=num_gpu,
         gpu_type=gpu_type,
+        extra_arguments=extra_arguments,
     )
 
 
