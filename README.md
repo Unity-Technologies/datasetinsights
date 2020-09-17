@@ -3,7 +3,7 @@
 Unity Dataset Insights is a python package for understanding synthetic datasets.
 This package enables users to analyze synthetic datasets generated using the [Perception SDK](https://github.com/Unity-Technologies/com.unity.perception).
 
-## Installing
+## Installation
 
 Dataset Insights maintains a pip package for easy installation. It can work in any standard Python environment using `pip install datasetinsights` command. We support Python 3 (>= 3.7).
 

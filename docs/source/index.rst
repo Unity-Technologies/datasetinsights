@@ -3,56 +3,55 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to the Unity Dataset Insights documentation!
-====================================================
-Unity Dataset Insights is a python package for understanding synthetic datasets. This package enables users to analyze synthetic datasets generated using the `Perception SDK <https://github.com/Unity-Technologies/com.unity.perception>`_
-for the `Unity game engine <https://unity.com/>`_ and, optionally, at scale using `Unity Simulations <https://unity.com/products/simulation>`_.
-Dataset Insights exposes the metrics collected when the dataset was created e.g. object count, label distribution, etc. To use our sample notebooks pull our docker image `unitytechnologies/datasetinsights <https://hub.docker.com/r/unitytechnologies/datasetinsights>`_.
-It can also train and evaluate your model.
+Dataset Insights
+================
 
-Here are examples of running the Dataset Insights:
+Unity Dataset Insights is a python package for understanding synthetic datasets.
+This package enables users to analyze synthetic datasets generated using the `Perception SDK <https://github.com/Unity-Technologies/com.unity.perception>`_.
 
-Run Jupyter Notebook server:
+Installation
+------------
 
--- Using docker:
-::
-   docker run \
-   -p 8888:8888 \
-   -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/key.json \
-   -v $GOOGLE_APPLICATION_CREDENTIALS:/tmp/key.json:ro \
-   -v $HOME/data:/data \
-   -t unitytechnologies/datasetinsights:latest
-
--- Locally:
-::
-   poetry install
-   jupyter notebook
-
-Downlaod dataset:
-::
-   datasetinsights download --source-uri=<xxx> --output=$HOME/data
-
-Train model:
-::
-   datasetinsights train \
-   --config=datasetinsights/configs/faster_rcnn.yaml \
-   --train-data=path_to_data
-
-Evaluate model:
-::
-   datasetinsights evaluate \
-   --config=datasetinsights/configs/faster_rcnn.yaml \
-   --test-data=<path_to_data>
-
+Dataset Insights maintains a pip package for easy installation. It can work in any standard Python environment using :code:`pip install datasetinsights` command. We support Python 3 (>= 3.7).
 
 Getting Started
-===============
-To get started using a sample project to generate synthetic data and to explore your dataset using this package please follow the `SynthDet Documentation <https://github.com/Unity-Technologies/SynthDet/blob/master/docs/Readme.md>`_
+---------------
 
+Dataset Statistics
+~~~~~~~~~~~~~~~~~~
+
+We provide sample `notebook <https://github.com/Unity-Technologies/datasetinsights/blob/master/notebooks/SynthDet_Statistics.ipynb>`_ to help you get started with dataset statistics for the `SynthDet <https://github.com/Unity-Technologies/SynthDet>`_ project. We plan to support other sample Unity projects in the future.
 
 Dataset Evaluation
-------------------
-To use the pre-compiled pipelines that allow you to evaluate the quality of synthetic dataset, you can follow the :doc:`Evaluation_Tutorial` Documentation.
+~~~~~~~~~~~~~~~~~~
+
+Dataset evaluation provide tools to train and evaluate ML models for different datasets. You can run :code:`download`, :code:`train` and :code:`evaluate` commands:
+
+`Download Dataset <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-download>`_
+
+.. code-block:: bash
+
+   datasetinsights download \
+      --source-uri=<xxx> \
+      --output=$HOME/data
+
+`Train <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-train>`_
+
+.. code-block:: bash
+
+   datasetinsights train \
+      --config=datasetinsights/configs/faster_rcnn.yaml \
+      --train-data=$HOME/data
+
+`Evaluate <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-evaluate>`_
+
+.. code-block:: bash
+
+   datasetinsights evaluate \
+      --config=datasetinsights/configs/faster_rcnn.yaml \
+      --test-data=$HOME/data
+
+To learn more, see this :doc:`Evaluation_Tutorial` Documentation.
 
 
 Contents
