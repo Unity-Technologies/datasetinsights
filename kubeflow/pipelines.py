@@ -470,6 +470,7 @@ def train_ab_test_on_synthetic_dataset_unity_simulation(
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
     volume_size: str = "1.5Ti",
+    extra_arguments: str = "",
 ):
     output = train_data = val_data = DATA_PATH
 
@@ -502,4 +503,5 @@ def train_ab_test_on_synthetic_dataset_unity_simulation(
         memory_limit=memory_limit,
         num_gpu=num_gpu,
         gpu_type=gpu_type,
+        extra_arguments=extra_arguments,
     )

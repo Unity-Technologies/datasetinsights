@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: train-ab-test-on-synthetic-dataset-unity-simulation-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0, pipelines.kubeflow.org/pipeline_compilation_time: '2020-09-17T14:20:02.505678',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0, pipelines.kubeflow.org/pipeline_compilation_time: '2020-09-17T14:35:58.102896',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Train AB test on synthetic
       dataset Unity Simulation", "inputs": [{"default": "unitytechnologies/datasetinsights:latest",
       "name": "docker", "optional": true, "type": "String"}, {"default": "<unity-project-id>",
@@ -13,7 +13,8 @@ metadata:
       "name": "config", "optional": true, "type": "String"}, {"default": "gs://<bucket>/runs/yyyymmdd-hhmm",
       "name": "tb_log_dir", "optional": true, "type": "String"}, {"default": "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
       "name": "checkpoint_dir", "optional": true, "type": "String"}, {"default": "1.5Ti",
-      "name": "volume_size", "optional": true, "type": "String"}], "name": "Train
+      "name": "volume_size", "optional": true, "type": "String"}, {"default": "",
+      "name": "extra_arguments", "optional": true, "type": "String"}], "name": "Train
       AB test on synthetic dataset Unity Simulation"}'}
   labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0}
 spec:
@@ -75,7 +76,7 @@ spec:
     container:
       args: ['--config={{inputs.parameters.config}}', --train-data=/data, --val-data=/data,
         '--tb-log-dir={{inputs.parameters.tb_log_dir}}', '--checkpoint-dir={{inputs.parameters.checkpoint_dir}}',
-        '']
+        '{{inputs.parameters.extra_arguments}}']
       command: [python, -m, torch.distributed.launch, --nproc_per_node=8, --use_env,
         datasetinsights, train]
       env:
@@ -93,6 +94,7 @@ spec:
       - {name: checkpoint_dir}
       - {name: config}
       - {name: docker}
+      - {name: extra_arguments}
       - {name: pvc-name}
       - {name: tb_log_dir}
     nodeSelector: {cloud.google.com/gke-accelerator: nvidia-tesla-v100}
@@ -108,6 +110,7 @@ spec:
       - {name: checkpoint_dir}
       - {name: config}
       - {name: docker}
+      - {name: extra_arguments}
       - {name: project_id}
       - {name: run_execution_id}
       - {name: tb_log_dir}
@@ -137,6 +140,7 @@ spec:
           - {name: checkpoint_dir, value: '{{inputs.parameters.checkpoint_dir}}'}
           - {name: config, value: '{{inputs.parameters.config}}'}
           - {name: docker, value: '{{inputs.parameters.docker}}'}
+          - {name: extra_arguments, value: '{{inputs.parameters.extra_arguments}}'}
           - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
           - {name: tb_log_dir, value: '{{inputs.parameters.tb_log_dir}}'}
   arguments:
@@ -149,4 +153,5 @@ spec:
     - {name: tb_log_dir, value: 'gs://<bucket>/runs/yyyymmdd-hhmm'}
     - {name: checkpoint_dir, value: 'gs://<bucket>/checkpoints/yyyymmdd-hhmm'}
     - {name: volume_size, value: 1.5Ti}
+    - {name: extra_arguments}
   serviceAccountName: pipeline-runner
