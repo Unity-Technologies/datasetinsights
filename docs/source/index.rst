@@ -20,12 +20,12 @@ Getting Started
 Dataset Statistics
 ~~~~~~~~~~~~~~~~~~
 
-We provide sample `notebook <https://github.com/Unity-Technologies/datasetinsights/blob/master/notebooks/SynthDet_Statistics.ipynb>`_ to help you get started with dataset statistics for the `SynthDet <https://github.com/Unity-Technologies/SynthDet>`_ project. We plan to support other sample Unity projects in the future.
+We provide a sample `notebook <https://github.com/Unity-Technologies/datasetinsights/blob/master/notebooks/SynthDet_Statistics.ipynb>`_ to help you get started with dataset statistics for the `SynthDet <https://github.com/Unity-Technologies/SynthDet>`_ project. We plan to support other sample Unity projects in the future.
 
 Dataset Evaluation
 ~~~~~~~~~~~~~~~~~~
 
-Dataset evaluation provide tools to train and evaluate ML models for different datasets. You can run :code:`download`, :code:`train` and :code:`evaluate` commands:
+Dataset evaluation provides tools to train and evaluate ML models for different datasets. You can run :code:`download`, :code:`train` and :code:`evaluate` commands:
 
 `Download Dataset <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-download>`_
 
@@ -51,7 +51,7 @@ Dataset evaluation provide tools to train and evaluate ML models for different d
       --config=datasetinsights/configs/faster_rcnn.yaml \
       --test-data=$HOME/data
 
-To learn more, see this :doc:`Evaluation_Tutorial` Documentation.
+To learn more, see this `tutorial <https://datasetinsights.readthedocs.io/en/latest/Evaluation_Tutorial.html>`_.
 
 
 Contents

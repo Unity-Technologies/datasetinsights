@@ -11,11 +11,11 @@ Dataset Insights maintains a pip package for easy installation. It can work in a
 
 ### Dataset Statistics
 
-We provide sample [notebook](notebooks/SynthDet_Statistics.ipynb) to help you get started with dataset statistics for the [SynthDet](https://github.com/Unity-Technologies/SynthDet) project. We plan to support other sample Unity projects in the future.
+We provide a sample [notebook](notebooks/SynthDet_Statistics.ipynb) to help you get started with dataset statistics for the [SynthDet](https://github.com/Unity-Technologies/SynthDet) project. We plan to support other sample Unity projects in the future.
 
 ### Dataset Evaluation
 
-Dataset evaluation provide tools to train and evaluate ML models for different datasets. You can run `download`, `train` and `evaluate` commands:
+Dataset evaluation provides tools to train and evaluate ML models for different datasets. You can run `download`, `train` and `evaluate` commands:
 
 [Download Dataset](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-download)
 
@@ -49,7 +49,7 @@ You can use the pre-build docker image [unitytechnologies/datasetinsights](https
 
 ## Documentation
 
-You can find the API documentation on [readthedocs](https://datasetinsights.readthedocs.io/en/latest/)
+You can find the API documentation on [readthedocs](https://datasetinsights.readthedocs.io/en/latest/).
 
 ## Contributing
 
