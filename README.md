@@ -77,7 +77,7 @@ datasetinsights train \
  --train-data=path_to_data
 ```
 
-## Evaluate model
+## Evaluate Model
 
 ```
 datasetinsights evaluate \

@@ -10,6 +10,40 @@ for the `Unity game engine <https://unity.com/>`_ and, optionally, at scale usin
 Dataset Insights exposes the metrics collected when the dataset was created e.g. object count, label distribution, etc. To use our sample notebooks pull our docker image `unitytechnologies/datasetinsights <https://hub.docker.com/r/unitytechnologies/datasetinsights>`_.
 It can also train and evaluate your model.
 
+Here are examples of running the Dataset Insights:
+
+Run Jupyter Notebook server:
+
+-- Using docker:
+::
+   docker run \
+   -p 8888:8888 \
+   -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/key.json \
+   -v $GOOGLE_APPLICATION_CREDENTIALS:/tmp/key.json:ro \
+   -v $HOME/data:/data \
+   -t unitytechnologies/datasetinsights:latest
+
+-- Locally:
+::
+   poetry install
+   jupyter notebook
+
+Downlaod dataset:
+::
+   datasetinsights download --source-uri=<xxx> --output=$HOME/data
+
+Train model:
+::
+   datasetinsights train \
+   --config=datasetinsights/configs/faster_rcnn.yaml \
+   --train-data=path_to_data
+
+Evaluate model:
+::
+   datasetinsights evaluate \
+   --config=datasetinsights/configs/faster_rcnn.yaml \
+   --test-data=<path_to_data>
+
 
 Getting Started
 ===============
