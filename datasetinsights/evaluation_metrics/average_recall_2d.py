@@ -1,8 +1,5 @@
-r"""Reference.
-
-http://cocodataset.org/#detection-eval
-https://arxiv.org/pdf/1502.05082.pdf
-https://github.com/rafaelpadilla/Object-Detection-Metrics/issues/22
+r"""This module provides some common average recall metrics implementations
+(https://cocodataset.org/#detection-eval).
 """
 import collections
 
@@ -101,11 +98,12 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
 
     This implementation computes Mean Average Recall (mAR) metric,
     which is implemented as the Average Recall average over all
-    labels and IOU = 0.5:0.95:0.05. The max detections
+    labels and :math:`IOU = 0.5:0.95:0.05`. The max detections
     per image is limited to 100.
 
-    .. math:: mAR^{IoU=0.5:0.95:0.05} = mean_{label,IoU}
-    .. math:: AR^{label, IoU=0.5:0.95:0.05}
+    .. math:: mAR^{IoUs} = 1/10\sum_{IoU=0.5}^{0.95}mAR^{IoU}
+    .. math:: where,\ IoUs = 0.5:0.95:0.05
+    .. math:: mAR^{IoU} = 1/N\sum_{label=1}^{N}AR^{IoU}
     """
 
     TYPE = "scalar"

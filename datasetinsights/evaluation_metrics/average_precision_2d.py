@@ -1,10 +1,7 @@
-r"""Reference.
-
-We implement the average precision metrics for object detection based on this:
+r"""This module provides some common average precision metrics implementations
+(http://cocodataset.org/#detection-eval).
+We implement the basic average precision metric for object detection based on:
 https://github.com/rafaelpadilla/Object-Detection-Metrics#average-precision\
-
-We optimize the metric update algorithm based on this:
-https://github.com/rafaelpadilla/Object-Detection-Metrics/blob/master/lib/Evaluator.py
 """
 import collections
 
@@ -195,9 +192,10 @@ class AveragePrecision(EvaluationMetric):
 
 
 class AveragePrecisionIOU50(EvaluationMetric):
-    """2D Bounding Box Average Precision at IOU = 50%.
+    """2D Bounding Box Average Precision at :math:`IOU=50\%`.
 
-    This implementation would calculate AP at IOU = 50% for each label.
+    This implementation would calculate AP for each label at
+    :math:`IOU=50\%`.
     """
 
     TYPE = "metric_per_label"
@@ -216,11 +214,11 @@ class AveragePrecisionIOU50(EvaluationMetric):
 
 
 class MeanAveragePrecisionIOU50(EvaluationMetric):
-    """2D Bounding Box Mean Average Precision metrics at IOU=50%.
+    """2D Bounding Box Mean Average Precision metrics at :math:`IOU=50\%`.
 
-    This implementation would calculate mAP at IOU=50%.
+    This implementation would calculate mAP at :math:`IOU=50\%`.
 
-    .. math:: mAP^{IoU=50} = mean_{label}AP^{label, IoU=50}
+    .. math:: mAP^{IoU=50}=1/N\sum_{label=1}^{N}AP^{IoU=50}
     """
 
     TYPE = "scalar"
@@ -247,11 +245,12 @@ class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
 
     This implementation computes Mean Average Precision (mAP) metric,
     which is implemented as the Average Precision average over all
-    labels and IOU = 0.5:0.95:0.05. The max detections per image is
+    labels and :math:`IOU = 0.5:0.95:0.05`. The max detections per image is
     limited to 100.
 
-    .. math:: mAP^{IoU=0.5:0.95:0.05} = mean_{label,IoU}
-    .. math:: AP^{label, IoU=0.5:0.95:0.05}
+    .. math:: mAP^{IoUs} = 1/10\sum_{IoU=0.5}^{0.95}mAP^{IoU}
+    .. math:: where,\ IoUs = 0.5:0.95:0.05
+    .. math:: mAP^{IoU} = 1/N\sum_{label=1}^{N}AP^{IoU}
     """
 
     TYPE = "scalar"
