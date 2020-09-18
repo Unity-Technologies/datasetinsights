@@ -51,7 +51,7 @@ Dataset evaluation provides tools to train and evaluate ML models for different 
       --config=datasetinsights/configs/faster_rcnn.yaml \
       --test-data=$HOME/data
 
-To learn more, see this `tutorial <https://datasetinsights.readthedocs.io/en/latest/Evaluation_Tutorial.html>`_.
+To learn more, see this :doc:`Evaluation_Tutorial` Documentation.
 
 
 Contents
