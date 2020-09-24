@@ -1,0 +1,24 @@
+{
+  "version": "0.0.1",
+  "metric_definitions": [
+    {
+      "id": 1,
+      "name": "object count",
+      "description": "count number of objects observed",
+      "spec": [
+        {"label_id": 27, "label_name": "car"},
+        {"label_id": 34, "label_name": "bicycle"},
+        {"label_id": 25, "label_name": "person"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "visible pixel",
+      "description": "visible pixel",
+      "spec": [
+        {"label_id": 21, "label_name": "watch"},
+        {"label_id": 28, "label_name": "book"}
+      ]
+    }
+  ]
+}

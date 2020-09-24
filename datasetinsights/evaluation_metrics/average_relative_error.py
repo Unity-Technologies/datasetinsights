@@ -3,7 +3,7 @@ r"""Average Relative Error metrics.
 The average relative error can be described as:
 
 .. math::
-    \frac{1}{num_samples}\sum_{p}^{num_samples}\frac{|y_p-\hat{y_p}|}{y_p}
+    \frac{1}{num\ samples}\sum_{p}^{num\ samples}\frac{|y_p-\hat{y_p}|}{y_p}
 """
 import numpy as np
 

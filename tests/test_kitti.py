@@ -4,12 +4,12 @@ import numpy as np
 import torch
 from pyquaternion import Quaternion
 
-from datasetinsights.data.bbox import BBox3d
-from datasetinsights.data.datasets.kitti import (
+from datasetinsights.datasets.kitti import (
     KittiBox3d,
     KittiTransforms,
     convert_kitti2nu,
 )
+from datasetinsights.io.bbox import BBox3d
 
 CUR_FILE = os.path.dirname(os.path.abspath(__file__))
 

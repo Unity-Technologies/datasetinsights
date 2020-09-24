@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from datasetinsights.storage.checkpoint import (
+from datasetinsights.io.checkpoint import (
     EstimatorCheckpoint,
     GCSEstimatorWriter,
     LocalEstimatorWriter,
@@ -63,19 +63,18 @@ def test_gcs_estimator_checkpoint_save():
     prefix = "good_model"
     suffix = "ckpt"
     path = "/path/does/not/matter/" + ".".join([prefix, suffix])
-    object_key = os.path.join(gcs_path, ".".join([prefix, suffix]))
-
+    url = "gs://some_bucket/path/to/directory/good_model.ckpt"
     estimator = Mock()
     mocked_ckpt = Mock()
     mocked_ckpt.save = MagicMock(return_value=path)
     mocked_gcs_client = Mock()
     mocked_gcs_client.upload = Mock()
     with patch(
-        "datasetinsights.storage.checkpoint.GCSClient",
+        "datasetinsights.io.checkpoint.GCSClient",
         MagicMock(return_value=mocked_gcs_client),
     ):
         with patch(
-            "datasetinsights.storage.checkpoint.LocalEstimatorWriter",
+            "datasetinsights.io.checkpoint.LocalEstimatorWriter",
             MagicMock(return_value=mocked_ckpt),
         ):
             gcs_ckpt = GCSEstimatorWriter(cloud_path, prefix, suffix=suffix)
@@ -83,23 +82,52 @@ def test_gcs_estimator_checkpoint_save():
 
             mocked_ckpt.save.assert_called_once_with(estimator, None)
             mocked_gcs_client.upload.assert_called_once_with(
-                path, bucket, object_key
+                local_path=path, url=url
             )
 
 
-def test_create_writer():
+@pytest.mark.parametrize("filepath", ["https://some/path", "http://some/path"])
+def test_get_http_loader_from_path(filepath):
+    loader = EstimatorCheckpoint._get_loader_from_path(filepath)
+    assert loader == load_from_http
+
+
+def test_get_gcs_loader_from_path():
+    loader = EstimatorCheckpoint._get_loader_from_path("gs://some/path")
+    assert loader == load_from_gcs
+
+
+def test_get_local_loader_from_path():
+    file_name = "FasterRCNN.estimator"
+    with tempfile.TemporaryDirectory() as tmp:
+        with open(os.path.join(tmp, file_name), "w") as f:
+            loader = EstimatorCheckpoint._get_loader_from_path(f.name)
+            assert loader == load_local
+
+
+def test_get_loader_raises_error():
+    filepath = "some/wrong/path"
+    with pytest.raises(ValueError, match=r"Given path:"):
+        EstimatorCheckpoint._get_loader_from_path(filepath)
+
+
+def test_create_writer_when_checkpoint_dir_none():
     mock_local_writer = Mock()
     with patch(
-        "datasetinsights.storage.checkpoint.LocalEstimatorWriter",
+        "datasetinsights.io.checkpoint.LocalEstimatorWriter",
         MagicMock(return_value=mock_local_writer),
     ):
-        writer = EstimatorCheckpoint._create_writer("/path/to/folder", "abc")
+        writer = EstimatorCheckpoint._create_writer(
+            checkpoint_dir=None, estimator_name="abc"
+        )
 
         assert writer == mock_local_writer
 
+
+def test_create_writer_when_checkpoint_dir_gcs():
     mock_gcs_writer = Mock()
     with patch(
-        "datasetinsights.storage.checkpoint.GCSEstimatorWriter",
+        "datasetinsights.io.checkpoint.GCSEstimatorWriter",
         MagicMock(return_value=mock_gcs_writer),
     ):
         writer = EstimatorCheckpoint._create_writer("gs://abucket/path", "def")
@@ -107,18 +135,20 @@ def test_create_writer():
         assert writer == mock_gcs_writer
 
 
-def test_get_loader_from_path():
-    loader = EstimatorCheckpoint._get_loader_from_path("gs://some/path")
-    assert loader == load_from_gcs
+def test_create_writer_when_checkpoint_dir_local():
+    mock_local_writer = Mock()
+    with patch(
+        "datasetinsights.io.checkpoint.LocalEstimatorWriter",
+        MagicMock(return_value=mock_local_writer),
+    ):
+        with tempfile.TemporaryDirectory() as tmp:
+            writer = EstimatorCheckpoint._create_writer(tmp, "abc")
 
-    loader = EstimatorCheckpoint._get_loader_from_path("http://some/path")
-    assert loader == load_from_http
+            assert writer == mock_local_writer
 
-    loader = EstimatorCheckpoint._get_loader_from_path("https://some/path")
-    assert loader == load_from_http
 
-    loader = EstimatorCheckpoint._get_loader_from_path("/path/to/folder")
-    assert loader == load_local
+def test_create_raises_value_error():
+    incorrect_checkpoint_dir = "http://some/path"
 
-    with pytest.raises(ValueError, match=r"Given path:"):
-        EstimatorCheckpoint._get_loader_from_path("dfdge")
+    with pytest.raises(ValueError):
+        EstimatorCheckpoint._create_writer(incorrect_checkpoint_dir, "abc")

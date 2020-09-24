@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 from nuscenes.eval.detection.data_classes import DetectionMetrics
 
-from datasetinsights.data.bbox import BBox3d
+from datasetinsights.io.bbox import BBox3d
 
 from .average_precision_config import (
     DIST_FCN,
@@ -95,9 +95,13 @@ def calc_ap(*, precision, min_recall: float, min_precision: float) -> float:
 def center_distance(*, gt_box: BBox3d, pred_box: BBox3d) -> float:
     """
     L2 distance between the box centers (xy only).
-    :param gt_box: GT annotation sample.
-    :param pred_box: Predicted sample.
-    :return: L2 distance.
+
+    Args:
+        gt_box (BBox2D): GT annotation sample.
+        pred_box (BBox2D): Predicted sample.
+
+    Returns:
+        L2 distance.
     """
     return np.linalg.norm(
         np.array(pred_box.translation[:2]) - np.array(gt_box.translation[:2])

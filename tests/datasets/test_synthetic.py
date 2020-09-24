@@ -1,17 +1,15 @@
-import shutil
+import os
 import tempfile
 from pathlib import Path
 
 import pandas as pd
 
-import datasetinsights.constants as const
-from datasetinsights.data.bbox import BBox2D
-from datasetinsights.data.datasets.synthetic import (
+from datasetinsights.datasets.synthetic import (
     SynDetection2D,
     _get_split,
     read_bounding_box_2d,
 )
-from datasetinsights.data.simulation import Captures
+from datasetinsights.io.bbox import BBox2D
 
 
 def test_syn_detection_2d():
@@ -35,15 +33,17 @@ def test_syn_detection_2d():
 
 
 def test_read_bounding_box_2d():
-    annotation = pd.DataFrame({
-        f"{Captures.VALUES_COLUMN}.instance_id": ["...", "..."],
-        f"{Captures.VALUES_COLUMN}.label_id": [27, 30],
-        f"{Captures.VALUES_COLUMN}.label_name": ["car", "boy"],
-        f"{Captures.VALUES_COLUMN}.x": [30, 40],
-        f"{Captures.VALUES_COLUMN}.y": [50, 60],
-        f"{Captures.VALUES_COLUMN}.width": [100, 50],
-        f"{Captures.VALUES_COLUMN}.height": [80, 60],
-    })
+    annotation = pd.DataFrame(
+        {
+            f"{Captures.VALUES_COLUMN}.instance_id": ["...", "..."],
+            f"{Captures.VALUES_COLUMN}.label_id": [27, 30],
+            f"{Captures.VALUES_COLUMN}.label_name": ["car", "boy"],
+            f"{Captures.VALUES_COLUMN}.x": [30, 40],
+            f"{Captures.VALUES_COLUMN}.y": [50, 60],
+            f"{Captures.VALUES_COLUMN}.width": [100, 50],
+            f"{Captures.VALUES_COLUMN}.height": [80, 60],
+        }
+    )
     definition = {
         "id": 1243,
         "name": "...",
@@ -55,10 +55,9 @@ def test_read_bounding_box_2d():
         m["label_id"]: m["label_name"] for m in definition["spec"]
     }
 
-    assert (
-        read_bounding_box_2d(annotation, label_mappings) ==
-        [BBox2D(27, 30, 50, 100, 80)]
-    )
+    assert read_bounding_box_2d(annotation, label_mappings) == [
+        BBox2D(27, 30, 50, 100, 80)
+    ]
 
 
 def test_get_split():
@@ -73,3 +72,18 @@ def test_get_split():
     expected_val = pd.DataFrame({"id": [2, 1, 4, 5]})
     pd.testing.assert_frame_equal(expected_train, actual_train)
     pd.testing.assert_frame_equal(expected_val, actual_val)
+
+
+def test_is_dataset_files_present_returns_true():
+    with tempfile.TemporaryDirectory() as tmp:
+        temp_dir = os.path.join(tmp, "temp_name")
+        os.mkdir(temp_dir)
+        with open(os.path.join(temp_dir, "annotation.json"), "x"):
+            assert SynDetection2D.is_dataset_files_present(tmp)
+
+
+def test_is_dataset_files_present_returns_false():
+    with tempfile.TemporaryDirectory() as tmp:
+        temp_dir = os.path.join(tmp, "temp_name")
+        os.mkdir(temp_dir)
+        assert not SynDetection2D.is_dataset_files_present(tmp)
