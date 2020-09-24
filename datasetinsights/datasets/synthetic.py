@@ -1,4 +1,4 @@
-""" Simulation Dataset captures
+""" Simulation Dataset Captures
 """
 import fcntl
 import glob
@@ -114,6 +114,15 @@ class SynDetection2D(Dataset):
     See synthetic dataset schema documentation for more details.
     <https://datasetinsights.readthedocs.io/en/latest/Synthetic_Dataset_Schema.html>
 
+    Args:
+        data_path (str): Directory of the dataset
+        transforms: callable transformation that applies to a pair of
+            capture, annotation.
+        version (str): synthetic dataset schema version
+        def_id (int): annotation definition id used to filter results
+        random_seed (int): random seed used for splitting dataset into
+            train and val
+
     Attributes:
         root (str): root directory of the dataset
         captures (Dask.DataFrame): captures after filter in dataset
@@ -136,34 +145,13 @@ class SynDetection2D(Dataset):
         split="all",
         transforms=None,
         version=SCHEMA_VERSION,
-        run_execution_id=None,
         def_id=4,
         train_split_ratio=DEFAULT_TRAIN_SPLIT_RATIO,
         random_seed=47,
         **kwargs,
     ):
-        """ Initialize SynDetection2D
-
-        Args:
-            data_root (str): root directory prefix of dataset
-            transforms: callable transformation that applies to a pair of
-                capture, annotation.
-            version (str): synthetic dataset schema version
-            run_execution_id (str): USim run execution id, if this argument
-                is provided then the class will attempt to download the data
-                from USim. If the data has already been downloaded locally,
-                then this argument should be None and the caller should pass
-                in the location of the manifest_file for the manifest arg.
-                For more information on Unity Simulations please see
-                https://github.com/Unity-Technologies/Unity-Simulation-Docs
-            def_id (int): annotation definition id used to filter results
-            random_seed (int): random seed used for splitting dataset into
-                train and val
-        """
-        self.root = os.path.join(
-            data_root, const.SYNTHETIC_SUBFOLDER, run_execution_id
-        )
-        logger.info("Root directory of synthetic data: {self.root}")
+        """Initialization"""
+        self._data_path = self._preprocess_dataset(data_path)
         self.label_mappings = self._load_label_mappings(version, def_id)
 
         captures_table = Captures(self.root, version)
@@ -199,7 +187,7 @@ class SynDetection2D(Dataset):
 
         """
         cap = self.captures.iloc[index]
-        capture_file = os.path.join(self.root, cap.filename)
+        capture_file = os.path.join(self._data_path, cap.filename)
         capture_id = cap.id
         capture = Image.open(capture_file)
         capture = capture.convert("RGB")  # Remove alpha channel

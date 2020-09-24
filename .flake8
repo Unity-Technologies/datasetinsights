@@ -10,4 +10,4 @@ ignore =
 exclude =
     .git,
     __pycache__,
-    datasetinsights/data/datasets/protos/
+    datasetinsights/datasets/protos/
