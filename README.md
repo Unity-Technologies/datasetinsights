@@ -60,6 +60,7 @@ Please let us know if you encounter a bug by filing an issue. To learn more abou
 Dataset Insights is licensed under the Apache License, Version 2.0. See [LICENSE](LICENCE) for the full license text.
 
 ## Citation
+If you find this package useful, consider citing it using:
 ```
 @misc{datasetinsights2020,
     title={Unity {D}ataset {I}nsights Package},
