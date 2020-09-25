@@ -89,6 +89,8 @@ Indices and tables
 
 Citation
 ==================
+If you find this package useful, consider citing it using:
+
 ::
 
    @misc{datasetinsights2020,
