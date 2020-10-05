@@ -5,18 +5,19 @@ boxes with a simple Python API.
 import cv2 as _cv2
 import numpy as _np
 
+
 def _add_single_bbox3d_on_image(
-        image,
-        front_bottom_left,
-        front_upper_left,
-        front_upper_right,
-        front_bottom_right,
-        back_bottom_left,
-        back_upper_left,
-        back_upper_right,
-        back_bottom_right,
-        color=None,
-        box_line_width=2,
+    image,
+    front_bottom_left,
+    front_upper_left,
+    front_upper_right,
+    front_bottom_right,
+    back_bottom_left,
+    back_upper_left,
+    back_upper_right,
+    back_bottom_right,
+    color=None,
+    box_line_width=2,
 ):
     """ Add a single 3D bounding box to the passed in image.
 
@@ -79,11 +80,7 @@ def _add_single_bbox3d_on_image(
 
 
 def add_single_bbox3d_on_image(
-        image,
-        box,
-        proj,
-        color=None,
-        box_line_width=2,
+    image, box, proj, color=None, box_line_width=2,
 ):
     """" Add single 3D bounding box on a given image.
 
@@ -127,8 +124,9 @@ def add_single_bbox3d_on_image(
         bur_raster,
         blr_raster,
         color,
-        box_line_width
+        box_line_width,
     )
+
 
 def _project_pt_to_pixel_location(pt, projection, img_height, img_width):
     """ Projects a 3D coordinate into a pixel location.
@@ -154,5 +152,9 @@ def _project_pt_to_pixel_location(pt, projection, img_height, img_width):
     if _pt[2] != 0:
         _pt /= _pt[2]
 
-    return _np.array([int(-(_pt[0] * img_width) / 2.0 + (img_width * 0.5)),\
-                     int((_pt[1] * img_height) / 2.0 + (img_height * 0.5))])
+    return _np.array(
+        [
+            int(-(_pt[0] * img_width) / 2.0 + (img_width * 0.5)),
+            int((_pt[1] * img_height) / 2.0 + (img_height * 0.5)),
+        ]
+    )

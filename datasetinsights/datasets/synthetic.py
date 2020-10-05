@@ -8,8 +8,8 @@ import shutil
 from pathlib import Path
 
 from PIL import Image
-from sklearn.model_selection import train_test_split
 from pyquaternion import Quaternion
+from sklearn.model_selection import train_test_split
 
 from datasetinsights.datasets.unity_perception import (
     AnnotationDefinitions,
@@ -71,12 +71,13 @@ def _get_split(*, split, catalog, train_percentage=0.9, random_seed=47):
             f"splits are: {VALID_SPLITS}"
         )
 
+
 def read_bounding_box_3d(annotation, label_mappings=None):
     """ Convert dictionary representations of 3d bounding boxes into objects
     of the BBox3d class
-    
+
     Args:
-        annotation (List[dict]): 3D bounding box annotation 
+        annotation (List[dict]): 3D bounding box annotation
         label_mappings (dict): a dict of {label_id: label_name} mapping
 
     Returns:
@@ -90,14 +91,24 @@ def read_bounding_box_3d(annotation, label_mappings=None):
         translation = b["translation"]
         size = b["size"]
         rotation = b["rotation"]
-        rotation = Quaternion(b=rotation[0], c=rotation[1], d=rotation[2], a=rotation[3])
+        rotation = Quaternion(
+            b=rotation[0], c=rotation[1], d=rotation[2], a=rotation[3]
+        )
 
         if label_mappings and label_id not in label_mappings:
             continue
-        box = BBox3d(translation=translation, size=size, label=label_id, sample_token=0, score=1, rotation=rotation)
+        box = BBox3d(
+            translation=translation,
+            size=size,
+            label=label_id,
+            sample_token=0,
+            score=1,
+            rotation=rotation,
+        )
         bboxes.append(box)
 
     return bboxes
+
 
 def read_bounding_box_2d(annotation, label_mappings=None):
     """Convert dictionary representations of 2d bounding boxes into objects

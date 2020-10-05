@@ -132,16 +132,17 @@ def match_boxes(pred_bboxes, gt_bboxes):
     colors = [get_color(match) for _, match in match_results]
     return colors
 
+
 def plot_bboxes3d(image, bboxes, projection=None, colors=None):
     """ Plot an image with 3D bounding boxes
-    
+
     Currently this method should only be used for ground truth images, and
     doesn't support predictions. If a list of colors is not provided as an
     argument to this routine, the default color of green will be used.
-    
+
     Args:
-        image (PIL Image): a PIL image. 
-        bboxes (list): a list of BBox3D objects 
+        image (PIL Image): a PIL image.
+        bboxes (list): a list of BBox3D objects
         projection: The perspective projection of the camera of the camera which
         captured the ground truth. Defaults to none. If no projection is
         provided the method will use the identity to matrix for projection. This
@@ -156,13 +157,14 @@ def plot_bboxes3d(image, bboxes, projection=None, colors=None):
     img_height, img_width, _ = np_image.shape
 
     if projection is None:
-        projection = np.array([[1,0,0],[0,1,0],[0,0,1]])
+        projection = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
 
     for i, box in enumerate(bboxes):
         color = colors[i] if colors else None
         add_single_bbox3d_on_image(np_image, box, projection, color)
 
     return Image.fromarray(np_image)
+
 
 def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
     """ Plot an image with bounding boxes.

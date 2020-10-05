@@ -5,8 +5,8 @@ Reference: https://github.com/nalepae/bounding-box
 """
 import os as _os
 import pathlib
-from hashlib import md5 as _md5
 import random as _random
+from hashlib import md5 as _md5
 
 import cv2 as _cv2
 import numpy as _np
