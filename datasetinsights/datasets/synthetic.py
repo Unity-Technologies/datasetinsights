@@ -72,6 +72,17 @@ def _get_split(*, split, catalog, train_percentage=0.9, random_seed=47):
         )
 
 def read_bounding_box_3d(annotation, label_mappings=None):
+    """ Convert dictionary representations of 3d bounding boxes into objects
+    of the BBox3d class
+    
+    Args:
+        annotation (List[dict]): 3D bounding box annotation 
+        label_mappings (dict): a dict of {label_id: label_name} mapping
+
+    Returns:
+        A list of 3d bounding box objects
+    """
+
     bboxes = []
 
     for b in annotation:
@@ -80,8 +91,6 @@ def read_bounding_box_3d(annotation, label_mappings=None):
         size = b["size"]
         rotation = b["rotation"]
         rotation = Quaternion(b=rotation[0], c=rotation[1], d=rotation[2], a=rotation[3])
-        velocity = b["velocity"]
-        accel = b["acceleration"]
 
         if label_mappings and label_id not in label_mappings:
             continue

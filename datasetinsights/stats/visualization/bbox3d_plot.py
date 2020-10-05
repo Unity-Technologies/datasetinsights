@@ -2,7 +2,6 @@
 boxes with a simple Python API.
 """
 
-import os as _os
 import cv2 as _cv2
 import numpy as _np
 
@@ -21,21 +20,29 @@ def _add_single_bbox3d_on_image(
 ):
     """ Add a single 3D bounding box to the passed in image.
 
-    For this version of the method, all of the passed in coordinates should be integer
-    tuples already projected in image pixel coordinate space.
+    For this version of the method, all of the passed in coordinates should be
+    integer tuples already projected in image pixel coordinate space.
 
     Args:
         image (numpy array): numpy array version of the image
-        front_bottom_left (int tuple): Front bottom left coordinate of the 3D bounding box
-        front_upper_left (int tuple): Front upper left coordinate of the 3D bounding box
-        front_upper_right (int tuple): Front upper right coordinate of the 3D bounding box
-        front_bottom_right (int tuple): Front bottom right coordinate of the 3D bounding box
-        back_bottom_left (int tuple): Back bottom left coordinate of the 3D bounding box
-        back_upper_left (int tuple): Back bottom left coordinate of the 3D bounding box
-        back_upper_right (int tuple): Back bottom left coordinate of the 3D bounding box
-        back_bottom_right (int tuple): Back bottom left coordinate of the 3D bounding box
-        color (tuple): RGBA color of the bounding box. Defaults to None. If color = None
-        the the tuple of [0, 255, 0, 255] (Green) will be used.
+        front_bottom_left (int tuple): Front bottom left coordinate of the 3D
+        bounding box
+        front_upper_left (int tuple): Front upper left coordinate of the 3D
+        bounding box
+        front_upper_right (int tuple): Front upper right coordinate of the 3D
+        bounding box
+        front_bottom_right (int tuple): Front bottom right coordinate of the 3D
+        bounding box
+        back_bottom_left (int tuple): Back bottom left coordinate of the 3D
+        bounding box
+        back_upper_left (int tuple): Back bottom left coordinate of the 3D
+        bounding box
+        back_upper_right (int tuple): Back bottom left coordinate of the 3D
+        bounding box
+        back_bottom_right (int tuple): Back bottom left coordinate of the 3D
+        bounding box
+        color (tuple): RGBA color of the bounding box. Defaults to None. If
+        color = None the the tuple of [0, 255, 0, 255] (Green) will be used.
         box_line_width: The width of the drawn box. Defaults to 2.
     """
     try:
@@ -74,7 +81,7 @@ def _add_single_bbox3d_on_image(
 def add_single_bbox3d_on_image(
         image,
         box,
-        projection,
+        proj,
         color=None,
         box_line_width=2,
 ):
@@ -83,9 +90,9 @@ def add_single_bbox3d_on_image(
     Args:
         image (numpy array): a numpy array for an image
         box (BBox3D): a 3D bounding box in camera's coordinate system
-        projection (numpy 2D array): camera's 3x3 projection matrix
-        color(tuple): RGBA color of the bounding box. Defaults to None. If color = None
-        the the tuple of [0, 255, 0, 255] (Green) will be used.
+        proj (numpy 2D array): camera's 3x3 projection matrix
+        color(tuple): RGBA color of the bounding box. Defaults to None. If
+        color = None the the tuple of [0, 255, 0, 255] (Green) will be used.
         box_line_width (int): line width of the bounding boxes. Defaults to 2.
     """
     img_height, img_width, _ = image.shape
@@ -100,14 +107,14 @@ def add_single_bbox3d_on_image(
     bur = box.front_right_top_pt
     blr = box.front_right_bottom_pt
 
-    fll_raster = _project_pt_to_pixel_location(fll, projection, img_height, img_width)
-    ful_raster = _project_pt_to_pixel_location(ful, projection, img_height, img_width)
-    fur_raster = _project_pt_to_pixel_location(fur, projection, img_height, img_width)
-    flr_raster = _project_pt_to_pixel_location(flr, projection, img_height, img_width)
-    bll_raster = _project_pt_to_pixel_location(bll, projection, img_height, img_width)
-    bul_raster = _project_pt_to_pixel_location(bul, projection, img_height, img_width)
-    bur_raster = _project_pt_to_pixel_location(bur, projection, img_height, img_width)
-    blr_raster = _project_pt_to_pixel_location(blr, projection, img_height, img_width)
+    fll_raster = _project_pt_to_pixel_location(fll, proj, img_height, img_width)
+    ful_raster = _project_pt_to_pixel_location(ful, proj, img_height, img_width)
+    fur_raster = _project_pt_to_pixel_location(fur, proj, img_height, img_width)
+    flr_raster = _project_pt_to_pixel_location(flr, proj, img_height, img_width)
+    bll_raster = _project_pt_to_pixel_location(bll, proj, img_height, img_width)
+    bul_raster = _project_pt_to_pixel_location(bul, proj, img_height, img_width)
+    bur_raster = _project_pt_to_pixel_location(bur, proj, img_height, img_width)
+    blr_raster = _project_pt_to_pixel_location(blr, proj, img_height, img_width)
 
     _add_single_bbox3d_on_image(
         image,
@@ -136,11 +143,16 @@ def _project_pt_to_pixel_location(pt, projection, img_height, img_width):
         img_width (int): The width of the image in pixels.
 
     Returns:
-        numpy array: a one-dimensional array with two values (x and y) representing a point's
-        pixel coordinate in an image.
+        numpy array: a one-dimensional array with two values (x and y)
+        representing a point's pixel coordinate in an image.
     """
 
     _pt = projection.dot(pt)
-    _pt /= _pt[2]
+
+    # compute the perspective divide. Near clipping plane should take care of
+    # divide by zero cases, but we will check to be sure
+    if _pt[2] != 0:
+        _pt /= _pt[2]
+
     return _np.array([int(-(_pt[0] * img_width) / 2.0 + (img_width * 0.5)),\
                      int((_pt[1] * img_height) / 2.0 + (img_height * 0.5))])
