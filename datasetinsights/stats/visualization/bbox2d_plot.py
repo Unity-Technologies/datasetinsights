@@ -133,10 +133,6 @@ def _add_single_bbox_on_image(
     colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
     color, color_text = colors
 
-    if len(color) < 4:
-        color.append(255)
-        color_text.append(255)
-
     _cv2.rectangle(image, (left, top), (right, bottom), color, box_line_width)
 
     if label:
