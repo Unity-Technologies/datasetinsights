@@ -154,9 +154,11 @@ class SynDetection2D(Dataset):
         self._data_path = self._preprocess_dataset(data_path)
         self.label_mappings = self._load_label_mappings(version, def_id)
 
-        captures_table = Captures(self.root, version)
+        captures_table = Captures(self._data_path, version)
         captures = captures_table.filter_captures()
-        captures = self._remove_captures_with_missing_files(self.root, captures)
+        captures = self._remove_captures_with_missing_files(
+            self._data_path, captures
+        )
         self.annotations = captures_table.filter_annotations(def_id)
         self.captures = self._remove_captures_without_bboxes(
             captures, self.annotations
@@ -256,7 +258,7 @@ class SynDetection2D(Dataset):
         Returns:
             dict: A dict containing {label_id: label_name} mappings.
         """
-        annotation_definition = AnnotationDefinitions(self.root, version)
+        annotation_definition = AnnotationDefinitions(self._data_path, version)
 
         filtered_def = annotation_definition.get_definition(def_id)
         label_mappings = {
