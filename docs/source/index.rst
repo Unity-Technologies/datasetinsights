@@ -86,3 +86,16 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+Citation
+==================
+If you find this package useful, consider citing it using:
+
+::
+
+   @misc{datasetinsights2020,
+       title={Unity {D}ataset {I}nsights Package},
+       author={{Unity Technologies}},
+       howpublished={\url{https://github.com/Unity-Technologies/datasetinsights}},
+       year={2020}
+   }
