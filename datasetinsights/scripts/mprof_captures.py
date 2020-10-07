@@ -2,15 +2,13 @@
 
 pip install memory_profiler
 """
-import logging
 import argparse
+import logging
 
 from tqdm import tqdm
-from memory_profiler import profile
 
-from datasetinsights.data.datasets.synthetic import SynDetection2D
 import datasetinsights.constants as const
-
+from datasetinsights.data.datasets.synthetic import SynDetection2D
 
 logging.basicConfig(
     level=logging.INFO,
@@ -44,7 +42,6 @@ def parse_args():
     return args
 
 
-@profile
 def load_data(args):
     definition_id = "c31620e3-55ff-4af6-ae86-884aa0daa9b2"
     data = SynDetection2D(

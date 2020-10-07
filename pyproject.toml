@@ -45,7 +45,6 @@ tqdm = "^4.45.0"
 dask = {extras = ["complete"], version = "^2.14.0"}
 dash = "1.12.0"
 tensorflow = "^2.2.0"
-memory_profiler = "^0.57.0"
 click = "^7.1.2"
 
 
@@ -58,7 +57,6 @@ responses = "^0.10.9"
 isort = "^4.3.21"
 sphinx-rtd-theme = "^0.5.0"
 recommonmark = "^0.6.0"
-memory_profiler = "^0.57.0"
 kfp = "^1.0.0"
 sphinx-click = "^2.5.0"
 

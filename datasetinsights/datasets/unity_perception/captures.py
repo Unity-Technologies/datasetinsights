@@ -2,7 +2,6 @@
 """
 import dask.bag as db
 import pandas as pd
-from memory_profiler import profile
 
 from datasetinsights.constants import DEFAULT_DATA_ROOT
 
@@ -48,7 +47,6 @@ class Captures:
         self.captures = self._load_captures(data_root, version)
         self.annotations = self._load_annotations(data_root, version)
 
-    @profile
     def _load_captures(self, data_root, version):
         """Load captures except annotations.
         :ref:`captures`
@@ -80,7 +78,6 @@ class Captures:
 
         return captures
 
-    @profile
     def filter_captures(self, sensor_id=None, ego_id=None, modality=None):
         """Filter captures by specific sensor, ego or modality
 
@@ -89,7 +86,6 @@ class Captures:
         # TODO (YC) Implement filter here.
         return self.captures.to_dataframe().compute()
 
-    @profile
     def _load_annotations(self, data_root, version):
         """Load annotations and capture IDs.
         :ref:`capture-annotation`
@@ -150,7 +146,6 @@ class Captures:
 
         return ann.to_dict(orient="records")
 
-    @profile
     def filter_annotations(self, def_id):
         """Filter annotations by annotation definition id
         :ref:`annotations`
