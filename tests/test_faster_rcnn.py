@@ -63,6 +63,7 @@ def test_faster_rcnn_train_one_epoch(config, dataset):
         checkpointer=checkpointer,
         kfp_writer=kfp_writer,
         logdir="/tmp",
+        no_cuda=True,
     )
     estimator.writer = writer
     estimator.kfp_writer = kfp_writer
@@ -220,6 +221,7 @@ def test_faster_rcnn_evaluate_per_epoch(mock_loss, config, dataset):
         checkpointer=checkpointer,
         kfp_writer=kfp_writer,
         logdir="/tmp",
+        no_cuda=True,
     )
     estimator.writer = writer
     estimator.kfp_writer = kfp_writer
@@ -497,6 +499,7 @@ def test_faster_rcnn_predict(config, dataset):
         kfp_writer=kfp_writer,
         checkpoint_file=checkpoint_file,
         logdir="/tmp",
+        no_cuda=True,
     )
     estimator.writer = writer
     estimator.kfp_writer = kfp_writer
