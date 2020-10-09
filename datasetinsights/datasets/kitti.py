@@ -9,7 +9,7 @@ from PIL import Image
 from pyquaternion import Quaternion
 
 import datasetinsights.constants as const
-from datasetinsights.io.bbox import BBox3d
+from datasetinsights.io.bbox import BBox3D
 from datasetinsights.io.gcs import GCSClient
 
 from .base import Dataset
@@ -166,7 +166,7 @@ class KittiTransforms:
 
 def convert_kitti2nu(
     *, bbox: KittiBox3d, transforms: KittiTransforms
-) -> BBox3d:
+) -> BBox3D:
     """
     convert a bounding box from kitti format to nuscenes format
 
@@ -221,7 +221,7 @@ def convert_kitti2nu(
 
     # Set dummy velocity.
     box.velocity = np.array((0.0, 0.0, 0.0))
-    box = BBox3d(
+    box = BBox3D(
         translation=box.center,
         size=box.wlh,
         rotation=box.orientation,

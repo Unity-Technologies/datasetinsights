@@ -10,7 +10,7 @@ from nuscenes.utils.data_classes import Box
 from torch.utils.data import Dataset
 
 import datasetinsights.constants as const
-from datasetinsights.io.bbox import BBox3d
+from datasetinsights.io.bbox import BBox3D
 from datasetinsights.io.gcs import GCSClient
 
 logger = logging.getLogger(__name__)
@@ -209,9 +209,9 @@ class NuscenesDataLoader(Dataset):
         else:
             raise ValueError()
 
-    def _nu_box2bbox3d(self, nu_box: Box, idx) -> BBox3d:
+    def _nu_box2bbox3d(self, nu_box: Box, idx) -> BBox3D:
         width, length, height = nu_box.wlh
-        return BBox3d(
+        return BBox3D(
             rotation=nu_box.orientation,
             translation=nu_box.center,
             label=nu_box.label,
@@ -221,7 +221,7 @@ class NuscenesDataLoader(Dataset):
             sample_token=idx,
         )
 
-    def __getitem__(self, item) -> Dict[str, List[BBox3d]]:
+    def __getitem__(self, item) -> Dict[str, List[BBox3D]]:
         """
         Args:
             item: index
