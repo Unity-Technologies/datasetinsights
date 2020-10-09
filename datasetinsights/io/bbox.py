@@ -172,7 +172,7 @@ class BBox2D:
         return iou
 
 
-class BBox3d:
+class BBox3D:
     """
     Class for 3d bounding boxes which can either be predictions or
     ground-truths. This class is the primary representation in this repo of 3d

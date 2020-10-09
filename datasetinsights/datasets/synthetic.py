@@ -16,7 +16,7 @@ from datasetinsights.datasets.unity_perception import (
     Captures,
 )
 from datasetinsights.datasets.unity_perception.tables import SCHEMA_VERSION
-from datasetinsights.io.bbox import BBox2D, BBox3d
+from datasetinsights.io.bbox import BBox2D, BBox3D
 
 from .base import Dataset
 from .exceptions import DatasetNotFoundError
@@ -97,7 +97,7 @@ def read_bounding_box_3d(annotation, label_mappings=None):
 
         if label_mappings and label_id not in label_mappings:
             continue
-        box = BBox3d(
+        box = BBox3D(
             translation=translation,
             size=size,
             label=label_id,

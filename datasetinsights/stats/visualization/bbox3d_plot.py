@@ -2,8 +2,8 @@
 boxes with a simple Python API.
 """
 
-import cv2 as _cv2
-import numpy as _np
+import cv2
+import numpy
 
 
 def _add_single_bbox3d_on_image(
@@ -27,35 +27,35 @@ def _add_single_bbox3d_on_image(
     Args:
         image (numpy array): numpy array version of the image
         front_bottom_left (int tuple): Front bottom left coordinate of the 3D
-        bounding box
+        bounding box in pixel space
         front_upper_left (int tuple): Front upper left coordinate of the 3D
-        bounding box
+        bounding box in pixel space
         front_upper_right (int tuple): Front upper right coordinate of the 3D
-        bounding box
+        bounding box in pixel space
         front_bottom_right (int tuple): Front bottom right coordinate of the 3D
-        bounding box
+        bounding box in pixel space
         back_bottom_left (int tuple): Back bottom left coordinate of the 3D
-        bounding box
+        bounding box in pixel space
         back_upper_left (int tuple): Back bottom left coordinate of the 3D
-        bounding box
+        bounding box in pixel space
         back_upper_right (int tuple): Back bottom left coordinate of the 3D
-        bounding box
+        bounding box in pixel space
         back_bottom_right (int tuple): Back bottom left coordinate of the 3D
-        bounding box
+        bounding box in pixel space
         color (tuple): RGBA color of the bounding box. Defaults to None. If
         color = None the the tuple of [0, 255, 0, 255] (Green) will be used.
         box_line_width: The width of the drawn box. Defaults to 2.
     """
     try:
-        fbl = (int(front_bottom_left[0]), int(front_bottom_left[1]))
-        ful = (int(front_upper_left[0]), int(front_upper_left[1]))
-        fur = (int(front_upper_right[0]), int(front_upper_right[1]))
-        fbr = (int(front_bottom_right[0]), int(front_bottom_right[1]))
+        fbl = (front_bottom_left[0], front_bottom_left[1])
+        ful = (front_upper_left[0], front_upper_left[1])
+        fur = (front_upper_right[0], front_upper_right[1])
+        fbr = (front_bottom_right[0], front_bottom_right[1])
 
-        bbl = (int(back_bottom_left[0]), int(back_bottom_left[1]))
-        bul = (int(back_upper_left[0]), int(back_upper_left[1]))
-        bur = (int(back_upper_right[0]), int(back_upper_right[1]))
-        bbr = (int(back_bottom_right[0]), int(back_bottom_right[1]))
+        bbl = (back_bottom_left[0], back_bottom_left[1])
+        bul = (back_upper_left[0], back_upper_left[1])
+        bur = (back_upper_right[0], back_upper_right[1])
+        bbr = (back_bottom_right[0], back_bottom_right[1])
 
     except ValueError:
         raise TypeError("all box coorinates must be a number")
@@ -63,20 +63,20 @@ def _add_single_bbox3d_on_image(
     if color is None:
         color = [0, 255, 0, 255]
 
-    _cv2.line(image, fbl, ful, color, box_line_width)  # front left
-    _cv2.line(image, ful, fur, color, box_line_width)  # front top
-    _cv2.line(image, fbr, fur, color, box_line_width)  # front right
-    _cv2.line(image, fbl, fbr, color, box_line_width)  # front bottom
+    cv2.line(image, fbl, ful, color, box_line_width)  # front left
+    cv2.line(image, ful, fur, color, box_line_width)  # front top
+    cv2.line(image, fbr, fur, color, box_line_width)  # front right
+    cv2.line(image, fbl, fbr, color, box_line_width)  # front bottom
 
-    _cv2.line(image, bbl, bul, color, box_line_width)  # back left
-    _cv2.line(image, bul, bur, color, box_line_width)  # back top
-    _cv2.line(image, bbr, bur, color, box_line_width)  # back right
-    _cv2.line(image, bbl, bbr, color, box_line_width)  # back bottom
+    cv2.line(image, bbl, bul, color, box_line_width)  # back left
+    cv2.line(image, bul, bur, color, box_line_width)  # back top
+    cv2.line(image, bbr, bur, color, box_line_width)  # back right
+    cv2.line(image, bbl, bbr, color, box_line_width)  # back bottom
 
-    _cv2.line(image, ful, bul, color, box_line_width)  # top left
-    _cv2.line(image, fur, bur, color, box_line_width)  # top right
-    _cv2.line(image, fbl, bbl, color, box_line_width)  # bottom left
-    _cv2.line(image, fbr, bbr, color, box_line_width)  # bottom right
+    cv2.line(image, ful, bul, color, box_line_width)  # top left
+    cv2.line(image, fur, bur, color, box_line_width)  # top right
+    cv2.line(image, fbl, bbl, color, box_line_width)  # bottom left
+    cv2.line(image, fbr, bbr, color, box_line_width)  # bottom right
 
 
 def add_single_bbox3d_on_image(
@@ -134,6 +134,9 @@ def _project_pt_to_pixel_location(pt, projection, img_height, img_width):
     Applies the passed in projection matrix to project a point from the camera's
     coordinate space into pixel space.
 
+    For a description of the math used in this method, see:
+    https://www.scratchapixel.com/lessons/3d-basic-rendering/computing-pixel-coordinates-of-3d-point/
+
     Args:
         pt (numpy array): The 3D point to project.
         projection (numpy 2D array): The camera's 3x3 projection matrix.
@@ -152,7 +155,7 @@ def _project_pt_to_pixel_location(pt, projection, img_height, img_width):
     if _pt[2] != 0:
         _pt /= _pt[2]
 
-    return _np.array(
+    return numpy.array(
         [
             int(-(_pt[0] * img_width) / 2.0 + (img_width * 0.5)),
             int((_pt[1] * img_height) / 2.0 + (img_height * 0.5)),

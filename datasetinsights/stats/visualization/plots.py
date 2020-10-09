@@ -99,8 +99,8 @@ def _process_label(bbox, label_mappings=None):
     if label_mappings is not None:
         label = label_mappings[bbox.label]
     else:
-        label = None
-    if bbox.score != 1.0 and label:
+        label = bbox.label
+    if bbox.score != 1.0:
         return f"{label}: {bbox.score * 100: .2f}%"
     else:
         return label
@@ -133,7 +133,7 @@ def match_boxes(pred_bboxes, gt_bboxes):
     return colors
 
 
-def plot_bboxes3d(image, bboxes, projection=None, colors=None):
+def plot_bboxes3d(image, bboxes, projection, colors=None):
     """ Plot an image with 3D bounding boxes
 
     Currently this method should only be used for ground truth images, and
@@ -143,10 +143,8 @@ def plot_bboxes3d(image, bboxes, projection=None, colors=None):
     Args:
         image (PIL Image): a PIL image.
         bboxes (list): a list of BBox3D objects
-        projection: The perspective projection of the camera of the camera which
-        captured the ground truth. Defaults to none. If no projection is
-        provided the method will use the identity to matrix for projection. This
-        will probably lead to inaccurate results
+        projection: The perspective projection of the camera which
+        captured the ground truth.
         colors (list): a color list for boxes. Defaults to none. If
         colors = None, it will default to coloring all boxes green.
 
@@ -155,9 +153,6 @@ def plot_bboxes3d(image, bboxes, projection=None, colors=None):
     """
     np_image = np.array(image)
     img_height, img_width, _ = np_image.shape
-
-    if projection is None:
-        projection = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
 
     for i, box in enumerate(bboxes):
         color = colors[i] if colors else None
