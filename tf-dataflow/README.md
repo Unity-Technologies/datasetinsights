@@ -39,7 +39,7 @@ Here is a visual representation of the steps we just outlined:
 
 ### Phase 1: Generate synthetic data and get it into your GCP project
 
-Please use a bucket in your project that's only for this purpose! Assuming you generated data already, you'll need to transfer it to your own bucket. For that, you need to grant our service accounts permissions. 
+Please use a bucket in your project that's only for this purpose! Assuming you generated data already, you'll need to transfer it to your own bucket. For that, you need to grant our service accounts permissions.
 
 | Account | Role/Permission |
 |---|---|
@@ -68,7 +68,7 @@ Once the permissions are set up, we can proceed with the data transfer.
 1. Grab the token from your Unity Simulation configuration.
 
    If you have `jq`, you can use approach (a). Otherwise, use `usim inspect auth` (b) to have usim print out your access token and store that in a variable in the shell.
-   
+
    a.
    ```bash
     # Grab the token used to communicate with Unity
@@ -89,7 +89,7 @@ Once the permissions are set up, we can proceed with the data transfer.
    # Initiate the data transfer to your own bucket - pay attention to the response, which will be used in step 3
    curl -X PUT "https://api.simulation.unity3d.com/v1/projects/<your Unity project id>/data_transfer" \
        -H "Content-Type: application/json" \
-       -H "Authorization: Bearer $token" \        
+       -H "Authorization: Bearer $token" \
        --data-raw '{
            "destination_bucket": "your-bucket-name",
            "run_definition_id": "your-run-definition-id",
@@ -102,7 +102,7 @@ Once the permissions are set up, we can proceed with the data transfer.
    curl -X GET "https://api.simulation.unity3d.com/v1/projects/<your Unity project id>/data_transfer/<data transfer id>" -H "Authorization: Bearer $token"
    ```
 
-   You transfer job has status `ENABLED` when job is in progress, and `success` or `failed` when job is finished. The time it takes to finish a transfer job varies due to your data size, GCP status and resource contention. 
+   You transfer job has status `ENABLED` when job is in progress, and `success` or `failed` when job is finished. The time it takes to finish a transfer job varies due to your data size, GCP status and resource contention.
 
 The Unity Simulation API docs can be found [here](https://api.simulation.unity3d.com/swagger/index.html).
 
@@ -172,7 +172,7 @@ This will bundle the DataFlow job and run it on GCP. Once it's complete, you sho
 In case real world data exists and needed to be convert as well:
 
 - Real world data in similar format as Unity Simulation synthetic data format
-  
+
   If your real-world date is in the **exact same** format as Unity Simulation synthetic data format, you can simply follow **Phase 2** steps to transform the data locally and then upload to GCS for further utilization.
 
   If you happen to have access to real-world date for SynthDet, you need to be careful because there are minor differences in format. You can modify this [Python script](../cloudml/real_data_loader.py), run it locally for data transformation and then upload to GCS for further utilization.
@@ -190,20 +190,20 @@ In case real world data exists and needed to be convert as well:
   ```
 
 - Real world data in some other common formats:
-  
+
   Use these [scripts](https://github.com/tensorflow/models/tree/master/research/object_detection/dataset_tools) provided by Google to convert your data.
 
 ### Phase 3: Use Google AI Platform to train an object detection model
 
 #### *Submit a training job*
 
-Submit a built-in object deteciton training job by follow instructions [here](https://cloud.google.com/ai-platform/training/docs/algorithms/object-detection). 
+Submit a built-in object deteciton training job by follow instructions [here](https://cloud.google.com/ai-platform/training/docs/algorithms/object-detection).
 
 Training job can be submitted either through GCP Console UI or Google Cloud SDK (`gcloud`).
 
 If you choose to use `gcloud`, here is an example:
 
-1. First, you need to create `config.yaml` on your local working directory to define compute resources for your model training. 
+1. First, you need to create `config.yaml` on your local working directory to define compute resources for your model training.
    ```yaml
    trainingInput:
      scaleTier: CUSTOM
@@ -224,10 +224,10 @@ If you choose to use `gcloud`, here is an example:
 
    Find out more about supported compute resources [here](https://cloud.google.com/ai-platform/training/docs/machine-types#machine_type_table)
 
-2. Make sure your `gcloud` is configured to target GCP project, and then use `gcloud` command to submit a training job as the example below. 
+2. Make sure your `gcloud` is configured to target GCP project, and then use `gcloud` command to submit a training job as the example below.
 
-   A lot of parameters are exposed by Google AI Platform for built-in object detection model training. 
-   A full list parameter references can be found [here](https://cloud.google.com/ai-platform/training/docs/algorithms/object-detection-start#submit_a_training_job) 
+   A lot of parameters are exposed by Google AI Platform for built-in object detection model training.
+   A full list parameter references can be found [here](https://cloud.google.com/ai-platform/training/docs/algorithms/object-detection-start#submit_a_training_job)
 
     ```bash
     gcloud ai-platform jobs submit training "synthdet_full_yyyymmdd_HHMM" \
@@ -250,7 +250,7 @@ If you choose to use `gcloud`, here is an example:
       --aug_scale_min=0.8 \
       --aug_scale_max=1.2
       ```
-   
+
    **Notes:**
    - `--job-dir` will be your output path where model and checkpoint files will live. To keep your training job clean, make sure `--job-dir` exist and be empty. By default Google AI Platform will try to read checkpoint files in `--job-dir` and continue training.
    - Be careful about the value you give to `train_batch_size`. Depending on your compute resources configuration, making batch size too big can cause OOM failure easily for Google AI Platform.
@@ -265,7 +265,7 @@ To get training job status and log using `gcloud`:
 `gcloud ai-platform jobs describe $JOB_ID` \
 `gcloud ai-platform jobs stream-logs $JOB_ID`
 
-We found it easier to review with web UI on GCP Console. **View logs** in StackDriver for training progress and evaluation results. **TensorBoard** is also available for more training insights when the training job is done. 
+We found it easier to review with web UI on GCP Console. **View logs** in StackDriver for training progress and evaluation results. **TensorBoard** is also available for more training insights when the training job is done.
 
 ![view-log-example](cloudml-training-view-logs.png)
 

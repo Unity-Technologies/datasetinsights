@@ -59,7 +59,9 @@ def _convert_to_example(filename, image_buffer, height, width, labels, bboxes):
 def _bytes_feature(value):
     """Returns a bytes_list from a string / byte."""
     if isinstance(value, type(tf.constant(0))):
-        value = value.numpy()  # BytesList won't unpack a string from an EagerTensor.
+        value = (
+            value.numpy()
+        )  # BytesList won't unpack a string from an EagerTensor.
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
 
@@ -87,12 +89,16 @@ class AppParamLister(PTransform):
         self.execution_source = execution_source
 
     def expand(self, pcollection):
-        app_params_pattern = [os.path.join(self.execution_source, "urn:app_params:*/*")]
+        app_params_pattern = [
+            os.path.join(self.execution_source, "urn:app_params:*/*")
+        ]
         logging.info("App params pattern %s", app_params_pattern)
 
         app_params_coll = [f for f in tf.io.gfile.glob(app_params_pattern[0])]
         logging.info(
-            "App param collection %s, length %d", app_params_coll, len(app_params_coll)
+            "App param collection %s, length %d",
+            app_params_coll,
+            len(app_params_coll),
         )
 
         return pcollection | "Create instances" >> beam.Create(app_params_coll)
@@ -106,7 +112,9 @@ class ProcessInstance(beam.DoFn):
 
     def process(self, element, *args, **kwargs):
         annotations_by_img = {}
-        captures_pattern = os.path.join(element, "attempt:*/Dataset*/captures_*.json")
+        captures_pattern = os.path.join(
+            element, "attempt:*/Dataset*/captures_*.json"
+        )
         for f in tf.io.gfile.glob(captures_pattern):
             capture = tf.io.gfile.GFile(f)
             capture_contents = capture.read()
@@ -178,7 +186,8 @@ def run(source: str, eval_pct: int, beam_options):
         dataset = (
             p
             | "App param lister" >> AppParamLister(source)
-            | "Process app params" >> beam.ParDo(ProcessInstance(output_dir, eval_pct))
+            | "Process app params"
+            >> beam.ParDo(ProcessInstance(output_dir, eval_pct))
         )
 
         dataset | beam.io.WriteToText(os.path.join(output_dir, "result_log"))
@@ -194,7 +203,9 @@ def main(ctx, source, eval_pct):
 
     # the source is a path to a run execution of the form:
     # gs://xxxxxxxx/projects/xxxxxxxx/run_executions/urn:run_definitions:xxxxxxx/urn:run_executions:xxxxxxx
-    extra_args = {ctx.args[i]: ctx.args[i + 1] for i in range(0, len(ctx.args) - 1, 2)}
+    extra_args = {
+        ctx.args[i]: ctx.args[i + 1] for i in range(0, len(ctx.args) - 1, 2)
+    }
 
     logging.info("source = %s, extra = %s", source, extra_args)
 
