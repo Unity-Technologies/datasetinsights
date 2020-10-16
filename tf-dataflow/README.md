@@ -16,9 +16,11 @@ Here is a visual representation of the steps we just outlined:
 
 ## Prerequisites
 
+* Clone this repo locally and navigate to the `tf-dataflow` directory.
 * A Google Cloud Platform (GCP) account
+   * Download `gcloud` tool locally - [docs](https://cloud.google.com/sdk/gcloud#downloading_the_gcloud_command-line_tool). This includes both `gcloud` and `gsutil`, which we'll be using throughout this tutorial.
 * A dataset generated on Unity Simulation - you can find out more in the [SynthDet documentation](https://github.com/Unity-Technologies/SynthDet/blob/master/docs/RunningSynthDetCloud.md).
-* Unity Simulation CLI - download instructions [here](https://github.com/Unity-Technologies/SynthDet/blob/master/docs/Prerequisites.md#unity-simulation-account-and-cli)
+* Unity Simulation CLI - download and usage instructions [here](https://github.com/Unity-Technologies/com.unity.perception/blob/master/com.unity.perception/Documentation%7E/Tutorial/Phase3.md#step-3). Please carefully read this section!
 * DataFlow must be enabled for your project. More instructions can be found on Google's [official DataFlow documentation](https://cloud.google.com/dataflow/docs/quickstarts/quickstart-python). If you're an owner of the project, you'll only need to follow the guide up to Step 3 of the "Before you begin" section.
 * AI Platform must enabled for your Google Project. [Official guide here](https://cloud.google.com/ai-platform/training/docs/algorithms/object-detection-start). Please ensure you've done everything up to the "Setup" section of that guide.
 
@@ -54,7 +56,7 @@ Once the permissions are set up, we can proceed with the data transfer.
 
 1. Grab the token from your Unity Simulation configuration.
 
-   If you have `jq`, you can use approach (a). Otherwise, use `usim inspect auth` (b) to have usim print out your access token and store that in a variable in the shell.
+   If you have `jq`, you can use approach (a). Otherwise, use `usim inspect auth` (b) to have usim print out your access token and store that in a variable in the shell (`export token=<token>`).
 
    a.
    ```bash
@@ -71,10 +73,10 @@ Once the permissions are set up, we can proceed with the data transfer.
    refresh token: 07bafbe63a0e7c57c572aedf1c228022b537e28785013d7be017fc78731a8cc5
    updated: 2020-10-06 16:32:32.110689
    ```
-2. Call the Unity Simulation API to initiate the data transfer. You will need your Unity Project ID for this step (`cat ~/.usim/project_id.txt` for the active project ID in Unity Simulation).
+2. Call the Unity Simulation API to initiate the data transfer. You will need your Unity Project ID for this step (`cat ~/.usim/project_id.txt` for the active project ID in Unity Simulation). Additionally, you'll need the `definition-id` and `execution-id`. You can get these buy executing `usim get runs` and grab the ids corresponding to your run - more info and examples [here](https://github.com/Unity-Technologies/com.unity.perception/blob/master/com.unity.perception/Documentation%7E/Tutorial/Phase3.md#step-3). We're now ready to initiate the data transfer.
    ```bash
    # Initiate the data transfer to your own bucket - pay attention to the response, which will be used in step 3
-   curl -X PUT "https://api.simulation.unity3d.com/v1/projects/<your Unity project id>/data_transfer" \
+   curl -X PUT 'https://api.simulation.unity3d.com/v1/projects/<your Unity project id>/data_transfer' \
        -H "Content-Type: application/json" \
        -H "Authorization: Bearer $token" \
        --data-raw '{
@@ -82,25 +84,20 @@ Once the permissions are set up, we can proceed with the data transfer.
            "run_definition_id": "your-run-definition-id",
            "run_execution_id": "your-run-execution-id"
        }'
-
    ```
 3. Wait for the data transfer to complete.
    ```bash
    curl -X GET "https://api.simulation.unity3d.com/v1/projects/<your Unity project id>/data_transfer/<data transfer id>" -H "Authorization: Bearer $token"
    ```
-
-   You transfer job has status `ENABLED` when job is in progress, and `success` or `failed` when job is finished. The time it takes to finish a transfer job varies due to your data size, GCP status and resource contention.
+   You transfer job has status `running` when job is in progress, and `success` or `failed` when job is finished. The time it takes to finish a transfer job varies due to your data size, GCP status and resource contention.
 
 The Unity Simulation API docs can be found [here](https://api.simulation.unity3d.com/swagger/index.html).
 
 ### Phase 2: Transform Data to TensorFlow format
 
 
-#### Local run
-Before kicking off a job in DataFlow, let's try this out locally to make sure it looks OK! In order to do that, we assume a few things about the directory structure where you'll be running this.
-
-Note that we'll be running this local experiment with just 1 app-param. Your real run may have generated much more data.
-
+#### Local run (Optional)
+Before kicking off a job in DataFlow, let's try this out locally to make sure it looks OK! In order to do that, we assume a few things about the directory structure where you'll be running this. All subsequent commands are assumed to run under `tf-dataflow` directory. Example output from running `find` should be the following:
 ```bash
 $ find . -name "*.py" -o -name "*.sh"
 ./dataflow-run.sh
@@ -109,6 +106,7 @@ $ find . -name "*.py" -o -name "*.sh"
 ./setup.py
 ./main.py
 ```
+Note that we'll be running this local experiment with just 1 app-param. Your real run may have generated much more data.
 
 1. Set up a Python virtual environment. We're assuming you're on Python3 (less than Python3.8).
    ```bash
@@ -116,12 +114,12 @@ $ find . -name "*.py" -o -name "*.sh"
    source .venv/bin/activate
    pip install -r requirements.txt
    ```
-2. Make an outer run executions directory manually and copy the single app param into it. An app param corresponds to a configuration that your USim execution ran with. Here's an example:
+2. Make a run executions directory manually and copy the single app param into it. An app param corresponds to a configuration that your USim execution ran with. Here's an example:
    ```bash
    mkdir urn:run_executions:5M6wq80 # <-- customize the id to whatever yours looks like. This example uses "5M6wq80"
    cd urn:run_executions:5M6wq80
    ```
-   Then copy this path for your destination bucket...
+   Then navigate to a specific app-param directory in GCS and copy this path for your destination bucket as shown below:
    ![Example](copy-gcs-path.png)
    Then run...
    ```bash
@@ -132,9 +130,9 @@ $ find . -name "*.py" -o -name "*.sh"
    gsutil -m cp -r <paste your path from step 2 here> .
    cd ..
    ```
-3. Go back up to where the `dataflow-run.sh` script is stored and run the following. Note that the path must be to a directory that contains subdirectories for each `app_param`. In our case, there will only be one.
+3. Go back up to where the `dataflow-run.sh` script is stored and run the following. Note that the path (`-p` arg) must be to a directory that contains subdirectories for each `app_param`. In our case, there will only be one.
    ```bash
-   ./dataflow-run.sh -e local -p urn:urn_executions:<your-execution-id> -g <your google project id>
+   ./dataflow-run.sh -e local -p urn:run_executions:<your-execution-id> -g <your google project id>
    ```
 
    This will produce training and evaluation data in tfrecord format inside of the directory where we copied the app_param. If that looks OK, we can proceed to the next step. If you want to visualize the data, you can use the [tfrecord-viewer](https://github.com/sulc/tfrecord-viewer) project.
@@ -166,7 +164,7 @@ We'll use the same project that we had in step 1 of our local run. With that, le
 ./dataflow-run.sh -e real -p "gs://projects/<unity project id - GUID>/run_executions/urn:run_definitions:<alnum string>/urn:run_executions:<alnum string>" -g <your google project id>
 ```
 
-This will bundle the DataFlow job and run it on GCP. Once it's complete, you should be able to move onto the next step of training the actual model. When you run the above command, a bunch of things will be printed to console and it'll continue tailing on your terminal. However, you can cancel out of this at any time and it'll continue running on GCP.
+This will bundle the DataFlow job and run it on GCP. This job assumes that it can parallelize on app-params to increase throughput. **Performance will be poor if all of your data is in a single app param**. Once it's complete, you should be able to move onto the next step of training the actual model. When you run the above command, a bunch of things will be printed to console and it'll continue tailing on your terminal. However, you can cancel out of this at any time and it'll continue running on GCP.
 
 #### (Optional) Convert real world data to Tensorflow format
 
