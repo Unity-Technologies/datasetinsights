@@ -196,11 +196,11 @@ In case real world data exists and needed to be convert as well:
 
 ### Phase 3: Use Google AI Platform to train an object detection model
 
+In this section we will provide example configuration and commands to train a built-in object detection model on Google AI Platform. To view the official document for Google AI Platform, click [HERE](https://cloud.google.com/ai-platform/training/docs/algorithms/object-detection).
+
 #### *Submit a training job*
 
-Submit a built-in object deteciton training job by follow instructions [here](https://cloud.google.com/ai-platform/training/docs/algorithms/object-detection).
-
-Training job can be submitted either through GCP Console UI or Google Cloud SDK (`gcloud`).
+Training job can be submitted either through GCP Console UI or Google Cloud SDK (`gcloud`). Using `gcloud` command is recommended because one can easily iterate on it without re-entering all parameters over and over again. To install and initialize `gcloud` on your working environment, follow Google's [official instruction](https://cloud.google.com/sdk/docs/install).
 
 If you choose to use `gcloud`, here is an example:
 
@@ -255,6 +255,7 @@ If you choose to use `gcloud`, here is an example:
    **Notes:**
    - `--job-dir` will be your output path where model and checkpoint files will live. To keep your training job clean, make sure `--job-dir` exist and be empty. By default Google AI Platform will try to read checkpoint files in `--job-dir` and continue training.
    - Be careful about the value you give to `train_batch_size`. Depending on your compute resources configuration, making batch size too big can cause OOM failure easily for Google AI Platform.
+   - Check `--num_classes` value to make sure it matches your annotation definitions. Wrong number of classes would cause TensorFlow error.
    - Check `--num_eval_images` value if your training job failed in the middle of evaluation. Make sure the value you give is less than or equal to the total number of images for validation in path `--validation_data_path`.
    - If you are trying to continue training using checkpoint files, make sure `--max_steps` is larger that the previous run, otherwise the training job will just do evaluation and quit.
    - `--image_sizes` is "height,width". By default for SynthDet demo project it is "960,1280".
@@ -266,7 +267,7 @@ To get training job status and log using `gcloud`:
 `gcloud ai-platform jobs describe $JOB_ID` \
 `gcloud ai-platform jobs stream-logs $JOB_ID`
 
-We found it easier to review with web UI on GCP Console. **View logs** in StackDriver for training progress and evaluation results. **TensorBoard** is also available for more training insights when the training job is done.
+We found it easier to review with Google AI Platform web UI on [GCP Console](https://console.cloud.google.com/) (Search for "AI Platfrom" on GCP Console dashboard, and then navigate to "Job" page on the left panel). **View logs** in StackDriver for training progress and evaluation results. **TensorBoard** is also available for more training insights when the training job is done.
 
 ![view-log-example](cloudml-training-view-logs.png)
 
