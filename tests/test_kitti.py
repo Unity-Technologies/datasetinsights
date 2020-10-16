@@ -9,7 +9,7 @@ from datasetinsights.datasets.kitti import (
     KittiTransforms,
     convert_kitti2nu,
 )
-from datasetinsights.io.bbox import BBox3d
+from datasetinsights.io.bbox import BBox3D
 
 CUR_FILE = os.path.dirname(os.path.abspath(__file__))
 
@@ -37,7 +37,7 @@ def test_convertpreds2nuscenes():
             sample_idx=-1,
         ),
     )
-    expected_box = BBox3d(
+    expected_box = BBox3D(
         translation=[1, 1, 1],
         size=np.array([1.6569855, 1.728061, 4.3275433], dtype=np.float32),
         rotation=Quaternion(

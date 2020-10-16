@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 from nuscenes.eval.detection.data_classes import DetectionMetrics
 
-from datasetinsights.io.bbox import BBox3d
+from datasetinsights.io.bbox import BBox3D
 
 from .average_precision_config import (
     DIST_FCN,
@@ -92,7 +92,7 @@ def calc_ap(*, precision, min_recall: float, min_precision: float) -> float:
     return float(np.mean(prec)) / (1.0 - min_precision)
 
 
-def center_distance(*, gt_box: BBox3d, pred_box: BBox3d) -> float:
+def center_distance(*, gt_box: BBox3D, pred_box: BBox3D) -> float:
     """
     L2 distance between the box centers (xy only).
 
@@ -109,7 +109,7 @@ def center_distance(*, gt_box: BBox3d, pred_box: BBox3d) -> float:
 
 
 def _count_class_examples(
-    boxes: Dict[str, Tuple[List[BBox3d], List[BBox3d]]], label
+    boxes: Dict[str, Tuple[List[BBox3D], List[BBox3D]]], label
 ):
     npos = 0
     for image, (predicted_bbs, gt_bbs) in boxes.items():
@@ -134,7 +134,7 @@ class AveragePrecision(EvaluationMetric):
 
     def _calculate_label_ap_simple(
         self,
-        boxes: Dict[str, Tuple[List[BBox3d], List[BBox3d]]],
+        boxes: Dict[str, Tuple[List[BBox3D], List[BBox3D]]],
         label,
         dist_th,
     ):
@@ -191,7 +191,7 @@ class AveragePrecision(EvaluationMetric):
         return ap
 
     def compute(
-        self, boxes: Dict[str, Tuple[List[BBox3d], List[BBox3d]]] = None
+        self, boxes: Dict[str, Tuple[List[BBox3D], List[BBox3D]]] = None
     ) -> Dict[str, float]:
         """
         calculate the mean ap for all classes over all distance thresholds
