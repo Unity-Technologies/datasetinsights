@@ -172,7 +172,7 @@ class BBox2D:
         return iou
 
 
-class BBox3d:
+class BBox3D:
     """
     Class for 3d bounding boxes which can either be predictions or
     ground-truths. This class is the primary representation in this repo of 3d
@@ -219,7 +219,7 @@ class BBox3d:
         Returns: :py:class:`float`: Back-left-bottom point.
 
         """
-        p = np.array([-self.length / 2, -self.width / 2, -self.height / 2])
+        p = np.array([-self.width / 2, -self.height / 2, -self.length / 2])
         p = self._local2world_coordinate(p)
         return p
 
@@ -228,7 +228,7 @@ class BBox3d:
         """
         :py:class:`float`: Front-left-bottom point.
         """
-        p = np.array([self.length / 2, -self.width / 2, -self.height / 2])
+        p = np.array([-self.width / 2, -self.height / 2, self.length / 2])
         p = self._local2world_coordinate(p)
         return p
 
@@ -237,7 +237,7 @@ class BBox3d:
         """
         :py:class:`float`: Front-right-bottom point.
         """
-        p = np.array([self.length / 2, self.width / 2, -self.height / 2])
+        p = np.array([self.width / 2, -self.height / 2, self.length / 2])
         p = self._local2world_coordinate(p)
         return p
 
@@ -246,7 +246,7 @@ class BBox3d:
         """
         :py:class:`float`: Back-right-bottom point.
         """
-        p = np.array([-self.length / 2, self.width / 2, -self.height / 2])
+        p = np.array([self.width / 2, -self.height / 2, -self.length / 2])
         p = self._local2world_coordinate(p)
         return p
 
@@ -255,7 +255,7 @@ class BBox3d:
         """
         :py:class:`float`: Back-left-top point.
         """
-        p = np.array([-self.length / 2, -self.width / 2, self.height / 2])
+        p = np.array([-self.width / 2, self.height / 2, -self.length / 2])
         p = self._local2world_coordinate(p)
         return p
 
@@ -264,7 +264,7 @@ class BBox3d:
         """
         :py:class:`float`: Front-left-top point.
         """
-        p = np.array([self.length / 2, -self.width / 2, self.height / 2])
+        p = np.array([-self.width / 2, self.height / 2, self.length / 2])
         p = self._local2world_coordinate(p)
         return p
 
@@ -273,7 +273,7 @@ class BBox3d:
         """
         :py:class:`float`: Front-right-top point.
         """
-        p = np.array([self.length / 2, self.width / 2, self.height / 2])
+        p = np.array([self.width / 2, self.height / 2, self.length / 2])
         p = self._local2world_coordinate(p)
         return p
 
@@ -282,7 +282,7 @@ class BBox3d:
         """
         :py:class:`float`: Back-right-top point.
         """
-        p = np.array([-self.length / 2, self.width / 2, self.height / 2])
+        p = np.array([self.width / 2, self.height / 2, -self.length / 2])
         p = self._local2world_coordinate(p)
         return p
 

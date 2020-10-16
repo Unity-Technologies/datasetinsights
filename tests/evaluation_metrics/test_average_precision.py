@@ -1,9 +1,9 @@
 from datasetinsights.evaluation_metrics import average_precision
-from datasetinsights.evaluation_metrics.average_precision import BBox3d
+from datasetinsights.evaluation_metrics.average_precision import BBox3D
 
 
 def _make_box(x, y, z, sample_token, confidence=None):
-    return BBox3d(
+    return BBox3D(
         translation=(x, y, z),
         size=(1, 1, 1),
         velocity=(0, 0),

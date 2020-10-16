@@ -27,9 +27,9 @@ jobs:
         shell: bash
         run: |
           curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-          echo "::set-env name=PATH::$HOME/.poetry/bin:$PATH"
+          echo "$HOME/.poetry/bin" >> $GITHUB_PATH
       - name: Set env
-        run: echo ::set-env name=RELEASE_VERSION::${GITHUB_REF#refs/*/}
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name : Configure poetry
         shell: bash
         run: poetry config pypi-token.pypi $PYPI_TOKEN

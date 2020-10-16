@@ -5,6 +5,7 @@ Reference: https://github.com/nalepae/bounding-box
 """
 import os as _os
 import pathlib
+import random
 from hashlib import md5 as _md5
 
 import cv2 as _cv2
@@ -126,6 +127,9 @@ def _add_single_bbox_on_image(
         hex_digest = _md5(label.encode()).hexdigest()
         color_index = int(hex_digest, 16) % len(_COLOR_NAME_TO_RGB)
         color = _COLOR_NAMES[color_index]
+    elif not label:
+        color = random.choice(_COLOR_NAMES)
+
     colors = [list(item) for item in _COLOR_NAME_TO_RGB[color]]
     color, color_text = colors
 
