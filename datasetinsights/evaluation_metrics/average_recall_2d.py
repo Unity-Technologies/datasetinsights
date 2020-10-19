@@ -1,5 +1,9 @@
-r"""This module provides some common average recall metrics implementations
-(https://cocodataset.org/#detection-eval).
+r"""Average Recall metrics for 2D object detection
+
+This module provides average recall metics to evaluate 2D object detection models,
+such as metrics defined in `coco evaluation <https://cocodataset.org/#detection-eval>`_.
+The most commonly used metrics are `MeanAverageRecallAverageOverIOU <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.evaluation_metrics.html#datasetinsights.evaluation_metrics.average_recall_2d.MeanAverageRecallAverageOverIOU>`_
+which provide average recall for all labels considered.
 """
 import collections
 
@@ -101,10 +105,8 @@ class MeanAverageRecallAverageOverIOU(EvaluationMetric):
     labels and :math:`IOU = 0.5:0.95:0.05`. The max detections
     per image is limited to 100.
 
-    .. math:: mAR^{IoUs} = 1/10\sum_{IoU=0.5}^{0.95}mAR^{IoU}
-    .. math:: where,\ IoUs = 0.5:0.95:0.05
-    .. math:: mAR^{IoU} = 1/N\sum_{label=1}^{N}AR^{IoU}
-    """
+    .. math:: mAR = \\frac{1}{N_\\text{IOU}N_\\text{label}}\sum_{\\text{label}, \\text{IOU}}AR(\\text{label}, \\text{IOU})
+    """  # noqa: E501 Math should not be broken down into lines
 
     TYPE = "scalar"
 

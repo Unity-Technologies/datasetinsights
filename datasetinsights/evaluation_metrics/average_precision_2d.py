@@ -231,8 +231,10 @@ class MeanAveragePrecisionIOU50(EvaluationMetric):
     This implementation would calculate mAP at :math:`IOU=50\%`.
     Average across all the labels.
 
-    .. math:: mAP^{IoU=50}=1/N\sum_{label=1}^{N}AP^{IoU=50}
-    """
+    .. math:: mAP(\\text{IOU=50})=\\frac{1}{N_{\\text{label}}}\sum_{\\text{label}}AP(\\text{label}, \\text{IOU=50})
+    where AP is the `AveragePrecision <https://github.com/rafaelpadilla/Object-Detection-Metrics#average-precision>`_
+    metrics competed separately for each label.
+    """  # noqa: E501 URL should not be broken down into lines
 
     TYPE = "scalar"
 
@@ -261,10 +263,8 @@ class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
     labels and :math:`IOU = 0.5, 0.55, 0.60, ..., 0.95`.
     The max detections per image is limited to 100.
 
-    .. math:: mAP^{IoUs} = 1/10\sum_{IoU=0.5}^{0.95}mAP^{IoU}
-    .. math:: where,\ IoUs = 0.5:0.95:0.05
-    .. math:: mAP^{IoU} = 1/N\sum_{label=1}^{N}AP^{IoU}
-    """
+    .. math:: mAP = \\frac{1}{N_\\text{IOU}N_\\text{label}}\sum_{\\text{label}, \\text{IOU}}AP(\\text{label}, \\text{IOU})
+    """  # noqa: E501 Math should not be broken down into lines
 
     TYPE = "scalar"
 
