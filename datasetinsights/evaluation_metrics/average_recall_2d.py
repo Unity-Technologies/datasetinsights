@@ -4,7 +4,7 @@ This module provides average recall metics to evaluate 2D object detection model
 such as metrics defined in `coco evaluation <https://cocodataset.org/#detection-eval>`_.
 The most commonly used metrics are `MeanAverageRecallAverageOverIOU <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.evaluation_metrics.html#datasetinsights.evaluation_metrics.average_recall_2d.MeanAverageRecallAverageOverIOU>`_
 which provide average recall for all labels considered.
-"""
+"""  # noqa: E501 URL should not be broken down into lines
 import collections
 
 import numpy as np
