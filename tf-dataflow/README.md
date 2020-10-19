@@ -85,7 +85,7 @@ Once the permissions are set up, we can proceed with the data transfer.
            "run_execution_id": "your-run-execution-id"
        }'
    ```
-3. Wait for the data transfer to complete.
+3. Wait for the data transfer to complete. You can keep track of the status of your transfer job using this command:
    ```bash
    curl -X GET "https://api.simulation.unity3d.com/v1/projects/<your Unity project id>/data_transfer/<data transfer id>" -H "Authorization: Bearer $token"
    ```
@@ -174,7 +174,7 @@ In case real world data exists and needed to be convert as well:
 
   If your real-world date is in the **exact same** format as Unity Simulation synthetic data format, you can simply follow **Phase 2** steps to transform the data locally and then upload to GCS for further utilization.
 
-  If you happen to have access to real-world date for SynthDet, you need to be careful because there are minor differences in format. You can modify this [Python script](../cloudml/real_data_loader.py), run it locally for data transformation and then upload to GCS for further utilization.
+  If you happen to have access to real-world date for SynthDet, you need to be careful because there are minor differences in format. You can modify this [Python script](real_data_loader.py), run it locally for data transformation and then upload to GCS for further utilization.
   ```python
   _data_base_path = os.path.join('/home', 'your-base-path')
   _run_id = "real_data_input_folder"
