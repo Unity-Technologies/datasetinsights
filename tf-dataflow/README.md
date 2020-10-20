@@ -196,11 +196,16 @@ In case real world data exists and needed to be convert as well:
 
 ### Phase 3: Use Google AI Platform to train an object detection model
 
-In this section we will provide example configuration and commands to train a built-in object detection model on Google AI Platform. To view the official document for Google AI Platform, click [HERE](https://cloud.google.com/ai-platform/training/docs/algorithms/object-detection).
+In this section, we will provide example configuration and commands to train a built-in object detection model on Google AI Platform. To view the official document for Google AI Platform, click [HERE](https://cloud.google.com/ai-platform/training/docs/algorithms/object-detection).
 
 #### *Submit a training job*
 
-Training job can be submitted either through GCP Console UI or Google Cloud SDK (`gcloud`). Using `gcloud` command is recommended because one can easily iterate on it without re-entering all parameters over and over again. To install and initialize `gcloud` on your working environment, follow Google's [official instruction](https://cloud.google.com/sdk/docs/install).
+Training job can be submitted either through GCP Console UI or Google Cloud SDK (`gcloud`). Using `gcloud` command is recommended because one can easily iterate on it without re-entering all parameters over and over again. To install and initialize `gcloud` on your working environment, follow the link and instructions in above **prerequisites** section. Make sure you login and set target GCP project:
+
+```bash
+gcloud auth login
+gcloud config set project PROJECT_ID
+```
 
 If you choose to use `gcloud`, here is an example:
 
