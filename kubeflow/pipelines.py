@@ -389,6 +389,78 @@ def train_on_synthetic_and_real_dataset(
 
 
 @dsl.pipeline(
+    name="Sim2Real Repeated Experiments",
+    description="Sim2Real Repeated Experiments",
+)
+def sim2real_repeated_experiments(
+    docker: str = "unitytechnologies/datasetinsights:latest",
+    project_id: str = "<unity-project-id>",
+    run_execution_id: str = "<unity-simulation-run-execution-id>",
+    access_token: str = "<unity-simulation-access-token>",
+    train_config: str = "datasetinsights/configs/faster_rcnn_synthetic.yaml",
+    tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
+    checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
+    volume_size: str = "100Gi",
+    evaluate_source_uri: str = (
+        "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip"
+    ),
+    evaluate_config: str = (
+        "datasetinsights/configs/faster_rcnn_groceries_real.yaml"
+    ),
+):
+    output = train_data = val_data = test_data = DATA_PATH
+
+    memory_limit = "64Gi"
+    train_num_gpu = 8
+    evaluate_num_gpu = 1
+    gpu_type = "nvidia-tesla-v100"
+
+    train_source_uri = f"usim://{access_token}@{project_id}/{run_execution_id}"
+
+    # Pipeline definition
+    vop = volume_op(volume_size=volume_size)
+    train_download = download_op(
+        docker=docker,
+        source_uri=train_source_uri,
+        output=output,
+        volume=vop.volume,
+        memory_limit=memory_limit,
+    )
+    evaluate_download = download_op(
+        docker=docker,
+        source_uri=evaluate_source_uri,
+        output=output,
+        volume=train_download.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+    )
+    train = train_op(
+        docker=docker,
+        config=train_config,
+        train_data=train_data,
+        val_data=val_data,
+        tb_log_dir=tb_log_dir,
+        checkpoint_dir=checkpoint_dir,
+        volume=evaluate_download.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+        num_gpu=train_num_gpu,
+        gpu_type=gpu_type,
+    )
+    evaluate_op(
+        docker=docker,
+        config=evaluate_config,
+        # This ep9 is hard coded for now. We should allow this number to be
+        # picked from the last epoch
+        checkpoint_file=f"{checkpoint_dir}/FasterRCNN.ep9.estimator",
+        test_data=test_data,
+        tb_log_dir=tb_log_dir,
+        volume=train.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+        num_gpu=evaluate_num_gpu,
+        gpu_type=gpu_type,
+    )
+
+
+@dsl.pipeline(
     name="Train on synthetic dataset Unity Simulation",
     description="Train on synthetic dataset Unity Simulation",
 )
