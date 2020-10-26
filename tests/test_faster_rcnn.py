@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 import torch
 from PIL import Image
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 from yacs.config import CfgNode as CN
 
 from datasetinsights.datasets.dummy.dummy_object_detection import (
