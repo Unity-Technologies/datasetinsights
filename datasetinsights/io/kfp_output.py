@@ -2,6 +2,8 @@ import json
 import logging
 import os
 
+from datasetinsights.constants import DEFAULT_TENSORBOARD_LOG_DIR
+
 logger = logging.getLogger(__name__)
 
 
@@ -22,7 +24,10 @@ class KubeflowPipelineWriter(object):
     """
 
     def __init__(
-        self, tb_log_dir, filename="mlpipeline-metrics.json", filepath="/",
+        self,
+        tb_log_dir=DEFAULT_TENSORBOARD_LOG_DIR,
+        filename="mlpipeline-metrics.json",
+        filepath="/",
     ):
         """
         Creates KubeflowPipelineWriter that will write out metrics to the output
