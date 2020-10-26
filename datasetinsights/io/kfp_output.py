@@ -21,7 +21,9 @@ class KubeflowPipelineWriter(object):
         data: Dictionary to be JSON serialized
     """
 
-    def __init__(self, filename="mlpipeline-metrics.json", filepath="/"):
+    def __init__(
+        self, tb_log_dir, filename="mlpipeline-metrics.json", filepath="/",
+    ):
         """
         Creates KubeflowPipelineWriter that will write out metrics to the output
         file
@@ -31,6 +33,7 @@ class KubeflowPipelineWriter(object):
         self.filepath = filepath
         self.data_dict = {}
         self.data = {"metrics": []}
+        self.tb_log_dir = tb_log_dir
 
     def add_metric(self, name, val):
         """
@@ -68,3 +71,15 @@ class KubeflowPipelineWriter(object):
         logger.debug(
             f"Metrics file {self.filename} saved at path:" f" {self.filepath}"
         )
+
+    def create_tb_visualization_json(self):
+        try:
+            metadata = {
+                "outputs": [{"type": "tensorboard", "source": self.tb_log_dir}]
+            }
+            with open("/mlpipeline-ui-metadata.json", "w") as f:
+                json.dump(metadata, f)
+
+        # when we don't have write permission
+        except IOError:
+            logger.info("Can not create Tensorboard Visualization JSON file.")

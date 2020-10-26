@@ -125,6 +125,7 @@ def train_op(
         command=command,
         arguments=arguments,
         pvolumes={DATA_PATH: volume},
+        file_outputs={"mlpipeline-ui-metadata": "/mlpipeline-ui-metadata.json"},
     )
     # GPU
     train.set_gpu_limit(num_gpu)
