@@ -25,12 +25,12 @@ VOLUME /data /root/.config
 
 COPY poetry.lock pyproject.toml ./
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-dev --no-root
+    && poetry install --no-root
 
 COPY . ./
 # Run poetry install again to install datasetinsights
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-dev
+    && poetry install
 
 # Use -g to ensure all child process received SIGKILL
 ENTRYPOINT ["tini", "-g", "--"]
