@@ -1,4 +1,4 @@
-from tfproc import tfproc
+from tfdataflow import tfdataflow
 
 if __name__ == "__main__":
-    tfproc.main()
+    tfdataflow.main()
