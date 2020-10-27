@@ -12,7 +12,7 @@ import torch
 import torch.distributed as dist
 import torchvision
 from codetiming import Timer
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 from tqdm import tqdm
 
@@ -63,7 +63,7 @@ class FasterRCNN(Estimator):
         self,
         *,
         config,
-        writer,
+        logdir,
         kfp_writer,
         checkpointer,
         box_score_thresh=0.05,
@@ -79,7 +79,7 @@ class FasterRCNN(Estimator):
         self._init_distributed_mode()
         self.no_cuda = no_cuda
         self._init_device()
-        self.writer = SummaryWriter(writer.logdir, write_to_disk=is_master())
+        self.writer = SummaryWriter(logdir)
 
         self.kfp_writer = kfp_writer
         checkpointer.distributed = self.distributed

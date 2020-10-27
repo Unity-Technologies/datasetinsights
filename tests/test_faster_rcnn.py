@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 import torch
 from PIL import Image
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 from yacs.config import CfgNode as CN
 
 from datasetinsights.datasets.dummy.dummy_object_detection import (
@@ -366,7 +366,7 @@ def test_faster_rcnn_load(config):
     log_dir = tmp_name + "/load/"
     config.logdir = log_dir
     kfp_writer = MagicMock()
-    writer = SummaryWriter(config.logdir, write_to_disk=True)
+    writer = SummaryWriter(config.logdir)
     checkpointer = EstimatorCheckpoint(
         estimator_name=config.estimator,
         checkpoint_dir=log_dir,
