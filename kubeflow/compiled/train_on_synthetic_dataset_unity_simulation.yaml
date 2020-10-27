@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: train-on-synthetic-dataset-unity-simulation-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0, pipelines.kubeflow.org/pipeline_compilation_time: '2020-08-28T22:40:58.228098',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1, pipelines.kubeflow.org/pipeline_compilation_time: '2020-10-23T14:11:46.165607',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Train on synthetic dataset
       Unity Simulation", "inputs": [{"default": "unitytechnologies/datasetinsights:latest",
       "name": "docker", "optional": true, "type": "String"}, {"default": "<unity-project-id>",
@@ -15,7 +15,7 @@ metadata:
       "name": "checkpoint_dir", "optional": true, "type": "String"}, {"default": "100Gi",
       "name": "volume_size", "optional": true, "type": "String"}], "name": "Train
       on synthetic dataset Unity Simulation"}'}
-  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.0}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1}
 spec:
   entrypoint: train-on-synthetic-dataset-unity-simulation
   templates:
@@ -94,6 +94,9 @@ spec:
       - {name: docker}
       - {name: pvc-name}
       - {name: tb_log_dir}
+    outputs:
+      artifacts:
+      - {name: mlpipeline-ui-metadata, path: /mlpipeline-ui-metadata.json}
     nodeSelector: {cloud.google.com/gke-accelerator: nvidia-tesla-v100}
     volumes:
     - name: gcp-credentials-user-gcp-sa
