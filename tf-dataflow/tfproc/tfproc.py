@@ -11,9 +11,6 @@ import tensorflow as tf
 from apache_beam import PTransform
 from apache_beam.options.pipeline_options import PipelineOptions
 
-_record_size_max_mb = 10.0
-_bytes_in_mb = 1000000.0
-
 logging.getLogger().setLevel(logging.INFO)
 
 
@@ -104,7 +101,19 @@ class AppParamLister(PTransform):
         return pcollection | "Create instances" >> beam.Create(app_params_coll)
 
 
+def _read_captures(capture_file):
+    capture = tf.io.gfile.GFile(capture_file)
+    capture_contents = capture.read()
+    annotation_json = json.loads(capture_contents)
+    capture_data = annotation_json["captures"]
+    return capture_data
+
+
 class ProcessInstance(beam.DoFn):
+    """Processes a single Unity Simulation instance, converting screencaps and
+    annotations into Tensorflow format.
+    """
+
     def __init__(self, output_dir, eval_pct, label=None):
         super().__init__(label)
         self.output_dir = output_dir
@@ -116,10 +125,7 @@ class ProcessInstance(beam.DoFn):
             element, "attempt:*/Dataset*/captures_*.json"
         )
         for f in tf.io.gfile.glob(captures_pattern):
-            capture = tf.io.gfile.GFile(f)
-            capture_contents = capture.read()
-            annotation_json = json.loads(capture_contents)
-            capture_data = annotation_json["captures"]
+            capture_data = _read_captures(f)
 
             # Collect all annotation captures per image file.
             for capture in capture_data:
@@ -131,17 +137,27 @@ class ProcessInstance(beam.DoFn):
                         annotations_by_img[filename] + capture["annotations"]
                     )
 
+        # Figure out where to put the data sample based on its category and
+        # output dir
+        def sample_location(output_dir: str, category: str, name: str):
+            dataset_dir = os.path.join(output_dir, category)
+            tf.io.gfile.makedirs(dataset_dir)
+            data_path = os.path.join(train_dataset_dir, name + ".tfrecord")
+            return dataset_dir, data_path
+
         imgs_pattern = os.path.join(element, "attempt:*/RGB*/rgb_*.png")
         logging.info("img path %s", imgs_pattern)
         counter = 0
+
         path_hash = hashlib.sha1(element.encode("utf-8")).hexdigest()
-        train_dataset_dir = os.path.join(self.output_dir, "train")
-        eval_dataset_dir = os.path.join(self.output_dir, "eval")
-        tf.io.gfile.makedirs(train_dataset_dir)
-        tf.io.gfile.makedirs(eval_dataset_dir)
-        train_path = os.path.join(train_dataset_dir, path_hash + ".tfrecord")
+        train_dataset_dir, train_path = sample_location(
+            self.output_dir, "train", path_hash
+        )
+        eval_dataset_dir, eval_path = sample_location(
+            self.output_dir, "eval", path_hash
+        )
+
         train_writer = tf.io.TFRecordWriter(train_path)
-        eval_path = os.path.join(eval_dataset_dir, path_hash + ".tfrecord")
         eval_writer = tf.io.TFRecordWriter(eval_path)
 
         for img_file in tf.io.gfile.glob(imgs_pattern):
@@ -162,12 +178,14 @@ class ProcessInstance(beam.DoFn):
                 example = _convert_to_example(
                     img_file, img, height, width, labels, bboxes
                 )
-                counter += 1
 
-                if random.uniform(0, 100) < self.eval_pct:
-                    eval_writer.write(example.SerializeToString())
-                else:
-                    train_writer.write(example.SerializeToString())
+                writer = (
+                    eval_writer
+                    if random.uniform(0, 100) < self.eval_pct
+                    else train_writer
+                )
+                writer.write(example.SerializeToString())
+                counter += 1
 
         logging.info("Completed %d images", counter)
         return [
