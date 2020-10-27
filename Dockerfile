@@ -8,6 +8,7 @@ RUN apt-get update \
         libxext6 \
         libxrender-dev \
         libgl1-mesa-dev \
+        poetry=1.0.10 \
         python3.7-dev \
         python3-pip \
     && ln -s /usr/bin/python3.7 /usr/local/bin/python
