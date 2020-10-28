@@ -215,6 +215,7 @@ def _annotations_to_bb_normalized(values, width, height):
 
 
 def convert_to_example(filename, annotations):
+    """Given an image and its annotation, convert into TF example."""
     # ignore labels not in categories list
     coder = ImageCoder()
     image_buffer, height, width = _get_image_data(filename, coder)
