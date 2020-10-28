@@ -318,11 +318,6 @@ class FasterRCNN(Estimator):
                 optimizer.zero_grad()
         self.writer.add_scalar("training/loss", loss_metric.compute(), epoch)
         self.writer.add_scalar(
-            "training/running_loss",
-            loss_metric.compute(),
-            loss_metric.num_examples,
-        )
-        self.writer.add_scalar(
             "training/lr", optimizer.param_groups[0]["lr"], epoch
         )
         loss_metric.reset()
