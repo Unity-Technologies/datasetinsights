@@ -99,5 +99,5 @@ testpaths = [
 datasetinsights = "datasetinsights.__main__:entrypoint"
 
 [build-system]
-requires = ["poetry>=1.0.10"]
+requires = ["poetry>=1.0.5"]
 build-backend = "poetry.masonry.api"
