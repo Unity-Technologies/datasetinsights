@@ -2,8 +2,6 @@
 # https://github.com/tensorflow/tpu/blob/master/tools/datasets/jpeg_to_tf_record.py
 # https://www.tensorflow.org/tutorials/load_data/tfrecord
 
-from __future__ import print_function
-
 import _thread
 import glob
 import json
@@ -21,19 +19,18 @@ logging.basicConfig(level=logging.DEBUG)
 LOG.addHandler(logging.StreamHandler())
 
 
-_train_val_ratio = 0.8
-_record_size_max_mb = 10.0
-_bytes_in_mb = 1000000.0
+_TRAIN_VAL_RATIO = 0.8
+_RECORD_SIZE_MAX_MB = 10.0
+_BYTES_IN_MB = 1000000.0
 _data_base_path = os.path.join("/disk", "qi")
 _run_id = "downscale_real_data"
 _data_path = os.path.join(_data_base_path, _run_id)
 _out_path = os.path.join(_data_base_path, "downscale_real_tfrecord")
 _concurrency = 10
-if not os.path.exists(_data_path):
-    raise ValueError("Data path does not exist: {}".format(_data_path))
 
 
 def main():
+    # Load annotations.json file and parse annotations
     annotation_files = glob.glob(
         os.path.join(_data_path, "**", "annotations.json"), recursive=True
     )
@@ -54,6 +51,8 @@ def main():
             )
     LOG.info("Loaded {} annotations".format(len(annotations)))
 
+    # Load rgb images and match each image with its annotations
+    # Images missing annotations and annotations without matching images will be removed
     rgb_imgs = set(
         glob.glob(os.path.join(_data_path, "**", "IMG*.JPG"), recursive=True)
     )
@@ -79,6 +78,7 @@ def main():
         LOG.error("No images found!")
         return
 
+    # Broke images into batches and write TFRecord multi-threading
     rgb_image_batches = []
     batch_size = int(len(rgb_imgs) / _concurrency)
     for i in range(_concurrency):
@@ -98,7 +98,7 @@ def main():
 
 
 def _write_records_batch(images, annotations, batch):
-    train = set(random.sample(images, int(len(images) * _train_val_ratio)))
+    train = set(random.sample(images, int(len(images) * _TRAIN_VAL_RATIO)))
     val = images - train
 
     training_record_name = "training_{:06d}"
@@ -108,6 +108,8 @@ def _write_records_batch(images, annotations, batch):
     validation_record_name = "validation_{:06d}"
     validation_record_name += "_batch_" + str(batch) + ".tfrecord"
     _write_records(val, annotations, validation_record_name, batch)
+
+    LOG.info("Batch {} completed successfully.".format(batch))
 
 
 def _write_records(images, annotations, naming_convention, batch):
@@ -119,8 +121,8 @@ def _write_records(images, annotations, naming_convention, batch):
     for img in images:
         example = convert_to_example(img, annotations[img])
         writer.write(example)
-        data_written_mb += sys.getsizeof(example) / _bytes_in_mb
-        if data_written_mb > _record_size_max_mb:
+        data_written_mb += sys.getsizeof(example) / _BYTES_IN_MB
+        if data_written_mb > _RECORD_SIZE_MAX_MB:
             writer.close()
             record_num += 1
             writer = tf.io.TFRecordWriter(
@@ -228,7 +230,7 @@ def convert_to_example(filename, annotations):
     return example.SerializeToString()
 
 
-class ImageCoder(object):
+class ImageCoder:
     """Helper class that provides TensorFlow image coding utilities."""
 
     def __init__(self):
@@ -249,13 +251,13 @@ class ImageCoder(object):
         assert image.shape[2] == 3
         return image
 
-    def decode_png(self, image_data):
+    """ def decode_png(self, image_data):
         image = self._sess.run(
             self._decode_png, feed_dict={self._decode_img_data: image_data}
         )
         assert len(image.shape) == 3
         assert image.shape[2] == 3
-        return image
+        return image """
 
     def __del__(self):
         self._sess.close()

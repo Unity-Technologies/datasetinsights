@@ -174,7 +174,7 @@ In case real world data exists and needed to be convert as well:
 
   If your real-world date is in the **exact same** format as Unity Simulation synthetic data format, you can simply follow **Phase 2** steps to transform the data locally and then upload to GCS for further utilization.
 
-  If you happen to have access to real-world date for SynthDet, you need to be careful because there are minor differences in format. You can modify this [Python script](real_data_loader.py), run it locally for data transformation and then upload to GCS for further utilization.
+  If you happen to have access to real-world date for SynthDet ([UnityGroceries-Real](https://github.com/Unity-Technologies/SynthDet/blob/master/docs/UnityGroceriesReal.md)), you need to be careful because there are minor differences in format. You can modify this [Python script](real_data_loader.py), run it locally for data transformation and then upload to GCS for further utilization.
   ```python
   _data_base_path = os.path.join('/home', 'your-base-path')
   _run_id = "real_data_input_folder"
