@@ -52,7 +52,8 @@ def main():
     LOG.info("Loaded {} annotations".format(len(annotations)))
 
     # Load rgb images and match each image with its annotations
-    # Images missing annotations and annotations without matching images will be removed
+    # Images missing annotations and annotations without matching images
+    # will be removed
     rgb_imgs = set(
         glob.glob(os.path.join(_data_path, "**", "IMG*.JPG"), recursive=True)
     )
