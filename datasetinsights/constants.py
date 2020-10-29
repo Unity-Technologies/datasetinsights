@@ -5,10 +5,9 @@ TIMESTAMP_SUFFIX = datetime.now().strftime("%Y%m%d-%H%M%S")
 PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 
 # Default for tensorboard logs, checkpoints and metrics
-DEFAULT_KFP_METRICS_DIR = os.path.join(
-    PROJECT_ROOT, "metrics", TIMESTAMP_SUFFIX
-)
+DEFAULT_KFP_LOG_DIR = os.path.join(PROJECT_ROOT, "kfp", TIMESTAMP_SUFFIX)
 DEFAULT_KFP_METRICS_FILENAME = "mlpipeline-metrics.json"
+DEFAULT_KFP_UI_METADATA_FILENAME = "mlpipeline-ui-metadata.json"
 
 DEFAULT_TENSORBOARD_LOG_DIR = os.path.join(
     PROJECT_ROOT, "runs", TIMESTAMP_SUFFIX

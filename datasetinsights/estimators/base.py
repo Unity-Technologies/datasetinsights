@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
+from torch.utils.tensorboard import SummaryWriter
+
 import datasetinsights.constants as const
 from datasetinsights.io.checkpoint import EstimatorCheckpoint
 from datasetinsights.io.kfp_output import KubeflowPipelineWriter
@@ -12,8 +14,9 @@ def create_estimator(
     tb_log_dir=None,
     no_cuda=None,
     checkpoint_dir=None,
-    kfp_metrics_dir=const.DEFAULT_KFP_METRICS_DIR,
+    kfp_log_dir=const.DEFAULT_KFP_LOG_DIR,
     kfp_metrics_filename=const.DEFAULT_KFP_METRICS_FILENAME,
+    kfp_ui_metadata_filename=const.DEFAULT_KFP_UI_METADATA_FILENAME,
     no_val=None,
     **kwargs,
 ):
@@ -33,12 +36,14 @@ def create_estimator(
     # todo this makes it so that we lose the tensorboard
     #  writer of non-master processes which could make debugging harder
 
+    writer = SummaryWriter(log_dir=tb_log_dir)
+
     kfp_writer = KubeflowPipelineWriter(
         tb_log_dir=tb_log_dir,
-        filename=kfp_metrics_filename,
-        filepath=kfp_metrics_dir,
+        kfp_log_dir=kfp_log_dir,
+        kfp_metrics_filename=kfp_metrics_filename,
+        kfp_ui_metadata_filename=kfp_ui_metadata_filename,
     )
-    kfp_writer.create_tb_visualization_json()
     checkpointer = EstimatorCheckpoint(
         estimator_name=name, checkpoint_dir=checkpoint_dir, distributed=False,
     )
@@ -48,10 +53,9 @@ def create_estimator(
         kfp_writer=kfp_writer,
         checkpointer=checkpointer,
         logdir=tb_log_dir,
+        writer=writer,
         no_cuda=no_cuda,
         no_val=no_val,
-        kfp_metrics_dir=kfp_metrics_dir,
-        kfp_metrics_filename=kfp_metrics_filename,
         **kwargs,
     )
 

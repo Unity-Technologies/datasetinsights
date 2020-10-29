@@ -57,16 +57,23 @@ logger = logging.getLogger(__name__)
     ),
 )
 @click.option(
-    "--kfp-metrics-dir",
+    "--kfp-log-dir",
     type=click.Path(file_okay=False, writable=True),
-    default=const.DEFAULT_KFP_METRICS_DIR,
-    help="Path to the directory where Kubeflow Metrics files are stored.",
+    default=const.DEFAULT_KFP_LOG_DIR,
+    help="Path to the directory where Kubeflow ui metadata file and "
+    "metrics are stored.",
 )
 @click.option(
     "--kfp-metrics-filename",
     type=click.STRING,
     default=const.DEFAULT_KFP_METRICS_FILENAME,
     help="Kubeflow Metrics filename.",
+)
+@click.option(
+    "--kfp-ui-metadata-filename",
+    type=click.STRING,
+    default=const.DEFAULT_KFP_UI_METADATA_FILENAME,
+    help="Kubeflow UI Metadata JSON filename (for tensorboard).",
 )
 @click.option(
     "--no-cuda",
@@ -83,8 +90,9 @@ def cli(
     test_data,
     tb_log_dir,
     workers,
-    kfp_metrics_dir,
+    kfp_log_dir,
     kfp_metrics_filename,
+    kfp_ui_metadata_filename,
     no_cuda,
 ):
     ctx = click.get_current_context()
@@ -97,8 +105,9 @@ def cli(
         checkpoint_file=checkpoint_file,
         tb_log_dir=tb_log_dir,
         workers=workers,
-        kfp_metrics_dir=kfp_metrics_dir,
+        kfp_log_dir=kfp_log_dir,
         kfp_metrics_filename=kfp_metrics_filename,
+        kfp_ui_metadata_filename=kfp_ui_metadata_filename,
         no_cuda=no_cuda,
     )
 

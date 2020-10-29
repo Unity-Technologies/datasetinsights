@@ -74,6 +74,7 @@ def train_op(
     num_gpu,
     gpu_type,
     checkpoint_file=None,
+    kfp_log_dir="/",
 ):
     """ Create a Kubeflow ContainerOp to train an estimator.
 
@@ -85,6 +86,8 @@ def train_op(
         checkpoint_file (str): Path to an estimator checkpoint file.
             If specified, model will resume from previous checkpoints.
         tb_log_dir (str): Path to tensorboard log directory.
+        kfp_log_dir (str): Directory where Kubeflow ui metadata file and
+            metrics are stored
         checkpoint_dir (str): Path to checkpoint file directory.
         volume (kfp.dsl.PipelineVolume): The volume where datasets are stored.
         memory_limit (str): Set memory limit for this operator. For simplicity,
@@ -114,6 +117,7 @@ def train_op(
         f"--train-data={train_data}",
         f"--val-data={val_data}",
         f"--tb-log-dir={tb_log_dir}",
+        f"--kfp-log-dir={kfp_log_dir}",
         f"--checkpoint-dir={checkpoint_dir}",
     ]
     if checkpoint_file:
@@ -160,7 +164,7 @@ def evaluate_op(
         config (str): Path to estimator config file.
         checkpoint_file (str): Path to an estimator checkpoint file.
         test_data (str): Path to test dataset directory.
-        tb_log_dir (str): Path to tensorbload log directory.
+        tb_log_dir (str): Path to tensorboard log directory.
         checkpoint_dir (str): Path to checkpoint file directory.
         volume (kfp.dsl.PipelineVolume): The volume where datasets are stored.
         memory_limit (str): Set memory limit for this operator. For simplicity,
