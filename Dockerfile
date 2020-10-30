@@ -13,7 +13,7 @@ RUN apt-get update \
     && ln -s /usr/bin/python3.7 /usr/local/bin/python
 
 # Pin setuptools to 49.x.x until this [issue](https://github.com/pypa/setuptools/issues/2350) is fixed.
-RUN python -m pip install --upgrade pip poetry setuptools==49.6.0
+RUN python -m pip install --upgrade pip poetry==1.0.10 setuptools==49.6.0
 
 # Add Tini
 ENV TINI_VERSION v0.18.0
@@ -25,12 +25,12 @@ VOLUME /data /root/.config
 
 COPY poetry.lock pyproject.toml ./
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-dev --no-root
+    && poetry install --no-root
 
 COPY . ./
 # Run poetry install again to install datasetinsights
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-dev
+    && poetry install
 
 # Use -g to ensure all child process received SIGKILL
 ENTRYPOINT ["tini", "-g", "--"]
