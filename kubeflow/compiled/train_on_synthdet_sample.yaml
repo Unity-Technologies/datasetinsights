@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: train-on-the-synthdet-sample-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1, pipelines.kubeflow.org/pipeline_compilation_time: '2020-10-23T14:11:43.399951',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.4, pipelines.kubeflow.org/pipeline_compilation_time: '2020-10-29T12:45:42.569864',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Train on the SynthDet
       sample", "inputs": [{"default": "unitytechnologies/datasetinsights:latest",
       "name": "docker", "optional": true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/data/synthetic/SynthDet.zip",
@@ -12,7 +12,7 @@ metadata:
       "name": "checkpoint_dir", "optional": true, "type": "String"}, {"default": "100Gi",
       "name": "volume_size", "optional": true, "type": "String"}], "name": "Train
       on the SynthDet sample"}'}
-  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.4}
 spec:
   entrypoint: train-on-the-synthdet-sample
   templates:
@@ -68,7 +68,7 @@ spec:
   - name: train
     container:
       args: ['--config={{inputs.parameters.config}}', --train-data=/data, --val-data=/data,
-        '--tb-log-dir={{inputs.parameters.tb_log_dir}}', '--checkpoint-dir={{inputs.parameters.checkpoint_dir}}']
+        '--tb-log-dir={{inputs.parameters.tb_log_dir}}', --kfp-log-dir=/, '--checkpoint-dir={{inputs.parameters.checkpoint_dir}}']
       command: [python, -m, torch.distributed.launch, --nproc_per_node=8, --use_env,
         datasetinsights, train]
       env:
