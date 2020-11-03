@@ -14,12 +14,14 @@ logger = logging.getLogger(__name__)
 
 class KubeflowPipelineWriter(object):
     """
-    Serializes metrics dictionary genereated during model training/evaluation to
-    JSON and store in a file.
+    KFP Writer for serializing metrics dictionary genereated during model
+    training/evaluation toJSON and store in a file and create KFP dashboard
+    visualizer JSON file for tensorboard.
 
     Args:
         filename (str): Name of the file to which the writer will save metrics
-        filepath (str): Path where the file will be stored
+        kfp_log_dir (str): Path where all files related to KFP will be stored
+        tb_log_dir (str): Path where tensorobard logs are saved
 
     Attributes:
         filename (str): Name of the file to which the writer will save metrics
@@ -41,12 +43,14 @@ class KubeflowPipelineWriter(object):
         """
 
         self.kfp_metrics_filename = kfp_metrics_filename
-        self.kfp_ui_metadata_filename = kfp_ui_metadata_filename
         self.kfp_log_dir = kfp_log_dir
-        self.tb_log_dir = tb_log_dir
         self.data_dict = {}
         self.data = {"metrics": []}
-        self.create_tb_visualization_json()
+
+        if not os.path.exists(self.kfp_log_dir):
+            os.makedirs(self.kfp_log_dir)
+
+        self.create_tb_visualization_json(tb_log_dir, kfp_ui_metadata_filename)
 
     def add_metric(self, name, val):
         """
@@ -76,8 +80,6 @@ class KubeflowPipelineWriter(object):
             self.data["metrics"].append(
                 {"name": key, "numberValue": val, "format": "RAW"}
             )
-        if not os.path.exists(self.kfp_log_dir):
-            os.makedirs(self.kfp_log_dir)
         with open(
             os.path.join(self.kfp_log_dir, self.kfp_metrics_filename), "w"
         ) as f:
@@ -88,19 +90,17 @@ class KubeflowPipelineWriter(object):
             f" {self.kfp_log_dir}"
         )
 
-    def create_tb_visualization_json(self):
+    def create_tb_visualization_json(
+        self, tb_log_dir, kfp_ui_metadata_filename
+    ):
 
-        metadata = {
-            "outputs": [{"type": "tensorboard", "source": self.tb_log_dir}]
-        }
-        if not os.path.exists(self.kfp_log_dir):
-            os.makedirs(self.kfp_log_dir)
+        metadata = {"outputs": [{"type": "tensorboard", "source": tb_log_dir}]}
         with open(
-            os.path.join(self.kfp_log_dir, self.kfp_ui_metadata_filename), "w"
+            os.path.join(self.kfp_log_dir, kfp_ui_metadata_filename), "w"
         ) as f:
             json.dump(metadata, f)
 
         logger.debug(
-            f"KFP UI Metadata JSON file {self.kfp_ui_metadata_filename} "
+            f"KFP UI Metadata JSON file {kfp_ui_metadata_filename} "
             f"saved at path: {self.kfp_log_dir}"
         )
