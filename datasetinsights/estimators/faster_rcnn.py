@@ -19,6 +19,7 @@ import datasetinsights.constants as const
 from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
 from datasetinsights.io.bbox import BBox2D
+from datasetinsights.io.summarywriter import DummySummaryWriter
 from datasetinsights.io.transforms import Compose
 from datasetinsights.torch_distributed import get_world_size, is_master
 
@@ -78,7 +79,12 @@ class FasterRCNN(Estimator):
         self._init_distributed_mode()
         self.no_cuda = no_cuda
         self._init_device()
-        self.writer = writer
+
+        if is_master():
+            self.writer = writer
+        else:
+            logger.info("Dummy Summary Writer being used.")
+            self.writer = DummySummaryWriter()
 
         self.kfp_writer = kfp_writer
         checkpointer.distributed = self.distributed
@@ -305,24 +311,22 @@ class FasterRCNN(Estimator):
                     f"(total training examples: {examples_seen}) is "
                     f"{intermediate_loss}"
                 )
-                if is_master():
-                    self.writer.add_scalar(
-                        "training/intermediate_loss",
-                        intermediate_loss,
-                        examples_seen,
-                    )
+
+                self.writer.add_scalar(
+                    "training/intermediate_loss",
+                    intermediate_loss,
+                    examples_seen,
+                )
             losses_grad.backward()
             if (i + 1) % accumulation_steps == 0:
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
-        if is_master():
-            self.writer.add_scalar(
-                "training/loss", loss_metric.compute(), epoch
-            )
-            self.writer.add_scalar(
-                "training/lr", optimizer.param_groups[0]["lr"], epoch
-            )
+
+        self.writer.add_scalar("training/loss", loss_metric.compute(), epoch)
+        self.writer.add_scalar(
+            "training/lr", optimizer.param_groups[0]["lr"], epoch
+        )
         loss_metric.reset()
 
     def evaluate(self, test_data, **kwargs):
@@ -422,8 +426,8 @@ class FasterRCNN(Estimator):
         self.log_metric_val(label_mappings, epoch)
         val_loss = loss_metric.compute()
         logger.info(f"validation loss is {val_loss}")
-        if is_master():
-            self.writer.add_scalar("val/loss", val_loss, epoch)
+
+        self.writer.add_scalar("val/loss", val_loss, epoch)
 
         torch.set_num_threads(n_threads)
 
@@ -439,8 +443,7 @@ class FasterRCNN(Estimator):
             logger.debug(result)
             logger.info(f"metric {metric_name} has result: {result}")
             if metric.TYPE == "scalar":
-                if is_master():
-                    self.writer.add_scalar(f"val/{metric_name}", result, epoch)
+                self.writer.add_scalar(f"val/{metric_name}", result, epoch)
                 self.kfp_writer.add_metric(name=metric_name, val=result)
             # TODO (YC) This is hotfix to allow user map between label_id
             # to label_name during model evaluation. In ideal cases this mapping
@@ -452,16 +455,12 @@ class FasterRCNN(Estimator):
                     label_mappings.get(id, str(id)): value
                     for id, value in result.items()
                 }
-                if is_master():
-                    self.writer.add_scalars(
-                        f"val/{metric_name}-per-class", label_results, epoch
-                    )
-                    fig = metric_per_class_plot(
-                        metric_name, result, label_mappings
-                    )
-                    self.writer.add_figure(
-                        f"{metric_name}-per-class", fig, epoch
-                    )
+
+                self.writer.add_scalars(
+                    f"val/{metric_name}-per-class", label_results, epoch
+                )
+                fig = metric_per_class_plot(metric_name, result, label_mappings)
+                self.writer.add_figure(f"{metric_name}-per-class", fig, epoch)
 
     def save(self, path):
         """Serialize Estimator to path.
