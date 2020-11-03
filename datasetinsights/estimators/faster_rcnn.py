@@ -16,6 +16,12 @@ from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 from tqdm import tqdm
 
+from google.auth.transport.requests import Request
+from google.oauth2 import id_token
+import mlflow
+import mlflow.pytorch
+import datetime
+
 import datasetinsights.constants as const
 from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
@@ -228,33 +234,45 @@ class FasterRCNN(Estimator):
             name="total-time", text=const.TIMING_TEXT, logger=logging.info
         )
         total_timer.start()
-        for epoch in range(self.config.train.epochs):
-            with Timer(
-                name=f"epoch-{epoch}-train-time",
-                text=const.TIMING_TEXT,
-                logger=logging.info,
-            ):
-                self.train_one_epoch(
-                    optimizer=optimizer,
-                    data_loader=train_dataloader,
-                    epoch=epoch,
-                    lr_scheduler=lr_scheduler,
-                    accumulation_steps=accumulation_steps,
-                )
-            if self.distributed:
-                train_sampler.set_epoch(epoch)
-            self.checkpointer.save(self, epoch=epoch)
-            with Timer(
-                name=f"epoch-{epoch}-evaluate-time",
-                text=const.TIMING_TEXT,
-                logger=logging.info,
-            ):
-                self.evaluate_per_epoch(
-                    data_loader=val_dataloader,
-                    epoch=epoch,
-                    label_mappings=label_mappings,
-                )
-        total_timer.stop()
+
+        client_id = "client_id"
+        # Obtain an OpenID Connect (OIDC) token from metadata server or using service account.
+        google_open_id_connect_token = id_token.fetch_id_token(Request(), client_id)
+        # Set environment variables
+        os.environ['MLFLOW_TRACKING_TOKEN'] = google_open_id_connect_token
+        TRACKING_URI = "HOST_URL"
+        mlflow.set_tracking_uri(TRACKING_URI)
+
+        mlflow.set_experiment(experiment_name="datasetinsights_kubeflow_run")
+        with mlflow.start_run(run_name="run_"+str(datetime.datetime.now())):
+            mlflow.log_params(self.config)
+            for epoch in range(self.config.train.epochs):
+                with Timer(
+                    name=f"epoch-{epoch}-train-time",
+                    text=const.TIMING_TEXT,
+                    logger=logging.info,
+                ):
+                    self.train_one_epoch(
+                        optimizer=optimizer,
+                        data_loader=train_dataloader,
+                        epoch=epoch,
+                        lr_scheduler=lr_scheduler,
+                        accumulation_steps=accumulation_steps,
+                    )
+                if self.distributed:
+                    train_sampler.set_epoch(epoch)
+                self.checkpointer.save(self, epoch=epoch)
+                with Timer(
+                    name=f"epoch-{epoch}-evaluate-time",
+                    text=const.TIMING_TEXT,
+                    logger=logging.info,
+                ):
+                    self.evaluate_per_epoch(
+                        data_loader=val_dataloader,
+                        epoch=epoch,
+                        label_mappings=label_mappings,
+                    )
+            total_timer.stop()
 
     def train_one_epoch(
         self,
@@ -321,6 +339,10 @@ class FasterRCNN(Estimator):
             "training/lr", optimizer.param_groups[0]["lr"], epoch
         )
         loss_metric.reset()
+
+        mlflow.log_metric("training/loss",  intermediate_loss)
+        mlflow.pytorch.log_model(self.model_without_ddp, "models/"+str(epoch))
+        mlflow.log_metric("epochs", epoch)
 
     def evaluate(self, test_data, **kwargs):
         """evaluate given dataset."""
