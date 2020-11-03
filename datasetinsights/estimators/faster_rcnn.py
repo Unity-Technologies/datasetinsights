@@ -235,12 +235,12 @@ class FasterRCNN(Estimator):
         )
         total_timer.start()
 
-        client_id = "client_id"
+        client_id = "id"
         # Obtain an OpenID Connect (OIDC) token from metadata server or using service account.
         google_open_id_connect_token = id_token.fetch_id_token(Request(), client_id)
         # Set environment variables
         os.environ['MLFLOW_TRACKING_TOKEN'] = google_open_id_connect_token
-        TRACKING_URI = "HOST_URL"
+        TRACKING_URI = "HOST"
         mlflow.set_tracking_uri(TRACKING_URI)
 
         mlflow.set_experiment(experiment_name="datasetinsights_kubeflow_run")
@@ -341,7 +341,10 @@ class FasterRCNN(Estimator):
         loss_metric.reset()
 
         mlflow.log_metric("training/loss",  intermediate_loss)
-        mlflow.pytorch.log_model(self.model_without_ddp, "models/"+str(epoch))
+        #mlflow.pytorch.log_model(self.model_without_ddp, "models/"+str(epoch))
+        with open("output.txt", "w") as f:
+            f.write("Hello world!")
+        mlflow.log_artifact("output.txt")
         mlflow.log_metric("epochs", epoch)
 
     def evaluate(self, test_data, **kwargs):
