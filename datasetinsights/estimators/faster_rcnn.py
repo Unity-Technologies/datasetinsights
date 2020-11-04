@@ -731,8 +731,11 @@ class Loss:
 
     def update(self, avg_loss, batch_size):
         """update loss."""
+        logger.info(f"{avg_loss}, {batch_size}")
         self._sum += avg_loss * batch_size
+        logger.info(f"{self._sum}")
         self.num_examples += batch_size
+        logger.info(f"{self.num_examples}")
 
     def compute(self):
         """compute avg loss.
