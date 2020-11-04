@@ -1,11 +1,19 @@
-r"""Reference.
+r"""Average Precision metrics for 2D object detection
 
-We implement the average precision metrics for object detection based on this:
-https://github.com/rafaelpadilla/Object-Detection-Metrics#average-precision\
+This module provides average precision metics to evaluate 2D object detection models,
+such as metrics defined in `coco evaluation <https://cocodataset.org/#detection-eval>`_.
+The most commonly used metrics are `MeanAveragePrecisionIOU50 <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.evaluation_metrics.html#datasetinsights.evaluation_metrics.average_precision_2d.MeanAveragePrecisionIOU50>`_
+and `MeanAveragePrecisionAverageOverIOU <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.evaluation_metrics.html#datasetinsights.evaluation_metrics.MeanAveragePrecisionAverageOverIOU>`_
+which provide average precision for all labels considered.
 
-We optimize the metric update algorithm based on this:
-https://github.com/rafaelpadilla/Object-Detection-Metrics/blob/master/lib/Evaluator.py
-"""
+These metrics are implemented based on this
+`implementation <https://github.com/rafaelpadilla/Object-Detection-Metrics#average-precision>`_.
+
+`AveragePrecision` provides AP for each label under a given IOU.
+`AveragePrecisionIOU50` provides AP for each label at IOU=50%.
+`MeanAveragePrecisionIOU50` provides mean AP over all labels at IOU=50%.
+`MeanAveragePrecisionAverageOverIOU` provides mean AP over all labels and IOU=[0.5:0.95:0.05].
+"""  # noqa: E501 URL should not be broken down into lines
 import collections
 
 import numpy as np
@@ -195,9 +203,11 @@ class AveragePrecision(EvaluationMetric):
 
 
 class AveragePrecisionIOU50(EvaluationMetric):
-    """2D Bounding Box Average Precision at IOU = 50%.
+    """2D Bounding Box Average Precision at :math:`IOU=50\%`.
 
-    This implementation would calculate AP at IOU = 50% for each label.
+    This implementation would calculate AP for each label at
+    :math:`IOU=50\%`. This woud provide a mapping for label and average
+    precision. The maximum number of detections per image is 100.
     """
 
     TYPE = "metric_per_label"
@@ -216,12 +226,15 @@ class AveragePrecisionIOU50(EvaluationMetric):
 
 
 class MeanAveragePrecisionIOU50(EvaluationMetric):
-    """2D Bounding Box Mean Average Precision metrics at IOU=50%.
+    """2D Bounding Box Mean Average Precision metrics at :math:`IOU=50\%`.
 
-    This implementation would calculate mAP at IOU=50%.
+    This implementation would calculate mAP at :math:`IOU=50\%`.
+    Average across all the labels.
 
-    .. math:: mAP^{IoU=50} = mean_{label}AP^{label, IoU=50}
-    """
+    .. math:: mAP(\\text{IOU=50})=\\frac{1}{N_{\\text{label}}}\sum_{\\text{label}}AP(\\text{label}, \\text{IOU=50})
+    where AP is the `AveragePrecision <https://github.com/rafaelpadilla/Object-Detection-Metrics#average-precision>`_
+    metrics competed separately for each label.
+    """  # noqa: E501 URL should not be broken down into lines
 
     TYPE = "scalar"
 
@@ -247,12 +260,11 @@ class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
 
     This implementation computes Mean Average Precision (mAP) metric,
     which is implemented as the Average Precision average over all
-    labels and IOU = 0.5:0.95:0.05. The max detections per image is
-    limited to 100.
+    labels and :math:`IOU = 0.5, 0.55, 0.60, ..., 0.95`.
+    The max detections per image is limited to 100.
 
-    .. math:: mAP^{IoU=0.5:0.95:0.05} = mean_{label,IoU}
-    .. math:: AP^{label, IoU=0.5:0.95:0.05}
-    """
+    .. math:: mAP = \\frac{1}{N_\\text{IOU}N_\\text{label}}\sum_{\\text{label}, \\text{IOU}}AP(\\text{label}, \\text{IOU})
+    """  # noqa: E501 Math should not be broken down into lines
 
     TYPE = "scalar"
 
