@@ -17,6 +17,9 @@ DEFAULT_CHECKPOINT_DIR = os.path.join(
     PROJECT_ROOT, "checkpoints", TIMESTAMP_SUFFIX
 )
 
+DEFAULT_CLIENT_ID = ""
+DEFAULT_HOST_ID = ""
+
 GCS_BUCKET = "thea-dev"
 GCS_BASE_STR = "gs://"
 HTTP_URL_BASE_STR = "http://"

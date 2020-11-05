@@ -10,6 +10,7 @@ RUN apt-get update \
         libgl1-mesa-dev \
         python3.7-dev \
         python3-pip \
+        git \
     && ln -s /usr/bin/python3.7 /usr/local/bin/python
 
 # Pin setuptools to 49.x.x until this [issue](https://github.com/pypa/setuptools/issues/2350) is fixed.

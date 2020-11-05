@@ -19,7 +19,6 @@ from tqdm import tqdm
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token
 import mlflow
-import mlflow.pytorch
 import datetime
 
 import datasetinsights.constants as const
@@ -70,6 +69,8 @@ class FasterRCNN(Estimator):
         *,
         config,
         logdir,
+        client_id,
+        host_id,
         kfp_writer,
         checkpointer,
         box_score_thresh=0.05,
@@ -114,6 +115,7 @@ class FasterRCNN(Estimator):
 
         if checkpoint_file:
             self.checkpointer.load(self, checkpoint_file)
+        self.mltracking = MlFlowTracking(client_id, host_id)
 
     def _init_distributed_mode(self):
         if "RANK" in os.environ and "WORLD_SIZE" in os.environ:
@@ -234,18 +236,13 @@ class FasterRCNN(Estimator):
             name="total-time", text=const.TIMING_TEXT, logger=logging.info
         )
         total_timer.start()
-
-        client_id = "id"
-        # Obtain an OpenID Connect (OIDC) token from metadata server or using service account.
-        google_open_id_connect_token = id_token.fetch_id_token(Request(), client_id)
-        # Set environment variables
-        os.environ['MLFLOW_TRACKING_TOKEN'] = google_open_id_connect_token
-        TRACKING_URI = "HOST"
-        mlflow.set_tracking_uri(TRACKING_URI)
-
-        mlflow.set_experiment(experiment_name="datasetinsights_kubeflow_run")
-        with mlflow.start_run(run_name="run_"+str(datetime.datetime.now())):
-            mlflow.log_params(self.config)
+        # mlflow_initialize()
+        #
+        # with mlflow.start_run(run_name="run_"+str(datetime.datetime.now())):
+        #     self.mltracking.log_params(self.config)
+        self.mltracking.start_run()
+        self.mltracking.log_params(self.config)
+        try:
             for epoch in range(self.config.train.epochs):
                 with Timer(
                     name=f"epoch-{epoch}-train-time",
@@ -273,6 +270,8 @@ class FasterRCNN(Estimator):
                         label_mappings=label_mappings,
                     )
             total_timer.stop()
+        finally:
+            self.mltracking.end_run()
 
     def train_one_epoch(
         self,
@@ -340,12 +339,12 @@ class FasterRCNN(Estimator):
         )
         loss_metric.reset()
 
-        mlflow.log_metric("training/loss",  intermediate_loss)
+        self.mltracking.log_metric("training/loss",  intermediate_loss)
         #mlflow.pytorch.log_model(self.model_without_ddp, "models/"+str(epoch))
         with open("output.txt", "w") as f:
             f.write("Hello world!")
-        mlflow.log_artifact("output.txt")
-        mlflow.log_metric("epochs", epoch)
+        self.mltracking.log_artifact("output.txt","run1/output/")
+        self.mltracking.log_metric("epochs", epoch)
 
     def evaluate(self, test_data, **kwargs):
         """evaluate given dataset."""
@@ -446,6 +445,7 @@ class FasterRCNN(Estimator):
         logger.info(f"validation loss is {val_loss}")
         self.writer.add_scalar("val/loss", val_loss, epoch)
 
+        self.mltracking.log_metric("val/loss", val_loss)  # Mlflow log
         torch.set_num_threads(n_threads)
 
     def log_metric_val(self, label_mappings, epoch):
@@ -462,6 +462,7 @@ class FasterRCNN(Estimator):
             if metric.TYPE == "scalar":
                 self.writer.add_scalar(f"val/{metric_name}", result, epoch)
                 self.kfp_writer.add_metric(name=metric_name, val=result)
+                self.mltracking.log_metric(metric_name, result)  # Mlflow log
             # TODO (YC) This is hotfix to allow user map between label_id
             # to label_name during model evaluation. In ideal cases this mapping
             # should be available before training/evaluation dataset was loaded.
@@ -477,6 +478,10 @@ class FasterRCNN(Estimator):
                 )
                 fig = metric_per_class_plot(metric_name, result, label_mappings)
                 self.writer.add_figure(f"{metric_name}-per-class", fig, epoch)
+
+                with open("output.txt", "w") as f:
+                    f.write("Hello world!")
+                self.mltracking.log_artifact("output.txt", "run1/output/")
 
     def save(self, path):
         """Serialize Estimator to path.
@@ -1105,3 +1110,47 @@ class ToTensor:
         """transform image to tesnor."""
         image = torchvision.transforms.functional.to_tensor(image)
         return image, target
+
+
+class MlFlowTracking:
+
+    def __init__(self, client_id, host_id):
+        self.logging_enabled = False
+        if host_id:
+            if client_id:
+                google_open_id_connect_token = id_token.fetch_id_token(Request(), client_id)
+
+                # Set environment variables
+                os.environ['MLFLOW_TRACKING_TOKEN'] = google_open_id_connect_token
+            os.environ["GIT_PYTHON_REFRESH"] = "quiet"
+            import git
+            mlflow.set_tracking_uri(host_id)
+            mlflow.set_experiment(experiment_name="datasetinsights_kubeflow_run")
+            self.logging_enabled = True
+
+    def start_run(self):
+        if self.logging_enabled:
+            mlflow.start_run(run_name="wrapper_run_"+str(datetime.datetime.now()))
+
+    def end_run(self):
+        if self.logging_enabled:
+            mlflow.end_run()
+
+    def log_param(self, k, v):
+        if self.logging_enabled:
+            mlflow.log_param(k, v)
+
+    def log_params(self, kvs):
+        if self.logging_enabled:
+            mlflow.log_params(kvs)
+
+    def log_metric(self, k, v):
+        if self.logging_enabled:
+            mlflow.log_metric(k, v)
+
+    def log_artifact(self, k, v):
+        if self.logging_enabled:
+            mlflow.log_artifact(k, v)
+
+
+

@@ -8,6 +8,8 @@ from datasetinsights.io.kfp_output import KubeflowPipelineWriter
 def create_estimator(
     name,
     config,
+    client_id,
+    host_id,
     *,
     tb_log_dir=None,
     no_cuda=None,
@@ -48,6 +50,8 @@ def create_estimator(
         kfp_writer=kfp_writer,
         checkpointer=checkpointer,
         logdir=tb_log_dir,
+        client_id=client_id,
+        host_id=host_id,
         no_cuda=no_cuda,
         no_val=no_val,
         kfp_metrics_dir=kfp_metrics_dir,

@@ -67,6 +67,22 @@ logger = logging.getLogger(__name__)
     ),
 )
 @click.option(
+    "--client-id",
+    type=click.STRING,
+    default=const.DEFAULT_CLIENT_ID,
+    help=(
+        "client id of MLTracking server"
+    ),
+)
+@click.option(
+    "--host-id",
+    type=click.STRING,
+    default=const.DEFAULT_HOST_ID,
+    help=(
+        "host of MLTracking server"
+    ),
+)
+@click.option(
     "-w",
     "--workers",
     type=click.INT,
@@ -99,6 +115,8 @@ def cli(
     checkpoint_file,
     tb_log_dir,
     checkpoint_dir,
+    client_id,
+    host_id,
     workers,
     no_cuda,
     no_val,
@@ -115,6 +133,8 @@ def cli(
         checkpoint_file=checkpoint_file,
         tb_log_dir=tb_log_dir,
         checkpoint_dir=checkpoint_dir,
+        client_id=client_id,
+        host_id=host_id,
         no_cuda=no_cuda,
         no_val=no_val,
         workers=workers,
