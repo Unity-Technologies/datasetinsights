@@ -19,7 +19,7 @@ import datasetinsights.constants as const
 from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
 from datasetinsights.io.bbox import BBox2D
-from datasetinsights.io.summarywriter import DummySummaryWriter
+from datasetinsights.io.summarywriter import get_summary_writer
 from datasetinsights.io.transforms import Compose
 from datasetinsights.torch_distributed import get_world_size, is_master
 
@@ -63,7 +63,7 @@ class FasterRCNN(Estimator):
         self,
         *,
         config,
-        writer,
+        logdir,
         kfp_writer,
         checkpointer,
         box_score_thresh=0.05,
@@ -80,11 +80,8 @@ class FasterRCNN(Estimator):
         self.no_cuda = no_cuda
         self._init_device()
 
-        if is_master():
-            self.writer = writer
-        else:
-            logger.info("Dummy Summary Writer being used.")
-            self.writer = DummySummaryWriter()
+        summary_writer = get_summary_writer()
+        self.writer = summary_writer(logdir)
 
         self.kfp_writer = kfp_writer
         checkpointer.distributed = self.distributed

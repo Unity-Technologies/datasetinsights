@@ -1,7 +1,5 @@
 from abc import ABCMeta, abstractmethod
 
-from torch.utils.tensorboard import SummaryWriter
-
 import datasetinsights.constants as const
 from datasetinsights.io.checkpoint import EstimatorCheckpoint
 from datasetinsights.io.kfp_output import KubeflowPipelineWriter
@@ -36,8 +34,6 @@ def create_estimator(
     # todo this makes it so that we lose the tensorboard
     #  writer of non-master processes which could make debugging harder
 
-    writer = SummaryWriter(log_dir=tb_log_dir)
-
     kfp_writer = KubeflowPipelineWriter(
         tb_log_dir=tb_log_dir,
         kfp_log_dir=kfp_log_dir,
@@ -53,7 +49,6 @@ def create_estimator(
         kfp_writer=kfp_writer,
         checkpointer=checkpointer,
         logdir=tb_log_dir,
-        writer=writer,
         no_cuda=no_cuda,
         no_val=no_val,
         **kwargs,

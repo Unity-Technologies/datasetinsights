@@ -1,53 +1,42 @@
+from torch.utils.tensorboard import SummaryWriter
+
+from datasetinsights.torch_distributed import is_master
+
+
 class DummySummaryWriter:
-    """A fake summary writer that writes nothing to the disk.
+    """A fake summary writer that writes nothing to the disk. This writer is
+    used when the process is not master process so that no data is written
+    which can prevent overwriting real data. This writer mimics the
+    SummaryWriter module in pytorch library. To see more about pytorch
+    tensorbaord summary writer visit:
+    https://github.com/pytorch/pytorch/blob/master/torch/utils/tensorboard/writer.py#L150
     """
 
-    def add_event(self, event, step=None, walltime=None):
+    def __init__(self, log_dir, *args, **kwargs):
+        self.logdir = log_dir
+
+    def add_event(self, *args, **kwargs):
         return
 
-    def add_summary(self, summary, global_step=None, walltime=None):
+    def add_summary(self, *args, **kwargs):
         return
 
-    def add_graph(self, graph_profile, walltime=None):
+    def add_graph(self, *args, **kwargs):
         return
 
-    def add_scalar(self, tag, scalar_value, global_step=None, walltime=None):
+    def add_scalar(self, *args, **kwargs):
         return
 
-    def add_scalars(
-        self, main_tag, tag_scalar_dict, global_step=None, walltime=None
-    ):
+    def add_scalars(self, *args, **kwargs):
         return
 
-    def add_histogram(
-        self,
-        tag,
-        values,
-        global_step=None,
-        bins="tensorflow",
-        walltime=None,
-        max_bins=None,
-    ):
+    def add_histogram(self, *args, **kwargs):
         return
 
-    def add_histogram_raw(
-        self,
-        tag,
-        min,
-        max,
-        num,
-        sum,
-        sum_squares,
-        bucket_limits,
-        bucket_counts,
-        global_step=None,
-        walltime=None,
-    ):
+    def add_histogram_raw(self, *args, **kwargs):
         return
 
-    def add_figure(
-        self, tag, figure, global_step=None, close=True, walltime=None
-    ):
+    def add_figure(self, *args, **kwargs):
         return
 
     def flush(self):
@@ -55,3 +44,16 @@ class DummySummaryWriter:
 
     def close(self):
         return
+
+
+def get_summary_writer():
+    """
+    Returns summary writer for tensorboard according to the process (master/
+    non master)
+    """
+    if is_master():
+        writer = SummaryWriter
+    else:
+        writer = DummySummaryWriter
+
+    return writer
