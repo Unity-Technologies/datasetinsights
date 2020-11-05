@@ -1,7 +1,12 @@
+import os
+
 import kfp.dsl as dsl
 import kfp.gcp as gcp
 
 DATA_PATH = "/data"
+KFP_LOG_DIR = "/kfp_logs"
+KFP_UI_METADATA_FILENAME = "kfp_ui_metadata.json"
+KFP_METRICS_FILENAME = "kfp_metrics.json"
 
 
 def volume_op(*, volume_size):
@@ -85,6 +90,8 @@ def train_op(
         checkpoint_file (str): Path to an estimator checkpoint file.
             If specified, model will resume from previous checkpoints.
         tb_log_dir (str): Path to tensorboard log directory.
+        kfp_log_dir (str): Directory where Kubeflow ui metadata file and
+            metrics are stored
         checkpoint_dir (str): Path to checkpoint file directory.
         volume (kfp.dsl.PipelineVolume): The volume where datasets are stored.
         memory_limit (str): Set memory limit for this operator. For simplicity,
@@ -114,6 +121,8 @@ def train_op(
         f"--train-data={train_data}",
         f"--val-data={val_data}",
         f"--tb-log-dir={tb_log_dir}",
+        f"--kfp-log-dir={KFP_LOG_DIR}",
+        f"--kfp-ui-metadata-filename={KFP_UI_METADATA_FILENAME}"
         f"--checkpoint-dir={checkpoint_dir}",
     ]
     if checkpoint_file:
@@ -125,7 +134,11 @@ def train_op(
         command=command,
         arguments=arguments,
         pvolumes={DATA_PATH: volume},
-        file_outputs={"mlpipeline-ui-metadata": "/mlpipeline-ui-metadata.json"},
+        file_outputs={
+            "mlpipeline-ui-metadata": os.path.join(
+                KFP_LOG_DIR, KFP_UI_METADATA_FILENAME
+            )
+        },
     )
     # GPU
     train.set_gpu_limit(num_gpu)
@@ -160,7 +173,7 @@ def evaluate_op(
         config (str): Path to estimator config file.
         checkpoint_file (str): Path to an estimator checkpoint file.
         test_data (str): Path to test dataset directory.
-        tb_log_dir (str): Path to tensorbload log directory.
+        tb_log_dir (str): Path to tensorboard log directory.
         checkpoint_dir (str): Path to checkpoint file directory.
         volume (kfp.dsl.PipelineVolume): The volume where datasets are stored.
         memory_limit (str): Set memory limit for this operator. For simplicity,
@@ -181,7 +194,18 @@ def evaluate_op(
             f"--checkpoint-file={checkpoint_file}",
             f"--test-data={test_data}",
             f"--tb-log-dir={tb_log_dir}",
+            f"--kfp-log-dir={KFP_LOG_DIR}",
+            f"--kfp-ui-metadata-filename={KFP_UI_METADATA_FILENAME}",
+            f"--kfp-metrics-filename={KFP_METRICS_FILENAME}",
         ],
+        file_outputs={
+            "mlpipeline-metrics": os.path.join(
+                KFP_LOG_DIR, KFP_METRICS_FILENAME
+            ),
+            "mlpipeline-ui-metadata": os.path.join(
+                KFP_LOG_DIR, KFP_UI_METADATA_FILENAME
+            ),
+        },
         pvolumes={DATA_PATH: volume},
     )
     # GPU

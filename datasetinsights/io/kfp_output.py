@@ -2,19 +2,26 @@ import json
 import logging
 import os
 
-from datasetinsights.constants import DEFAULT_TENSORBOARD_LOG_DIR
+from datasetinsights.constants import (
+    DEFAULT_KFP_LOG_DIR,
+    DEFAULT_KFP_METRICS_FILENAME,
+    DEFAULT_KFP_UI_METADATA_FILENAME,
+    DEFAULT_TENSORBOARD_LOG_DIR,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class KubeflowPipelineWriter(object):
     """
-    Serializes metrics dictionary genereated during model training/evaluation to
-    JSON and store in a file.
+    KFP Writer for serializing metrics dictionary genereated during model
+    training/evaluation toJSON and store in a file and create KFP dashboard
+    visualizer JSON file for tensorboard.
 
     Args:
         filename (str): Name of the file to which the writer will save metrics
-        filepath (str): Path where the file will be stored
+        kfp_log_dir (str): Path where all files related to KFP will be stored
+        tb_log_dir (str): Path where tensorobard logs are saved
 
     Attributes:
         filename (str): Name of the file to which the writer will save metrics
@@ -26,19 +33,24 @@ class KubeflowPipelineWriter(object):
     def __init__(
         self,
         tb_log_dir=DEFAULT_TENSORBOARD_LOG_DIR,
-        filename="mlpipeline-metrics.json",
-        filepath="/",
+        kfp_log_dir=DEFAULT_KFP_LOG_DIR,
+        kfp_metrics_filename=DEFAULT_KFP_METRICS_FILENAME,
+        kfp_ui_metadata_filename=DEFAULT_KFP_UI_METADATA_FILENAME,
     ):
         """
         Creates KubeflowPipelineWriter that will write out metrics to the output
         file
         """
 
-        self.filename = filename
-        self.filepath = filepath
+        self.kfp_metrics_filename = kfp_metrics_filename
+        self.kfp_log_dir = kfp_log_dir
         self.data_dict = {}
         self.data = {"metrics": []}
-        self.tb_log_dir = tb_log_dir
+
+        if not os.path.exists(self.kfp_log_dir):
+            os.makedirs(self.kfp_log_dir)
+
+        self.create_tb_visualization_json(tb_log_dir, kfp_ui_metadata_filename)
 
     def add_metric(self, name, val):
         """
@@ -68,23 +80,27 @@ class KubeflowPipelineWriter(object):
             self.data["metrics"].append(
                 {"name": key, "numberValue": val, "format": "RAW"}
             )
-        if not os.path.exists(self.filepath):
-            os.makedirs(self.filepath)
-        with open(os.path.join(self.filepath, self.filename), "w") as f:
+        with open(
+            os.path.join(self.kfp_log_dir, self.kfp_metrics_filename), "w"
+        ) as f:
             json.dump(self.data, f)
 
         logger.debug(
-            f"Metrics file {self.filename} saved at path:" f" {self.filepath}"
+            f"Metrics file {self.kfp_metrics_filename} saved at path:"
+            f" {self.kfp_log_dir}"
         )
 
-    def create_tb_visualization_json(self):
-        try:
-            metadata = {
-                "outputs": [{"type": "tensorboard", "source": self.tb_log_dir}]
-            }
-            with open("/mlpipeline-ui-metadata.json", "w") as f:
-                json.dump(metadata, f)
+    def create_tb_visualization_json(
+        self, tb_log_dir, kfp_ui_metadata_filename
+    ):
 
-        # when we don't have write permission
-        except IOError:
-            logger.info("Can not create Tensorboard Visualization JSON file.")
+        metadata = {"outputs": [{"type": "tensorboard", "source": tb_log_dir}]}
+        with open(
+            os.path.join(self.kfp_log_dir, kfp_ui_metadata_filename), "w"
+        ) as f:
+            json.dump(metadata, f)
+
+        logger.debug(
+            f"KFP UI Metadata JSON file {kfp_ui_metadata_filename} "
+            f"saved at path: {self.kfp_log_dir}"
+        )

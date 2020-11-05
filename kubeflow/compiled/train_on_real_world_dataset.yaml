@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: train-on-real-world-dataset-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1, pipelines.kubeflow.org/pipeline_compilation_time: '2020-10-23T14:11:44.179717',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1, pipelines.kubeflow.org/pipeline_compilation_time: '2020-11-04T17:16:53.753331',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Train on real world dataset",
       "inputs": [{"default": "unitytechnologies/datasetinsights:latest", "name": "docker",
       "optional": true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip",
@@ -68,7 +68,8 @@ spec:
   - name: train
     container:
       args: ['--config={{inputs.parameters.config}}', --train-data=/data, --val-data=/data,
-        '--tb-log-dir={{inputs.parameters.tb_log_dir}}', '--checkpoint-dir={{inputs.parameters.checkpoint_dir}}']
+        '--tb-log-dir={{inputs.parameters.tb_log_dir}}', --kfp-log-dir=/kfp_logs,
+        '--kfp-ui-metadata-filename=kfp_ui_metadata.json--checkpoint-dir={{inputs.parameters.checkpoint_dir}}']
       command: [datasetinsights, train]
       env:
       - {name: GOOGLE_APPLICATION_CREDENTIALS, value: /secret/gcp-credentials/user-gcp-sa.json}
@@ -89,7 +90,7 @@ spec:
       - {name: tb_log_dir}
     outputs:
       artifacts:
-      - {name: mlpipeline-ui-metadata, path: /mlpipeline-ui-metadata.json}
+      - {name: mlpipeline-ui-metadata, path: /kfp_logs/kfp_ui_metadata.json}
     nodeSelector: {cloud.google.com/gke-accelerator: nvidia-tesla-v100}
     volumes:
     - name: gcp-credentials-user-gcp-sa
