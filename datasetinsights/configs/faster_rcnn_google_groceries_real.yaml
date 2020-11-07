@@ -40,3 +40,8 @@ pretrained: False
 pretrained_backbone: True
 synchronize_metrics: True
 val_interval: 1
+mlflow:
+  experiment_name: datasetinsights
+  run_name:
+  server_client_id:
+  server_host_id:

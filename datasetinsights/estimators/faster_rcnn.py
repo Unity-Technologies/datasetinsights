@@ -5,6 +5,7 @@ import logging
 import math
 import os
 from typing import Dict, List, Tuple
+import datetime
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,6 +21,7 @@ from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
 from datasetinsights.io.bbox import BBox2D
 from datasetinsights.io.summarywriter import get_summary_writer
+from datasetinsights.io.tracker.factory import TrackerFactory
 from datasetinsights.io.transforms import Compose
 from datasetinsights.torch_distributed import get_world_size, is_master
 
@@ -110,6 +112,7 @@ class FasterRCNN(Estimator):
 
         if checkpoint_file:
             self.checkpointer.load(self, checkpoint_file)
+        self.mltracking = TrackerFactory.create(config, "mltracking")
 
     def _init_distributed_mode(self):
         if "RANK" in os.environ and "WORLD_SIZE" in os.environ:
@@ -192,12 +195,17 @@ class FasterRCNN(Estimator):
         val_loader = dataloader_creator(
             config, val_dataset, val_sampler, VAL, self.distributed
         )
-        self.train_loop(
-            train_dataloader=train_loader,
-            label_mappings=label_mappings,
-            val_dataloader=val_loader,
-            train_sampler=train_sampler,
-        )
+        with self.mltracking.start_run(
+                run_name="run_" + str(datetime.datetime.now())
+        ):
+            self.mltracking.log_params(self.config)
+
+            self.train_loop(
+                train_dataloader=train_loader,
+                label_mappings=label_mappings,
+                val_dataloader=val_loader,
+                train_sampler=train_sampler,
+            )
         self.writer.close()
         self.kfp_writer.write_metric()
 
@@ -314,17 +322,24 @@ class FasterRCNN(Estimator):
                     intermediate_loss,
                     examples_seen,
                 )
+                self.mltracking.log_metric(
+                    "training/intermediate_loss", intermediate_loss
+                )
             losses_grad.backward()
             if (i + 1) % accumulation_steps == 0:
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
-
-        self.writer.add_scalar("training/loss", loss_metric.compute(), epoch)
+        loss_metric_c = loss_metric.compute()
+        self.writer.add_scalar("training/loss", loss_metric_c, epoch)
         self.writer.add_scalar(
             "training/lr", optimizer.param_groups[0]["lr"], epoch
         )
         loss_metric.reset()
+        self.mltracking.log_metric("training/loss", loss_metric_c)
+        self.mltracking.log_metric(
+            "training/lr", optimizer.param_groups[0]["lr"]
+        )
 
     def evaluate(self, test_data, **kwargs):
         """evaluate given dataset."""
@@ -344,12 +359,17 @@ class FasterRCNN(Estimator):
             config, test_dataset, test_sampler, TEST, self.distributed
         )
         self.model.to(self.device)
-        self.evaluate_per_epoch(
-            data_loader=test_loader,
-            epoch=0,
-            label_mappings=label_mappings,
-            synchronize_metrics=self.sync_metrics,
-        )
+        with self.mltracking.start_run(
+                run_name="run_" + str(datetime.datetime.now())
+        ):
+            self.mltracking.log_params(self.config)
+
+            self.evaluate_per_epoch(
+                data_loader=test_loader,
+                epoch=0,
+                label_mappings=label_mappings,
+                synchronize_metrics=self.sync_metrics,
+            )
         self.writer.close()
         self.kfp_writer.write_metric()
 
@@ -425,6 +445,7 @@ class FasterRCNN(Estimator):
         logger.info(f"validation loss is {val_loss}")
 
         self.writer.add_scalar("val/loss", val_loss, epoch)
+        self.mltracking.log_metric("val/loss", val_loss)
 
         torch.set_num_threads(n_threads)
 
@@ -442,6 +463,7 @@ class FasterRCNN(Estimator):
             if metric.TYPE == "scalar":
                 self.writer.add_scalar(f"val/{metric_name}", result, epoch)
                 self.kfp_writer.add_metric(name=metric_name, val=result)
+                self.mltracking.log_metric(f"val/{metric_name}", result)
             # TODO (YC) This is hotfix to allow user map between label_id
             # to label_name during model evaluation. In ideal cases this mapping
             # should be available before training/evaluation dataset was loaded.
@@ -458,6 +480,7 @@ class FasterRCNN(Estimator):
                 )
                 fig = metric_per_class_plot(metric_name, result, label_mappings)
                 self.writer.add_figure(f"{metric_name}-per-class", fig, epoch)
+        self.mltracking.log_metrics(self.metrics.items())
 
     def save(self, path):
         """Serialize Estimator to path.
