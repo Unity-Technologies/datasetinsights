@@ -210,3 +210,37 @@ class GCSClient:
             self._upload_file(
                 local_path=full_path, bucket=bucket, key=object_key
             )
+
+    def get_most_recent_blob(self, url=None, bucket_name=None, key=None):
+        """ Get the last updated blob in a given bucket under given prefix
+
+            Args:
+                bucket_name (str): gcs bucket name
+                key (str): object key path
+        """
+        if not (bucket_name and key) and url:
+            bucket_name, key = self._parse(url)
+
+        bucket = self.client.get_bucket(bucket_name)
+
+        if self._is_file(bucket, key):
+            # Called on file, return file
+            return bucket.get_blob(key)
+        else:
+            logger.debug(
+                f"Cloud path not a file. Checking for most recent file in {url}"
+            )
+            # Return the blob with the max update time (most recent)
+            blobs = self._list_blobs(bucket, prefix=key)
+            return max(
+                blobs, key=lambda blob: bucket.get_blob(blob.name).updated
+            )
+
+    def _list_blobs(self, bucket_name=None, prefix=None):
+        """List all blobs with given prefix
+        """
+        blobs = self.client.list_blobs(bucket_name, prefix=prefix)
+        blob_list = list(blobs)
+        logger.debug(f"Blobs in {bucket_name} under prefix {prefix}:")
+        logger.debug(blob_list)
+        return blob_list
