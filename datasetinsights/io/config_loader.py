@@ -1,5 +1,4 @@
 import tempfile
-import os
 from yacs.config import CfgNode as CN
 
 
@@ -23,3 +22,15 @@ def load_config(config):
             return CN.load_cfg(open(dest_path, "rb"))
     else:
         return CN.load_cfg(open(config, "r"))
+
+
+def override_config(config, override):
+    list_of_overrides = override.split(" ")
+    overrides = list()
+    for override in list_of_overrides:
+        if "=" not in override:
+            raise ValueError("Override parameter must contain = sign")
+        for value in override.split("="):
+            overrides.append(value)
+    config.merge_from_list(overrides)
+    return config

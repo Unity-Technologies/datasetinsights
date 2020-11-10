@@ -4,7 +4,7 @@ import click
 
 import datasetinsights.constants as const
 from datasetinsights.estimators.base import create_estimator
-from datasetinsights.io.config_loader import load_config
+from datasetinsights.io.config_loader import load_config, override_config
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +92,13 @@ logger = logging.getLogger(__name__)
     default=False,
     help="Force to disable validations.",
 )
+@click.option(
+    "--override",
+    type=click.STRING,
+    help=(
+            "String that is used to override config parameters"
+    )
+)
 def cli(
     config,
     train_data,
@@ -102,13 +109,15 @@ def cli(
     workers,
     no_cuda,
     no_val,
+    override,
 ):
     ctx = click.get_current_context()
     logger.debug(f"Called train command with parameters: {ctx.params}")
     logger.debug(f"Override estimator config with args: {ctx.args}")
 
     config = load_config(config=config)
-
+    if override:
+        config = override_config(config, override)
     estimator = create_estimator(
         name=config.estimator,
         config=config,

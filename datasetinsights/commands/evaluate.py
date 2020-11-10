@@ -1,11 +1,10 @@
 import logging
 
 import click
-from yacs.config import CfgNode as CN
 
 import datasetinsights.constants as const
 from datasetinsights.estimators.base import create_estimator
-from datasetinsights.io.config_loader import load_config
+from datasetinsights.io.config_loader import load_config, override_config
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +75,14 @@ logger = logging.getLogger(__name__)
     help=(
         "Force to disable CUDA. If CUDA is available and this flag is False, "
         "model will be trained using CUDA."
-    ),
+    )
+)
+@click.option(
+    "--override",
+    type=click.STRING,
+    help=(
+            "String that is used to override config parameters"
+    )
 )
 def cli(
     config,
@@ -87,11 +93,15 @@ def cli(
     kfp_metrics_dir,
     kfp_metrics_filename,
     no_cuda,
+    override,
 ):
     ctx = click.get_current_context()
     logger.debug(f"Called evaluate command with parameters: {ctx.params}")
     logger.debug(f"Override estimator config with args: {ctx.args}")
     config = load_config(config=config)
+
+    if override:
+        config = override_config(config, override)
 
     estimator = create_estimator(
         config=config,
