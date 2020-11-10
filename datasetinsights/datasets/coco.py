@@ -15,8 +15,8 @@ from datasetinsights.io.gcs import GCSClient
 from .base import Dataset
 
 ANNOTATION_FILE_TEMPLATE = "{}_{}2017.json"
-COCO_GCS_PATH = "data/coco"
-COCO_LOCAL_PATH = "coco"
+COCO_GCS_PATH = "data/coco_cat"
+COCO_LOCAL_PATH = "coco_cat"
 logger = logging.getLogger(__name__)
 
 
@@ -97,6 +97,7 @@ class CocoDetection(Dataset):
                 dataset=self.coco
             )
         self.transforms = transforms
+        self.label_mappings = {0: "", 1: "cat"}
 
     def __getitem__(self, idx) -> Tuple[Image, List[BBox2D]]:
         """
