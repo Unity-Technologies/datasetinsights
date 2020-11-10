@@ -53,3 +53,5 @@ CONTEXT_SETTINGS = {
     "allow_extra_args": True,
 }
 DEFAULT_DATASET_VERSION = "latest"
+
+MLFLOW_TRACKER = "mlflow"

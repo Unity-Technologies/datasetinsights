@@ -1,11 +1,11 @@
 """faster rcnn pytorch train and evaluate."""
 
 import copy
+import datetime
 import logging
 import math
 import os
 from typing import Dict, List, Tuple
-import datetime
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,6 +22,7 @@ from datasetinsights.evaluation_metrics.base import EvaluationMetric
 from datasetinsights.io.bbox import BBox2D
 from datasetinsights.io.summarywriter import get_summary_writer
 from datasetinsights.io.tracker.factory import TrackerFactory
+from datasetinsights.io.tracker.mzflow import MLFlowTracker
 from datasetinsights.io.transforms import Compose
 from datasetinsights.torch_distributed import get_world_size, is_master
 
@@ -112,7 +113,7 @@ class FasterRCNN(Estimator):
 
         if checkpoint_file:
             self.checkpointer.load(self, checkpoint_file)
-        self.mltracking = TrackerFactory.create(config, "mltracking")
+        self.mltracking = TrackerFactory.create(config, const.MLFLOW_TRACKER)
 
     def _init_distributed_mode(self):
         if "RANK" in os.environ and "WORLD_SIZE" in os.environ:
@@ -196,7 +197,7 @@ class FasterRCNN(Estimator):
             config, val_dataset, val_sampler, VAL, self.distributed
         )
         with self.mltracking.start_run(
-                run_name="run_" + str(datetime.datetime.now())
+            run_name="run_" + str(datetime.datetime.now())
         ):
             self.mltracking.log_params(self.config)
 
@@ -360,7 +361,7 @@ class FasterRCNN(Estimator):
         )
         self.model.to(self.device)
         with self.mltracking.start_run(
-                run_name="run_" + str(datetime.datetime.now())
+            run_name="run_" + str(datetime.datetime.now())
         ):
             self.mltracking.log_params(self.config)
 
@@ -439,6 +440,8 @@ class FasterRCNN(Estimator):
             loss_dict_reduced = reduce_dict(loss_dict)
             losses = sum(loss for loss in loss_dict_reduced.values())
             loss_metric.update(avg_loss=losses.item(), batch_size=len(targets))
+            # refresh mlflow token
+            MLFlowTracker.refresh_token()
 
         self.log_metric_val(label_mappings, epoch)
         val_loss = loss_metric.compute()
@@ -480,7 +483,6 @@ class FasterRCNN(Estimator):
                 )
                 fig = metric_per_class_plot(metric_name, result, label_mappings)
                 self.writer.add_figure(f"{metric_name}-per-class", fig, epoch)
-        self.mltracking.log_metrics(self.metrics.items())
 
     def save(self, path):
         """Serialize Estimator to path.
@@ -1086,7 +1088,9 @@ def metric_per_class_plot(metric_name, data, label_mappings, figsize=(20, 10)):
     plt.xlabel("label name")
     plt.ylabel(f"{metric_name}")
     plt.xticks(
-        label_id, label_name, rotation="vertical",
+        label_id,
+        label_name,
+        rotation="vertical",
     )
     plt.margins(0.2)
     plt.subplots_adjust(bottom=0.3)

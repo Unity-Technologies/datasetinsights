@@ -3,7 +3,7 @@ backbone: resnet50
 num_classes: 64
 task: object_detection
 train:
-  epochs: 6
+  epochs: 10
   batch_size: 8
   accumulation_steps: 8
   log_frequency: 30
@@ -45,5 +45,5 @@ synchronize_metrics: True
 mlflow:
   experiment_name: datasetinsights
   run_name:
-  server_client_id:
-  server_host_id:
+  tracking_client_id:
+  tracking_host_id:
