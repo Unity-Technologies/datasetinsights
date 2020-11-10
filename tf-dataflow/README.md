@@ -17,12 +17,12 @@ Here is a visual representation of the steps we just outlined:
 ## Prerequisites
 
 * Clone this repo locally and navigate to the `tf-dataflow` directory.
-* A Google Cloud Platform (GCP) account
+* A Google Cloud Platform (GCP) account and project
    * Download `gcloud` tool locally - [docs](https://cloud.google.com/sdk/gcloud#downloading_the_gcloud_command-line_tool). This includes both `gcloud` and `gsutil`, which we'll be using throughout this tutorial.
 * A dataset generated on Unity Simulation - you can find out more in the [SynthDet documentation](https://github.com/Unity-Technologies/SynthDet/blob/master/docs/RunningSynthDetCloud.md).
 * Unity Simulation CLI - download and usage instructions [here](https://github.com/Unity-Technologies/com.unity.perception/blob/master/com.unity.perception/Documentation%7E/Tutorial/Phase3.md#step-3). Please carefully read this section!
-* DataFlow must be enabled for your project. More instructions can be found on Google's [official DataFlow documentation](https://cloud.google.com/dataflow/docs/quickstarts/quickstart-python). If you're an owner of the project, you'll only need to follow the guide up to Step 3 of the "Before you begin" section.
-* AI Platform must enabled for your Google Project. [Official guide here](https://cloud.google.com/ai-platform/training/docs/algorithms/object-detection-start). Please ensure you've done everything up to the "Setup" section of that guide.
+* DataFlow must be enabled for your project. More instructions can be found on Google's [official DataFlow documentation](https://cloud.google.com/dataflow/docs/quickstarts/quickstart-python). If you're an owner of the GCP project, you'll only need to follow the guide up to Step 3 of the "Before you begin" section.
+* AI Platform must enabled for your GCP Project. [Official guide here](https://cloud.google.com/ai-platform/training/docs/algorithms/object-detection-start). Please ensure you've done everything up to the "Setup" section of that guide.
 
 ## Getting started
 
