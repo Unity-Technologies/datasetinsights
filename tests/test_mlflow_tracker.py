@@ -10,6 +10,7 @@ from datasetinsights.io.tracker.mzflow import MLFlowTracker
 CLIENT_ID = "test_client_id"
 HOST_ID = "test_host_id"
 EXP_NAME = "datasetinsights"
+TEST_TOKEN = "test"
 
 
 @pytest.fixture
@@ -41,12 +42,13 @@ def test_get_tracker(mock_refresh, mock_mlflow, config):
     assert not config.get("mlflow")
 
 
-@patch("datasetinsights.io.tracker.mzflow.id_token")
+@patch("datasetinsights.io.tracker.mzflow.id_token.fetch_id_token")
 @patch("datasetinsights.io.tracker.mzflow.MLFlowTracker.get_instance")
 def test_refresh_token(mock_get_instance, mock_id_token):
     tracker = MagicMock()
     tracker.client_id = MagicMock(CLIENT_ID)
     mock_get_instance.return_value = tracker
+    mock_id_token.return_value = TEST_TOKEN
     MLFlowTracker.refresh_token(CLIENT_ID)
     mock_get_instance.assert_called_with(CLIENT_ID)
 

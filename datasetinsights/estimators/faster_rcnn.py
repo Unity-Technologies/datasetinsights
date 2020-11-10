@@ -1,7 +1,6 @@
 """faster rcnn pytorch train and evaluate."""
 
 import copy
-import datetime
 import logging
 import math
 import os
@@ -34,6 +33,8 @@ DEFAULT_ACCUMULATION_STEPS = 1
 TRAIN = "train"
 VAL = "val"
 TEST = "test"
+MLFLOW = "mlflow"
+NAME = "run_name"
 
 
 class FasterRCNN(Estimator):
@@ -196,11 +197,8 @@ class FasterRCNN(Estimator):
         val_loader = dataloader_creator(
             config, val_dataset, val_sampler, VAL, self.distributed
         )
-        with self.mltracking.start_run(
-            run_name="run_" + str(datetime.datetime.now())
-        ):
+        with self.mltracking.start_run(run_name=const.DEFAULT_RUN_NAME):
             self.mltracking.log_params(self.config)
-
             self.train_loop(
                 train_dataloader=train_loader,
                 label_mappings=label_mappings,
@@ -360,11 +358,8 @@ class FasterRCNN(Estimator):
             config, test_dataset, test_sampler, TEST, self.distributed
         )
         self.model.to(self.device)
-        with self.mltracking.start_run(
-            run_name="run_" + str(datetime.datetime.now())
-        ):
+        with self.mltracking.start_run(run_name=const.DEFAULT_RUN_NAME):
             self.mltracking.log_params(self.config)
-
             self.evaluate_per_epoch(
                 data_loader=test_loader,
                 epoch=0,
@@ -1088,9 +1083,7 @@ def metric_per_class_plot(metric_name, data, label_mappings, figsize=(20, 10)):
     plt.xlabel("label name")
     plt.ylabel(f"{metric_name}")
     plt.xticks(
-        label_id,
-        label_name,
-        rotation="vertical",
+        label_id, label_name, rotation="vertical",
     )
     plt.margins(0.2)
     plt.subplots_adjust(bottom=0.3)

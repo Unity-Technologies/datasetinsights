@@ -55,3 +55,4 @@ CONTEXT_SETTINGS = {
 DEFAULT_DATASET_VERSION = "latest"
 
 MLFLOW_TRACKER = "mlflow"
+DEFAULT_RUN_NAME = "run_" + str(datetime.now())
