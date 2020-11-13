@@ -90,7 +90,7 @@ class CocoDetection(Dataset):
         # todo add test split
         self.split = split
         self.root = os.path.join(data_root, COCO_LOCAL_PATH)
-        self.download()
+        # self.download()
         self.coco = self._get_coco(root=self.root, image_set=split)
         if remove_examples_without_boxes:
             self.coco = _coco_remove_images_without_annotations(
