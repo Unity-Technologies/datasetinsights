@@ -1,5 +1,9 @@
+import fcntl
+import glob
 import logging
+import json
 import os
+import shutil
 import zipfile
 from pathlib import Path
 from typing import List, Tuple
@@ -13,6 +17,7 @@ from datasetinsights.io.bbox import BBox2D
 from datasetinsights.io.gcs import GCSClient
 
 from .base import Dataset
+from .exceptions import DatasetNotFoundError
 
 ANNOTATION_FILE_TEMPLATE = "{}_{}2017.json"
 COCO_GCS_PATH = "data/coco_cat"
@@ -81,7 +86,7 @@ class CocoDetection(Dataset):
     def __init__(
         self,
         *,
-        data_root=const.DEFAULT_DATA_ROOT,
+        data_path=const.DEFAULT_DATA_ROOT,
         split="train",
         transforms=None,
         remove_examples_without_boxes=True,
@@ -89,7 +94,8 @@ class CocoDetection(Dataset):
     ):
         # todo add test split
         self.split = split
-        self.root = os.path.join(data_root, COCO_LOCAL_PATH)
+        self.root = data_path
+        self._preprocess_dataset(data_path=self.root, split=self.split)
         # self.download()
         self.coco = self._get_coco(root=self.root, image_set=split)
         if remove_examples_without_boxes:
@@ -97,7 +103,7 @@ class CocoDetection(Dataset):
                 dataset=self.coco
             )
         self.transforms = transforms
-        self.label_mappings = {0: "", 1: "cat"}
+        self.label_mappings = self._get_label_mappings()
 
     def __getitem__(self, idx) -> Tuple[Image, List[BBox2D]]:
         """
@@ -144,6 +150,80 @@ class CocoDetection(Dataset):
     def _get_local_images_zip(self):
         return os.path.join(self.root, f"{self.split}2017.zip")
 
+    def _get_label_mappings(self):
+        ann_file_name = (
+            Path(self.root) / "annotations" / f"instances_{self.split}2017.json"
+        )
+        label_mappings = {}
+        with open(ann_file_name, "r") as ann_file:
+            anns = json.load(ann_file)
+            for cat in anns["categories"]:
+                label_mappings[cat["id"]] = cat["name"]
+        return label_mappings
+
+    @staticmethod
+    def _preprocess_dataset(data_path, split):
+        """ Preprocess dataset inside data_path and un-archive if necessary.
+
+            Args:
+                data_path (str): Path where dataset is stored.
+
+            Return:
+                Tuple: (unarchived img path, unarchived annotation path)
+            """
+
+        archive_img_file = Path(data_path) / f"{split}2017.zip"
+        archive_ann_file = Path(data_path) / "annotations_trainval2017.zip"
+        if archive_img_file.exists() and archive_ann_file.exists():
+            img_file_descriptor = os.open(archive_img_file, os.O_RDONLY)
+            try:
+                fcntl.flock(img_file_descriptor, fcntl.LOCK_EX)
+                unarchived_img_path = Path(data_path)
+                if not CocoDetection.is_dataset_files_present(
+                    unarchived_img_path
+                ):
+                    shutil.unpack_archive(
+                        filename=archive_img_file,
+                        extract_dir=unarchived_img_path,
+                    )
+                    logger.info(
+                        f"Unpack {archive_img_file} to {unarchived_img_path}"
+                    )
+            finally:
+                os.close(img_file_descriptor)
+            ann_file_descriptor = os.open(archive_img_file, os.O_RDONLY)
+            try:
+                fcntl.flock(ann_file_descriptor, fcntl.LOCK_EX)
+                unarchived_ann_path = Path(data_path)
+                if not CocoDetection.is_dataset_files_present(
+                    unarchived_ann_path
+                ):
+                    shutil.unpack_archive(
+                        filename=archive_ann_file,
+                        extract_dir=unarchived_ann_path,
+                    )
+                    logger.info(
+                        f"Unpack {archive_ann_file} to {unarchived_ann_path}"
+                    )
+            finally:
+                os.close(ann_file_descriptor)
+            return (unarchived_img_path, unarchived_ann_path)
+        elif CocoDetection.is_dataset_files_present(data_path):
+            return data_path
+        else:
+            raise DatasetNotFoundError(
+                f"Expecting a file {archive_img_file} and {archive_ann_file}"
+                "under {data_path}"
+            )
+
+    @staticmethod
+    def is_dataset_files_present(data_path):
+        return (
+            os.path.isdir(data_path)
+            and any(glob.glob(f"{data_path}/*.json"))
+            and any(glob.glob(f"{data_path}/*.jpg"))
+        )
+
     def download(self, cloud_path=COCO_GCS_PATH):
         path = Path(self.root)
         path.mkdir(parents=True, exist_ok=True)
@@ -160,6 +240,7 @@ class CocoDetection(Dataset):
             )
             with zipfile.ZipFile(annotations_zip_2017, "r") as zip_dir:
                 zip_dir.extractall(self.root)
+                logger.info(f"Unzipped {annotations_zip_2017} file.")
         images_local = self._get_local_images_zip()
         images_gcs = f"{cloud_path}/{self.split}2017.zip"
         if not os.path.exists(images_local):
@@ -172,3 +253,4 @@ class CocoDetection(Dataset):
             )
             with zipfile.ZipFile(images_local, "r") as zip_dir:
                 zip_dir.extractall(self.root)
+                logger.info(f"Unzipped {images_local} file.")

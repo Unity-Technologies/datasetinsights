@@ -1,10 +1,10 @@
 estimator: FasterRCNN
 backbone: resnet50
-num_classes: 2
+num_classes: 91
 task: object_detection
 train:
-  epochs: 100
-  batch_size: 8
+  epochs: 50
+  batch_size: 4
   accumulation_steps: 8
   log_frequency: 30
   dataset:
@@ -22,10 +22,10 @@ val:
 test:
   batch_size: 8
   dataset:
-    name: GroceriesReal
+    name: CocoDetection
     args:
       version: v3
-      split: test
+      split: val
 metrics:
   mAP:
     name: MeanAveragePrecisionAverageOverIOU
