@@ -69,7 +69,7 @@ spec:
     container:
       args: ['--config={{inputs.parameters.config}}', --train-data=/data, --val-data=/data,
         '--tb-log-dir={{inputs.parameters.tb_log_dir}}', --kfp-log-dir=/kfp_logs,
-        '--kfp-ui-metadata-filename=kfp_ui_metadata.json--checkpoint-dir={{inputs.parameters.checkpoint_dir}}']
+        --kfp-ui-metadata-filename=kfp_ui_metadata.json, '--checkpoint-dir={{inputs.parameters.checkpoint_dir}}']
       command: [python, -m, torch.distributed.launch, --nproc_per_node=8, --use_env,
         datasetinsights, train]
       env:

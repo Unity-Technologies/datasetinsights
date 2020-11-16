@@ -122,7 +122,7 @@ def train_op(
         f"--val-data={val_data}",
         f"--tb-log-dir={tb_log_dir}",
         f"--kfp-log-dir={KFP_LOG_DIR}",
-        f"--kfp-ui-metadata-filename={KFP_UI_METADATA_FILENAME}"
+        f"--kfp-ui-metadata-filename={KFP_UI_METADATA_FILENAME}",
         f"--checkpoint-dir={checkpoint_dir}",
     ]
     if checkpoint_file:

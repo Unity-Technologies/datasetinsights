@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: train-and-evaluate-combined-pipeline-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.4, pipelines.kubeflow.org/pipeline_compilation_time: '2020-11-06T11:28:23.845136',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.4, pipelines.kubeflow.org/pipeline_compilation_time: '2020-11-13T13:59:16.456611',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Train and Evaluate Combined
       Pipeline", "inputs": [{"default": "unitytechnologies/datasetinsights:latest",
       "name": "docker", "optional": true, "type": "String"}, {"default": "<unity-project-id>",
@@ -76,7 +76,8 @@ spec:
   - name: evaluate
     container:
       args: ['--config={{inputs.parameters.evaluate_config}}', '--checkpoint-file={{inputs.parameters.checkpoint_dir}}',
-        --test-data=/data, '--tb-log-dir={{inputs.parameters.tb_log_dir}}']
+        --test-data=/data, '--tb-log-dir={{inputs.parameters.tb_log_dir}}', --kfp-log-dir=/kfp_logs,
+        --kfp-ui-metadata-filename=kfp_ui_metadata.json, --kfp-metrics-filename=kfp_metrics.json]
       command: [datasetinsights, evaluate]
       env:
       - {name: GOOGLE_APPLICATION_CREDENTIALS, value: /secret/gcp-credentials/user-gcp-sa.json}
@@ -95,6 +96,10 @@ spec:
       - {name: evaluate_config}
       - {name: pvc-name}
       - {name: tb_log_dir}
+    outputs:
+      artifacts:
+      - {name: mlpipeline-metrics, path: /kfp_logs/kfp_metrics.json}
+      - {name: mlpipeline-ui-metadata, path: /kfp_logs/kfp_ui_metadata.json}
     nodeSelector: {cloud.google.com/gke-accelerator: nvidia-tesla-v100}
     volumes:
     - name: gcp-credentials-user-gcp-sa
@@ -129,7 +134,8 @@ spec:
   - name: train
     container:
       args: ['--config={{inputs.parameters.train_config}}', --train-data=/data, --val-data=/data,
-        '--tb-log-dir={{inputs.parameters.tb_log_dir}}', '--checkpoint-dir={{inputs.parameters.checkpoint_dir}}']
+        '--tb-log-dir={{inputs.parameters.tb_log_dir}}', --kfp-log-dir=/kfp_logs,
+        '--kfp-ui-metadata-filename=kfp_ui_metadata.json--checkpoint-dir={{inputs.parameters.checkpoint_dir}}']
       command: [python, -m, torch.distributed.launch, --nproc_per_node=8, --use_env,
         datasetinsights, train]
       env:
@@ -151,7 +157,7 @@ spec:
       - {name: train_config}
     outputs:
       artifacts:
-      - {name: mlpipeline-ui-metadata, path: /mlpipeline-ui-metadata.json}
+      - {name: mlpipeline-ui-metadata, path: /kfp_logs/kfp_ui_metadata.json}
     nodeSelector: {cloud.google.com/gke-accelerator: nvidia-tesla-v100}
     volumes:
     - name: gcp-credentials-user-gcp-sa
