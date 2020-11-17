@@ -27,13 +27,13 @@ test:
       version: 2017
       split: val
 metrics:
-  mAP:
+  mean-average-precision:
     name: MeanAveragePrecisionAverageOverIOU
-  mAPIOU50:
+  mean-average-precision-iou50:
     name: MeanAveragePrecisionIOU50
-  mAR:
+  mean-average-recall:
     name: MeanAverageRecallAverageOverIOU
-  APIOU50:
+  average-precision-iou50:
     name: AveragePrecisionIOU50
 optimizer:
   name: Adam
