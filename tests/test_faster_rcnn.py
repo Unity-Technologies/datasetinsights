@@ -26,6 +26,7 @@ from datasetinsights.io.checkpoint import EstimatorCheckpoint
 
 # XXX This should not be a global variable. A tempdir should be a fixture and
 # automatically cleanup after EVERY unit test finished execution.
+
 tmp_dir = tempfile.TemporaryDirectory()
 tmp_name = tmp_dir.name
 
@@ -167,11 +168,19 @@ def test_faster_rcnn_train_all(
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
 @patch("datasetinsights.estimators.faster_rcnn.create_dataset")
 @patch("datasetinsights.io.tracker.factory.TrackerFactory.create")
+@patch("datasetinsights.io.tracker.factory.TrackerFactory.DEFAULT_TRAIN_NAME")
 def test_faster_rcnn_train(
-    mock_tracker, mock_create, mock_loss, mock_train_loop, config, dataset
+    mock_run_name,
+    mock_tracker,
+    mock_create,
+    mock_loss,
+    mock_train_loop,
+    config,
+    dataset,
 ):
     """test train."""
-    mock_tracker.return_value = MagicMock()
+    mock_mlflow = MagicMock()
+    mock_tracker.return_value = mock_mlflow
     loss_val = 0.1
     mock_loss.return_value = loss_val
     mock_create.return_value = dataset
@@ -200,17 +209,16 @@ def test_faster_rcnn_train(
     estimator.writer = writer
     estimator.train(train_data=None)
     mock_train_loop.assert_called_once()
+    mock_mlflow.start_run.assert_called_with(run_name=mock_run_name)
 
 
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
 @patch("datasetinsights.io.tracker.factory.TrackerFactory.create")
-@patch("datasetinsights.io.tracker.mzflow.MLFlowTracker.refresh_token")
 def test_faster_rcnn_evaluate_per_epoch(
-    mock_refresh, mock_tracker, mock_loss, config, dataset
+    mock_tracker, mock_loss, config, dataset
 ):
     """test evaluate per epoch."""
     mock_tracker.return_value = MagicMock()
-    mock_refresh.return_value = None
     loss_val = 0.1
     mock_loss.return_value = loss_val
     ckpt_dir = tmp_name + "/train/FasterRCNN.estimator"
@@ -264,7 +272,9 @@ def test_faster_rcnn_evaluate_per_epoch(
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
 @patch("datasetinsights.estimators.faster_rcnn.create_dataset")
 @patch("datasetinsights.io.tracker.factory.TrackerFactory.create")
+@patch("datasetinsights.io.tracker.factory.TrackerFactory.DEFAULT_EVAL_NAME")
 def test_faster_rcnn_evaluate(
+    mock_run_name,
     mock_tracker,
     mock_create,
     mock_loss,
@@ -273,7 +283,8 @@ def test_faster_rcnn_evaluate(
     dataset,
 ):
     """test evaluate."""
-    mock_tracker.return_value = MagicMock()
+    mock_mlflow = MagicMock()
+    mock_tracker.return_value = mock_mlflow
     mock_create.return_value = dataset
     loss_val = 0.1
     mock_loss.return_value = loss_val
@@ -301,6 +312,7 @@ def test_faster_rcnn_evaluate(
     estimator.checkpointer = checkpointer
     estimator.evaluate(None)
     mock_evaluate_per_epoch.assert_called_once()
+    mock_mlflow.start_run.assert_called_with(run_name=mock_run_name)
 
 
 @patch("datasetinsights.io.tracker.factory.TrackerFactory.create")

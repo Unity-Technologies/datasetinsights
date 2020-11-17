@@ -40,8 +40,3 @@ pretrained: False
 pretrained_backbone: True
 synchronize_metrics: True
 val_interval: 1
-mlflow:
-  experiment_name: datasetinsights
-  run_name:
-  tracking_client_id:
-  tracking_host_id:

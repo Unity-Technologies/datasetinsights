@@ -53,6 +53,3 @@ CONTEXT_SETTINGS = {
     "allow_extra_args": True,
 }
 DEFAULT_DATASET_VERSION = "latest"
-
-MLFLOW_TRACKER = "mlflow"
-DEFAULT_RUN_NAME = "run_" + str(datetime.now())

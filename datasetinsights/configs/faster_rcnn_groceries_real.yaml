@@ -3,7 +3,7 @@ backbone: resnet50
 num_classes: 64
 task: object_detection
 train:
-  epochs: 10
+  epochs: 100
   batch_size: 8
   accumulation_steps: 8
   log_frequency: 30
@@ -42,8 +42,9 @@ optimizer:
 pretrained: False
 pretrained_backbone: True
 synchronize_metrics: True
-mlflow:
-  experiment_name: datasetinsights
-  run_name:
-  tracking_client_id:
-  tracking_host_id:
+tracker:
+  mlflow:
+    experiment: datasetinsights
+    run:
+    client_id:
+    host:

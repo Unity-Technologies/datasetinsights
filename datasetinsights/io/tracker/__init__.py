@@ -1,4 +1,4 @@
-from .mzflow import MLFlowTracker
+from .mlflow import MLFlowTracker
 
 __all__ = [
     "MLFlowTracker",
