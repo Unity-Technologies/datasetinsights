@@ -168,15 +168,8 @@ def test_faster_rcnn_train_all(
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
 @patch("datasetinsights.estimators.faster_rcnn.create_dataset")
 @patch("datasetinsights.io.tracker.factory.TrackerFactory.create")
-@patch("datasetinsights.io.tracker.factory.TrackerFactory.DEFAULT_TRAIN_NAME")
 def test_faster_rcnn_train(
-    mock_run_name,
-    mock_tracker,
-    mock_create,
-    mock_loss,
-    mock_train_loop,
-    config,
-    dataset,
+    mock_tracker, mock_create, mock_loss, mock_train_loop, config, dataset,
 ):
     """test train."""
     mock_mlflow = MagicMock()
@@ -209,7 +202,6 @@ def test_faster_rcnn_train(
     estimator.writer = writer
     estimator.train(train_data=None)
     mock_train_loop.assert_called_once()
-    mock_mlflow.start_run.assert_called_with(run_name=mock_run_name)
 
 
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
@@ -272,9 +264,7 @@ def test_faster_rcnn_evaluate_per_epoch(
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
 @patch("datasetinsights.estimators.faster_rcnn.create_dataset")
 @patch("datasetinsights.io.tracker.factory.TrackerFactory.create")
-@patch("datasetinsights.io.tracker.factory.TrackerFactory.DEFAULT_EVAL_NAME")
 def test_faster_rcnn_evaluate(
-    mock_run_name,
     mock_tracker,
     mock_create,
     mock_loss,
@@ -312,7 +302,6 @@ def test_faster_rcnn_evaluate(
     estimator.checkpointer = checkpointer
     estimator.evaluate(None)
     mock_evaluate_per_epoch.assert_called_once()
-    mock_mlflow.start_run.assert_called_with(run_name=mock_run_name)
 
 
 @patch("datasetinsights.io.tracker.factory.TrackerFactory.create")

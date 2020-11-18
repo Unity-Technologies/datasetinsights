@@ -1,7 +1,5 @@
-import mlflow
-
 from datasetinsights.constants import TIMESTAMP_SUFFIX
-from datasetinsights.io.tracker.mlflow import MLFlowTracker
+from datasetinsights.io.tracker.mlflow import DummyMLFlowTracker, MLFlowTracker
 
 
 class TrackerFactory:
@@ -14,8 +12,7 @@ class TrackerFactory:
     EXP_NAME = "experiment"
     RUN_NAME = "run"
     MLFLOW_TRACKER = "mlflow"
-    DEFAULT_TRAIN_NAME = "train_" + TIMESTAMP_SUFFIX
-    DEFAULT_EVAL_NAME = "eval_" + TIMESTAMP_SUFFIX
+    DEFAULT_RUN_NAME = "run_" + TIMESTAMP_SUFFIX
 
     @staticmethod
     def create(config, tracker_type):
@@ -40,15 +37,19 @@ class TrackerFactory:
                     )
                     exp_name = mlflow_config.get(TrackerFactory.EXP_NAME, None)
                     TrackerFactory.update_run_name(mlflow_config)
-                    return TrackerFactory.get_tracker_instance(
+                    mlflow_tracker = TrackerFactory.get_tracker_instance(
                         host_id=host_id, client_id=client_id, exp_name=exp_name
-                    ).get_mlflow()
-            return mlflow  # mlflow without tracking host and client id.
+                    )
+                    mlflow_tracker.start_run(
+                        run_name=TrackerFactory.DEFAULT_RUN_NAME
+                    )
+                    return mlflow_tracker
+            return TrackerFactory.get_tracker_instance()
         else:
             raise NotImplementedError(f"Unknown tracker {tracker_type}!")
 
     @staticmethod
-    def get_tracker_instance(host_id, client_id, exp_name):
+    def get_tracker_instance(host_id=None, client_id=None, exp_name=None):
 
         """Static instance access method.
 
@@ -59,12 +60,16 @@ class TrackerFactory:
         Returns:
             tracker singleton instance.
         """
+        if host_id:
+            if not MLFlowTracker.get_instance():
+                MLFlowTracker(
+                    host_id=host_id, client_id=client_id, exp_name=exp_name
+                )
+            return MLFlowTracker.get_instance()
 
-        if not MLFlowTracker.get_instance():
-            MLFlowTracker(
-                host_id=host_id, client_id=client_id, exp_name=exp_name
-            )
-        return MLFlowTracker.get_instance()
+        if not DummyMLFlowTracker.get_instance():
+            DummyMLFlowTracker()
+        return DummyMLFlowTracker.get_instance()
 
     @staticmethod
     def update_run_name(mlflow_config):
@@ -76,6 +81,4 @@ class TrackerFactory:
         """
         run_name = mlflow_config.get(TrackerFactory.RUN_NAME, None)
         if run_name:
-            TrackerFactory.DEFAULT_TRAIN_NAME = (
-                TrackerFactory.DEFAULT_EVAL_NAME
-            ) = run_name
+            TrackerFactory.DEFAULT_RUN_NAME = run_name

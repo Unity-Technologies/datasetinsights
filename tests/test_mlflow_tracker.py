@@ -35,7 +35,7 @@ def test_update_run_name(config):
     config.tracker.mlflow.run = RUN_NAME
     mlflow_config = config["tracker"].get(TrackerFactory.MLFLOW_TRACKER)
     TrackerFactory.update_run_name(mlflow_config)
-    assert TrackerFactory.DEFAULT_TRAIN_NAME == RUN_NAME
+    assert TrackerFactory.DEFAULT_RUN_NAME == RUN_NAME
 
 
 @patch("datasetinsights.io.tracker.mlflow.MLFlowTracker.get_instance")

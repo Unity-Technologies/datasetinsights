@@ -197,19 +197,23 @@ class FasterRCNN(Estimator):
         val_loader = dataloader_creator(
             config, val_dataset, val_sampler, VAL, self.distributed
         )
-        with self.mlflow_tracker.start_run(
-            run_name=TrackerFactory.DEFAULT_TRAIN_NAME
-        ):
-            params = self.config.clone()
-            if params.get(TrackerFactory.TRACKER):
-                params.pop(TrackerFactory.TRACKER)
-            self.mlflow_tracker.log_params(params)
+
+        params = self.config.clone()
+        if params.get(TrackerFactory.TRACKER):
+            params.pop(TrackerFactory.TRACKER)
+        self.mlflow_tracker.log_params(params)
+        try:
             self.train_loop(
                 train_dataloader=train_loader,
                 label_mappings=label_mappings,
                 val_dataloader=val_loader,
                 train_sampler=train_sampler,
             )
+        except Exception as e:
+
+            self.mlflow_tracker.end_run(status="FAILED")
+            raise e
+        self.mlflow_tracker.end_run()
         self.writer.close()
         self.kfp_writer.write_metric()
 
@@ -360,16 +364,22 @@ class FasterRCNN(Estimator):
             config, test_dataset, test_sampler, TEST, self.distributed
         )
         self.model.to(self.device)
-        with self.mlflow_tracker.start_run(
-            run_name=TrackerFactory.DEFAULT_EVAL_NAME
-        ):
-            self.mlflow_tracker.log_params(self.config)
+
+        params = self.config.clone()
+        if params.get(TrackerFactory.TRACKER):
+            params.pop(TrackerFactory.TRACKER)
+        self.mlflow_tracker.log_params(params)
+        try:
             self.evaluate_per_epoch(
                 data_loader=test_loader,
                 epoch=0,
                 label_mappings=label_mappings,
                 synchronize_metrics=self.sync_metrics,
             )
+        except Exception as e:
+            self.mlflow_tracker.end_run(status="FAILED")
+            raise e
+        self.mlflow_tracker.end_run()
         self.writer.close()
         self.kfp_writer.write_metric()
 
