@@ -3,22 +3,24 @@ backbone: resnet50
 num_classes: 91
 task: object_detection
 train:
-  epochs: 10
-  batch_size: 6
-  accumulation_steps: 8
-  log_frequency: 30
   dataset:
-    name: CocoDetection
+    name: SynDetection2D
     args:
-      version: v3
+      def_id: f9f22e05-443f-4602-a422-ebe4ea9b55cb
+      random_seed: 47
       split: train
+  batch_size: 4
+  accumulation_steps: 8
+  epochs: 10
+  log_frequency: 10
 val:
-  batch_size: 8
   dataset:
-    name: CocoDetection
+    name: SynDetection2D
     args:
-      version: v3
+      def_id: f9f22e05-443f-4602-a422-ebe4ea9b55cb
+      random_seed: 47
       split: val
+  batch_size: 4
 test:
   batch_size: 8
   dataset:
