@@ -23,12 +23,16 @@ def config():
 
 
 @patch("datasetinsights.io.tracker.mlflow.id_token.fetch_id_token")
-def test_refresh_token(mock_id_token):
+@patch("datasetinsights.io.tracker.mlflow.mlflow")
+def test_refresh_token(mock_mlflow, mock_id_token):
+    host_id = client_id = exp_name = "test"
     tracker = MagicMock()
     tracker.client_id = MagicMock(CLIENT_ID)
     mock_id_token.return_value = TEST_TOKEN
-    MLFlowTracker.refresh_token(CLIENT_ID)
-    mock_id_token.assert_called_once()
+    if not MLFlowTracker.get_instance():
+        MLFlowTracker(host_id, client_id, exp_name)
+    MLFlowTracker.get_instance().refresh_token()
+    assert mock_id_token.call_count == 2
 
 
 def test_update_run_name(config):
@@ -39,7 +43,7 @@ def test_update_run_name(config):
 
 
 @patch("datasetinsights.io.tracker.mlflow.MLFlowTracker.get_instance")
-def test_get_tracker_instance(mock_tracker):
+def test_get_mltracker_instance(mock_tracker):
     host_id = client_id = exp_name = "test"
     instance1 = TrackerFactory.get_tracker_instance(
         host_id, client_id, exp_name
@@ -51,9 +55,17 @@ def test_get_tracker_instance(mock_tracker):
     assert instance1 == instance2
 
 
+@patch("datasetinsights.io.tracker.mlflow.DummyMLFlowTracker.get_instance")
+def test_get_dummytracker_instance(mock_tracker):
+    instance1 = TrackerFactory.get_tracker_instance()
+    instance2 = TrackerFactory.get_tracker_instance()
+    assert mock_tracker.call_count == 4
+    assert instance1 == instance2
+
+
 @patch("datasetinsights.io.tracker.factory.TrackerFactory.get_tracker_instance")
 @patch("datasetinsights.io.tracker.factory.TrackerFactory.update_run_name")
-def test_factory_create(mock_update, mock_get_tracker, config):
+def test_factory_create_mltracker(mock_update, mock_get_tracker, config):
     config.tracker.mlflow.client_id = CLIENT_ID
     config.tracker.mlflow.host = HOST_ID
     config.tracker.mlflow.experiment = EXP_NAME
@@ -63,3 +75,12 @@ def test_factory_create(mock_update, mock_get_tracker, config):
     )
     mlflow_config = config["tracker"].get(TrackerFactory.MLFLOW_TRACKER)
     mock_update.assert_called_with(mlflow_config)
+
+
+@patch("datasetinsights.io.tracker.factory.TrackerFactory.get_tracker_instance")
+def test_factory_create_dummytracker(mock_get_tracker, config):
+    config.tracker.mlflow.client_id = None
+    config.tracker.mlflow.host = None
+    config.tracker.mlflow.experiment = None
+    TrackerFactory.create(config, TrackerFactory.MLFLOW_TRACKER)
+    mock_get_tracker.assert_called_with()

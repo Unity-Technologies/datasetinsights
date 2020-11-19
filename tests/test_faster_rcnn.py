@@ -202,6 +202,7 @@ def test_faster_rcnn_train(
     estimator.writer = writer
     estimator.train(train_data=None)
     mock_train_loop.assert_called_once()
+    mock_mlflow.end_run.assert_called_once()
 
 
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
@@ -302,6 +303,7 @@ def test_faster_rcnn_evaluate(
     estimator.checkpointer = checkpointer
     estimator.evaluate(None)
     mock_evaluate_per_epoch.assert_called_once()
+    mock_mlflow.end_run.assert_called_once()
 
 
 @patch("datasetinsights.io.tracker.factory.TrackerFactory.create")

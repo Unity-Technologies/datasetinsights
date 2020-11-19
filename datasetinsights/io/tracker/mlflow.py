@@ -27,15 +27,17 @@ class MLFlowTracker:
         >>> mlflow.end_run()
 
     Attributes:
-        __client_id: tracking server client id
         __instance: holds singleton instance
         __mlflow: holds initialized mlflow
+        __client_id: tracking server client id
+        __oauth_token: holds oauth token returns by IAP
 
     """
 
     __instance = None
     __mlflow = None
     __client_id = None
+    __oauth_token = None
 
     def __init__(self, host_id, client_id, exp_name):
         """constructor.
@@ -50,7 +52,7 @@ class MLFlowTracker:
         else:
             if client_id:
                 self.__client_id = client_id
-                MLFlowTracker.refresh_token(client_id)
+                self.refresh_token()
             mlflow.set_tracking_uri(host_id)
             if exp_name:
                 mlflow.set_experiment(experiment_name=exp_name)
@@ -59,11 +61,20 @@ class MLFlowTracker:
 
     def __getattr__(self, name):
         """
-        if you call ``start_run`` on the instance of this class then
-        __getattr__ finds ``start_run`` and passes it to self.__mlflow instance
+        if you call any method on this class instance then
+        __getattr__ finds that method in __mlflow and calls __mlflow.instance
+        Args:
+            name: method name which you want to call on this class instance
+        Returns:
+            return what name method returns
         """
         if self.__client_id:
-            MLFlowTracker.refresh_token(self.__client_id)
+            try:
+                id_token.verify_oauth2_token(
+                    self.__oauth_token, Request(), self.__client_id
+                )
+            except ValueError:
+                self.refresh_token()
         return getattr(self.__mlflow, name)
 
     @staticmethod
@@ -75,24 +86,20 @@ class MLFlowTracker:
         """
         return MLFlowTracker.__instance
 
-    @staticmethod
-    def refresh_token(client_id):
-        """refresh token and set in environment variable.
-
-        Args:
-            client_id : MLFlow tracking server client id
+    def refresh_token(self):
+        """refresh token and set in environment variable
         """
-        if client_id:
-            print("refresh_token")
+        if self.__client_id:
             google_open_id_connect_token = id_token.fetch_id_token(
-                Request(), client_id
+                Request(), self.__client_id
             )
             os.environ["MLFLOW_TRACKING_TOKEN"] = google_open_id_connect_token
+            self.__oauth_token = google_open_id_connect_token
 
 
 class DummyMLFlowTracker:
-    """A fake mfflow writer that writes nothing to the disk. This writer is
-    used to disable mlflow logging.
+    """A fake mlflow tracker that writes nothing. This tracker is
+    used to disable mlflow tracking.
     """
 
     __instance = None
