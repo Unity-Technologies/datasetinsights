@@ -20,8 +20,8 @@ from .base import Dataset
 from .exceptions import DatasetNotFoundError
 
 ANNOTATION_FILE_TEMPLATE = "{}_{}2017.json"
-COCO_GCS_PATH = "data/coco_cat"
-COCO_LOCAL_PATH = "coco_cat"
+COCO_GCS_PATH = "data/coco"
+COCO_LOCAL_PATH = "coco"
 logger = logging.getLogger(__name__)
 
 
@@ -240,7 +240,6 @@ class CocoDetection(Dataset):
             )
             with zipfile.ZipFile(annotations_zip_2017, "r") as zip_dir:
                 zip_dir.extractall(self.root)
-                logger.info(f"Unzipped {annotations_zip_2017} file.")
         images_local = self._get_local_images_zip()
         images_gcs = f"{cloud_path}/{self.split}2017.zip"
         if not os.path.exists(images_local):
@@ -253,4 +252,3 @@ class CocoDetection(Dataset):
             )
             with zipfile.ZipFile(images_local, "r") as zip_dir:
                 zip_dir.extractall(self.root)
-                logger.info(f"Unzipped {images_local} file.")
