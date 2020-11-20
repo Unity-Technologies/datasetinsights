@@ -1,5 +1,7 @@
+import threading
+
 from datasetinsights.constants import TIMESTAMP_SUFFIX
-from datasetinsights.io.tracker.mlflow import DummyMLFlowTracker, MLFlowTracker
+from datasetinsights.io.tracker.mlflow import MLFlowTracker
 
 
 class TrackerFactory:
@@ -13,6 +15,9 @@ class TrackerFactory:
     RUN_NAME = "run"
     MLFLOW_TRACKER = "mlflow"
     DEFAULT_RUN_NAME = "run_" + TIMESTAMP_SUFFIX
+    __singleton_lock = threading.Lock()
+    __tracker_instance = None
+    RUN_FAILED = "FAILED"
 
     @staticmethod
     def create(config, tracker_type):
@@ -37,19 +42,21 @@ class TrackerFactory:
                     )
                     exp_name = mlflow_config.get(TrackerFactory.EXP_NAME, None)
                     TrackerFactory.update_run_name(mlflow_config)
-                    mlflow_tracker = TrackerFactory.get_tracker_instance(
+                    mlflow_tracker = TrackerFactory.get_mlflow_tracker_instance(
                         host_id=host_id, client_id=client_id, exp_name=exp_name
-                    )
+                    ).get_mlflow()
                     mlflow_tracker.start_run(
                         run_name=TrackerFactory.DEFAULT_RUN_NAME
                     )
                     return mlflow_tracker
-            return TrackerFactory.get_tracker_instance()
+            return TrackerFactory.get_null_tracker()
         else:
             raise NotImplementedError(f"Unknown tracker {tracker_type}!")
 
     @staticmethod
-    def get_tracker_instance(host_id=None, client_id=None, exp_name=None):
+    def get_mlflow_tracker_instance(
+        host_id=None, client_id=None, exp_name=None
+    ):
 
         """Static instance access method.
 
@@ -60,16 +67,21 @@ class TrackerFactory:
         Returns:
             tracker singleton instance.
         """
-        if host_id:
-            if not MLFlowTracker.get_instance():
-                MLFlowTracker(
-                    host_id=host_id, client_id=client_id, exp_name=exp_name
-                )
-            return MLFlowTracker.get_instance()
+        if not TrackerFactory.__tracker_instance:
+            with TrackerFactory.__singleton_lock:
+                if not TrackerFactory.__tracker_instance:
+                    TrackerFactory.__tracker_instance = MLFlowTracker(
+                        host_id=host_id, client_id=client_id, exp_name=exp_name
+                    )
+        return TrackerFactory.__tracker_instance
 
-        if not DummyMLFlowTracker.get_instance():
-            DummyMLFlowTracker()
-        return DummyMLFlowTracker.get_instance()
+    @staticmethod
+    def get_null_tracker():
+        if not TrackerFactory.__tracker_instance:
+            with TrackerFactory.__singleton_lock:
+                if not TrackerFactory.__tracker_instance:
+                    TrackerFactory.__tracker_instance = NullTracker()
+        return TrackerFactory.__tracker_instance
 
     @staticmethod
     def update_run_name(mlflow_config):
@@ -82,3 +94,15 @@ class TrackerFactory:
         run_name = mlflow_config.get(TrackerFactory.RUN_NAME, None)
         if run_name:
             TrackerFactory.DEFAULT_RUN_NAME = run_name
+
+
+class NullTracker:
+    """A null tracker that writes nothing. This tracker is
+    used to disable tracking.
+    """
+
+    def handle_dummy(self, *args, **kwargs):
+        return
+
+    def __getattr__(self, name):
+        return getattr(self, "handle_dummy")

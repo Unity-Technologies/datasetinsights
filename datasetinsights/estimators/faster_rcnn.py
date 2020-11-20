@@ -211,7 +211,7 @@ class FasterRCNN(Estimator):
             )
         except Exception as e:
 
-            self.mlflow_tracker.end_run(status="FAILED")
+            self.mlflow_tracker.end_run(status=TrackerFactory.RUN_FAILED)
             raise e
         self.mlflow_tracker.end_run()
         self.writer.close()
@@ -377,7 +377,7 @@ class FasterRCNN(Estimator):
                 synchronize_metrics=self.sync_metrics,
             )
         except Exception as e:
-            self.mlflow_tracker.end_run(status="FAILED")
+            self.mlflow_tracker.end_run(status=TrackerFactory.RUN_FAILED)
             raise e
         self.mlflow_tracker.end_run()
         self.writer.close()
