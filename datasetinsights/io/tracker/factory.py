@@ -42,21 +42,19 @@ class TrackerFactory:
                     )
                     exp_name = mlflow_config.get(TrackerFactory.EXP_NAME, None)
                     TrackerFactory.update_run_name(mlflow_config)
-                    mlflow_tracker = TrackerFactory.get_mlflow_tracker_instance(
+                    mlflow_tracker = TrackerFactory._mlflow_tracker_instance(
                         host_id=host_id, client_id=client_id, exp_name=exp_name
                     ).get_mlflow()
                     mlflow_tracker.start_run(
                         run_name=TrackerFactory.DEFAULT_RUN_NAME
                     )
                     return mlflow_tracker
-            return TrackerFactory.get_null_tracker()
+            return TrackerFactory._null_tracker()
         else:
             raise NotImplementedError(f"Unknown tracker {tracker_type}!")
 
     @staticmethod
-    def get_mlflow_tracker_instance(
-        host_id=None, client_id=None, exp_name=None
-    ):
+    def _mlflow_tracker_instance(host_id=None, client_id=None, exp_name=None):
 
         """Static instance access method.
 
@@ -76,7 +74,12 @@ class TrackerFactory:
         return TrackerFactory.__tracker_instance
 
     @staticmethod
-    def get_null_tracker():
+    def _null_tracker():
+        """private getter method to get singleton instance.
+
+        Returns:
+            NullTracker singleton instance.
+        """
         if not TrackerFactory.__tracker_instance:
             with TrackerFactory.__singleton_lock:
                 if not TrackerFactory.__tracker_instance:
@@ -102,7 +105,11 @@ class NullTracker:
     """
 
     def handle_dummy(self, *args, **kwargs):
+        """method to handle all calls on tracker.
+        """
         return
 
     def __getattr__(self, name):
+        """gets called at every call on the instance of this class.
+        """
         return getattr(self, "handle_dummy")

@@ -28,7 +28,6 @@ class MLFlowTracker:
         >>> mlflow.end_run()
     Attributes:
         REFRESH_INTERVAL: default refresh token interval
-        __instance: holds singleton instance
         __mlflow: holds initialized mlflow
     """
 
