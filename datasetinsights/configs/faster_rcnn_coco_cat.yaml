@@ -1,6 +1,6 @@
 estimator: FasterRCNN
 backbone: resnet50
-num_classes: 91
+num_classes: 2
 task: object_detection
 train:
   epochs: 20
