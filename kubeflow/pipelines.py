@@ -539,9 +539,7 @@ def train_and_eval_on_coco_cat(
     docker: str = "unitytechnologies/datasetinsights:latest",
     source_train_uri: str = "gs://thea-dev/data/coco_cat/train2017.zip",
     source_val_uri: str = "gs://thea-dev/data/coco_cat/val2017.zip",
-    ann_uri: str = (
-        "gs://thea-dev/data/coco_cat/annotations_trainval2017.zip"
-    ),
+    ann_uri: str = ("gs://thea-dev/data/coco_cat/annotations_trainval2017.zip"),
     config: str = "datasetinsights/configs/faster_rcnn_coco_cat.yaml",
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
@@ -612,9 +610,7 @@ def train_and_eval_on_coco_cat_synthetic(
     docker: str = "unitytechnologies/datasetinsights:latest",
     train_source_uri: str = "gs://",
     source_val_uri: str = "gs://thea-dev/data/coco_cat/val2017.zip",
-    ann_uri: str = (
-        "gs://thea-dev/data/coco_cat/annotations_trainval2017.zip"
-    ),
+    ann_uri: str = ("gs://thea-dev/data/coco_cat/annotations_trainval2017.zip"),
     config: str = "datasetinsights/configs/faster_rcnn_coco_cat_synthetic.yaml",
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
@@ -688,9 +684,7 @@ def train_on_usim_coco_synthetic_dataset(
     run_execution_id: str = "<unity-simulation-run-execution-id>",
     access_token: str = "<unity-simulation-access-token>",
     source_val_uri: str = "gs://thea-dev/data/coco_cat/val2017.zip",
-    ann_uri: str = (
-        "gs://thea-dev/data/coco_cat/annotations_trainval2017.zip"
-    ),
+    ann_uri: str = ("gs://thea-dev/data/coco_cat/annotations_trainval2017.zip"),
     config: str = "datasetinsights/configs/faster_rcnn_coco_cat_synthetic.yaml",
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",

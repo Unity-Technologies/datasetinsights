@@ -1,7 +1,7 @@
 import fcntl
 import glob
-import logging
 import json
+import logging
 import os
 import shutil
 import zipfile
