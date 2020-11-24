@@ -63,9 +63,9 @@ def convert_coco2canonical(coco_annotation):
     convert from a tuple of image and coco style dictionary describing the
     bboxes to a tuple of image, List of BBox2D
     Args:
-        coco_annotation (tuple): image and coco style dictionary
+        coco_annotation (tuple): image and coco style dictionary.
 
-    Returns: a tuple of image, List of BBox2D
+    Returns: a tuple of image, List of BBox2D.
 
     """
     image, targets = coco_annotation
