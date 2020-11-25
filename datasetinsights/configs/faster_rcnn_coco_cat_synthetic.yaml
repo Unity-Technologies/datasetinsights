@@ -11,7 +11,7 @@ train:
       split: train
   batch_size: 4
   accumulation_steps: 8
-  epochs: 10
+  epochs: 6
   log_frequency: 10
 val:
   dataset:
