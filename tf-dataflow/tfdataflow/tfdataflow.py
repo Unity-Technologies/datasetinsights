@@ -200,11 +200,13 @@ class ProcessInstance(beam.DoFn):
 
 def run(source: str, eval_pct: int, beam_options):
     output_dir = os.path.join(source, "output")
+
     with beam.Pipeline(options=beam_options) as p:
         dataset = (
             p
             | "Create beam pipeline from source" >> beam.Create([source])
             | "App param lister" >> beam.ParDo(AppParamLister())
+            | "shuffle" >> beam.Reshuffle()
             | "Process app params"
             >> beam.ParDo(ProcessInstance(output_dir, eval_pct))
         )
