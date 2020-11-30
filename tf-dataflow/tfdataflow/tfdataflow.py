@@ -8,7 +8,6 @@ import random
 import apache_beam as beam
 import click
 import tensorflow as tf
-from apache_beam import PTransform
 from apache_beam.options.pipeline_options import PipelineOptions
 
 logging.getLogger().setLevel(logging.INFO)
@@ -80,15 +79,12 @@ def _int64_list_feature(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=value))
 
 
-class AppParamLister(PTransform):
-    def __init__(self, execution_source):
+class AppParamLister(beam.DoFn):
+    def __init__(self):
         super().__init__()
-        self.execution_source = execution_source
 
-    def expand(self, pcollection):
-        app_params_pattern = [
-            os.path.join(self.execution_source, "urn:app_params:*/*")
-        ]
+    def process(self, element, *args, **kwargs):
+        app_params_pattern = [os.path.join(element, "urn:app_params:*/*")]
         logging.info("App params pattern %s", app_params_pattern)
 
         app_params_coll = [f for f in tf.io.gfile.glob(app_params_pattern[0])]
@@ -98,7 +94,7 @@ class AppParamLister(PTransform):
             len(app_params_coll),
         )
 
-        return pcollection | "Create instances" >> beam.Create(app_params_coll)
+        return app_params_coll
 
 
 def _read_captures(capture_file):
@@ -137,12 +133,16 @@ class ProcessInstance(beam.DoFn):
                         annotations_by_img[filename] + capture["annotations"]
                     )
 
+            logging.info("Size of capture data:%d", len(capture_data))
+
+        logging.info("Annotated file count:%d", len(annotations_by_img))
+
         # Figure out where to put the data sample based on its category and
         # output dir
         def sample_location(output_dir: str, category: str, name: str):
             dataset_dir = os.path.join(output_dir, category)
             tf.io.gfile.makedirs(dataset_dir)
-            data_path = os.path.join(train_dataset_dir, name + ".tfrecord")
+            data_path = os.path.join(dataset_dir, name + ".tfrecord")
             return dataset_dir, data_path
 
         imgs_pattern = os.path.join(element, "attempt:*/RGB*/rgb_*.png")
@@ -200,10 +200,13 @@ class ProcessInstance(beam.DoFn):
 
 def run(source: str, eval_pct: int, beam_options):
     output_dir = os.path.join(source, "output")
+
     with beam.Pipeline(options=beam_options) as p:
         dataset = (
             p
-            | "App param lister" >> AppParamLister(source)
+            | "Create beam pipeline from source" >> beam.Create([source])
+            | "App param lister" >> beam.ParDo(AppParamLister())
+            | "shuffle" >> beam.Reshuffle()
             | "Process app params"
             >> beam.ParDo(ProcessInstance(output_dir, eval_pct))
         )
