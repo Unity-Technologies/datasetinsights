@@ -36,7 +36,6 @@ NULL_STRING = "None"
 #   ...
 DEFAULT_DATA_ROOT = "/data"
 SYNTHETIC_SUBFOLDER = "synthetic"
-DEFAULT_PUBLICDEFAULT_KFP_LOG_DIR_DATASET = "synthetic"
 
 # Default Unity Project ID where USim jobs was executed
 DEFAULT_PROJECT_ID = "474ba200-4dcc-4976-818e-0efd28efed30"
