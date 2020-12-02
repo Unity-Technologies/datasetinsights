@@ -27,7 +27,7 @@ test:
     name: CocoDetection
     args:
       version: v3
-      split: val
+      split: train
 metrics:
   mean-average-precision:
     name: MeanAveragePrecisionAverageOverIOU
