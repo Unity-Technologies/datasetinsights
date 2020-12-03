@@ -1,3 +1,4 @@
+import logging
 import os
 import threading
 import time
@@ -5,6 +6,10 @@ import time
 import mlflow
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token
+
+from datasetinsights.constants import TIMESTAMP_SUFFIX
+
+logger = logging.getLogger(__name__)
 
 
 class MLFlowTracker:
@@ -35,16 +40,24 @@ class MLFlowTracker:
         3000  # every 50 minutes refresh token. Token expires in 1 hour
     )
     __mlflow = None
+    CLIENT_ID = "client_id"
+    HOST_ID = "host"
+    EXP_NAME = "experiment"
+    RUN_NAME = "run"
+    DEFAULT_RUN_NAME = "run-" + TIMESTAMP_SUFFIX
 
-    def __init__(self, host_id, client_id, exp_name):
+    def __init__(self, mlflow_config):
         """constructor.
         Args:
-            host_id: MlTracker server host
-            client_id: MLFlow tracking server client id
-            exp_name: name of the experiment
+            mlflow_config:map of mlflow configuration
         """
+        host_id = mlflow_config.get(MLFlowTracker.HOST_ID)
+        client_id = mlflow_config.get(MLFlowTracker.CLIENT_ID, None)
+        exp_name = mlflow_config.get(MLFlowTracker.EXP_NAME, None)
+        MLFlowTracker._update_run_name(mlflow_config)
+
         if client_id:
-            MLFlowTracker.refresh_token(client_id)
+            _refresh_token(client_id)
             thread = RefreshTokenThread(client_id)
             thread.daemon = True
             thread.start()
@@ -52,26 +65,29 @@ class MLFlowTracker:
         if exp_name:
             mlflow.set_experiment(experiment_name=exp_name)
         self.__mlflow = mlflow
+        self.__mlflow.start_run(run_name=MLFlowTracker.DEFAULT_RUN_NAME)
+        logger.info("instantiated mlflow")
 
     def get_mlflow(self):
-
         """ method to access initialized mlflow
         Returns:
             Initialized __mlflow instance.
         """
+        logger.info("get mlflow")
         return self.__mlflow
 
     @staticmethod
-    def refresh_token(client_id):
-        """refresh token and set in environment variable.
+    def _update_run_name(mlflow_config):
+
+        """Static method to update run name from config.
+
         Args:
-            client_id : MLFlow tracking server client id
+            mlflow_config : mlflow_config dictionary
         """
-        if client_id:
-            google_open_id_connect_token = id_token.fetch_id_token(
-                Request(), client_id
-            )
-            os.environ["MLFLOW_TRACKING_TOKEN"] = google_open_id_connect_token
+        run_name = mlflow_config.get(MLFlowTracker.RUN_NAME, None)
+        if run_name:
+            MLFlowTracker.DEFAULT_RUN_NAME = run_name
+            logger.info("updated run name")
 
 
 class RefreshTokenThread(threading.Thread):
@@ -97,5 +113,22 @@ class RefreshTokenThread(threading.Thread):
             till main thread runs.
         """
         while True:
-            MLFlowTracker.refresh_token(self.client_id)
+            _refresh_token(self.client_id)
+            logger.info(
+                f"RefreshTokenThread: updated token, sleeping for "
+                f"{self.interval} seconds"
+            )
             time.sleep(self.interval)
+
+
+def _refresh_token(client_id):
+    """refresh token and set in environment variable.
+    Args:
+        client_id : MLFlow tracking server client id
+    """
+    if client_id:
+        google_open_id_connect_token = id_token.fetch_id_token(
+            Request(), client_id
+        )
+        os.environ["MLFLOW_TRACKING_TOKEN"] = google_open_id_connect_token
+        logger.info("refreshed token")

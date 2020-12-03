@@ -32,7 +32,9 @@ DEFAULT_ACCUMULATION_STEPS = 1
 TRAIN = "train"
 VAL = "val"
 TEST = "test"
-NAME = "run_name"
+_TRAIN_INTERMEDIATE_LOSS = "training/intermediate_loss"
+_TRAIN_LOSS = "training/loss"
+_VAL_LOSS = "val/loss"
 
 
 class FasterRCNN(Estimator):
@@ -210,8 +212,8 @@ class FasterRCNN(Estimator):
                 train_sampler=train_sampler,
             )
         except Exception as e:
-
             self.mlflow_tracker.end_run(status=TrackerFactory.RUN_FAILED)
+            logger.exception("training failed, closing mlflow run")
             raise e
         self.mlflow_tracker.end_run()
         self.writer.close()
@@ -326,12 +328,10 @@ class FasterRCNN(Estimator):
                 )
 
                 self.writer.add_scalar(
-                    "training/intermediate_loss",
-                    intermediate_loss,
-                    examples_seen,
+                    _TRAIN_INTERMEDIATE_LOSS, intermediate_loss, examples_seen,
                 )
                 self.mlflow_tracker.log_metric(
-                    "training/intermediate_loss", intermediate_loss
+                    _TRAIN_INTERMEDIATE_LOSS, intermediate_loss
                 )
             losses_grad.backward()
             if (i + 1) % accumulation_steps == 0:
@@ -339,12 +339,12 @@ class FasterRCNN(Estimator):
                 lr_scheduler.step()
                 optimizer.zero_grad()
         loss_metric_c = loss_metric.compute()
-        self.writer.add_scalar("training/loss", loss_metric_c, epoch)
+        self.writer.add_scalar(_TRAIN_LOSS, loss_metric_c, epoch)
         self.writer.add_scalar(
             "training/lr", optimizer.param_groups[0]["lr"], epoch
         )
         loss_metric.reset()
-        self.mlflow_tracker.log_metric("training/loss", loss_metric_c)
+        self.mlflow_tracker.log_metric(_TRAIN_LOSS, loss_metric_c)
 
     def evaluate(self, test_data, **kwargs):
         """evaluate given dataset."""
@@ -378,6 +378,7 @@ class FasterRCNN(Estimator):
             )
         except Exception as e:
             self.mlflow_tracker.end_run(status=TrackerFactory.RUN_FAILED)
+            logger.exception("evaluate failed, closing mlflow run")
             raise e
         self.mlflow_tracker.end_run()
         self.writer.close()
@@ -454,8 +455,8 @@ class FasterRCNN(Estimator):
         val_loss = loss_metric.compute()
         logger.info(f"validation loss is {val_loss}")
 
-        self.writer.add_scalar("val/loss", val_loss, epoch)
-        self.mlflow_tracker.log_metric("val/loss", val_loss)
+        self.writer.add_scalar(_VAL_LOSS, val_loss, epoch)
+        self.mlflow_tracker.log_metric(_VAL_LOSS, val_loss)
 
         torch.set_num_threads(n_threads)
 
