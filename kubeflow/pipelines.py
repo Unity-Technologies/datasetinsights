@@ -683,7 +683,7 @@ def train_on_usim_coco_synthetic_dataset(
     project_id: str = "<unity-project-id>",
     run_execution_id: str = "<unity-simulation-run-execution-id>",
     access_token: str = "<unity-simulation-access-token>",
-    source_val_uri: str = "gs://thea-dev/data/coco_cat/val2017.zip",
+    source_val_uri: str = "gs://thea-dev/data/coco_cat/train2017.zip",
     ann_uri: str = ("gs://thea-dev/data/coco_cat/annotations_trainval2017.zip"),
     config: str = "datasetinsights/configs/faster_rcnn_coco_cat_synthetic.yaml",
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",

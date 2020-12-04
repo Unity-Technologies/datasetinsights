@@ -2,15 +2,15 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: train-on-unity-simulation-dataset-for-coco-cat-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1, pipelines.kubeflow.org/pipeline_compilation_time: '2020-11-24T09:44:10.902632',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1, pipelines.kubeflow.org/pipeline_compilation_time: '2020-12-03T11:35:10.100801',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Train on Unity Simulation
       dataset for COCO-cat", "inputs": [{"default": "unitytechnologies/datasetinsights:latest",
       "name": "docker", "optional": true, "type": "String"}, {"default": "<unity-project-id>",
       "name": "project_id", "optional": true, "type": "String"}, {"default": "<unity-simulation-run-execution-id>",
       "name": "run_execution_id", "optional": true, "type": "String"}, {"default":
       "<unity-simulation-access-token>", "name": "access_token", "optional": true,
-      "type": "String"}, {"default": "gs://thea-dev/data/coco_cat/val2017.zip", "name":
-      "source_val_uri", "optional": true, "type": "String"}, {"default": "gs://thea-dev/data/coco_cat/annotations_trainval2017.zip",
+      "type": "String"}, {"default": "gs://thea-dev/data/coco_cat/train2017.zip",
+      "name": "source_val_uri", "optional": true, "type": "String"}, {"default": "gs://thea-dev/data/coco_cat/annotations_trainval2017.zip",
       "name": "ann_uri", "optional": true, "type": "String"}, {"default": "datasetinsights/configs/faster_rcnn_coco_cat_synthetic.yaml",
       "name": "config", "optional": true, "type": "String"}, {"default": "gs://<bucket>/runs/yyyymmdd-hhmm",
       "name": "tb_log_dir", "optional": true, "type": "String"}, {"default": "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
@@ -260,7 +260,7 @@ spec:
     - {name: project_id, value: <unity-project-id>}
     - {name: run_execution_id, value: <unity-simulation-run-execution-id>}
     - {name: access_token, value: <unity-simulation-access-token>}
-    - {name: source_val_uri, value: 'gs://thea-dev/data/coco_cat/val2017.zip'}
+    - {name: source_val_uri, value: 'gs://thea-dev/data/coco_cat/train2017.zip'}
     - {name: ann_uri, value: 'gs://thea-dev/data/coco_cat/annotations_trainval2017.zip'}
     - {name: config, value: datasetinsights/configs/faster_rcnn_coco_cat_synthetic.yaml}
     - {name: tb_log_dir, value: 'gs://<bucket>/runs/yyyymmdd-hhmm'}
