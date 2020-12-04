@@ -203,6 +203,7 @@ class FasterRCNN(Estimator):
         params = self.config.clone()
         if params.get(TrackerFactory.TRACKER):
             params.pop(TrackerFactory.TRACKER)
+            # removing tracker to log config as hyperparameter
         self.mlflow_tracker.log_params(params)
         try:
             self.train_loop(
@@ -215,9 +216,10 @@ class FasterRCNN(Estimator):
             self.mlflow_tracker.end_run(status=TrackerFactory.RUN_FAILED)
             logger.exception("training failed, closing mlflow run")
             raise e
-        self.mlflow_tracker.end_run()
-        self.writer.close()
-        self.kfp_writer.write_metric()
+        finally:
+            self.mlflow_tracker.end_run()
+            self.writer.close()
+            self.kfp_writer.write_metric()
 
     def train_loop(
         self,
@@ -368,6 +370,7 @@ class FasterRCNN(Estimator):
         params = self.config.clone()
         if params.get(TrackerFactory.TRACKER):
             params.pop(TrackerFactory.TRACKER)
+            # removing tracker to log config as hyperparameter
         self.mlflow_tracker.log_params(params)
         try:
             self.evaluate_per_epoch(
@@ -380,9 +383,10 @@ class FasterRCNN(Estimator):
             self.mlflow_tracker.end_run(status=TrackerFactory.RUN_FAILED)
             logger.exception("evaluate failed, closing mlflow run")
             raise e
-        self.mlflow_tracker.end_run()
-        self.writer.close()
-        self.kfp_writer.write_metric()
+        finally:
+            self.mlflow_tracker.end_run()
+            self.writer.close()
+            self.kfp_writer.write_metric()
 
     @torch.no_grad()
     def evaluate_per_epoch(

@@ -35,13 +35,6 @@ def test_refresh_token(mock_id_token):
     mock_id_token.assert_called_once()
 
 
-def test_update_run_name(config):
-    config.tracker.mlflow.run = RUN_NAME
-    mlflow_config = config["tracker"].get(TrackerFactory.MLFLOW_TRACKER)
-    MLFlowTracker._update_run_name(mlflow_config)
-    assert MLFlowTracker.DEFAULT_RUN_NAME == RUN_NAME
-
-
 @patch("datasetinsights.io.tracker.mlflow.MLFlowTracker")
 def test_get_mltracker_instance(mock_tracker, config):
     mlflow_config = config["tracker"].get(TrackerFactory.MLFLOW_TRACKER)
@@ -73,8 +66,6 @@ def test_factory_create_mltracker(mock_get_tracker, config):
     TrackerFactory.create(config, TrackerFactory.MLFLOW_TRACKER)
     mock_get_tracker.assert_called_with(mlflow_config)
     mock_mlflow.get_mlflow.assert_called_once()
-    # mock_mlflowtracker.start_run.assert_called_with(run_name=RUN_NAME)
-    # mock_update.assert_called_with(mlflow_config)
 
 
 @patch("datasetinsights.io.tracker.factory.TrackerFactory._null_tracker")
@@ -86,7 +77,7 @@ def test_factory_create_nulltracker(mock_get_tracker, config):
     mock_get_tracker.assert_called_once()
 
 
-@patch("datasetinsights.io.tracker.factory.NullTracker.stdout_handler")
+@patch("datasetinsights.io.tracker.factory.NullTracker._stdout_handler")
 def test_nulltracker(mock_handle_dummy):
     null_tracker = NullTracker()
     null_tracker.start_run(run_name=RUN_NAME)
@@ -113,3 +104,17 @@ def test_refresh_token_thread(mock_thread_run):
     thread.daemon = True
     thread.start()
     mock_thread_run.assert_called_once()
+
+
+@patch("datasetinsights.io.tracker.mlflow.RefreshTokenThread.run")
+@patch("datasetinsights.io.tracker.mlflow.mlflow")
+@patch("datasetinsights.io.tracker.mlflow._refresh_token")
+def test_mLflow_tracker_run(mock_refresh, mock_mlflow, mock_thread_run, config):
+    config.tracker.mlflow.client_id = CLIENT_ID
+    config.tracker.mlflow.host = HOST_ID
+    config.tracker.mlflow.experiment = EXP_NAME
+    mlflow_config = config["tracker"].get(TrackerFactory.MLFLOW_TRACKER)
+    MLFlowTracker(mlflow_config)
+    mock_thread_run.assert_called_once()
+    mock_refresh.assert_called_once()
+    mock_mlflow.set_tracking_uri.assert_called_with(HOST_ID)

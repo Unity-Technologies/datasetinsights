@@ -95,7 +95,7 @@ class NullTracker:
     used to disable tracking.
     """
 
-    def stdout_handler(self, *args, **kwargs):
+    def _stdout_handler(self, *args, **kwargs):
         """method to handle all calls on tracker.
         """
         return
@@ -104,4 +104,4 @@ class NullTracker:
         """gets called at every call on the instance of this class.
         """
         logger.info(f"null_tracker handling {name}")
-        return getattr(self, "stdout_handler")
+        return getattr(self, "_stdout_handler")

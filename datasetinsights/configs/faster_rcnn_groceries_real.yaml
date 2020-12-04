@@ -42,9 +42,3 @@ optimizer:
 pretrained: False
 pretrained_backbone: True
 synchronize_metrics: True
-tracker:
-  mlflow:
-    experiment: datasetinsights
-    run:
-    client_id:
-    host:
