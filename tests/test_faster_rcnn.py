@@ -26,6 +26,7 @@ from datasetinsights.io.checkpoint import EstimatorCheckpoint
 
 # XXX This should not be a global variable. A tempdir should be a fixture and
 # automatically cleanup after EVERY unit test finished execution.
+
 tmp_dir = tempfile.TemporaryDirectory()
 tmp_name = tmp_dir.name
 
@@ -46,8 +47,10 @@ def config():
     return cfg
 
 
-def test_faster_rcnn_train_one_epoch(config, dataset):
+@patch("datasetinsights.io.tracker.factory.TrackerFactory.create")
+def test_faster_rcnn_train_one_epoch(mock_create, config, dataset):
     """test train one epoch."""
+    mock_create.return_value = MagicMock()
     writer = MagicMock()
 
     # XXX This is just a hot fix to prevent a mysterious folder such as:
@@ -95,10 +98,12 @@ def test_faster_rcnn_train_one_epoch(config, dataset):
 
 @patch("datasetinsights.estimators.faster_rcnn.FasterRCNN.train_one_epoch")
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
+@patch("datasetinsights.io.tracker.factory.TrackerFactory.create")
 def test_faster_rcnn_train_all(
-    mock_loss, mock_train_one_epoch, config, dataset
+    mock_create, mock_loss, mock_train_one_epoch, config, dataset
 ):
     """test train on all epochs."""
+    mock_create.return_value = MagicMock()
     loss_val = 0.1
     mock_loss.return_value = loss_val
     log_dir = os.path.join(tmp_name, "train")
@@ -129,7 +134,6 @@ def test_faster_rcnn_train_all(
     estimator.writer = writer
     estimator.kfp_writer = kfp_writer
     estimator.checkpointer = checkpointer
-
     estimator.device = torch.device("cpu")
     checkpointer.save = MagicMock()
     train_dataset = dataset
@@ -163,10 +167,13 @@ def test_faster_rcnn_train_all(
 @patch("datasetinsights.estimators.faster_rcnn.FasterRCNN.train_loop")
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
 @patch("datasetinsights.estimators.faster_rcnn.create_dataset")
+@patch("datasetinsights.io.tracker.factory.TrackerFactory.create")
 def test_faster_rcnn_train(
-    mock_create, mock_loss, mock_train_loop, config, dataset
+    mock_tracker, mock_create, mock_loss, mock_train_loop, config, dataset,
 ):
     """test train."""
+    mock_mlflow = MagicMock()
+    mock_tracker.return_value = mock_mlflow
     loss_val = 0.1
     mock_loss.return_value = loss_val
     mock_create.return_value = dataset
@@ -195,11 +202,16 @@ def test_faster_rcnn_train(
     estimator.writer = writer
     estimator.train(train_data=None)
     mock_train_loop.assert_called_once()
+    mock_mlflow.end_run.assert_called_once()
 
 
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
-def test_faster_rcnn_evaluate_per_epoch(mock_loss, config, dataset):
+@patch("datasetinsights.io.tracker.factory.TrackerFactory.create")
+def test_faster_rcnn_evaluate_per_epoch(
+    mock_tracker, mock_loss, config, dataset
+):
     """test evaluate per epoch."""
+    mock_tracker.return_value = MagicMock()
     loss_val = 0.1
     mock_loss.return_value = loss_val
     ckpt_dir = tmp_name + "/train/FasterRCNN.estimator"
@@ -252,10 +264,18 @@ def test_faster_rcnn_evaluate_per_epoch(mock_loss, config, dataset):
 @patch("datasetinsights.estimators.faster_rcnn.FasterRCNN.evaluate_per_epoch")
 @patch("datasetinsights.estimators.faster_rcnn.Loss.compute")
 @patch("datasetinsights.estimators.faster_rcnn.create_dataset")
+@patch("datasetinsights.io.tracker.factory.TrackerFactory.create")
 def test_faster_rcnn_evaluate(
-    mock_create, mock_loss, mock_evaluate_per_epoch, config, dataset
+    mock_tracker,
+    mock_create,
+    mock_loss,
+    mock_evaluate_per_epoch,
+    config,
+    dataset,
 ):
     """test evaluate."""
+    mock_mlflow = MagicMock()
+    mock_tracker.return_value = mock_mlflow
     mock_create.return_value = dataset
     loss_val = 0.1
     mock_loss.return_value = loss_val
@@ -283,10 +303,13 @@ def test_faster_rcnn_evaluate(
     estimator.checkpointer = checkpointer
     estimator.evaluate(None)
     mock_evaluate_per_epoch.assert_called_once()
+    mock_mlflow.end_run.assert_called_once()
 
 
-def test_faster_rcnn_log_metric_val(config):
+@patch("datasetinsights.io.tracker.factory.TrackerFactory.create")
+def test_faster_rcnn_log_metric_val(mock_tracker, config):
     """test log metric val."""
+    mock_tracker.return_value = MagicMock()
     writer = MagicMock()
 
     # XXX This is just a hot fix to prevent a mysterious folder such as:
@@ -309,7 +332,6 @@ def test_faster_rcnn_log_metric_val(config):
     estimator.writer = writer
     estimator.kfp_writer = kfp_writer
     estimator.checkpointer = checkpointer
-
     estimator.device = torch.device("cpu")
     epoch = 0
     estimator.log_metric_val({"1": "car", "2": "bike"}, epoch)
@@ -320,9 +342,10 @@ def test_faster_rcnn_log_metric_val(config):
 # XXX: test_faster_rcnn_save and test_faster_rcnn_load are not independent
 # unittests. If test_faster_rcnn_save is removed, test_faster_rcnn_load will
 # fail. They should be completely independent.
-def test_faster_rcnn_save(config):
+@patch("datasetinsights.io.tracker.factory.TrackerFactory.create")
+def test_faster_rcnn_save(mock_tracker, config):
     """test save model."""
-
+    mock_tracker.return_value = MagicMock()
     log_dir = tmp_name + "/train/"
     kfp_writer = MagicMock()
     writer = MagicMock()
@@ -358,9 +381,10 @@ def test_faster_rcnn_save(config):
     )
 
 
-def test_faster_rcnn_load(config):
+@patch("datasetinsights.io.tracker.factory.TrackerFactory.create")
+def test_faster_rcnn_load(mock_tracker, config):
     """test load model."""
-
+    mock_tracker.return_value = MagicMock()
     ckpt_dir = tmp_name + "/train/FasterRCNN.estimator"
     config.checkpoint_file = ckpt_dir
     log_dir = tmp_name + "/load/"
@@ -442,8 +466,10 @@ def test_create_dataloader(mock_loader, config, dataset):
 @patch(
     "datasetinsights.estimators.faster_rcnn.torch.optim.lr_scheduler.LambdaLR"
 )
-def test_create_optimizer(mock_lr, mock_adm, config, dataset):
+@patch("datasetinsights.io.tracker.factory.TrackerFactory.create")
+def test_create_optimizer(mock_tracker, mock_lr, mock_adm, config, dataset):
     """test create optimizer."""
+    mock_tracker.return_value = MagicMock()
     mock_lr.return_value = MagicMock()
     mock_adm.return_value = MagicMock()
 
@@ -475,9 +501,10 @@ def test_create_optimizer(mock_lr, mock_adm, config, dataset):
     assert isinstance(lr_scheduler, MagicMock)
 
 
-def test_faster_rcnn_predict(config, dataset):
+@patch("datasetinsights.io.tracker.factory.TrackerFactory.create")
+def test_faster_rcnn_predict(mock_tracker, config, dataset):
     """test predict."""
-
+    mock_tracker.return_value = MagicMock()
     checkpoint_file = tmp_name + "/train/FasterRCNN.estimator"
     kfp_writer = MagicMock()
     writer = MagicMock()
