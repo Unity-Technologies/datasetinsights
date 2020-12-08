@@ -113,7 +113,25 @@ Note that we'll be running this local experiment with just 1 app-param. Your rea
    python3 -m venv .venv
    source .venv/bin/activate
    pip install -r requirements.txt
+
    ```
+   If you have issues setting up an environment locally, we also provide a Dockerfile that should provide a more stable environment.
+   ```bash
+   docker build . -t tfdataflow
+   # wait for container to finish building...
+
+   # Grab your credentials to use inside the docker container
+   # Example on osx:
+   creds=$(cat ~/.config/gcloud/application_default_credentials.json)
+   docker run --env google_credentials=$creds -it tfdataflow bash
+
+   # Once inside the container, write the credentials out to a file
+   echo $google_credentials > /tf-dataflow/google_credentials.json
+   # Set the credentails environment variable to point at your creds file
+   export GOOGLE_APPLICATION_CREDENTIALS=/tf-dataflow/google_credentials.json
+
+   ```
+   Now you should be able to execute the rest of the steps as before. **Note** that in order to do the local run, you will need to mount a volume containing that data inside the container.
 2. Make a run executions directory manually and copy the single app param into it. An app param corresponds to a configuration that your USim execution ran with. Here's an example:
    ```bash
    mkdir urn:run_executions:5M6wq80 # <-- customize the id to whatever yours looks like. This example uses "5M6wq80"
