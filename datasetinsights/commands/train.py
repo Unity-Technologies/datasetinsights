@@ -1,10 +1,10 @@
 import logging
 
 import click
-from yacs.config import CfgNode as CN
 
 import datasetinsights.constants as const
 from datasetinsights.estimators.base import create_estimator
+from datasetinsights.io.config_handler import ConfigHandler
 
 logger = logging.getLogger(__name__)
 
@@ -122,8 +122,7 @@ def cli(
     logger.debug(f"Called train command with parameters: {ctx.params}")
     logger.debug(f"Override estimator config with args: {ctx.args}")
 
-    config = CN.load_cfg(open(config, "r"))
-
+    config = ConfigHandler.load_config(config)
     estimator = create_estimator(
         name=config.estimator,
         config=config,
