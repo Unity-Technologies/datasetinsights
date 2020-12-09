@@ -4,7 +4,7 @@ import click
 
 import datasetinsights.constants as const
 from datasetinsights.estimators.base import create_estimator
-from datasetinsights.io.config_handler import ConfigHandler
+from datasetinsights.io.config_handler import load_config
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +98,7 @@ def cli(
     ctx = click.get_current_context()
     logger.debug(f"Called evaluate command with parameters: {ctx.params}")
     logger.debug(f"Override estimator config with args: {ctx.args}")
-    config = ConfigHandler.load_config(config)
+    config = load_config(config)
     estimator = create_estimator(
         config=config,
         name=config.estimator,
