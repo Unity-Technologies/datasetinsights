@@ -4,7 +4,7 @@ import click
 
 import datasetinsights.constants as const
 from datasetinsights.estimators.base import create_estimator
-from datasetinsights.io.config_handler import load_config
+from datasetinsights.io.config_handler import handle_config
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +84,12 @@ logger = logging.getLogger(__name__)
         "model will be trained using CUDA."
     ),
 )
+@click.option(
+    "--access-token",
+    type=str,
+    default=None,
+    help="access token to authenticate remote YAML download. ",
+)
 def cli(
     config,
     checkpoint_file,
@@ -94,11 +100,12 @@ def cli(
     kfp_metrics_filename,
     kfp_ui_metadata_filename,
     no_cuda,
+    access_token,
 ):
     ctx = click.get_current_context()
     logger.debug(f"Called evaluate command with parameters: {ctx.params}")
     logger.debug(f"Override estimator config with args: {ctx.args}")
-    config = load_config(config)
+    config = handle_config(path=config, access_token=access_token)
     estimator = create_estimator(
         config=config,
         name=config.estimator,

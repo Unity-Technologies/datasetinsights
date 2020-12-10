@@ -4,7 +4,7 @@ import click
 
 import datasetinsights.constants as const
 from datasetinsights.estimators.base import create_estimator
-from datasetinsights.io.config_handler import load_config
+from datasetinsights.io.config_handler import handle_config
 
 logger = logging.getLogger(__name__)
 
@@ -105,6 +105,12 @@ logger = logging.getLogger(__name__)
     default=False,
     help="Force to disable validations.",
 )
+@click.option(
+    "--access-token",
+    type=str,
+    default=None,
+    help="access token to authenticate remote YAML download. ",
+)
 def cli(
     config,
     train_data,
@@ -117,12 +123,13 @@ def cli(
     workers,
     no_cuda,
     no_val,
+    access_token,
 ):
     ctx = click.get_current_context()
     logger.debug(f"Called train command with parameters: {ctx.params}")
     logger.debug(f"Override estimator config with args: {ctx.args}")
 
-    config = load_config(config)
+    config = handle_config(path=config, access_token=access_token)
     estimator = create_estimator(
         name=config.estimator,
         config=config,

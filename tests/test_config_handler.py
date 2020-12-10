@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock, patch
 
-from datasetinsights.io.config_handler import load_config
+from datasetinsights.io.config_handler import handle_config
 
 
 @patch("datasetinsights.io.config_handler.create_downloader")
@@ -12,10 +12,13 @@ def test_gcs_load_config(mock_open, mock_CfgNode, mock_create_downloader):
     mock_open.return_value = mock_obj
 
     config_url = "gs://test/test.yaml"
-    load_config(config_url)
+    access_token = "test"
+    handle_config(path=config_url, access_token=access_token)
 
     mock_CfgNode.assert_called_with(mock_obj)
-    mock_create_downloader.assert_called_with(source_uri=config_url)
+    mock_create_downloader.assert_called_with(
+        source_uri=config_url, access_token=access_token
+    )
     mock_obj.download.assert_called_once()
 
 
@@ -28,10 +31,13 @@ def test_http_load_config(mock_open, mock_CfgNode, mock_create_downloader):
     mock_open.return_value = mock_obj
 
     config_url = "http://thea-dev/../config.yaml"
-    load_config(config_url)
+    access_token = "test"
+    handle_config(path=config_url, access_token=access_token)
 
     mock_CfgNode.assert_called_with(mock_obj)
-    mock_create_downloader.assert_called_with(source_uri=config_url)
+    mock_create_downloader.assert_called_with(
+        source_uri=config_url, access_token=access_token
+    )
     mock_obj.download.assert_called_once()
 
 
@@ -44,10 +50,13 @@ def test_https_load_config(mock_open, mock_CfgNode, mock_create_downloader):
     mock_open.return_value = mock_obj
 
     config_url = "https://thea-dev/../config.yaml"
-    load_config(config_url)
+    access_token = "test"
+    handle_config(path=config_url, access_token=access_token)
 
     mock_CfgNode.assert_called_with(mock_obj)
-    mock_create_downloader.assert_called_with(source_uri=config_url)
+    mock_create_downloader.assert_called_with(
+        source_uri=config_url, access_token=access_token
+    )
     mock_obj.download.assert_called_once()
 
 
@@ -58,5 +67,5 @@ def test_local_load_config(mock_open, mock_CfgNode):
     mock_open.return_value = mock_obj
 
     config_url = "test.yaml"
-    load_config(config_url)
+    handle_config(config_url)
     mock_CfgNode.assert_called_with(mock_obj)
