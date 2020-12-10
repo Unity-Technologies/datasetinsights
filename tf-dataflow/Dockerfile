@@ -6,4 +6,4 @@ WORKDIR /tf-dataflow
 
 RUN pip install -r requirements.txt
 
-CMD []
+CMD ["bash"]
