@@ -539,7 +539,7 @@ def train_and_eval_on_coco_cat(
     docker: str = "unitytechnologies/datasetinsights:latest",
     source_train_uri: str = "gs://thea-dev/data/coco_cat/train2017.zip",
     source_val_uri: str = "gs://thea-dev/data/coco_cat/val2017.zip",
-    ann_uri: str = ("gs://thea-dev/data/coco_cat/annotations_trainval2017.zip"),
+    ann_uri: str = "gs://thea-dev/data/coco_cat/annotations_trainval2017.zip",
     config: str = "datasetinsights/configs/faster_rcnn_coco_cat.yaml",
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
@@ -599,6 +599,68 @@ def train_and_eval_on_coco_cat(
         memory_limit=memory_limit,
         num_gpu=num_gpu,
         gpu_type=gpu_type,
+    )
+
+
+@dsl.pipeline(
+    name="Train on Synthetic + Real World Dataset",
+    description="Train on Synthetic + Real World Dataset",
+)
+def train_on_synthetic_cat_and_COCO_real_dataset(
+    docker: str = "unitytechnologies/datasetinsights:latest",
+    source_train_uri: str = "gs://thea-dev/data/coco_cat/train2017.zip",
+    source_val_uri: str = "gs://thea-dev/data/coco_cat/val2017.zip",
+    ann_uri: str = "gs://thea-dev/data/coco_cat/annotations_trainval2017.zip",
+    config: str = "datasetinsights/configs/faster_rcnn_coco_cat_synthetic.yaml",
+    checkpoint_file: str = "gs://",
+    tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
+    checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
+    volume_size: str = "10Gi",
+):
+    output = train_data = val_data = DATA_PATH
+
+    # The following parameters can't be `PipelineParam` due to this issue:
+    # https://github.com/kubeflow/pipelines/issues/1956
+    # Instead, they have to be configured when the pipeline is compiled.
+    memory_limit = "64Gi"
+    num_gpu = 1
+    gpu_type = "nvidia-tesla-v100"
+
+    # Pipeline definition
+    vop = volume_op(volume_size=volume_size)
+    download_train_source = download_op(
+        docker=docker,
+        source_uri=source_train_uri,
+        output=output,
+        volume=vop.volume,
+        memory_limit=memory_limit,
+    )
+    download_val_source = download_op(
+        docker=docker,
+        source_uri=source_val_uri,
+        output=output,
+        volume=download_train_source.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+    )
+    download_ann = download_op(
+        docker=docker,
+        source_uri=ann_uri,
+        output=output,
+        volume=download_val_source.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+    )
+    train_op(
+        docker=docker,
+        config=config,
+        train_data=train_data,
+        val_data=val_data,
+        tb_log_dir=tb_log_dir,
+        checkpoint_dir=checkpoint_dir,
+        volume=download_ann.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+        num_gpu=num_gpu,
+        gpu_type=gpu_type,
+        checkpoint_file=checkpoint_file,
     )
 
 

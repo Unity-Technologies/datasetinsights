@@ -154,6 +154,13 @@ class CocoDetection(Dataset):
                     ANNOTATION_FILE_TEMPLATE.format(mode, "train"),
                 ),
             ),
+            "sub_mid_train": (
+                "train2017",
+                os.path.join(
+                    "annotations",
+                    ANNOTATION_FILE_TEMPLATE.format(mode, "sub_mid_train"),
+                ),
+            ),
             "val": (
                 "val2017",
                 os.path.join(
