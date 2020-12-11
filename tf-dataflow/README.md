@@ -120,6 +120,7 @@ Note that we'll be running this local experiment with just 1 app-param. Your rea
    docker build . -t tfdataflow
    # wait for container to finish building...
    ```
+   **Note**: In order for the below volume-mount solution to work, you will need [application default credentials](https://cloud.google.com/sdk/gcloud/reference/auth/application-default) in that directory.
    **Windows**
    ```powershell
    docker run --rm -it -v "$env:appdata/gcloud\:/root/.config/gcloud" tfdataflow
