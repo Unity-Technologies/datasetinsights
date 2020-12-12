@@ -11,3 +11,8 @@ class ChecksumError(Exception):
 class InvalidTrackerError(Exception):
     """ Raises when unknown tracker requested .
     """
+
+
+class InvalidOverrideKey(Exception):
+    """ Raises when non existence key requested to override .
+    """
