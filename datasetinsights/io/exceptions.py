@@ -16,3 +16,8 @@ class InvalidTrackerError(Exception):
 class InvalidOverrideKey(Exception):
     """ Raises when non existence key requested to override .
     """
+
+
+class ConfigLoadError(Exception):
+    """ Raises when config not able to load .
+    """
