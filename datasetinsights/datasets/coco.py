@@ -98,6 +98,14 @@ class CocoDetection(Dataset):
         coco (torchvision.datasets.CocoDetection): COCO dataset.
     """
 
+    SPLITS = {
+        "train": "train",
+        "sub_mid_train": "train",
+        "sub_small_train": "train",
+        "val": "val",
+        "test": "val",
+    }
+
     def __init__(
         self,
         *,
@@ -119,7 +127,9 @@ class CocoDetection(Dataset):
         # todo add test split
         self.split = split
         self.root = data_path
-        self._preprocess_dataset(data_path=self.root, split=self.split)
+        self._preprocess_dataset(
+            data_path=self.root, split=self.SPLITS.get(split)
+        )
         self.coco = self._get_coco(root=self.root, image_set=split)
         if remove_examples_without_boxes:
             self.coco = _coco_remove_images_without_annotations(

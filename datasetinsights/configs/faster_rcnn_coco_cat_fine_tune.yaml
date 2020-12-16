@@ -11,7 +11,7 @@ train:
     name: CocoDetection
     args:
       version: v3
-      split: sub_mid_train
+      split: train
 val:
   batch_size: 8
   dataset:
@@ -38,7 +38,7 @@ metrics:
 optimizer:
   name: Adam
   args:
-    lr: 2.0e-4
+    lr: 2.0e-5
 pretrained: False
 pretrained_backbone: True
 synchronize_metrics: True
