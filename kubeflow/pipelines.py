@@ -748,3 +748,223 @@ def train_on_usim_coco_synthetic_dataset(
         num_gpu=evaluate_num_gpu,
         gpu_type=gpu_type,
     )
+
+
+
+@dsl.pipeline(
+    name="Train on the COCO-furniture dataset",
+    description="Train on the COCO-furniture dataset",
+)
+def train_and_eval_on_coco_furniture(
+    docker: str = "unitytechnologies/datasetinsights:latest",
+    source_train_uri: str = "gs://thea-dev/data/coco_furniture/train2017.zip",
+    source_val_uri: str = "gs://thea-dev/data/coco_furniture/val2017.zip",
+    ann_uri: str = ("gs://thea-dev/data/coco_furniture/annotations_trainval2017.zip"),
+    config: str = "datasetinsights/configs/faster_rcnn_coco_furniture.yaml",
+    tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
+    checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
+    volume_size: str = "50Gi",
+):
+    output = train_data = val_data = test_data = DATA_PATH
+
+    # The following parameters can't be `PipelineParam` due to this issue:
+    # https://github.com/kubeflow/pipelines/issues/1956
+    # Instead, they have to be configured when the pipeline is compiled.
+    memory_limit = "64Gi"
+    num_gpu = 1
+    gpu_type = "nvidia-tesla-v100"
+
+    # Pipeline definition
+    vop = volume_op(volume_size=volume_size)
+    download_train_source = download_op(
+        docker=docker,
+        source_uri=source_train_uri,
+        output=output,
+        volume=vop.volume,
+        memory_limit=memory_limit,
+    )
+    download_val_source = download_op(
+        docker=docker,
+        source_uri=source_val_uri,
+        output=output,
+        volume=download_train_source.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+    )
+    download_ann = download_op(
+        docker=docker,
+        source_uri=ann_uri,
+        output=output,
+        volume=download_val_source.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+    )
+    train = train_op(
+        docker=docker,
+        config=config,
+        train_data=train_data,
+        val_data=val_data,
+        tb_log_dir=tb_log_dir,
+        checkpoint_dir=checkpoint_dir,
+        volume=download_ann.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+        num_gpu=num_gpu,
+        gpu_type=gpu_type,
+    )
+    evaluate_op(
+        docker=docker,
+        config=config,
+        checkpoint_file=checkpoint_dir,
+        test_data=test_data,
+        tb_log_dir=tb_log_dir,
+        volume=train.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+        num_gpu=num_gpu,
+        gpu_type=gpu_type,
+    )
+
+
+@dsl.pipeline(
+    name="Train on the Synthetic COCO-furniture",
+    description="Train on the Synthetic COCO-furniture",
+)
+def train_and_eval_on_coco_furniture_synthetic(
+    docker: str = "unitytechnologies/datasetinsights:latest",
+    train_source_uri: str = "gs://",
+    source_val_uri: str = "gs://thea-dev/data/coco_furniture/val2017.zip",
+    ann_uri: str = ("gs://thea-dev/data/coco_furniture/annotations_trainval2017.zip"),
+    config: str = "datasetinsights/configs/faster_rcnn_coco_furniture_synthetic.yaml",
+    tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
+    checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
+    volume_size: str = "500Gi",
+):
+    output = train_data = val_data = test_data = DATA_PATH
+
+    # The following parameters can't be `PipelineParam` due to this issue:
+    # https://github.com/kubeflow/pipelines/issues/1956
+    # Instead, they have to be configured when the pipeline is compiled.
+    memory_limit = "64Gi"
+    train_num_gpu = 8
+    evaluate_num_gpu = 1
+    gpu_type = "nvidia-tesla-v100"
+
+    # Pipeline definition
+    vop = volume_op(volume_size=volume_size)
+    download_train_source = download_op(
+        docker=docker,
+        source_uri=train_source_uri,
+        output=output,
+        volume=vop.volume,
+        memory_limit=memory_limit,
+    )
+    download_val_source = download_op(
+        docker=docker,
+        source_uri=source_val_uri,
+        output=output,
+        volume=download_train_source.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+    )
+    download_ann = download_op(
+        docker=docker,
+        source_uri=ann_uri,
+        output=output,
+        volume=download_val_source.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+    )
+    train = train_op(
+        docker=docker,
+        config=config,
+        train_data=train_data,
+        val_data=val_data,
+        tb_log_dir=tb_log_dir,
+        checkpoint_dir=checkpoint_dir,
+        volume=download_ann.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+        num_gpu=train_num_gpu,
+        gpu_type=gpu_type,
+    )
+    evaluate_op(
+        docker=docker,
+        config=config,
+        checkpoint_file=checkpoint_dir,
+        test_data=test_data,
+        tb_log_dir=tb_log_dir,
+        volume=train.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+        num_gpu=evaluate_num_gpu,
+        gpu_type=gpu_type,
+    )
+
+
+@dsl.pipeline(
+    name="Train on Unity Simulation dataset for COCO-furniture",
+    description="Train on Unity Simulation dataset for COCO-furniture",
+)
+def train_on_usim_coco_synthetic_dataset(
+    docker: str = "unitytechnologies/datasetinsights:latest",
+    project_id: str = "<unity-project-id>",
+    run_execution_id: str = "<unity-simulation-run-execution-id>",
+    access_token: str = "<unity-simulation-access-token>",
+    source_val_uri: str = "gs://thea-dev/data/coco_furniture/train2017.zip",
+    ann_uri: str = ("gs://thea-dev/data/coco_furniture/annotations_trainval2017.zip"),
+    config: str = "datasetinsights/configs/faster_rcnn_coco_furniture_synthetic.yaml",
+    tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
+    checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
+    volume_size: str = "100Gi",
+):
+    output = train_data = val_data = test_data = DATA_PATH
+
+    # The following parameters can't be `PipelineParam` due to this issue:
+    # https://github.com/kubeflow/pipelines/issues/1956
+    # Instead, they have to be configured when the pipeline is compiled.
+    memory_limit = "64Gi"
+    train_num_gpu = 8
+    evaluate_num_gpu = 1
+    gpu_type = "nvidia-tesla-v100"
+
+    source_uri = f"usim://{access_token}@{project_id}/{run_execution_id}"
+
+    # Pipeline definition
+    vop = volume_op(volume_size=volume_size)
+    download_train_source = download_op(
+        docker=docker,
+        source_uri=source_uri,
+        output=output,
+        volume=vop.volume,
+        memory_limit=memory_limit,
+    )
+    download_val_source = download_op(
+        docker=docker,
+        source_uri=source_val_uri,
+        output=output,
+        volume=download_train_source.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+    )
+    download_ann = download_op(
+        docker=docker,
+        source_uri=ann_uri,
+        output=output,
+        volume=download_val_source.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+    )
+    train = train_op(
+        docker=docker,
+        config=config,
+        train_data=train_data,
+        val_data=val_data,
+        tb_log_dir=tb_log_dir,
+        checkpoint_dir=checkpoint_dir,
+        volume=download_ann.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+        num_gpu=train_num_gpu,
+        gpu_type=gpu_type,
+    )
+    evaluate_op(
+        docker=docker,
+        config=config,
+        checkpoint_file=checkpoint_dir,
+        test_data=test_data,
+        tb_log_dir=tb_log_dir,
+        volume=train.pvolumes[DATA_PATH],
+        memory_limit=memory_limit,
+        num_gpu=evaluate_num_gpu,
+        gpu_type=gpu_type,
+    )

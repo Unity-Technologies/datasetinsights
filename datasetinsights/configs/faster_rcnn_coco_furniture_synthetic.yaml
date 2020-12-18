@@ -1,0 +1,46 @@
+estimator: FasterRCNN
+backbone: resnet50
+num_classes: 5
+task: object_detection
+train:
+  dataset:
+    name: SynDetection2D
+    args:
+      def_id: f9f22e05-443f-4602-a422-ebe4ea9b55cb
+      random_seed: 47
+      split: train
+  batch_size: 4
+  accumulation_steps: 8
+  epochs: 6
+  log_frequency: 10
+val:
+  dataset:
+    name: SynDetection2D
+    args:
+      def_id: f9f22e05-443f-4602-a422-ebe4ea9b55cb
+      random_seed: 47
+      split: val
+  batch_size: 4
+test:
+  batch_size: 8
+  dataset:
+    name: CocoDetection
+    args:
+      version: v3
+      split: train
+metrics:
+  mean-average-precision:
+    name: MeanAveragePrecisionAverageOverIOU
+  mean-average-precision-iou50:
+    name: MeanAveragePrecisionIOU50
+  mean-average-recall:
+    name: MeanAverageRecallAverageOverIOU
+  average-precision-iou50:
+    name: AveragePrecisionIOU50
+optimizer:
+  name: Adam
+  args:
+    lr: 2.0e-4
+pretrained: False
+pretrained_backbone: True
+synchronize_metrics: True
