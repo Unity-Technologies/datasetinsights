@@ -898,7 +898,7 @@ def train_and_eval_on_coco_furniture_synthetic(
     name="Train on Unity Simulation dataset for COCO-furniture",
     description="Train on Unity Simulation dataset for COCO-furniture",
 )
-def train_on_usim_coco_synthetic_dataset(
+def train_on_usim_coco_furniture_synthetic_dataset(
     docker: str = "unitytechnologies/datasetinsights:latest",
     project_id: str = "<unity-project-id>",
     run_execution_id: str = "<unity-simulation-run-execution-id>",
