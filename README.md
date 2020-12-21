@@ -51,6 +51,17 @@ You can use the pre-build docker image [unitytechnologies/datasetinsights](https
 
 You can find the API documentation on [readthedocs](https://datasetinsights.readthedocs.io/en/latest/).
 
+## Building
+
+### Locally
+The best way to build is `docker build -t datasetinsights .`. To install in your local environment, call `poetry install`.
+
+### For GCR
+An easy way to build and push to gcr.io is to use `gcloud builds submit`, which zips up the contents of the repository and builds in the cloud
+```bash
+gcloud builds submit --tag gcr.io/[PROJECT_ID]/[IMAGE_NAME]:[IMAGE_TAG]
+```
+
 ## Contributing
 
 Please let us know if you encounter a bug by filing an issue. To learn more about making a contribution to Dataset Insights, please see our Contribution [page](CONTRIBUTING.md).
