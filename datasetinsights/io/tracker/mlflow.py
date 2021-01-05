@@ -95,17 +95,22 @@ class MLFlowTracker:
         run_name = MLFlowTracker.DEFAULT_RUN_NAME
         exp_name = MLFlowTracker.DEFAULT_EXP_NAME
         tracker = config.get(MLFlowTracker.TRACKER, None)
+        logger.debug(
+            f"client_id:{client_id} and host_id: {host_id} from "
+            f"kubernetes env variable"
+        )
         if tracker and tracker.get(MLFlowTracker.MLFLOW_TRACKER, None):
-            logger.info(f"overriding client_id and host_id")
             mlflow_config = tracker.get(MLFlowTracker.MLFLOW_TRACKER)
-            if mlflow_config.get(MLFlowTracker.HOST_ID, None):
-                host_id = mlflow_config.get(MLFlowTracker.HOST_ID)
-            if mlflow_config.get(MLFlowTracker.CLIENT_ID, None):
-                client_id = mlflow_config.get(MLFlowTracker.CLIENT_ID)
-            if mlflow_config.get(MLFlowTracker.RUN_NAME, None):
-                run_name = mlflow_config.get(MLFlowTracker.RUN_NAME)
-            if mlflow_config.get(MLFlowTracker.EXP_NAME, None):
-                exp_name = mlflow_config.get(MLFlowTracker.EXP_NAME)
+            host_id = mlflow_config.get(MLFlowTracker.HOST_ID, host_id)
+            client_id = mlflow_config.get(MLFlowTracker.CLIENT_ID, client_id)
+            run_name = mlflow_config.get(MLFlowTracker.RUN_NAME, run_name)
+            exp_name = mlflow_config.get(MLFlowTracker.EXP_NAME, exp_name)
+            logger.debug(
+                f"client_id:{client_id} and host_id:{host_id} from yaml config"
+            )
+        logger.info(
+            f"client_id:{client_id} and host_id:{host_id} connecting to mlflow"
+        )
         if not host_id:
             logger.warning(f"host_id not found")
             raise ValueError("host_id not configured")

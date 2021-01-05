@@ -48,23 +48,19 @@ class TrackerFactory:
             raise InvalidTrackerError
 
     @staticmethod
-    def _mlflow_tracker_instance(mlflow_config):
+    def _mlflow_tracker_instance(config):
 
         """Static instance access method.
 
         Args:
-            host_id: MlTracker server host
-            client_id: MLFlow tracking server client id
-            exp_name: name of the experiment
+            config : config object, holds server details
         Returns:
             tracker singleton instance.
         """
         if not TrackerFactory.__tracker_instance:
             with TrackerFactory.__singleton_lock:
                 if not TrackerFactory.__tracker_instance:
-                    TrackerFactory.__tracker_instance = MLFlowTracker(
-                        mlflow_config
-                    )
+                    TrackerFactory.__tracker_instance = MLFlowTracker(config)
         logger.info("getting tracker instance")
         return TrackerFactory.__tracker_instance
 
