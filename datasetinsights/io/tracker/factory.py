@@ -11,12 +11,11 @@ class TrackerFactory:
     """Factory: responsible for creating and holding singleton instance
         of tracker classes"""
 
-    TRACKER = "tracker"
-    HOST_ID = "host"
     MLFLOW_TRACKER = "mlflow"
     __singleton_lock = threading.Lock()
     __tracker_instance = None
     RUN_FAILED = "FAILED"
+    TRACKER = "tracker"
 
     @staticmethod
     def create(config=None, tracker_type=None):
@@ -31,22 +30,16 @@ class TrackerFactory:
         """
         if TrackerFactory.MLFLOW_TRACKER == tracker_type:
 
-            tracker = config.get(TrackerFactory.TRACKER, None)
-            if tracker and tracker.get(TrackerFactory.MLFLOW_TRACKER, None):
-                mlflow_config = tracker.get(TrackerFactory.MLFLOW_TRACKER)
-                if mlflow_config.get(TrackerFactory.HOST_ID, None):
-                    try:
-                        mlf_tracker = TrackerFactory._mlflow_tracker_instance(
-                            mlflow_config
-                        ).get_mlflow()
-                        logger.info("initializing mlflow_tracker")
-                        return mlf_tracker
-                    except Exception as e:
-                        logger.warning(
-                            "failed mlflow initialization, "
-                            "starting null_tracker",
-                            e,
-                        )
+            try:
+                mlf_tracker = TrackerFactory._mlflow_tracker_instance(
+                    config
+                ).get_mlflow()
+                logger.info("initializing mlflow_tracker")
+                return mlf_tracker
+            except Exception as e:
+                logger.warning(
+                    "failed mlflow initialization, " "starting null_tracker", e,
+                )
 
             logger.info("initializing null_tracker")
             return TrackerFactory._null_tracker()

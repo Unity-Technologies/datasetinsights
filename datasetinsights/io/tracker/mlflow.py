@@ -45,28 +45,27 @@ class MLFlowTracker:
     EXP_NAME = "experiment"
     RUN_NAME = "run"
     DEFAULT_RUN_NAME = "run-" + TIMESTAMP_SUFFIX
+    TRACKER = "tracker"
+    MLFLOW_TRACKER = "mlflow"
+    DEFAULT_EXP_NAME = "datasetinsights"
 
-    def __init__(self, mlflow_config):
+    def __init__(self, config):
         """constructor.
         Args:
-            mlflow_config:map of mlflow configuration
+            config : config object, holds run details
         """
-        host_id = mlflow_config.get(MLFlowTracker.HOST_ID)
-        client_id = mlflow_config.get(MLFlowTracker.CLIENT_ID, None)
-        exp_name = mlflow_config.get(MLFlowTracker.EXP_NAME, None)
-        run_name = mlflow_config.get(MLFlowTracker.RUN_NAME, None)
-        if not run_name:
-            run_name = MLFlowTracker.DEFAULT_RUN_NAME
-            logger.info(f"setting default mlflow run name: {run_name}")
+        client_id, host_id, run_name, exp_name = MLFlowTracker._get_variables(
+            config
+        )
+
         if client_id:
             _refresh_token(client_id)
             thread = RefreshTokenThread(client_id)
             thread.daemon = True
             thread.start()
         mlflow.set_tracking_uri(host_id)
-        if exp_name:
-            mlflow.set_experiment(experiment_name=exp_name)
-            logger.info(f"setting mlflow experiment name: {exp_name}")
+        mlflow.set_experiment(experiment_name=exp_name)
+        logger.info(f"setting mlflow experiment name: {exp_name}")
 
         self.__mlflow = mlflow
         self.__mlflow.start_run(run_name=run_name)
@@ -79,6 +78,38 @@ class MLFlowTracker:
         """
         logger.info("get mlflow")
         return self.__mlflow
+
+    @staticmethod
+    def _get_variables(config):
+        """initialize mlflow variables.
+        Args:
+            config : config object, holds run details
+        Returns:
+            client_id: MLFlow tracking server client id
+            host_id: MLFlow tracking server host id
+            run_name: run name
+            exp_name: experiment name
+        """
+        client_id = os.environ.get("MLFLOW_CLIENT_ID", None)
+        host_id = os.environ.get("MLFLOW_HOST_ID", None)
+        run_name = MLFlowTracker.DEFAULT_RUN_NAME
+        exp_name = MLFlowTracker.DEFAULT_EXP_NAME
+        tracker = config.get(MLFlowTracker.TRACKER, None)
+        if tracker and tracker.get(MLFlowTracker.MLFLOW_TRACKER, None):
+            logger.info(f"overriding client_id and host_id")
+            mlflow_config = tracker.get(MLFlowTracker.MLFLOW_TRACKER)
+            if mlflow_config.get(MLFlowTracker.HOST_ID, None):
+                host_id = mlflow_config.get(MLFlowTracker.HOST_ID)
+            if mlflow_config.get(MLFlowTracker.CLIENT_ID, None):
+                client_id = mlflow_config.get(MLFlowTracker.CLIENT_ID)
+            if mlflow_config.get(MLFlowTracker.RUN_NAME, None):
+                run_name = mlflow_config.get(MLFlowTracker.RUN_NAME)
+            if mlflow_config.get(MLFlowTracker.EXP_NAME, None):
+                exp_name = mlflow_config.get(MLFlowTracker.EXP_NAME)
+        if not host_id:
+            logger.warning(f"host_id not found")
+            raise ValueError("host_id not configured")
+        return client_id, host_id, run_name, exp_name
 
 
 class RefreshTokenThread(threading.Thread):
