@@ -1,7 +1,7 @@
 import numpy as np
 
-from .base import EvaluationMetric
 from .average_precision_2d import AveragePrecision
+from .base import EvaluationMetric
 
 
 class PrecisionRecallRecords(EvaluationMetric):

@@ -1,11 +1,12 @@
 from unittest.mock import patch
+
 import numpy as np
 
 from datasetinsights.evaluation_metrics import PrecisionRecallRecords
 
 COMPUTE_RETURN_VALUE = {
     "car": (np.array([1]), np.array([1])),
-    "book": (np.array([1]), np.array([1]))
+    "book": (np.array([1]), np.array([1])),
 }
 
 

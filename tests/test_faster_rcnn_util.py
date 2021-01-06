@@ -491,11 +491,11 @@ def test_pr_curve_plot(mock_plt):
         "0": "",
         "1": "book_dorkdiaries_aladdin",
         "2": "candy_minipralines_lindt",
-        "3": "candy_raffaello_confetteria"
+        "3": "candy_raffaello_confetteria",
     }
     data = {
         "1": (np.array([1, 0.5, 0.667]), np.array([0.5, 0.5, 1])),
-        "2": (np.array([1, 1, 0.667]), np.array([0.25, 0.5, 0.5]))
+        "2": (np.array([1, 1, 0.667]), np.array([0.25, 0.5, 0.5])),
     }
 
     pr_curve_plot(data, label_mappings)
