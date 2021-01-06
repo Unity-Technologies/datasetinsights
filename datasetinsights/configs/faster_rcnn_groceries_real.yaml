@@ -35,6 +35,8 @@ metrics:
     name: MeanAverageRecallAverageOverIOU
   average-precision-iou50:
     name: AveragePrecisionIOU50
+  pr-curve:
+    name: PRCurve
 optimizer:
   name: Adam
   args:
