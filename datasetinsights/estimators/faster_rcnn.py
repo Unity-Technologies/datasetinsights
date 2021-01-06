@@ -1126,9 +1126,12 @@ def pr_curve_plot(pr_results, label_mappings, figsize=(20, 10)):
     plt.title("PR Curve")
     plt.xlabel("Recall")
     plt.ylabel("Precision")
+    plt.xlim(-0.1, 1.2)
+    plt.ylim(-0.1, 1.2)
     for id in pr_results:
         precision, recall = pr_results[id]
         plt.plot(recall, precision, label=label_mappings[id])
+    plt.legend(loc="upper right")
     return fig
 
 
