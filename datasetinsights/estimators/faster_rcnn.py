@@ -474,8 +474,8 @@ class FasterRCNN(Estimator):
         for metric_name, metric in self.metrics.items():
             result = metric.compute()
             logger.debug(result)
-            logger.info(f"metric {metric_name} has result: {result}")
             if metric.TYPE == "scalar":
+                logger.info(f"metric {metric_name} has result: {result}")
                 self.writer.add_scalar(f"val/{metric_name}", result, epoch)
                 self.kfp_writer.add_metric(name=metric_name, val=result)
                 self.mlflow_tracker.log_metric(f"val/{metric_name}", result)
@@ -485,6 +485,7 @@ class FasterRCNN(Estimator):
             # label_id that was missing from label_name should be removed from
             # dataset and the training procedure.
             elif metric.TYPE == "metric_per_label":
+                logger.info(f"metric {metric_name} has result: {result}")
                 label_results = {
                     label_mappings.get(id, str(id)): value
                     for id, value in result.items()
@@ -495,6 +496,9 @@ class FasterRCNN(Estimator):
                 )
                 fig = metric_per_class_plot(metric_name, result, label_mappings)
                 self.writer.add_figure(f"{metric_name}-per-class", fig, epoch)
+            elif metric.TYPE == "pr_curve":
+                fig = pr_curve_plot(result, label_mappings)
+                self.writer.add_figure(f"{metric_name}", fig, epoch)
 
     def save(self, path):
         """Serialize Estimator to path.
@@ -1104,6 +1108,29 @@ def metric_per_class_plot(metric_name, data, label_mappings, figsize=(20, 10)):
     )
     plt.margins(0.2)
     plt.subplots_adjust(bottom=0.3)
+    return fig
+
+
+def pr_curve_plot(pr_results, label_mappings, figsize=(20, 10)):
+    """PR curve plot for each class.
+
+    Args:
+        pr_results (dict): a dict of {label_id: (precision, recall)} mapping
+        label_mappings (dict): a dict of {label_id: label_name} mapping
+        figsize (tuple): figure size of the plot. Default is (20, 10)
+
+    Returns (matplotlib.pyplot.figure):
+        a PR curve plot for each class.
+    """
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111)
+    ax.set_title("PR Curve")
+    ax.set_xlabel("Recall")
+    ax.set_ylabel("Precision")
+    for id in pr_results:
+        precision, recall = pr_results[id]
+        ax.plot(recall, precision, label=label_mappings[id])
+    plt.tight_layout()
     return fig
 
 
