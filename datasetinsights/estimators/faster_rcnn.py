@@ -496,7 +496,7 @@ class FasterRCNN(Estimator):
                 )
                 fig = metric_per_class_plot(metric_name, result, label_mappings)
                 self.writer.add_figure(f"{metric_name}-per-class", fig, epoch)
-            elif metric.TYPE == "pr_curve":
+            elif metric.TYPE == "precision_recall":
                 fig = pr_curve_plot(result, label_mappings)
                 self.writer.add_figure(f"{metric_name}", fig, epoch)
 
@@ -1123,14 +1123,12 @@ def pr_curve_plot(pr_results, label_mappings, figsize=(20, 10)):
         a PR curve plot for each class.
     """
     fig = plt.figure(figsize=figsize)
-    ax = fig.add_subplot(111)
-    ax.set_title("PR Curve")
-    ax.set_xlabel("Recall")
-    ax.set_ylabel("Precision")
+    plt.title("PR Curve")
+    plt.xlabel("Recall")
+    plt.ylabel("Precision")
     for id in pr_results:
         precision, recall = pr_results[id]
-        ax.plot(recall, precision, label=label_mappings[id])
-    plt.tight_layout()
+        plt.plot(recall, precision, label=label_mappings[id])
     return fig
 
 

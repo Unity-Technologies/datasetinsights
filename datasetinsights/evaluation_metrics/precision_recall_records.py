@@ -4,14 +4,14 @@ from .base import EvaluationMetric
 from .average_precision_2d import AveragePrecision
 
 
-class PRCurve(EvaluationMetric):
-    """PR Curve precision and recall calculation
+class PrecisionRecallRecords(EvaluationMetric):
+    """Precision and recall records for each class
 
-    This implementation would calculate precision and recall information for
+    This implementation would record precision and recall information for
     each label.
     """
 
-    TYPE = "pr_curve"
+    TYPE = "precision_recall"
 
     def __init__(self, iou_threshold=0.5):
         self._ap = AveragePrecision(iou_threshold=iou_threshold)
