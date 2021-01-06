@@ -9,7 +9,7 @@ from .average_recall_2d import AverageRecall, MeanAverageRecallAverageOverIOU
 from .average_relative_error import AverageRelativeError
 from .base import EvaluationMetric
 from .iou import IoU
-from .pr_curve import PRCurve
+from .precision_recall_records import PrecisionRecallRecords
 from .root_mean_square_error import RootMeanSquareError
 from .threshold_accuracy import ThresholdAccuracy
 
@@ -24,7 +24,7 @@ __all__ = [
     "MeanAveragePrecisionAverageOverIOU",
     "MeanAveragePrecisionIOU50",
     "MeanAverageRecallAverageOverIOU",
-    "PRCurve",
+    "PrecisionRecallRecords",
     "RootMeanSquareError",
     "ThresholdAccuracy",
 ]
