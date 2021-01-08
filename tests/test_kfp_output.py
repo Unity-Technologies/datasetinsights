@@ -24,7 +24,7 @@ def test_serialize_and_write_metrics():
             ]
         }
         writer_obj = KubeflowPipelineWriter(
-            filename=file_name, filepath=file_path
+            kfp_metrics_filename=file_name, kfp_log_dir=file_path
         )
         writer_obj.add_metric(name="mAR", val=0.787)
         writer_obj.add_metric(name="mAP", val=0.667)

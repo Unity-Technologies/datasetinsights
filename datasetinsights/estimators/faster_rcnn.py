@@ -12,7 +12,6 @@ import torch
 import torch.distributed as dist
 import torchvision
 from codetiming import Timer
-from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 from tqdm import tqdm
 
@@ -20,6 +19,8 @@ import datasetinsights.constants as const
 from datasetinsights.datasets import Dataset
 from datasetinsights.evaluation_metrics.base import EvaluationMetric
 from datasetinsights.io.bbox import BBox2D
+from datasetinsights.io.summarywriter import get_summary_writer
+from datasetinsights.io.tracker.factory import TrackerFactory
 from datasetinsights.io.transforms import Compose
 from datasetinsights.torch_distributed import get_world_size, is_master
 
@@ -31,6 +32,9 @@ DEFAULT_ACCUMULATION_STEPS = 1
 TRAIN = "train"
 VAL = "val"
 TEST = "test"
+_TRAIN_INTERMEDIATE_LOSS = "training/intermediate_loss"
+_TRAIN_LOSS = "training/loss"
+_VAL_LOSS = "val/loss"
 
 
 class FasterRCNN(Estimator):
@@ -79,7 +83,9 @@ class FasterRCNN(Estimator):
         self._init_distributed_mode()
         self.no_cuda = no_cuda
         self._init_device()
-        self.writer = SummaryWriter(logdir)
+
+        summary_writer = get_summary_writer()
+        self.writer = summary_writer(logdir)
 
         self.kfp_writer = kfp_writer
         checkpointer.distributed = self.distributed
@@ -108,6 +114,9 @@ class FasterRCNN(Estimator):
 
         if checkpoint_file:
             self.checkpointer.load(self, checkpoint_file)
+        self.mlflow_tracker = TrackerFactory.create(
+            config=config, tracker_type=TrackerFactory.MLFLOW_TRACKER
+        )
 
     def _init_distributed_mode(self):
         if "RANK" in os.environ and "WORLD_SIZE" in os.environ:
@@ -190,14 +199,27 @@ class FasterRCNN(Estimator):
         val_loader = dataloader_creator(
             config, val_dataset, val_sampler, VAL, self.distributed
         )
-        self.train_loop(
-            train_dataloader=train_loader,
-            label_mappings=label_mappings,
-            val_dataloader=val_loader,
-            train_sampler=train_sampler,
-        )
-        self.writer.close()
-        self.kfp_writer.write_metric()
+
+        params = self.config.clone()
+        if params.get(TrackerFactory.TRACKER):
+            params.pop(TrackerFactory.TRACKER)
+            # removing tracker to log config as hyperparameter
+        self.mlflow_tracker.log_params(params)
+        try:
+            self.train_loop(
+                train_dataloader=train_loader,
+                label_mappings=label_mappings,
+                val_dataloader=val_loader,
+                train_sampler=train_sampler,
+            )
+        except Exception as e:
+            self.mlflow_tracker.end_run(status=TrackerFactory.RUN_FAILED)
+            logger.exception("training failed, closing mlflow run")
+            raise e
+        finally:
+            self.mlflow_tracker.end_run()
+            self.writer.close()
+            self.kfp_writer.write_metric()
 
     def train_loop(
         self,
@@ -315,10 +337,12 @@ class FasterRCNN(Estimator):
                     f"(total training examples: {examples_seen}) is "
                     f"{intermediate_loss}"
                 )
+
                 self.writer.add_scalar(
-                    "training/intermediate_loss",
-                    intermediate_loss,
-                    examples_seen,
+                    _TRAIN_INTERMEDIATE_LOSS, intermediate_loss, examples_seen,
+                )
+                self.mlflow_tracker.log_metric(
+                    _TRAIN_INTERMEDIATE_LOSS, intermediate_loss
                 )
             logger.info("8")
             losses_grad.backward()
@@ -326,11 +350,13 @@ class FasterRCNN(Estimator):
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
-        self.writer.add_scalar("training/loss", loss_metric.compute(), epoch)
+        loss_metric_c = loss_metric.compute()
+        self.writer.add_scalar(_TRAIN_LOSS, loss_metric_c, epoch)
         self.writer.add_scalar(
             "training/lr", optimizer.param_groups[0]["lr"], epoch
         )
         loss_metric.reset()
+        self.mlflow_tracker.log_metric(_TRAIN_LOSS, loss_metric_c)
 
     def evaluate(self, test_data, **kwargs):
         """evaluate given dataset."""
@@ -350,14 +376,27 @@ class FasterRCNN(Estimator):
             config, test_dataset, test_sampler, TEST, self.distributed
         )
         self.model.to(self.device)
-        self.evaluate_per_epoch(
-            data_loader=test_loader,
-            epoch=0,
-            label_mappings=label_mappings,
-            synchronize_metrics=self.sync_metrics,
-        )
-        self.writer.close()
-        self.kfp_writer.write_metric()
+
+        params = self.config.clone()
+        if params.get(TrackerFactory.TRACKER):
+            params.pop(TrackerFactory.TRACKER)
+            # removing tracker to log config as hyperparameter
+        self.mlflow_tracker.log_params(params)
+        try:
+            self.evaluate_per_epoch(
+                data_loader=test_loader,
+                epoch=0,
+                label_mappings=label_mappings,
+                synchronize_metrics=self.sync_metrics,
+            )
+        except Exception as e:
+            self.mlflow_tracker.end_run(status=TrackerFactory.RUN_FAILED)
+            logger.exception("evaluate failed, closing mlflow run")
+            raise e
+        finally:
+            self.mlflow_tracker.end_run()
+            self.writer.close()
+            self.kfp_writer.write_metric()
 
     @torch.no_grad()
     def evaluate_per_epoch(
@@ -429,7 +468,9 @@ class FasterRCNN(Estimator):
         self.log_metric_val(label_mappings, epoch)
         val_loss = loss_metric.compute()
         logger.info(f"validation loss is {val_loss}")
-        self.writer.add_scalar("val/loss", val_loss, epoch)
+
+        self.writer.add_scalar(_VAL_LOSS, val_loss, epoch)
+        self.mlflow_tracker.log_metric(_VAL_LOSS, val_loss)
 
         torch.set_num_threads(n_threads)
 
@@ -447,6 +488,7 @@ class FasterRCNN(Estimator):
             if metric.TYPE == "scalar":
                 self.writer.add_scalar(f"val/{metric_name}", result, epoch)
                 self.kfp_writer.add_metric(name=metric_name, val=result)
+                self.mlflow_tracker.log_metric(f"val/{metric_name}", result)
             # TODO (YC) This is hotfix to allow user map between label_id
             # to label_name during model evaluation. In ideal cases this mapping
             # should be available before training/evaluation dataset was loaded.
@@ -457,6 +499,7 @@ class FasterRCNN(Estimator):
                     label_mappings.get(id, str(id)): value
                     for id, value in result.items()
                 }
+
                 self.writer.add_scalars(
                     f"val/{metric_name}-per-class", label_results, epoch
                 )

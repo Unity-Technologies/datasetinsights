@@ -56,6 +56,19 @@ logger = logging.getLogger(__name__)
     ),
 )
 @click.option(
+    "--kfp-log-dir",
+    type=click.Path(file_okay=False, writable=True),
+    default=const.DEFAULT_KFP_LOG_DIR,
+    help="Path to the directory where Kubeflow ui metadata file and "
+    "metrics are stored.",
+)
+@click.option(
+    "--kfp-ui-metadata-filename",
+    type=click.STRING,
+    default=const.DEFAULT_KFP_UI_METADATA_FILENAME,
+    help="Kubeflow UI Metadata JSON filename (for tensorboard).",
+)
+@click.option(
     "-p",
     "--checkpoint-dir",
     type=click.STRING,
@@ -98,6 +111,8 @@ def cli(
     val_data,
     checkpoint_file,
     tb_log_dir,
+    kfp_log_dir,
+    kfp_ui_metadata_filename,
     checkpoint_dir,
     workers,
     no_cuda,
@@ -114,6 +129,8 @@ def cli(
         config=config,
         checkpoint_file=checkpoint_file,
         tb_log_dir=tb_log_dir,
+        kfp_log_dir=kfp_log_dir,
+        kfp_ui_metadata_filename=kfp_ui_metadata_filename,
         checkpoint_dir=checkpoint_dir,
         no_cuda=no_cuda,
         no_val=no_val,

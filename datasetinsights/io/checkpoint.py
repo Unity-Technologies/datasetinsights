@@ -229,12 +229,17 @@ def load_from_gcs(estimator, full_cloud_path):
         full_cloud_path: full path to the checkpoint file
 
     """
-    filename = os.path.basename(full_cloud_path)
     with tempfile.TemporaryDirectory() as temp_dir:
+        client = GCSClient()
+        most_recent = client.get_most_recent_blob(url=full_cloud_path)
+        filename = os.path.basename(most_recent.name)
         path = os.path.join(temp_dir, filename)
         logger.debug(f"Downloading estimator from {full_cloud_path} to {path}")
-        client = GCSClient()
-        client.download(local_path=temp_dir, url=full_cloud_path)
+        client.download(
+            local_path=temp_dir,
+            bucket=most_recent.bucket.name,
+            key=most_recent.name,
+        )
         estimator.load(path)
 
 
