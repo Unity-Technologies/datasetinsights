@@ -183,16 +183,17 @@ class FasterRCNN(Estimator):
         logger.info(f"length of train dataset is {len(train_dataset)}")
         if val_dataset:
             logger.info(f"length of validation dataset is {len(val_dataset)}")
-
+        logger.info("train create_sampler")
         train_sampler = FasterRCNN.create_sampler(
             is_distributed=self.distributed,
             dataset=train_dataset,
             is_train=True,
         )
+        logger.info("val create_sampler")
         val_sampler = FasterRCNN.create_sampler(
             is_distributed=self.distributed, dataset=val_dataset, is_train=False
         )
-
+        logger.info("dataloader creater")
         train_loader = dataloader_creator(
             config, train_dataset, train_sampler, TRAIN, self.distributed
         )
@@ -205,6 +206,7 @@ class FasterRCNN(Estimator):
             params.pop(TrackerFactory.TRACKER)
             # removing tracker to log config as hyperparameter
         self.mlflow_tracker.log_params(params)
+        logger.info("start training")
         try:
             self.train_loop(
                 train_dataloader=train_loader,
@@ -577,6 +579,7 @@ class FasterRCNN(Estimator):
             data_sampler: (torch.utils.data.Sampler)
 
         """
+        logger.info("create_sampler")
         if is_distributed:
             sampler = torch.utils.data.distributed.DistributedSampler(
                 dataset, shuffle=is_train
