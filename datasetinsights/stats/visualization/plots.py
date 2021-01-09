@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 COLORS = list(ImageColor.colormap.values())
 FONT_SCALE = 35
 LINE_WIDTH_SCALE = 250
+ERROR_BAR_BASE_COLOR = "indianred"
+ERROR_BAR_COMPARE_COLOR = "lightseagreen"
 
 
 def decode_segmap(labels, dataset="cityscapes"):
@@ -368,5 +370,103 @@ def rotation_plot(df, x, y, z=None, max_samples=None, title=None, **kwargs):
                 zaxis=dict(showticklabels=False, range=[-1, 1]),
             ),
         )
+    )
+    return fig
+
+
+def model_performance_comparison_box_plot(
+    title,
+    mean_ap_base,
+    mean_ap_50_base,
+    mean_ar_base,
+    mean_ap_new,
+    mean_ap_50_new,
+    mean_ar_new,
+    range=[0, 1.0],
+    **kwargs,
+):
+    """Create a box plot for a base and new model performance
+    Args:
+        title (str): title of the plot
+        mean_ap_base (list): a list of base mAP, [0.1, 0.2, ...]
+        mean_ap_50_base (list): a list of base mAP, [0.4, 0.5, ...]
+        mean_ar_base (list): a list of base mAP, [0.2, 0.3, ...]
+        mean_ap_new (list): a list of base mAP, [0.1, 0.2, ...]
+        mean_ap_50_new (list): a list of base mAP, [0.4, 0.5, ...]
+        mean_ar_new (list): a list of base mAP, [0.2, 0.3, ...]
+        range (list): the range of y axis. Defaults to [0, 1.0]
+
+    Returns:
+        A plotly.graph_objects.Figure containing the box plot
+    """
+    fig = go.Figure(
+        layout=go.Layout(title=go.layout.Title(text=title), **kwargs)
+    )
+    fig.update_yaxes(range=range)
+    fig.add_trace(
+        go.Box(
+            y=mean_ap_base, name="baes mAP", marker_color=ERROR_BAR_BASE_COLOR
+        )
+    )
+    fig.add_trace(
+        go.Box(
+            y=mean_ap_new, name="new mAP", marker_color=ERROR_BAR_COMPARE_COLOR
+        )
+    )
+    fig.add_trace(
+        go.Box(
+            y=mean_ap_50_base,
+            name="base mAP50",
+            marker_color=ERROR_BAR_BASE_COLOR,
+        )
+    )
+    fig.add_trace(
+        go.Box(
+            y=mean_ap_50_new,
+            name="new mAP50",
+            marker_color=ERROR_BAR_COMPARE_COLOR,
+        )
+    )
+    fig.add_trace(
+        go.Box(
+            y=mean_ar_base, name="base mAR", marker_color=ERROR_BAR_BASE_COLOR
+        )
+    )
+    fig.add_trace(
+        go.Box(
+            y=mean_ar_new, name="new mAR", marker_color=ERROR_BAR_COMPARE_COLOR
+        )
+    )
+    return fig
+
+
+def model_performance_box_plot(
+    title, mean_ap, mean_ap_50, mean_ar, range=[0, 1.0], **kwargs
+):
+    """Create a box plot for one model performance
+    Args:
+        title (str): title of the plot
+        mean_ap (list): a list of base mAP, [0.1, 0.2, ...]
+        mean_ap_50 (list): a list of base mAP, [0.4, 0.5, ...]
+        mean_ar (list): a list of base mAP, [0.2, 0.3, ...]
+        range (list): the range of y axis. Defaults to [0, 1.0]
+
+    Returns:
+        A plotly.graph_objects.Figure containing the box plot
+    """
+    fig = go.Figure(
+        layout=go.Layout(title=go.layout.Title(text=title), **kwargs)
+    )
+    fig.update_yaxes(range=range)
+    fig.add_trace(
+        go.Box(y=mean_ap, name="mAP", marker_color=ERROR_BAR_BASE_COLOR)
+    )
+    fig.add_trace(
+        go.Box(
+            y=mean_ap_50, name="mAP@IOU50", marker_color=ERROR_BAR_BASE_COLOR
+        )
+    )
+    fig.add_trace(
+        go.Box(y=mean_ar, name="mAR", marker_color=ERROR_BAR_BASE_COLOR)
     )
     return fig

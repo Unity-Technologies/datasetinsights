@@ -3,6 +3,8 @@ from .visualization.plots import (
     bar_plot,
     grid_plot,
     histogram_plot,
+    model_performance_box_plot,
+    model_performance_comparison_box_plot,
     plot_bboxes,
     rotation_plot,
 )
@@ -12,6 +14,8 @@ __all__ = [
     "grid_plot",
     "histogram_plot",
     "plot_bboxes",
+    "model_performance_box_plot",
+    "model_performance_comparison_box_plot",
     "rotation_plot",
     "RenderedObjectInfo",
 ]
