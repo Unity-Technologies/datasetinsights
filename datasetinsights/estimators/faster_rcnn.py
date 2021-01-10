@@ -183,17 +183,14 @@ class FasterRCNN(Estimator):
         logger.info(f"length of train dataset is {len(train_dataset)}")
         if val_dataset:
             logger.info(f"length of validation dataset is {len(val_dataset)}")
-        logger.info("train create_sampler")
         train_sampler = FasterRCNN.create_sampler(
             is_distributed=self.distributed,
             dataset=train_dataset,
             is_train=True,
         )
-        logger.info("val create_sampler")
         val_sampler = FasterRCNN.create_sampler(
             is_distributed=self.distributed, dataset=val_dataset, is_train=False
         )
-        logger.info("dataloader creater")
         train_loader = dataloader_creator(
             config, train_dataset, train_sampler, TRAIN, self.distributed
         )
@@ -206,7 +203,6 @@ class FasterRCNN(Estimator):
             params.pop(TrackerFactory.TRACKER)
             # removing tracker to log config as hyperparameter
         self.mlflow_tracker.log_params(params)
-        logger.info("start training")
         try:
             self.train_loop(
                 train_dataloader=train_loader,
@@ -310,21 +306,25 @@ class FasterRCNN(Estimator):
         logger.info("Actually one epoch training")
         for i, (images, targets) in enumerate(data_loader):
             images = list(image.to(self.device) for image in images)
-            logger.info("1")
+            # logger.info("1")
             targets = [
                 {k: v.to(self.device) for k, v in t.items()} for t in targets
             ]
-            logger.info("2")
+            # logger.info("2")
             loss_dict = self.model(images, targets)
-            logger.info("3")
+            logger.info(f"{loss_dict}")
+            # logger.info("3")
             losses_grad = sum(loss for loss in loss_dict.values())
-            logger.info("4")
+            logger.info(f"{losses_grad}")
+            # logger.info("4")
             loss_dict_reduced = reduce_dict(loss_dict)
-            logger.info("5")
+            logger.info(f"{loss_dict_reduced}")
+            # logger.info("5")
             losses = sum(loss for loss in loss_dict_reduced.values())
-            logger.info("6")
+            logger.info(f"{losses}")
+            # logger.info("6")
             loss_metric.update(avg_loss=losses.item(), batch_size=len(targets))
-            logger.info("7")
+            # logger.info("7")
 
             if not math.isfinite(losses):
                 raise BadLoss(
