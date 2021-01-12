@@ -1111,7 +1111,7 @@ def metric_per_class_plot(metric_name, data, label_mappings, figsize=(20, 10)):
     return fig
 
 
-def pr_curve_plot(pr_results, label_mappings, figsize=(20, 10)):
+def pr_curve_plot(pr_results, label_mappings, figsize=(15, 8)):
     """PR curve plot for each class.
 
     Args:
@@ -1126,12 +1126,13 @@ def pr_curve_plot(pr_results, label_mappings, figsize=(20, 10)):
     plt.title("PR Curve")
     plt.xlabel("Recall")
     plt.ylabel("Precision")
-    plt.xlim(-0.1, 1.2)
-    plt.ylim(-0.1, 1.2)
+    plt.xlim(-0.01, 1.0)
+    plt.ylim(-0.01, 1.0)
     for id in pr_results:
         precision, recall = pr_results[id]
         plt.plot(recall, precision, label=label_mappings[id])
     plt.legend(loc="upper right")
+    plt.grid(True)
     return fig
 
 
