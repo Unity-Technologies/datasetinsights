@@ -308,13 +308,15 @@ class FasterRCNN(Estimator):
                 {k: v.to(self.device) for k, v in t.items()} for t in targets
             ]
             loss_dict = self.model(images, targets)
-
+            logger.info("1")
             losses_grad = sum(loss for loss in loss_dict.values())
-
+            logger.info(f"2. losses_grad: {losses_grad}")
             loss_dict_reduced = reduce_dict(loss_dict)
+            logger.info(f"3. loss_dict_reduced: {loss_dict_reduced}")
             losses = sum(loss for loss in loss_dict_reduced.values())
+            logger.info(f"4. losses: {losses}")
             loss_metric.update(avg_loss=losses.item(), batch_size=len(targets))
-
+            logger.info(f"5. metric update")
             if not math.isfinite(losses):
                 raise BadLoss(
                     f"Loss is {losses}, stopping training. Input was "
@@ -1127,7 +1129,7 @@ def pr_curve_plot(pr_results, label_mappings, figsize=(15, 8)):
     plt.xlabel("Recall")
     plt.ylabel("Precision")
     plt.xlim(-0.01, 1.0)
-    plt.ylim(-0.01, 1.0)
+    plt.ylim(-0.01, 1.1)
     for id in pr_results:
         precision, recall = pr_results[id]
         plt.plot(recall, precision, label=label_mappings[id])
