@@ -36,10 +36,10 @@ def test_refresh_token(mock_id_token):
 
 
 @patch("datasetinsights.io.tracker.factory.MLFlowTracker")
-def test_get_mltracker_instance(mock_tracker, config):
+def test_get_mltracker_instance(mock_tracker):
     tf = TrackerFactory()
-    instance1 = tf._mlflow_tracker_instance(config)
-    instance2 = tf._mlflow_tracker_instance(config)
+    instance1 = tf._mlflow_tracker_instance()
+    instance2 = tf._mlflow_tracker_instance()
     assert instance1 == instance2
 
 
@@ -59,7 +59,9 @@ def test_factory_create_mltracker(mock_get_tracker, config):
     mock_mlflow = MagicMock()
     mock_get_tracker.return_value = mock_mlflow
     TrackerFactory.create(config, TrackerFactory.MLFLOW_TRACKER)
-    mock_get_tracker.assert_called_with(config)
+    mock_get_tracker.assert_called_with(
+        client_id="test", experiment="datasetinsights", host="test", run="test"
+    )
     mock_mlflow.get_mlflow.assert_called_once()
 
 
@@ -84,11 +86,8 @@ def test_nulltracker(mock_handle_dummy):
 @patch("datasetinsights.io.tracker.mlflow.RefreshTokenThread.start")
 @patch("datasetinsights.io.tracker.mlflow.mlflow")
 @patch("datasetinsights.io.tracker.mlflow._refresh_token")
-def test_mLflow_tracker(mock_refresh, mock_mlflow, mock_thread_start, config):
-    config.tracker.mlflow.client_id = CLIENT_ID
-    config.tracker.mlflow.host = HOST_ID
-    config.tracker.mlflow.experiment = EXP_NAME
-    MLFlowTracker(config)
+def test_mlflow_tracker(mock_refresh, mock_mlflow, mock_thread_start):
+    MLFlowTracker(client_id=CLIENT_ID, host=HOST_ID)
     mock_thread_start.assert_called_once()
     mock_refresh.assert_called_once()
     mock_mlflow.set_tracking_uri.assert_called_with(HOST_ID)
@@ -105,20 +104,20 @@ def test_refresh_token_thread(mock_thread_run):
 @patch("datasetinsights.io.tracker.mlflow.RefreshTokenThread.run")
 @patch("datasetinsights.io.tracker.mlflow.mlflow")
 @patch("datasetinsights.io.tracker.mlflow._refresh_token")
-def test_mLflow_tracker_run(mock_refresh, mock_mlflow, mock_thread_run, config):
-    config.tracker.mlflow.client_id = CLIENT_ID
-    config.tracker.mlflow.host = HOST_ID
-    config.tracker.mlflow.experiment = EXP_NAME
-    MLFlowTracker(config)
+def test_mlflow_tracker_run(mock_refresh, mock_mlflow, mock_thread_run):
+    MLFlowTracker(client_id=CLIENT_ID, host=HOST_ID)
     mock_thread_run.assert_called_once()
     mock_refresh.assert_called_once()
     mock_mlflow.set_tracking_uri.assert_called_with(HOST_ID)
 
 
-def test_get_variables(config):
-    config.tracker.mlflow.client_id = CLIENT_ID
-    config.tracker.mlflow.host = HOST_ID
-    config.tracker.mlflow.experiment = EXP_NAME
-    config.tracker.mlflow.run = RUN_NAME
-    return_val = MLFlowTracker._get_variables(config)
-    assert (CLIENT_ID, HOST_ID, RUN_NAME, EXP_NAME) == return_val
+def test_get_variables():
+    return_val = MLFlowTracker._get_variables(
+        client_id=CLIENT_ID, host_id=HOST_ID
+    )
+    assert (CLIENT_ID, HOST_ID) == return_val
+
+
+def test_none_host_id():
+    with pytest.raises(ValueError):
+        MLFlowTracker._get_variables(client_id=None, host_id=None)

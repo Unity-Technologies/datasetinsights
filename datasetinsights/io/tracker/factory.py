@@ -31,9 +31,17 @@ class TrackerFactory:
         if TrackerFactory.MLFLOW_TRACKER == tracker_type:
 
             try:
-                mlf_tracker = TrackerFactory._mlflow_tracker_instance(
-                    config
-                ).get_mlflow()
+                tracker = config.get(TrackerFactory.TRACKER, None)
+                if tracker and tracker.get(TrackerFactory.MLFLOW_TRACKER, None):
+                    mlflow_config = tracker.get(TrackerFactory.MLFLOW_TRACKER)
+
+                    mlf_tracker = TrackerFactory._mlflow_tracker_instance(
+                        **mlflow_config
+                    ).get_mlflow()
+                else:
+                    mlf_tracker = (
+                        TrackerFactory._mlflow_tracker_instance().get_mlflow()
+                    )
                 logger.info("initializing mlflow_tracker")
                 return mlf_tracker
             except Exception as e:
@@ -48,19 +56,19 @@ class TrackerFactory:
             raise InvalidTrackerError
 
     @staticmethod
-    def _mlflow_tracker_instance(config):
+    def _mlflow_tracker_instance(**kwarg):
 
         """Static instance access method.
 
         Args:
-            config : config object, holds server details
+            kwarg : key-value pairs of mlflow parameters
         Returns:
             tracker singleton instance.
         """
         if not TrackerFactory.__tracker_instance:
             with TrackerFactory.__singleton_lock:
                 if not TrackerFactory.__tracker_instance:
-                    TrackerFactory.__tracker_instance = MLFlowTracker(config)
+                    TrackerFactory.__tracker_instance = MLFlowTracker(**kwarg)
         logger.info("getting tracker instance")
         return TrackerFactory.__tracker_instance
 

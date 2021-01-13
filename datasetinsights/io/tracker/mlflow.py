@@ -49,13 +49,23 @@ class MLFlowTracker:
     MLFLOW_TRACKER = "mlflow"
     DEFAULT_EXP_NAME = "datasetinsights"
 
-    def __init__(self, config):
+    def __init__(
+        self,
+        *,
+        client_id=None,
+        host=None,
+        run=DEFAULT_RUN_NAME,
+        experiment=DEFAULT_EXP_NAME,
+    ):
         """constructor.
         Args:
-            config : config object, holds run details
+            client_id : MLFlow tracking server client id
+            host : MLFlow tracking server host name
+            run : MLFlow tracking run name
+            experiment : MLFlow tracking experiment name
         """
-        client_id, host_id, run_name, exp_name = MLFlowTracker._get_variables(
-            config
+        client_id, host_id = MLFlowTracker._get_variables(
+            client_id=client_id, host_id=host
         )
 
         if client_id:
@@ -64,11 +74,11 @@ class MLFlowTracker:
             thread.daemon = True
             thread.start()
         mlflow.set_tracking_uri(host_id)
-        mlflow.set_experiment(experiment_name=exp_name)
-        logger.info(f"setting mlflow experiment name: {exp_name}")
+        mlflow.set_experiment(experiment_name=experiment)
+        logger.info(f"setting mlflow experiment name: {experiment}")
 
         self.__mlflow = mlflow
-        self.__mlflow.start_run(run_name=run_name)
+        self.__mlflow.start_run(run_name=run)
         logger.info("instantiated mlflow")
 
     def get_mlflow(self):
@@ -80,41 +90,34 @@ class MLFlowTracker:
         return self.__mlflow
 
     @staticmethod
-    def _get_variables(config):
+    def _get_variables(client_id=None, host_id=None):
         """initialize mlflow variables.
         Args:
-            config : config object, holds run details
+            client_id : MLFlow tracking server client id
+            host_id : MLFlow tracking server host id
         Returns:
             client_id: MLFlow tracking server client id
             host_id: MLFlow tracking server host id
-            run_name: run name
-            exp_name: experiment name
         """
-        client_id = os.environ.get("MLFLOW_CLIENT_ID", None)
-        host_id = os.environ.get("MLFLOW_HOST_ID", None)
-        run_name = MLFlowTracker.DEFAULT_RUN_NAME
-        exp_name = MLFlowTracker.DEFAULT_EXP_NAME
-        tracker = config.get(MLFlowTracker.TRACKER, None)
-        logger.debug(
-            f"client_id:{client_id} and host_id: {host_id} from "
-            f"kubernetes env variable"
-        )
-        if tracker and tracker.get(MLFlowTracker.MLFLOW_TRACKER, None):
-            mlflow_config = tracker.get(MLFlowTracker.MLFLOW_TRACKER)
-            host_id = mlflow_config.get(MLFlowTracker.HOST_ID, host_id)
-            client_id = mlflow_config.get(MLFlowTracker.CLIENT_ID, client_id)
-            run_name = mlflow_config.get(MLFlowTracker.RUN_NAME, run_name)
-            exp_name = mlflow_config.get(MLFlowTracker.EXP_NAME, exp_name)
+        if not client_id:
+            client_id = os.environ.get("MLFLOW_CLIENT_ID", None)
             logger.debug(
-                f"client_id:{client_id} and host_id:{host_id} from yaml config"
+                f"client_id:{client_id} from " f"kubernetes env variable"
             )
+        if not host_id:
+            if not os.environ.get("MLFLOW_HOST_ID", None):
+                logger.warning(f"host_id not found")
+                raise ValueError("host_id not configured")
+            host_id = os.environ.get("MLFLOW_HOST_ID", None)
+            logger.debug(f"host_id: {host_id} from " f"kubernetes env variable")
+
         logger.info(
             f"client_id:{client_id} and host_id:{host_id} connecting to mlflow"
         )
-        if not host_id:
-            logger.warning(f"host_id not found")
-            raise ValueError("host_id not configured")
-        return client_id, host_id, run_name, exp_name
+        return (
+            client_id,
+            host_id,
+        )
 
 
 class RefreshTokenThread(threading.Thread):
