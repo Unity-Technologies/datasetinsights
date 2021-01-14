@@ -306,25 +306,25 @@ class FasterRCNN(Estimator):
         logger.info("Actually one epoch training")
         for i, (images, targets) in enumerate(data_loader):
             images = list(image.to(self.device) for image in images)
-            logger.info("1")
+            # logger.info("1")
             targets = [
                 {k: v.to(self.device) for k, v in t.items()} for t in targets
             ]
-            logger.info("2")
+            # logger.info("2")
             loss_dict = self.model(images, targets)
-            logger.info(f"{loss_dict}")
-            logger.info("3")
+            # logger.info(f"{loss_dict}")
+            # logger.info("3")
             losses_grad = sum(loss for loss in loss_dict.values())
             logger.info(f"{losses_grad}")
-            logger.info("4")
+            # logger.info("4")
             loss_dict_reduced = reduce_dict(loss_dict)
             logger.info(f"{loss_dict_reduced}")
-            logger.info("5")
+            # logger.info("5")
             losses = sum(loss for loss in loss_dict_reduced.values())
             logger.info(f"{losses}")
-            logger.info("6")
+            # logger.info("6")
             loss_metric.update(avg_loss=losses.item(), batch_size=len(targets))
-            logger.info("7")
+            # logger.info("7")
 
             if not math.isfinite(losses):
                 raise BadLoss(
@@ -873,6 +873,7 @@ def reduce_dict(input_dict, average=True):
         if average:
             values /= world_size
         reduced_dict = {k: v for k, v in zip(names, values)}
+        logger.info(f"reduced_dict: {reduced_dict}")
     return reduced_dict
 
 
