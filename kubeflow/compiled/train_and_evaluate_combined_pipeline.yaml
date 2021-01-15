@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: train-and-evaluate-combined-pipeline-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.4, pipelines.kubeflow.org/pipeline_compilation_time: '2020-11-13T13:59:16.456611',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1, pipelines.kubeflow.org/pipeline_compilation_time: '2021-01-13T16:53:55.019990',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Train and Evaluate Combined
       Pipeline", "inputs": [{"default": "unitytechnologies/datasetinsights:latest",
       "name": "docker", "optional": true, "type": "String"}, {"default": "<unity-project-id>",
@@ -17,7 +17,7 @@ metadata:
       "name": "evaluate_source_uri", "optional": true, "type": "String"}, {"default":
       "datasetinsights/configs/faster_rcnn_groceries_real.yaml", "name": "evaluate_config",
       "optional": true, "type": "String"}], "name": "Train and Evaluate Combined Pipeline"}'}
-  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.4}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1}
 spec:
   entrypoint: train-and-evaluate-combined-pipeline
   templates:
@@ -135,7 +135,7 @@ spec:
     container:
       args: ['--config={{inputs.parameters.train_config}}', --train-data=/data, --val-data=/data,
         '--tb-log-dir={{inputs.parameters.tb_log_dir}}', --kfp-log-dir=/kfp_logs,
-        '--kfp-ui-metadata-filename=kfp_ui_metadata.json--checkpoint-dir={{inputs.parameters.checkpoint_dir}}']
+        --kfp-ui-metadata-filename=kfp_ui_metadata.json, '--checkpoint-dir={{inputs.parameters.checkpoint_dir}}']
       command: [python, -m, torch.distributed.launch, --nproc_per_node=8, --use_env,
         datasetinsights, train]
       env:

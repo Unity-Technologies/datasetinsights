@@ -12,15 +12,14 @@ from datasetinsights.commands.evaluate import cli
     [
         [
             "evaluate",
-            "--config="
-            "file://tests/configs/faster_rcnn_groceries_real_test.yaml",
+            "--config=tests/configs/faster_rcnn_groceries_real_test.yaml",
             "--checkpoint-file=checkpoint_file.txt",
             f"--test-data=tests/datasets",
         ],
         [
             "evaluate",
             "-c",
-            "file://tests/configs/faster_rcnn_groceries_real_test.yaml",
+            "tests/configs/faster_rcnn_groceries_real_test.yaml",
             "-t",
             "tests/datasets",
             "-p",
@@ -57,7 +56,7 @@ def test_evaluate_except_called_once(
         [
             "evaluate",
             "--config",
-            "file://tests/configs/faster_rcnn_groceries_real_test.yaml",
+            "tests/configs/faster_rcnn_groceries_real_test.yaml",
             "--test-data",
             "invalid-data-root",
         ],

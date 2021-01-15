@@ -12,14 +12,13 @@ from datasetinsights.commands.train import cli
     [
         [
             "train",
-            "--config="
-            "file://tests/configs/faster_rcnn_groceries_real_test.yaml",
+            "--config=tests/configs/faster_rcnn_groceries_real_test.yaml",
             "--train-data=tests/datasets",
         ],
         [
             "train",
             "-c",
-            "file://tests/configs/faster_rcnn_groceries_real_test.yaml",
+            "tests/configs/faster_rcnn_groceries_real_test.yaml",
             "-t",
             "tests/datasets",
         ],
@@ -51,8 +50,7 @@ def test_train_except_called_once(
     [
         [
             "train",
-            "--config"
-            "file://tests/configs/faster_rcnn_groceries_real_test.yaml",
+            "--config" "tests/configs/faster_rcnn_groceries_real_test.yaml",
             "--train-data",
             "invalid-data-root",
         ],
