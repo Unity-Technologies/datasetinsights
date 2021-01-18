@@ -183,6 +183,7 @@ class FasterRCNN(Estimator):
         logger.info(f"length of train dataset is {len(train_dataset)}")
         if val_dataset:
             logger.info(f"length of validation dataset is {len(val_dataset)}")
+
         train_sampler = FasterRCNN.create_sampler(
             is_distributed=self.distributed,
             dataset=train_dataset,
@@ -191,6 +192,7 @@ class FasterRCNN(Estimator):
         val_sampler = FasterRCNN.create_sampler(
             is_distributed=self.distributed, dataset=val_dataset, is_train=False
         )
+
         train_loader = dataloader_creator(
             config, train_dataset, train_sampler, TRAIN, self.distributed
         )
@@ -243,7 +245,7 @@ class FasterRCNN(Estimator):
         accumulation_steps = self.config.train.get(
             "accumulation_steps", DEFAULT_ACCUMULATION_STEPS
         )
-        logger.info("Start training")
+        logger.debug("Start training")
         total_timer = Timer(
             name="total-time", text=const.TIMING_TEXT, logger=logging.info
         )
@@ -254,7 +256,6 @@ class FasterRCNN(Estimator):
                 text=const.TIMING_TEXT,
                 logger=logging.info,
             ):
-                logger.info("Start one epoch training")
                 self.train_one_epoch(
                     optimizer=optimizer,
                     data_loader=train_dataloader,
@@ -262,10 +263,8 @@ class FasterRCNN(Estimator):
                     lr_scheduler=lr_scheduler,
                     accumulation_steps=accumulation_steps,
                 )
-                logger.info("Finish one epoch training")
             if self.distributed:
                 train_sampler.set_epoch(epoch)
-                logger.info("Finish set epoch sampler training")
             self.checkpointer.save(self, epoch=epoch)
             with Timer(
                 name=f"epoch-{epoch}-evaluate-time",
@@ -303,28 +302,18 @@ class FasterRCNN(Estimator):
         loss_metric = Loss()
         optimizer.zero_grad()
         n_examples = len(data_loader.dataset)
-        logger.info("Actually one epoch training")
         for i, (images, targets) in enumerate(data_loader):
             images = list(image.to(self.device) for image in images)
-            # logger.info("1")
             targets = [
                 {k: v.to(self.device) for k, v in t.items()} for t in targets
             ]
-            # logger.info("2")
             loss_dict = self.model(images, targets)
-            # logger.info(f"{loss_dict}")
-            # logger.info("3")
+
             losses_grad = sum(loss for loss in loss_dict.values())
-            logger.info(f"{losses_grad}")
-            # logger.info("4")
+
             loss_dict_reduced = reduce_dict(loss_dict)
-            logger.info(f"{loss_dict_reduced}")
-            # logger.info("5")
             losses = sum(loss for loss in loss_dict_reduced.values())
-            logger.info(f"{losses}")
-            # logger.info("6")
             loss_metric.update(avg_loss=losses.item(), batch_size=len(targets))
-            # logger.info("7")
 
             if not math.isfinite(losses):
                 raise BadLoss(
@@ -346,7 +335,6 @@ class FasterRCNN(Estimator):
                 self.mlflow_tracker.log_metric(
                     _TRAIN_INTERMEDIATE_LOSS, intermediate_loss
                 )
-            logger.info("8")
             losses_grad.backward()
             if (i + 1) % accumulation_steps == 0:
                 optimizer.step()
@@ -485,7 +473,7 @@ class FasterRCNN(Estimator):
         """
         for metric_name, metric in self.metrics.items():
             result = metric.compute()
-            logger.info(result)
+            logger.debug(result)
             logger.info(f"metric {metric_name} has result: {result}")
             if metric.TYPE == "scalar":
                 self.writer.add_scalar(f"val/{metric_name}", result, epoch)
@@ -537,7 +525,7 @@ class FasterRCNN(Estimator):
         loaded_config = copy.deepcopy(checkpoint["config"])
         stored_config = copy.deepcopy(self.config)
         if stored_config != loaded_config:
-            logger.info(
+            logger.debug(
                 f"Found difference in estimator config."
                 f"Estimator loaded from {path} was trained using config: \n"
                 f"{loaded_config}. \nHowever, the current config is: \n"
@@ -579,7 +567,6 @@ class FasterRCNN(Estimator):
             data_sampler: (torch.utils.data.Sampler)
 
         """
-        logger.info("create_sampler")
         if is_distributed:
             sampler = torch.utils.data.distributed.DistributedSampler(
                 dataset, shuffle=is_train
@@ -704,7 +691,6 @@ def create_dataloader(
                 num_workers=num_workers,
                 collate_fn=collate_fn,
             )
-            logger.info(f"Finish distributed loader.")
             return loader
         else:
             loader = torch.utils.data.DataLoader(
@@ -777,11 +763,8 @@ class Loss:
 
     def update(self, avg_loss, batch_size):
         """update loss."""
-        logger.info(f"{avg_loss}, {batch_size}")
         self._sum += avg_loss * batch_size
-        logger.info(f"{self._sum}")
         self.num_examples += batch_size
-        logger.info(f"{self.num_examples}")
 
     def compute(self):
         """compute avg loss.
@@ -873,7 +856,6 @@ def reduce_dict(input_dict, average=True):
         if average:
             values /= world_size
         reduced_dict = {k: v for k, v in zip(names, values)}
-        logger.info(f"reduced_dict: {reduced_dict}")
     return reduced_dict
 
 
