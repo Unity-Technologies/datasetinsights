@@ -59,10 +59,10 @@ class MLFlowTracker:
     ):
         """constructor.
         Args:
-            client_id : MLFlow tracking server client id
-            host : MLFlow tracking server host name
-            run : MLFlow tracking run name
-            experiment : MLFlow tracking experiment name
+            client_id(str, optional): MLFlow tracking server client id
+            host(str, optional): MLFlow tracking server host name
+            run(str, optional): MLFlow tracking run name
+            experiment(str, optional): MLFlow tracking experiment name
         """
         client_id, host_id = MLFlowTracker._get_variables(
             client_id=client_id, host_id=host
@@ -91,13 +91,19 @@ class MLFlowTracker:
 
     @staticmethod
     def _get_variables(client_id=None, host_id=None):
-        """initialize mlflow variables.
+        """Initializes mlflow variables. if `host_id` and `client_id`
+            not passed through YAML config then retrieve value from
+            env variable.
+
         Args:
-            client_id : MLFlow tracking server client id
-            host_id : MLFlow tracking server host id
+            client_id(str, optional): MLFlow tracking server client id
+            host_id(str, optional): MLFlow tracking server host id
         Returns:
-            client_id: MLFlow tracking server client id
-            host_id: MLFlow tracking server host id
+            client_id(str, optional): MLFlow tracking server client id
+            host_id(str, required): MLFlow tracking server host id
+        Raises:
+            ValueError: If `host_id` is not available in both YAML config
+            and env variable.
         """
         if not client_id:
             client_id = os.environ.get("MLFLOW_CLIENT_ID", None)
