@@ -72,7 +72,13 @@ datasetinsights.io.transforms
    :undoc-members:
    :show-inheritance:
 
+datasetinsights.io.config_handler
+-------------------------
 
+.. automodule:: datasetinsights.io.config_handler
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 .. automodule:: datasetinsights.io
    :members:
