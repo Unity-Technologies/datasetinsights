@@ -43,7 +43,7 @@ You have to specify run parameters required by this pipeline:
 
 - `docker`: Path to a Docker Registry. We suggest changing this parameter to pull our images on Docker Hub with a specific tag, such as `unitytechnologies/datasetinsights:0.2.0`
 - `source_uri`: The dataset source uri. You can use the default value which points to the required dataset for this pipeline.
-- `config`: Estimator config YAML file. You can use the default value which points to a YAML file packaged with our docker images.
+- `config`: Estimator config YAML file. You can use the default value which points to a YAML file packaged with our docker images or you can load from remote locations GCS or any HTTP(s) using file prefix `gs://, http(s)://`.
 - `tb_log_dir`: Path to store tensorboard logs used to visualize the training progress.
 - `checkpoint_dir`: Path to store output estimator checkpoints. These checkpoints represent your trained model and will be used for evaluation.
 - `volume_size`: Size of the Kubernetes Persistent Volume Claims (PVC) that will be used to store the dataset. You can use the default value.
@@ -85,7 +85,7 @@ You have to specify run parameters required by this pipeline:
 
 - `docker`: Path to a Docker Registry. We suggest changing this parameter to pull our images on Docker Hub with a specific tag, such as `unitytechnologies/datasetinsights:0.2.0`
 - `source_uri`: The dataset source uri. You can use the default value which points to the required dataset for this pipeline.
-- `config`: Estimator config YAML file. You can use the default value which points to a YAML file packaged with our docker images.
+- `config`: Estimator config YAML file. You can use the default value which points to a YAML file packaged with our docker images or you can load from remote locations GCS or any HTTP(s) using file prefix `gs://, http(s)://`.
 - `checkpoint_file`: Path to the Estimator checkpoint file from previous training runs that you want to load for evaluation. (e.g. <checkpoint_dir>/FasterRCNN.estimator)
 - `tb_log_dir`: Path to store tensorboard logs used to visualize the evaluation progress.
 - `volume_size`: Size of the Kubernetes Persistent Volume Claims (PVC) that will be used to store the dataset. You can use the default value.
@@ -142,7 +142,7 @@ You have to specify run parameters required by this pipeline:
 
 - `docker`: Path to a Docker Registry. We suggest changing this parameter to pull our images on Docker Hub with a specific tag, such as `unitytechnologies/datasetinsights:0.2.0`
 - `source_uri`: The dataset source uri. You can use the default value which points to the required dataset for this pipeline.
-- `config`: Estimator config YAML file. You can use the default value which points to a YAML file packaged with our docker images.
+- `config`: Estimator config YAML file. You can use the default value which points to a YAML file packaged with our docker images or you can load from remote locations GCS or any HTTP(s) using file prefix `gs://, http(s)://`.
 - `checkpoint_file`: Path to the Estimator checkpoint file from previous training runs that you want to load and resume training.
 - `tb_log_dir`: Path to store tensorboard logs used to visualize the training progress.
 - `checkpoint_dir`: Path to store output Estimator checkpoints. You can use one of the checkpoints for estimator evaluation.
@@ -172,7 +172,7 @@ You have to specify run parameters required by this pipeline:
 
 - `docker`: Path to a Docker Registry. We suggest changing this parameter to pull our images on Docker Hub with a specific tag, such as `unitytechnologies/datasetinsights:0.2.0`
 - `source_uri`: The dataset source uri. You can use the default value which points to the required dataset for this pipeline.
-- `config`: Estimator config YAML file. You can use the default value which points to a YAML file packaged with our docker images.
+- `config`: Estimator config YAML file. You can use the default value which points to a YAML file packaged with our docker images or you can load from remote locations GCS or any HTTP(s) using file prefix `gs://, http(s)://`.
 - `tb_log_dir`: Path to store tensorboard logs used to visualize the training progress.
 - `checkpoint_dir`: Path to store output Estimator checkpoints. You can use one of the checkpoints for estimator evaluation.
 - `volume_size`: Size of the Kubernetes Persistent Volume Claims (PVC) that will be used to store the dataset. You can use the default value.
@@ -201,7 +201,7 @@ You have to specify run parameters required by this pipeline:
 - `project_id`: A Unity [project ID](https://docs.unity3d.com/Manual/SettingUpProjectServices.html). Example format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.
 - `run_execution_id`: A 7-character Run Definition ID used by Unity Simulation. See Unity Simulation [documentation](https://github.com/Unity-Technologies/Unity-Simulation-Docs/blob/master/doc/cli.md#argument-descriptions).
 - `access_token`: Unity Simulation access token. You can run `usim inspect auth` to print out the access token. Please see the official Unity Simulation [doc](https://github.com/Unity-Technologies/Unity-Simulation-Docs/blob/master/doc/cli.md#usim-inspect-auth) to obtain a valid access token.
-- `config`: Estimator config YAML file. You can use the default value which points to a YAML file packaged with our docker images.
+- `config`: Estimator config YAML file. You can use the default value which points to a YAML file packaged with our docker images or you can load from remote locations GCS or any HTTP(s) using file prefix `gs://, http(s)://`.
 - `tb_log_dir`: Path to store tensorboard logs used to visualize the training progress.
 - `checkpoint_dir`: Path to store output Estimator checkpoints. You can use one of the checkpoints for estimator evaluation.
 - `volume_size`: Size of the Kubernetes Persistent Volume Claims (PVC) that will be used to store the dataset. You should change this value according to the dataset that was generated. If you use default settings from [these instructions](https://github.com/Unity-Technologies/SynthDet/blob/master/docs/RunningSynthDetCloud.md), you should expect `1.2TiB` storage required for 400k images.

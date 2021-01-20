@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: train-and-evaluate-combined-pipeline-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1, pipelines.kubeflow.org/pipeline_compilation_time: '2021-01-19T11:28:13.439927',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1, pipelines.kubeflow.org/pipeline_compilation_time: '2021-01-13T16:53:55.019990',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Train and Evaluate Combined
       Pipeline", "inputs": [{"default": "unitytechnologies/datasetinsights:latest",
       "name": "docker", "optional": true, "type": "String"}, {"default": "<unity-project-id>",
@@ -12,7 +12,7 @@ metadata:
       "type": "String"}, {"default": "datasetinsights/configs/faster_rcnn_synthetic.yaml",
       "name": "train_config", "optional": true, "type": "String"}, {"default": "gs://<bucket>/runs/yyyymmdd-hhmm",
       "name": "tb_log_dir", "optional": true, "type": "String"}, {"default": "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
-      "name": "checkpoint_dir", "optional": true, "type": "String"}, {"default": "1.2Ti",
+      "name": "checkpoint_dir", "optional": true, "type": "String"}, {"default": "100Gi",
       "name": "volume_size", "optional": true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip",
       "name": "evaluate_source_uri", "optional": true, "type": "String"}, {"default":
       "datasetinsights/configs/faster_rcnn_groceries_real.yaml", "name": "evaluate_config",
@@ -143,8 +143,8 @@ spec:
       - {name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE, value: /secret/gcp-credentials/user-gcp-sa.json}
       image: '{{inputs.parameters.docker}}'
       resources:
-        limits: {nvidia.com/gpu: 8, memory: 256Gi}
-        requests: {memory: 256Gi}
+        limits: {nvidia.com/gpu: 8, memory: 64Gi}
+        requests: {memory: 64Gi}
       volumeMounts:
       - {mountPath: /data, name: pvc}
       - {mountPath: /secret/gcp-credentials, name: gcp-credentials-user-gcp-sa}
@@ -231,7 +231,7 @@ spec:
     - {name: train_config, value: datasetinsights/configs/faster_rcnn_synthetic.yaml}
     - {name: tb_log_dir, value: 'gs://<bucket>/runs/yyyymmdd-hhmm'}
     - {name: checkpoint_dir, value: 'gs://<bucket>/checkpoints/yyyymmdd-hhmm'}
-    - {name: volume_size, value: 1.2Ti}
+    - {name: volume_size, value: 100Gi}
     - {name: evaluate_source_uri, value: 'https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip'}
     - {name: evaluate_config, value: datasetinsights/configs/faster_rcnn_groceries_real.yaml}
   serviceAccountName: pipeline-runner
