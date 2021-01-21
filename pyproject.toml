@@ -7,6 +7,8 @@ authors = [
   "Unity AI Perception Team <perception@unity3d.com>"
 ]
 readme = "README.md"
+repository = "https://github.com/Unity-Technologies/datasetinsights"
+documentation = "https://datasetinsights.readthedocs.io/en/latest/"
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",
