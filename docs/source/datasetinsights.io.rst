@@ -6,6 +6,7 @@ datasetinsights.io
    :maxdepth: 2
 
    datasetinsights.io.downloader
+   datasetinsights.io.tracker
 
 
 datasetinsights.io.bbox
