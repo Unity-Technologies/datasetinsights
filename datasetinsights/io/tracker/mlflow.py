@@ -64,10 +64,11 @@ class MLFlowTracker:
             run(str, optional): MLFlow tracking run name
             experiment(str, optional): MLFlow tracking experiment name
         """
-        client_id, host_id = MLFlowTracker._get_variables(
-            client_id=client_id, host_id=host
+        host_id = MLFlowTracker._get_host_id(host)
+        client_id = MLFlowTracker._get_client_id(client_id)
+        logger.info(
+            f"client_id:{client_id} and host_id:{host_id} connecting to mlflow"
         )
-
         if client_id:
             _refresh_token(client_id)
             thread = RefreshTokenThread(client_id)
@@ -90,26 +91,20 @@ class MLFlowTracker:
         return self.__mlflow
 
     @staticmethod
-    def _get_variables(client_id=None, host_id=None):
-        """Initializes mlflow variables. if `host_id` and `client_id`
+    def _get_host_id(host_id):
+        """Initializes mlflow variables. if `host_id`
             not passed through YAML config then retrieve value from
             env variable.
 
         Args:
-            client_id(str, optional): MLFlow tracking server client id
             host_id(str, optional): MLFlow tracking server host id
         Returns:
-            client_id(str, optional): MLFlow tracking server client id
             host_id(str, required): MLFlow tracking server host id
         Raises:
             ValueError: If `host_id` is not available in both YAML config
             and env variable.
         """
-        if not client_id:
-            client_id = os.environ.get("MLFLOW_CLIENT_ID", None)
-            logger.debug(
-                f"client_id:{client_id} from " f"kubernetes env variable"
-            )
+
         if not host_id:
             if not os.environ.get("MLFLOW_HOST_ID", None):
                 logger.warning(f"host_id not found")
@@ -117,13 +112,26 @@ class MLFlowTracker:
             host_id = os.environ.get("MLFLOW_HOST_ID", None)
             logger.debug(f"host_id: {host_id} from " f"kubernetes env variable")
 
-        logger.info(
-            f"client_id:{client_id} and host_id:{host_id} connecting to mlflow"
-        )
-        return (
-            client_id,
-            host_id,
-        )
+        return host_id
+
+    @staticmethod
+    def _get_client_id(client_id):
+        """Initializes mlflow variables. if `client_id`
+            not passed through YAML config then retrieve value from
+            env variable.
+
+        Args:
+            client_id(str, optional): MLFlow tracking server client id
+        Returns:
+            client_id(str, optional): MLFlow tracking server client id
+
+        """
+        if not client_id:
+            client_id = os.environ.get("MLFLOW_CLIENT_ID", None)
+            logger.debug(
+                f"client_id:{client_id} from " f"kubernetes env variable"
+            )
+        return client_id
 
 
 class RefreshTokenThread(threading.Thread):

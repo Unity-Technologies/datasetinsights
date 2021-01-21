@@ -56,7 +56,7 @@ class TrackerFactory:
             raise InvalidTrackerError
 
     @staticmethod
-    def _mlflow_tracker_instance(**kwarg):
+    def _mlflow_tracker_instance(**kwargs):
 
         """Static instance access method.
 
@@ -68,7 +68,7 @@ class TrackerFactory:
         if not TrackerFactory.__tracker_instance:
             with TrackerFactory.__singleton_lock:
                 if not TrackerFactory.__tracker_instance:
-                    TrackerFactory.__tracker_instance = MLFlowTracker(**kwarg)
+                    TrackerFactory.__tracker_instance = MLFlowTracker(**kwargs)
         logger.info("getting tracker instance")
         return TrackerFactory.__tracker_instance
 
