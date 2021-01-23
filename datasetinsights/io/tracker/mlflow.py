@@ -76,11 +76,15 @@ class MLFlowTracker:
             thread.start()
         mlflow.set_tracking_uri(host_id)
         mlflow.set_experiment(experiment_name=experiment)
-        logger.info(f"setting mlflow experiment name: {experiment}")
+        experiment_id = mlflow.get_experiment_by_name(experiment).experiment_id
+        logger.info(
+            f"Starting mlflow: experiment name: {experiment} "
+            f"and experiment id: {experiment_id}"
+        )
 
         self.__mlflow = mlflow
-        self.__mlflow.start_run(run_name=run)
-        logger.info("instantiated mlflow")
+        active_run = self.__mlflow.start_run(run_name=run)
+        logger.info(f"Instantiated mlflow: run id: {active_run.info.run_id}")
 
     def get_mlflow(self):
         """ method to access initialized mlflow
