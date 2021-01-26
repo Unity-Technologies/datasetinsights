@@ -20,6 +20,7 @@ GCS_BUCKET = "thea-dev"
 GCS_BASE_STR = "gs://"
 HTTP_URL_BASE_STR = "http://"
 HTTPS_URL_BASE_STR = "https://"
+LOCAL_FILE_BASE_STR = "file://"
 
 # This is a hack on yacs config system, as it does not allow null values
 # in configs. They are working on supporting null values in config
