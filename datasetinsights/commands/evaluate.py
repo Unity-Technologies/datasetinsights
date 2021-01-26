@@ -3,8 +3,9 @@ import logging
 import click
 
 import datasetinsights.constants as const
+from datasetinsights.commands.train import OverrideKey
 from datasetinsights.estimators.base import create_estimator
-from datasetinsights.io.config_handler import load_config
+from datasetinsights.io.config_handler import prepare_config
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +85,16 @@ logger = logging.getLogger(__name__)
         "model will be trained using CUDA."
     ),
 )
+@click.option(
+    "--override",
+    default=None,
+    type=OverrideKey(),
+    required=False,
+    help=(
+        "String of key-value pairs."
+        f"Supported override key {OverrideKey.OVERRIDE_PTRN}"
+    ),
+)
 def cli(
     config,
     checkpoint_file,
@@ -94,11 +105,14 @@ def cli(
     kfp_metrics_filename,
     kfp_ui_metadata_filename,
     no_cuda,
+    override,
 ):
     ctx = click.get_current_context()
     logger.debug(f"Called evaluate command with parameters: {ctx.params}")
     logger.debug(f"Override estimator config with args: {ctx.args}")
-    config = load_config(config)
+
+    config = prepare_config(path=config, override=override)
+
     estimator = create_estimator(
         config=config,
         name=config.estimator,
