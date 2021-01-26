@@ -10,10 +10,27 @@ from datasetinsights.io import create_downloader
 
 logger = logging.getLogger(__name__)
 _REMOTE_PATTERN = r"://"
-
+_EQUAL_STR = "="
 """ This module handles YAML config related operations such as
     locating config from local or remote locations.
 """
+
+
+def prepare_config(path=None, override=None):
+    """load and override config from local or remote locations .
+
+    Args:
+        path: config location
+        override: key-value pairs to override config
+    Returns:
+        config object of type yacs.config.CfgNode
+    """
+    config = load_config(path)
+    logger.info(f"config loading from {path} completed")
+    if override:
+        logger.info(f"overriding config params= {override}")
+        override_config(override=override, config=config)
+    return config
 
 
 def load_config(path):
@@ -46,3 +63,28 @@ def load_config(path):
             return CfgNode.load_cfg(open(file_path, "r"))
 
     return CfgNode.load_cfg(open(path, "r"))
+
+
+def override_config(override=None, config=None):
+    """ Override params of config YAML. if override key doesn't exist
+        it will throw Non-existent key.
+
+    Args:
+        override (str): String of key-value pairs.
+
+        config: config object of type yacs.config.CfgNode
+
+        Examples:
+            >>> override = "optimizer.args.lr=0.00005 pretrained=False"
+
+    """
+    logger.debug(f" config before overriding {config}")
+    tokens = override.split()
+    merge_list = []
+    for token in tokens:
+        merge_list.extend(token.split(_EQUAL_STR))
+    logger.info(f" overriding key-values {merge_list}")
+    config.merge_from_list(merge_list)
+    logger.info(f" overriding completed, config after override{config}")
+
+    return config
