@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 class MLFlowTracker:
     """ MlFlow tracker class, responsible for setting host, client_id and return
         initialized mlflow. It also refreshes the access token through daemon
-        thread.
+        thread. To start mlflow, host is required either through config YAML or
+        Kubernetes secrets.
     Examples:
          # Set MLTracking server UI, default is local file
         >>> mlflow.set_tracking_uri(TRACKING_URI)
@@ -40,22 +41,16 @@ class MLFlowTracker:
         3000  # every 50 minutes refresh token. Token expires in 1 hour
     )
     __mlflow = None
-    CLIENT_ID = "client_id"
-    HOST_ID = "host"
-    EXP_NAME = "experiment"
-    RUN_NAME = "run"
-    DEFAULT_RUN_NAME = "run-" + TIMESTAMP_SUFFIX
-    TRACKER = "tracker"
-    MLFLOW_TRACKER = "mlflow"
-    DEFAULT_EXP_NAME = "datasetinsights"
+    DEFAULT_RUN = "run-" + TIMESTAMP_SUFFIX
+    DEFAULT_EXP = "datasetinsights"
 
     def __init__(
         self,
         *,
         client_id=None,
         host=None,
-        run=DEFAULT_RUN_NAME,
-        experiment=DEFAULT_EXP_NAME,
+        run=DEFAULT_RUN,
+        experiment=DEFAULT_EXP,
     ):
         """constructor.
         Args:
@@ -64,17 +59,17 @@ class MLFlowTracker:
             run(str, optional): MLFlow tracking run name
             experiment(str, optional): MLFlow tracking experiment name
         """
-        host_id = MLFlowTracker._get_host_id(host)
+        host = MLFlowTracker._get_host_id(host)
         client_id = MLFlowTracker._get_client_id(client_id)
         logger.info(
-            f"client_id:{client_id} and host_id:{host_id} connecting to mlflow"
+            f"client_id:{client_id} and host_id:{host} connecting to mlflow"
         )
         if client_id:
             _refresh_token(client_id)
             thread = RefreshTokenThread(client_id)
             thread.daemon = True
             thread.start()
-        mlflow.set_tracking_uri(host_id)
+        mlflow.set_tracking_uri(host)
         mlflow.set_experiment(experiment_name=experiment)
         experiment_id = mlflow.get_experiment_by_name(experiment).experiment_id
         logger.info(
