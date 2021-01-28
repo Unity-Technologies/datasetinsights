@@ -79,6 +79,7 @@ def train_op(
     num_gpu,
     gpu_type,
     checkpoint_file=None,
+    train_split="train",
 ):
     """ Create a Kubeflow ContainerOp to train an estimator.
 
@@ -124,6 +125,7 @@ def train_op(
         f"--kfp-log-dir={KFP_LOG_DIR}",
         f"--kfp-ui-metadata-filename={KFP_UI_METADATA_FILENAME}",
         f"--checkpoint-dir={checkpoint_dir}",
+        f"train.dataset.args.split {train_split}",
     ]
     if checkpoint_file:
         arguments.append(f"--checkpoint-file={checkpoint_file}")
@@ -372,13 +374,14 @@ def train_on_synthetic_and_real_dataset(
         "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip"
     ),
     config: str = "datasetinsights/configs/faster_rcnn_fine_tune.yaml",
+    train_split: str = "train",
     checkpoint_file: str = (
         "https://storage.googleapis.com/datasetinsights/models/Synthetic"
         "/FasterRCNN.estimator"
     ),
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
-    volume_size: str = "100Gi",
+    volume_size: str = "50Gi",
 ):
     output = train_data = val_data = DATA_PATH
 
@@ -410,6 +413,7 @@ def train_on_synthetic_and_real_dataset(
         num_gpu=num_gpu,
         gpu_type=gpu_type,
         checkpoint_file=checkpoint_file,
+        train_split=train_split,
     )
 
 
