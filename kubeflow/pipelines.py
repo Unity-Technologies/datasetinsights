@@ -425,7 +425,7 @@ def train_on_synthetic_dataset_unity_simulation(
     config: str = "datasetinsights/configs/faster_rcnn_synthetic.yaml",
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
-    volume_size: str = "100Gi",
+    volume_size: str = "1.2Ti",
 ):
     output = train_data = val_data = DATA_PATH
 
@@ -433,6 +433,7 @@ def train_on_synthetic_dataset_unity_simulation(
     # https://github.com/kubeflow/pipelines/issues/1956
     # Instead, they have to be configured when the pipeline is compiled.
     memory_limit = "64Gi"
+    train_memory_limit = "256Gi"
     num_gpu = 8
     gpu_type = "nvidia-tesla-v100"
 
@@ -455,7 +456,7 @@ def train_on_synthetic_dataset_unity_simulation(
         tb_log_dir=tb_log_dir,
         checkpoint_dir=checkpoint_dir,
         volume=download.pvolumes[DATA_PATH],
-        memory_limit=memory_limit,
+        memory_limit=train_memory_limit,
         num_gpu=num_gpu,
         gpu_type=gpu_type,
     )
