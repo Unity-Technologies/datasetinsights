@@ -79,7 +79,7 @@ def train_op(
     num_gpu,
     gpu_type,
     checkpoint_file=None,
-    train_split="train",
+    train_split=None,
 ):
     """ Create a Kubeflow ContainerOp to train an estimator.
 
@@ -125,10 +125,11 @@ def train_op(
         f"--kfp-log-dir={KFP_LOG_DIR}",
         f"--kfp-ui-metadata-filename={KFP_UI_METADATA_FILENAME}",
         f"--checkpoint-dir={checkpoint_dir}",
-        f"train.dataset.args.split {train_split}",
     ]
     if checkpoint_file:
         arguments.append(f"--checkpoint-file={checkpoint_file}")
+    if train_split:
+        arguments.append(f"--override=train.dataset.args.split={train_split}")
 
     train = dsl.ContainerOp(
         name="train",
