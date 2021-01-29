@@ -17,6 +17,16 @@ class MLFlowTracker:
         initialized mlflow. It also refreshes the access token through daemon
         thread. To start mlflow, host is required either through config YAML or
         Kubernetes secrets.
+        Case 1: Host and client_id are not configured in both YAML and
+                kubernetes env variable. Null tracker will be initiated.
+        Case 2: Host and client_id both are configured in either in YAML or
+                kubernetes variable. mlflow will initiate background thread
+                to refresh token and will start mlflow tracker.
+        Case 3: Only Host id is configured and client_id is None, either in YAML
+                or kubernetes variable. mlflow tracker will start without
+                initiating background thread.
+        Order of lookup: If host and client_id are configured in YAML then that
+                will be used else it will lookup in Kubernetes env variable.
     Examples:
          # Set MLTracking server UI, default is local file
         >>> mlflow.set_tracking_uri(TRACKING_URI)
@@ -32,6 +42,13 @@ class MLFlowTracker:
         >>> mlflow.log_artifact("output.txt", "run1/output/")
         # ends the run launched under the current experiment
         >>> mlflow.end_run()
+    YAML_Config:
+        >>> tracker:
+        >>>   mlflow:
+        >>>     experiment:
+        >>>     run:
+        >>>     client_id:
+        >>>     host:
     Attributes:
         REFRESH_INTERVAL: default refresh token interval
         __mlflow: holds initialized mlflow
@@ -58,8 +75,12 @@ class MLFlowTracker:
             host(str, optional): MLFlow tracking server host name
             run(str, optional): MLFlow tracking run name
             experiment(str, optional): MLFlow tracking experiment name
+        Raises:
+            ValueError: If `host_id` is not available in both YAML config
+            and env variable.
         """
         host = MLFlowTracker._get_host_id(host)
+        MLFlowTracker._validate(host)
         client_id = MLFlowTracker._get_client_id(client_id)
         logger.info(
             f"client_id:{client_id} and host_id:{host} connecting to mlflow"
@@ -98,16 +119,10 @@ class MLFlowTracker:
         Args:
             host_id(str, optional): MLFlow tracking server host id
         Returns:
-            host_id(str, required): MLFlow tracking server host id
-        Raises:
-            ValueError: If `host_id` is not available in both YAML config
-            and env variable.
+            host_id(str, optional): MLFlow tracking server host id
         """
 
         if not host_id:
-            if not os.environ.get("MLFLOW_HOST_ID", None):
-                logger.warning(f"host_id not found")
-                raise ValueError("host_id not configured")
             host_id = os.environ.get("MLFLOW_HOST_ID", None)
             logger.debug(f"host_id: {host_id} from " f"kubernetes env variable")
 
@@ -131,6 +146,12 @@ class MLFlowTracker:
                 f"client_id:{client_id} from " f"kubernetes env variable"
             )
         return client_id
+
+    @staticmethod
+    def _validate(host):
+        if not host:
+            logger.warning(f"host_id not found")
+            raise ValueError("host_id not configured")
 
 
 class RefreshTokenThread(threading.Thread):

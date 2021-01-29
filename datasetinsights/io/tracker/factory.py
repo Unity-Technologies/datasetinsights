@@ -1,6 +1,8 @@
 import logging
 import threading
 
+from mlflow.exceptions import MlflowException
+
 from datasetinsights.io.exceptions import InvalidTrackerError
 from datasetinsights.io.tracker.mlflow import MLFlowTracker
 
@@ -44,9 +46,15 @@ class TrackerFactory:
                     )
                 logger.info("initializing mlflow_tracker")
                 return mlf_tracker
+            except ValueError as e:
+                logger.warning(
+                    "failed mlflow initialization, " "Host is not configured", e
+                )
+            except MlflowException as e:
+                logger.warning("failed mlflow initialization,", e)
             except Exception as e:
                 logger.warning(
-                    "failed mlflow initialization, " "starting null_tracker", e,
+                    "failed mlflow initialization, " "starting null_tracker", e
                 )
 
             logger.info("initializing null_tracker")

@@ -123,4 +123,4 @@ def test_get_client_id():
 
 def test_none_host_id():
     with pytest.raises(ValueError):
-        MLFlowTracker._get_host_id(None)
+        MLFlowTracker._validate(None)
