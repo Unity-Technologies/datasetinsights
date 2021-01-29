@@ -13,20 +13,22 @@ logger = logging.getLogger(__name__)
 
 
 class MLFlowTracker:
-    """ MlFlow tracker class, responsible for setting host, client_id and return
+    """ MlFlow tracker class:
+        Responsible for setting host, client_id and return
         initialized mlflow. It also refreshes the access token through daemon
         thread. To start mlflow, host is required either through config YAML or
         Kubernetes secrets.
-        Case 1: Host and client_id are not configured in both YAML and
-                kubernetes env variable. Null tracker will be initiated.
-        Case 2: Host and client_id both are configured in either in YAML or
-                kubernetes variable. mlflow will initiate background thread
-                to refresh token and will start mlflow tracker.
-        Case 3: Only Host id is configured and client_id is None, either in YAML
-                or kubernetes variable. mlflow tracker will start without
-                initiating background thread.
-        Order of lookup: If host and client_id are configured in YAML then that
-                will be used else it will lookup in Kubernetes env variable.
+    Possible cases:
+        Case 1: Host and client_id are not configured:
+                Null tracker will be initiated.
+        Case 2: Host and client_id both are configured:
+                mlflow will initiate background thread to refresh token and
+                will start mlflow tracker.
+        Case 3: Only Host id is configured and client_id is None:
+                mlflow tracker will start without initiating background thread.
+    Order of lookup:
+        If host and client_id are configured in YAML then that
+        will be used else it will lookup in Kubernetes env variable.
     Examples:
          # Set MLTracking server UI, default is local file
         >>> mlflow.set_tracking_uri(TRACKING_URI)
