@@ -18,9 +18,7 @@ def test_entrypoint_except_not_called(logger_mock, args):
     logger_mock.getLogger.return_value.setLevel.assert_not_called()
 
 
-@pytest.mark.parametrize(
-    "args", [["-v", "download"]]
-)
+@pytest.mark.parametrize("args", [["-v", "download"]])
 @patch("datasetinsights.__main__.logging")
 def test_entrypoint_except_called_once(logger_mock, args):
     # arrange
