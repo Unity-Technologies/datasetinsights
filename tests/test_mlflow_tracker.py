@@ -111,16 +111,6 @@ def test_mlflow_tracker_run(mock_refresh, mock_mlflow, mock_thread_run):
     mock_mlflow.set_tracking_uri.assert_called_with(HOST_ID)
 
 
-def test_get_host_id():
-    return_val = MLFlowTracker._get_host_id(HOST_ID)
-    assert HOST_ID == return_val
-
-
-def test_get_client_id():
-    return_val = MLFlowTracker._get_client_id(CLIENT_ID)
-    assert CLIENT_ID == return_val
-
-
 def test_none_host_id():
     with pytest.raises(ValueError):
         MLFlowTracker._validate(None)

@@ -81,9 +81,9 @@ class MLFlowTracker:
             ValueError: If `host_id` is not available in both YAML config
             and env variable.
         """
-        host = MLFlowTracker._get_host_id(host)
+        host = host or os.environ.get("MLFLOW_HOST_ID", None)
         MLFlowTracker._validate(host)
-        client_id = MLFlowTracker._get_client_id(client_id)
+        client_id = client_id or os.environ.get("MLFLOW_CLIENT_ID", None)
         logger.info(
             f"client_id:{client_id} and host_id:{host} connecting to mlflow"
         )
@@ -111,43 +111,6 @@ class MLFlowTracker:
         """
         logger.info("get mlflow")
         return self.__mlflow
-
-    @staticmethod
-    def _get_host_id(host_id):
-        """Initializes mlflow variables. if `host_id`
-            not passed through YAML config then retrieve value from
-            env variable.
-
-        Args:
-            host_id(str, optional): MLFlow tracking server host id
-        Returns:
-            host_id(str, optional): MLFlow tracking server host id
-        """
-
-        if not host_id:
-            host_id = os.environ.get("MLFLOW_HOST_ID", None)
-            logger.debug(f"host_id: {host_id} from " f"kubernetes env variable")
-
-        return host_id
-
-    @staticmethod
-    def _get_client_id(client_id):
-        """Initializes mlflow variables. if `client_id`
-            not passed through YAML config then retrieve value from
-            env variable.
-
-        Args:
-            client_id(str, optional): MLFlow tracking server client id
-        Returns:
-            client_id(str, optional): MLFlow tracking server client id
-
-        """
-        if not client_id:
-            client_id = os.environ.get("MLFLOW_CLIENT_ID", None)
-            logger.debug(
-                f"client_id:{client_id} from " f"kubernetes env variable"
-            )
-        return client_id
 
     @staticmethod
     def _validate(host):
