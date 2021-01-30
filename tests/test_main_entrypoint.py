@@ -19,7 +19,7 @@ def test_entrypoint_except_not_called(logger_mock, args):
 
 
 @pytest.mark.parametrize(
-    "args", [["-v", "train"], ["-v", "evaluate"], ["-v", "download"]]
+    "args", [["-v", "download"]]
 )
 @patch("datasetinsights.__main__.logging")
 def test_entrypoint_except_called_once(logger_mock, args):
