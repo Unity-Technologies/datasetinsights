@@ -4,6 +4,7 @@ FUNCTIONS=(
     "train_on_synthetic_and_real_dataset"
     "train_on_synthetic_dataset_unity_simulation"
     "evaluate_the_model"
+    "train_and_evaluate_combined_pipeline"
 )
 
 for function in "${FUNCTIONS[@]}"

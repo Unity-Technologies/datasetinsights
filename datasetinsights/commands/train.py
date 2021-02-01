@@ -1,12 +1,45 @@
 import logging
+import re
 
 import click
-from yacs.config import CfgNode as CN
 
 import datasetinsights.constants as const
 from datasetinsights.estimators.base import create_estimator
+from datasetinsights.io.config_handler import prepare_config
 
 logger = logging.getLogger(__name__)
+
+
+class OverrideKey(click.ParamType):
+    """Source URI Parameter.
+
+    Args:
+        click ([type]): [description]
+
+    Raises:
+        click.BadParameter: [description]
+
+    Returns:
+        [type]: [description]
+    """
+
+    OVERRIDE_PTRN = (
+        r"^([:/\w_+-.%]+=[:/\w_+-.%]+)(\s[:/\w_+-.%]+=[:/\w_+-.%]+)*$"
+    )
+
+    def convert(self, value, param, ctx):
+        """ Validate override key and Converts the value.
+        """
+        pattern = re.compile(self.OVERRIDE_PTRN)
+        match = pattern.match(value)
+        if not match:
+            message = (
+                f"The override format {value} is not supported. "
+                f"Pattern: {self.OVERRIDE_PTRN}"
+            )
+            logger.exception(message)
+            self.fail(message, param, ctx)
+        return value
 
 
 @click.command(
@@ -105,6 +138,16 @@ logger = logging.getLogger(__name__)
     default=False,
     help="Force to disable validations.",
 )
+@click.option(
+    "--override",
+    default=None,
+    type=OverrideKey(),
+    required=False,
+    help=(
+        "String of key-value pairs."
+        f"Supported override key {OverrideKey.OVERRIDE_PTRN}"
+    ),
+)
 def cli(
     config,
     train_data,
@@ -117,12 +160,13 @@ def cli(
     workers,
     no_cuda,
     no_val,
+    override,
 ):
     ctx = click.get_current_context()
     logger.debug(f"Called train command with parameters: {ctx.params}")
     logger.debug(f"Override estimator config with args: {ctx.args}")
 
-    config = CN.load_cfg(open(config, "r"))
+    config = prepare_config(path=config, override=override)
 
     estimator = create_estimator(
         name=config.estimator,
