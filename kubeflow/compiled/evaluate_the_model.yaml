@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: evaluate-the-model-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1, pipelines.kubeflow.org/pipeline_compilation_time: '2020-11-04T17:16:55.837308',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1, pipelines.kubeflow.org/pipeline_compilation_time: '2021-01-04T15:53:39.220225',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Evaluate the model", "inputs":
       [{"default": "unitytechnologies/datasetinsights:latest", "name": "docker", "optional":
       true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip",
@@ -47,6 +47,12 @@ spec:
         --kfp-ui-metadata-filename=kfp_ui_metadata.json, --kfp-metrics-filename=kfp_metrics.json]
       command: [datasetinsights, evaluate]
       env:
+      - name: MLFLOW_HOST_ID
+        valueFrom:
+          secretKeyRef: {name: dev-mlflow-secret, key: MLFLOW_HOST_ID}
+      - name: MLFLOW_CLIENT_ID
+        valueFrom:
+          secretKeyRef: {name: dev-mlflow-secret, key: MLFLOW_CLIENT_ID}
       - {name: GOOGLE_APPLICATION_CREDENTIALS, value: /secret/gcp-credentials/user-gcp-sa.json}
       - {name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE, value: /secret/gcp-credentials/user-gcp-sa.json}
       image: '{{inputs.parameters.docker}}'
