@@ -69,7 +69,7 @@ class TrackerFactory:
         """Static instance access method.
 
         Args:
-            kwarg : key-value pairs of mlflow parameters
+            kwargs : key-value pairs of mlflow parameters
         Returns:
             tracker singleton instance.
         """
