@@ -8,6 +8,19 @@ KFP_LOG_DIR = "/kfp_logs"
 KFP_UI_METADATA_FILENAME = "kfp_ui_metadata.json"
 KFP_METRICS_FILENAME = "kfp_metrics.json"
 
+mlflow_host_env = {
+    "name": "MLFLOW_HOST_ID",
+    "valueFrom": {
+        "secretKeyRef": {"name": "dev-mlflow-secret", "key": "MLFLOW_HOST_ID"}
+    },
+}
+mlflow_client_env = {
+    "name": "MLFLOW_CLIENT_ID",
+    "valueFrom": {
+        "secretKeyRef": {"name": "dev-mlflow-secret", "key": "MLFLOW_CLIENT_ID"}
+    },
+}
+
 
 def volume_op(*, volume_size):
     """ Create Kubernetes persistant volume to store data.
@@ -137,6 +150,7 @@ def train_op(
         command=command,
         arguments=arguments,
         pvolumes={DATA_PATH: volume},
+        container_kwargs={"env": [mlflow_host_env, mlflow_client_env]},
         file_outputs={
             "mlpipeline-ui-metadata": os.path.join(
                 KFP_LOG_DIR, KFP_UI_METADATA_FILENAME
@@ -201,6 +215,7 @@ def evaluate_op(
             f"--kfp-ui-metadata-filename={KFP_UI_METADATA_FILENAME}",
             f"--kfp-metrics-filename={KFP_METRICS_FILENAME}",
         ],
+        container_kwargs={"env": [mlflow_host_env, mlflow_client_env]},
         file_outputs={
             "mlpipeline-metrics": os.path.join(
                 KFP_LOG_DIR, KFP_METRICS_FILENAME
