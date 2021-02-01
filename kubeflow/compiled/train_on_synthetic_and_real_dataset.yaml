@@ -2,18 +2,19 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: train-on-synthetic-real-world-dataset-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1, pipelines.kubeflow.org/pipeline_compilation_time: '2021-01-04T15:53:37.650746',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1, pipelines.kubeflow.org/pipeline_compilation_time: '2021-02-01T14:55:18.257404',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Train on Synthetic + Real
       World Dataset", "inputs": [{"default": "unitytechnologies/datasetinsights:latest",
       "name": "docker", "optional": true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip",
       "name": "source_uri", "optional": true, "type": "String"}, {"default": "datasetinsights/configs/faster_rcnn_fine_tune.yaml",
-      "name": "config", "optional": true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/models/Synthetic/FasterRCNN.estimator",
+      "name": "config", "optional": true, "type": "String"}, {"default": "", "name":
+      "override", "optional": true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/models/Synthetic/FasterRCNN.estimator",
       "name": "checkpoint_file", "optional": true, "type": "String"}, {"default":
       "gs://<bucket>/runs/yyyymmdd-hhmm", "name": "tb_log_dir", "optional": true,
       "type": "String"}, {"default": "gs://<bucket>/checkpoints/yyyymmdd-hhmm", "name":
-      "checkpoint_dir", "optional": true, "type": "String"}, {"default": "100Gi",
-      "name": "volume_size", "optional": true, "type": "String"}], "name": "Train
-      on Synthetic + Real World Dataset"}'}
+      "checkpoint_dir", "optional": true, "type": "String"}, {"default": "50Gi", "name":
+      "volume_size", "optional": true, "type": "String"}], "name": "Train on Synthetic
+      + Real World Dataset"}'}
   labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1}
 spec:
   entrypoint: train-on-synthetic-real-world-dataset
@@ -72,7 +73,7 @@ spec:
       args: ['--config={{inputs.parameters.config}}', --train-data=/data, --val-data=/data,
         '--tb-log-dir={{inputs.parameters.tb_log_dir}}', --kfp-log-dir=/kfp_logs,
         --kfp-ui-metadata-filename=kfp_ui_metadata.json, '--checkpoint-dir={{inputs.parameters.checkpoint_dir}}',
-        '--checkpoint-file={{inputs.parameters.checkpoint_file}}']
+        '--checkpoint-file={{inputs.parameters.checkpoint_file}}', '--override={{inputs.parameters.override}}']
       command: [datasetinsights, train]
       env:
       - name: MLFLOW_HOST_ID
@@ -96,6 +97,7 @@ spec:
       - {name: checkpoint_file}
       - {name: config}
       - {name: docker}
+      - {name: override}
       - {name: pvc-name}
       - {name: tb_log_dir}
     outputs:
@@ -114,6 +116,7 @@ spec:
       - {name: checkpoint_file}
       - {name: config}
       - {name: docker}
+      - {name: override}
       - {name: source_uri}
       - {name: tb_log_dir}
       - {name: volume_size}
@@ -141,6 +144,7 @@ spec:
           - {name: checkpoint_file, value: '{{inputs.parameters.checkpoint_file}}'}
           - {name: config, value: '{{inputs.parameters.config}}'}
           - {name: docker, value: '{{inputs.parameters.docker}}'}
+          - {name: override, value: '{{inputs.parameters.override}}'}
           - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
           - {name: tb_log_dir, value: '{{inputs.parameters.tb_log_dir}}'}
   arguments:
@@ -148,8 +152,9 @@ spec:
     - {name: docker, value: 'unitytechnologies/datasetinsights:latest'}
     - {name: source_uri, value: 'https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip'}
     - {name: config, value: datasetinsights/configs/faster_rcnn_fine_tune.yaml}
+    - {name: override}
     - {name: checkpoint_file, value: 'https://storage.googleapis.com/datasetinsights/models/Synthetic/FasterRCNN.estimator'}
     - {name: tb_log_dir, value: 'gs://<bucket>/runs/yyyymmdd-hhmm'}
     - {name: checkpoint_dir, value: 'gs://<bucket>/checkpoints/yyyymmdd-hhmm'}
-    - {name: volume_size, value: 100Gi}
+    - {name: volume_size, value: 50Gi}
   serviceAccountName: pipeline-runner

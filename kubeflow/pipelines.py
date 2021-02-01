@@ -92,7 +92,7 @@ def train_op(
     num_gpu,
     gpu_type,
     checkpoint_file=None,
-    train_split=None,
+    override=None,
 ):
     """ Create a Kubeflow ContainerOp to train an estimator.
 
@@ -112,6 +112,9 @@ def train_op(
             we set memory_request = memory_limit.
         num_gpu (int): Set the number of GPU for this operator
         gpu_type (str): Set the type of GPU
+        override (str): string to override parameters in config file. Defaults
+        to None. For example, if you want to change train epoch to 10, you can
+        type: "train.epochs=10".
 
     Returns:
         kfp.dsl.ContainerOp: Represents an op implemented by a container image
@@ -141,8 +144,8 @@ def train_op(
     ]
     if checkpoint_file:
         arguments.append(f"--checkpoint-file={checkpoint_file}")
-    if train_split:
-        arguments.append(f"--override=train.dataset.args.split={train_split}")
+    if override:
+        arguments.append(f"--override={override}")
 
     train = dsl.ContainerOp(
         name="train",
@@ -390,7 +393,7 @@ def train_on_synthetic_and_real_dataset(
         "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip"
     ),
     config: str = "datasetinsights/configs/faster_rcnn_fine_tune.yaml",
-    train_split: str = "train",
+    override: str = "",
     checkpoint_file: str = (
         "https://storage.googleapis.com/datasetinsights/models/Synthetic"
         "/FasterRCNN.estimator"
@@ -429,7 +432,7 @@ def train_on_synthetic_and_real_dataset(
         num_gpu=num_gpu,
         gpu_type=gpu_type,
         checkpoint_file=checkpoint_file,
-        train_split=train_split,
+        override=override,
     )
 
 
@@ -494,7 +497,7 @@ def train_and_evaluate_combined_pipeline(
     train_config: str = "datasetinsights/configs/faster_rcnn_synthetic.yaml",
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
-    volume_size: str = "1.2Ti",
+    volume_size: str = "100Gi",
     evaluate_source_uri: str = (
         "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip"
     ),
