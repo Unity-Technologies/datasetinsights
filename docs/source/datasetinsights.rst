@@ -7,7 +7,6 @@ datasetinsights
 
    datasetinsights.commands
    datasetinsights.datasets
-   datasetinsights.estimators
    datasetinsights.evaluation_metrics
    datasetinsights.io
    datasetinsights.stats
