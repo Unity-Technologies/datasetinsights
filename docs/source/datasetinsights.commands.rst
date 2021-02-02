@@ -15,3 +15,10 @@ datasetinsights.commands.download
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+
+.. automodule:: datasetinsights.commands
+   :members:
+   :undoc-members:
+   :show-inheritance:
