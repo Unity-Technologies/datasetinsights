@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: train-on-synthetic-real-world-dataset-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1, pipelines.kubeflow.org/pipeline_compilation_time: '2021-02-01T14:55:18.257404',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1, pipelines.kubeflow.org/pipeline_compilation_time: '2021-02-03T14:58:28.155041',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Train on Synthetic + Real
       World Dataset", "inputs": [{"default": "unitytechnologies/datasetinsights:latest",
       "name": "docker", "optional": true, "type": "String"}, {"default": "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip",
@@ -12,9 +12,9 @@ metadata:
       "name": "checkpoint_file", "optional": true, "type": "String"}, {"default":
       "gs://<bucket>/runs/yyyymmdd-hhmm", "name": "tb_log_dir", "optional": true,
       "type": "String"}, {"default": "gs://<bucket>/checkpoints/yyyymmdd-hhmm", "name":
-      "checkpoint_dir", "optional": true, "type": "String"}, {"default": "50Gi", "name":
-      "volume_size", "optional": true, "type": "String"}], "name": "Train on Synthetic
-      + Real World Dataset"}'}
+      "checkpoint_dir", "optional": true, "type": "String"}, {"default": "100Gi",
+      "name": "volume_size", "optional": true, "type": "String"}], "name": "Train
+      on Synthetic + Real World Dataset"}'}
   labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.0.1}
 spec:
   entrypoint: train-on-synthetic-real-world-dataset
@@ -156,5 +156,5 @@ spec:
     - {name: checkpoint_file, value: 'https://storage.googleapis.com/datasetinsights/models/Synthetic/FasterRCNN.estimator'}
     - {name: tb_log_dir, value: 'gs://<bucket>/runs/yyyymmdd-hhmm'}
     - {name: checkpoint_dir, value: 'gs://<bucket>/checkpoints/yyyymmdd-hhmm'}
-    - {name: volume_size, value: 50Gi}
+    - {name: volume_size, value: 100Gi}
   serviceAccountName: pipeline-runner
