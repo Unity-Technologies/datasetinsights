@@ -400,7 +400,7 @@ def train_on_synthetic_and_real_dataset(
     ),
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
-    volume_size: str = "50Gi",
+    volume_size: str = "100Gi",
 ):
     output = train_data = val_data = DATA_PATH
 
