@@ -74,7 +74,9 @@ def test_model_performance_box_plot(
 ):
     mean_ap, mean_ap_50, mean_ar = get_evaluation_metrics
     title = "test plot"
-    model_performance_box_plot(title, mean_ap, mean_ap_50, mean_ar)
+    model_performance_box_plot(
+        title=title, mean_ap=mean_ap, mean_ap_50=mean_ap_50, mean_ar=mean_ar
+    )
     assert mock_add_trace.call_count == 3
     assert mock_update.call_count == 1
 
@@ -88,13 +90,13 @@ def test_model_performance_comparison_box_plot(
     mean_ap_new, mean_ap_50_new, mean_ar_new = get_evaluation_metrics
     title = "test plot"
     model_performance_comparison_box_plot(
-        title,
-        mean_ap_base,
-        mean_ap_50_base,
-        mean_ar_base,
-        mean_ap_new,
-        mean_ap_50_new,
-        mean_ar_new,
+        title=title,
+        mean_ap_base=mean_ap_base,
+        mean_ap_50_base=mean_ap_50_base,
+        mean_ar_base=mean_ar_base,
+        mean_ap_new=mean_ap_new,
+        mean_ap_50_new=mean_ap_50_new,
+        mean_ar_new=mean_ar_new,
     )
     assert mock_add_trace.call_count == 6
     mock_update.assert_called_once()
