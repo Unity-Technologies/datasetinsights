@@ -1,6 +1,8 @@
 import logging
 import threading
 
+from mlflow.exceptions import MlflowException
+
 from datasetinsights.io.exceptions import InvalidTrackerError
 from datasetinsights.io.tracker.mlflow import MLFlowTracker
 
@@ -11,12 +13,11 @@ class TrackerFactory:
     """Factory: responsible for creating and holding singleton instance
         of tracker classes"""
 
-    TRACKER = "tracker"
-    HOST_ID = "host"
     MLFLOW_TRACKER = "mlflow"
     __singleton_lock = threading.Lock()
     __tracker_instance = None
     RUN_FAILED = "FAILED"
+    TRACKER = "tracker"
 
     @staticmethod
     def create(config=None, tracker_type=None):
@@ -31,22 +32,30 @@ class TrackerFactory:
         """
         if TrackerFactory.MLFLOW_TRACKER == tracker_type:
 
-            tracker = config.get(TrackerFactory.TRACKER, None)
-            if tracker and tracker.get(TrackerFactory.MLFLOW_TRACKER, None):
-                mlflow_config = tracker.get(TrackerFactory.MLFLOW_TRACKER)
-                if mlflow_config.get(TrackerFactory.HOST_ID, None):
-                    try:
-                        mlf_tracker = TrackerFactory._mlflow_tracker_instance(
-                            mlflow_config
-                        ).get_mlflow()
-                        logger.info("initializing mlflow_tracker")
-                        return mlf_tracker
-                    except Exception as e:
-                        logger.warning(
-                            "failed mlflow initialization, "
-                            "starting null_tracker",
-                            e,
-                        )
+            try:
+                tracker = config.get(TrackerFactory.TRACKER, None)
+                if tracker and tracker.get(TrackerFactory.MLFLOW_TRACKER, None):
+                    mlflow_config = tracker.get(TrackerFactory.MLFLOW_TRACKER)
+
+                    mlf_tracker = TrackerFactory._mlflow_tracker_instance(
+                        **mlflow_config
+                    ).get_mlflow()
+                else:
+                    mlf_tracker = (
+                        TrackerFactory._mlflow_tracker_instance().get_mlflow()
+                    )
+                logger.info("initializing mlflow_tracker")
+                return mlf_tracker
+            except ValueError as e:
+                logger.warning(
+                    "failed mlflow initialization, " "Host is not configured", e
+                )
+            except MlflowException as e:
+                logger.warning("failed mlflow initialization,", e)
+            except Exception as e:
+                logger.warning(
+                    "failed mlflow initialization, " "starting null_tracker", e
+                )
 
             logger.info("initializing null_tracker")
             return TrackerFactory._null_tracker()
@@ -55,23 +64,19 @@ class TrackerFactory:
             raise InvalidTrackerError
 
     @staticmethod
-    def _mlflow_tracker_instance(mlflow_config):
+    def _mlflow_tracker_instance(**kwargs):
 
         """Static instance access method.
 
         Args:
-            host_id: MlTracker server host
-            client_id: MLFlow tracking server client id
-            exp_name: name of the experiment
+            kwargs : key-value pairs of mlflow parameters
         Returns:
             tracker singleton instance.
         """
         if not TrackerFactory.__tracker_instance:
             with TrackerFactory.__singleton_lock:
                 if not TrackerFactory.__tracker_instance:
-                    TrackerFactory.__tracker_instance = MLFlowTracker(
-                        mlflow_config
-                    )
+                    TrackerFactory.__tracker_instance = MLFlowTracker(**kwargs)
         logger.info("getting tracker instance")
         return TrackerFactory.__tracker_instance
 
