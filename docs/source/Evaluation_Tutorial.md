@@ -46,7 +46,7 @@ You have to specify run parameters required by this pipeline:
 - `config`: Estimator config YAML file. You can use the default value which points to a YAML file packaged with our docker images or you can load from remote locations GCS or any HTTP(s) using file prefix `gs://, http(s)://`.
 - `tb_log_dir`: Path to store tensorboard logs used to visualize the training progress.
 - `checkpoint_dir`: Path to store output estimator checkpoints. These checkpoints represent your trained model and will be used for evaluation.
-- `volume_size`: Size of the Kubernetes Persistent Volume Claims (PVC) that will be used to store the dataset. You can use the default value.
+- `volume_size`: Size of the Kubernetes Persistent Volume Claims (PVC) that will be used to store the dataset. If you plan to use datasets from [SynthDet](https://github.com/Unity-Technologies/SynthDet) project that include more than 40K images, you should increase this value accordingly. The project requires ~3GiB storage per 1K images.
 
 Set `tb_log_dir` and `checkpoint_dir` to a location that is convenient for you and your Kubernetes cluster has permissions to write to. This is typically a GCS path under the same GCP project. You want to keep a note on these directories that will be used for tensorboard visualization and model evaluation. Note that an invalid location will cause the job to fail, whereas a path to the local filesystem may run but will be hard to monitor as you won't have easy access to the files.
 
