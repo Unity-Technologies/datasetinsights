@@ -35,6 +35,14 @@ def get_image_and_bbox():
     return image, bbox
 
 
+@pytest.fixture
+def get_evaluation_metrics():
+    mean_ap = [0.1, 0.2, 0.3]
+    mean_ap_50 = [0.3, 0.4, 0.5]
+    mean_ar = [0.2, 0.3, 0.4]
+    return [mean_ap, mean_ap_50, mean_ar]
+
+
 def test_decode_segmap():
     ids = list(CITYSCAPES_COLOR_MAPPING.keys())
     colors = list(CITYSCAPES_COLOR_MAPPING.values())
@@ -61,10 +69,10 @@ def test_histogram_plot():
 
 @patch("datasetinsights.stats.visualization.plots.go.Figure.add_trace")
 @patch("datasetinsights.stats.visualization.plots.go.Figure.update_yaxes")
-def test_model_performance_box_plot(mock_update, mock_add_trace):
-    mean_ap = [0.1, 0.2, 0.3]
-    mean_ap_50 = [0.3, 0.4, 0.5]
-    mean_ar = [0.2, 0.3, 0.4]
+def test_model_performance_box_plot(
+    mock_update, mock_add_trace, get_evaluation_metrics
+):
+    mean_ap, mean_ap_50, mean_ar = get_evaluation_metrics
     title = "test plot"
     model_performance_box_plot(title, mean_ap, mean_ap_50, mean_ar)
     assert mock_add_trace.call_count == 3
@@ -73,13 +81,11 @@ def test_model_performance_box_plot(mock_update, mock_add_trace):
 
 @patch("datasetinsights.stats.visualization.plots.go.Figure.add_trace")
 @patch("datasetinsights.stats.visualization.plots.go.Figure.update_yaxes")
-def test_model_performance_comparison_box_plot(mock_update, mock_add_trace):
-    mean_ap_base = [0.1, 0.2, 0.3]
-    mean_ap_50_base = [0.3, 0.4, 0.5]
-    mean_ar_base = [0.2, 0.3, 0.4]
-    mean_ap_new = [0.1, 0.2, 0.3]
-    mean_ap_50_new = [0.3, 0.4, 0.5]
-    mean_ar_new = [0.2, 0.3, 0.4]
+def test_model_performance_comparison_box_plot(
+    mock_update, mock_add_trace, get_evaluation_metrics
+):
+    mean_ap_base, mean_ap_50_base, mean_ar_base = get_evaluation_metrics
+    mean_ap_new, mean_ap_50_new, mean_ar_new = get_evaluation_metrics
     title = "test plot"
     model_performance_comparison_box_plot(
         title,
@@ -91,7 +97,7 @@ def test_model_performance_comparison_box_plot(mock_update, mock_add_trace):
         mean_ar_new,
     )
     assert mock_add_trace.call_count == 6
-    assert mock_update.call_count == 1
+    mock_update.assert_called_once()
 
 
 def test_bar_plot():

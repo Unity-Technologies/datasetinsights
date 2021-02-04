@@ -376,12 +376,12 @@ def rotation_plot(df, x, y, z=None, max_samples=None, title=None, **kwargs):
 
 def model_performance_comparison_box_plot(
     title,
-    mean_ap_base,
-    mean_ap_50_base,
-    mean_ar_base,
-    mean_ap_new,
-    mean_ap_50_new,
-    mean_ar_new,
+    mean_ap_base=None,
+    mean_ap_50_base=None,
+    mean_ar_base=None,
+    mean_ap_new=None,
+    mean_ap_50_new=None,
+    mean_ar_new=None,
     range=[0, 1.0],
     **kwargs,
 ):
@@ -403,45 +403,18 @@ def model_performance_comparison_box_plot(
         layout=go.Layout(title=go.layout.Title(text=title), **kwargs)
     )
     fig.update_yaxes(range=range)
-    fig.add_trace(
-        go.Box(
-            y=mean_ap_base, name="baes mAP", marker_color=ERROR_BAR_BASE_COLOR
-        )
-    )
-    fig.add_trace(
-        go.Box(
-            y=mean_ap_new, name="new mAP", marker_color=ERROR_BAR_COMPARE_COLOR
-        )
-    )
-    fig.add_trace(
-        go.Box(
-            y=mean_ap_50_base,
-            name="base mAP50",
-            marker_color=ERROR_BAR_BASE_COLOR,
-        )
-    )
-    fig.add_trace(
-        go.Box(
-            y=mean_ap_50_new,
-            name="new mAP50",
-            marker_color=ERROR_BAR_COMPARE_COLOR,
-        )
-    )
-    fig.add_trace(
-        go.Box(
-            y=mean_ar_base, name="base mAR", marker_color=ERROR_BAR_BASE_COLOR
-        )
-    )
-    fig.add_trace(
-        go.Box(
-            y=mean_ar_new, name="new mAR", marker_color=ERROR_BAR_COMPARE_COLOR
-        )
-    )
+    _fig_add_trace(fig, mean_ap_base, name="baes mAP", base=True)
+    _fig_add_trace(fig, mean_ap_new, name="new mAP", base=False)
+    _fig_add_trace(fig, mean_ap_50_base, name="base mAP50", base=True)
+    _fig_add_trace(fig, mean_ap_50_new, name="new mAP50", base=True)
+    _fig_add_trace(fig, mean_ar_base, name="base mAR", base=True)
+    _fig_add_trace(fig, mean_ar_new, name="new mAR", base=True)
+
     return fig
 
 
 def model_performance_box_plot(
-    title, mean_ap, mean_ap_50, mean_ar, range=[0, 1.0], **kwargs
+    title, mean_ap=None, mean_ap_50=None, mean_ar=None, range=[0, 1.0], **kwargs
 ):
     """Create a box plot for one model performance
     Args:
@@ -458,15 +431,31 @@ def model_performance_box_plot(
         layout=go.Layout(title=go.layout.Title(text=title), **kwargs)
     )
     fig.update_yaxes(range=range)
-    fig.add_trace(
-        go.Box(y=mean_ap, name="mAP", marker_color=ERROR_BAR_BASE_COLOR)
-    )
-    fig.add_trace(
-        go.Box(
-            y=mean_ap_50, name="mAP@IOU50", marker_color=ERROR_BAR_BASE_COLOR
-        )
-    )
-    fig.add_trace(
-        go.Box(y=mean_ar, name="mAR", marker_color=ERROR_BAR_BASE_COLOR)
-    )
+    _fig_add_trace(fig, mean_ap, name="mAP", base=True)
+    _fig_add_trace(fig, mean_ap_50, name="mAP@IOU50", base=True)
+    _fig_add_trace(fig, mean_ar, name="mAR", base=True)
+
     return fig
+
+
+def _fig_add_trace(fig, data, name="", base=True):
+    """Add box plot in figure
+    Args:
+        fig (go.Figure): figure you want to add box plot in
+        data (list): metric values
+        name (str): name of the added box plot
+        base (bool): whether is a base metric. Defaults to true.
+
+    Returns:
+        A plotly.graph_objects.Figure containing the box plot
+    """
+    if not data:
+        return
+    if base:
+        fig.add_trace(
+            go.Box(y=data, name=name, marker_color=ERROR_BAR_BASE_COLOR)
+        )
+    else:
+        fig.add_trace(
+            go.Box(y=data, name=name, marker_color=ERROR_BAR_COMPARE_COLOR)
+        )
