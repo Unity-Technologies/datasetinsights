@@ -17,10 +17,6 @@ def test_precision_recall_records(get_mini_batches):
     assert len(precision_ped) == len(expected_precision)
     assert len(recall_ped) == len(expected_recall)
     for i in range(len(precision_ped)):
-        assert (
-            approx(precision_ped[i], rel=1e-4) == expected_precision[i]
-        )
+        assert approx(precision_ped[i], rel=1e-4) == expected_precision[i]
     for i in range(len(recall_ped)):
-        assert (
-            approx(recall_ped[i], rel=1e-4) == expected_recall[i]
-        )
+        assert approx(recall_ped[i], rel=1e-4) == expected_recall[i]
