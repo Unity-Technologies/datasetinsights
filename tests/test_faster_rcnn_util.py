@@ -502,7 +502,7 @@ def test_pr_curve_plot(mock_plt):
     mock_plt.title.assert_called_once_with("PR Curve")
     mock_plt.xlabel.assert_called_once_with("Recall")
     mock_plt.ylabel.assert_called_once_with("Precision")
-    assert mock_plt.plot.call_count == len(data.keys())
+    assert mock_plt.plot.call_count == len(data)
     assert mock_plt.figure.called
 
 

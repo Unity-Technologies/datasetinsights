@@ -1090,7 +1090,7 @@ def metric_per_class_plot(metric_name, data, label_mappings, figsize=(20, 10)):
         metric_name (str): metric name.
         data (dict): a dictionary of metric per label.
         label_mappings (dict): a dict of {label_id: label_name} mapping
-        figsize (tuple): figure size of the plot. Default is (20, 10)
+        figsize (tuple): figure size of the plot. Default is (15, 8)
 
     Returns (matplotlib.pyplot.figure):
         a bar plot for metric per class.
@@ -1117,7 +1117,7 @@ def pr_curve_plot(pr_results, label_mappings, figsize=(15, 8)):
     Args:
         pr_results (dict): a dict of {label_id: (precision, recall)} mapping
         label_mappings (dict): a dict of {label_id: label_name} mapping
-        figsize (tuple): figure size of the plot. Default is (20, 10)
+        figsize (tuple): figure size of the plot. Default is (15, 8)
 
     Returns (matplotlib.pyplot.figure):
         a PR curve plot for each class.
