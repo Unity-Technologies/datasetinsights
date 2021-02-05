@@ -18,20 +18,6 @@ python-versions = "*"
 version = "0.7.12"
 
 [[package]]
-category = "main"
-description = "A database migration tool for SQLAlchemy."
-name = "alembic"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.4.1"
-
-[package.dependencies]
-Mako = "*"
-SQLAlchemy = ">=1.1.0"
-python-dateutil = "*"
-python-editor = ">=0.3"
-
-[[package]]
 category = "dev"
 description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 name = "appdirs"
@@ -107,31 +93,6 @@ dev = ["coverage (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six",
 docs = ["sphinx", "sphinx-rtd-theme", "zope.interface"]
 tests = ["coverage (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "zope.interface"]
 tests_no_zope = ["coverage (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six"]
-
-[[package]]
-category = "main"
-description = "Microsoft Azure Core Library for Python"
-name = "azure-core"
-optional = false
-python-versions = "*"
-version = "1.8.2"
-
-[package.dependencies]
-requests = ">=2.18.4"
-six = ">=1.6"
-
-[[package]]
-category = "main"
-description = "Microsoft Azure Blob Storage Client Library for Python"
-name = "azure-storage-blob"
-optional = false
-python-versions = "*"
-version = "12.5.0"
-
-[package.dependencies]
-azure-core = ">=1.6.0,<2.0.0"
-cryptography = ">=2.1.4"
-msrest = ">=0.6.10"
 
 [[package]]
 category = "dev"
@@ -307,25 +268,6 @@ toml = ["toml"]
 
 [[package]]
 category = "main"
-description = "cryptography is a package which provides cryptographic recipes and primitives to Python developers."
-name = "cryptography"
-optional = false
-python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*"
-version = "3.2.1"
-
-[package.dependencies]
-cffi = ">=1.8,<1.11.3 || >1.11.3"
-six = ">=1.4.1"
-
-[package.extras]
-docs = ["sphinx (>=1.6.5,<1.8.0 || >1.8.0,<3.1.0 || >3.1.0,<3.1.1 || >3.1.1)", "sphinx-rtd-theme"]
-docstest = ["doc8", "pyenchant (>=1.6.11)", "twine (>=1.12.0)", "sphinxcontrib-spelling (>=4.0.1)"]
-pep8test = ["black", "flake8", "flake8-import-order", "pep8-naming"]
-ssh = ["bcrypt (>=3.1.5)"]
-test = ["pytest (>=3.6.0,<3.9.0 || >3.9.0,<3.9.1 || >3.9.1,<3.9.2 || >3.9.2)", "pretend", "iso8601", "pytz", "hypothesis (>=1.11.4,<3.79.2 || >3.79.2)"]
-
-[[package]]
-category = "main"
 description = "Composable style cycles"
 name = "cycler"
 optional = false
@@ -451,20 +393,6 @@ distributed = ["distributed (>=2.0)"]
 
 [[package]]
 category = "main"
-description = "A command line interface for Databricks"
-name = "databricks-cli"
-optional = false
-python-versions = "*"
-version = "0.14.0"
-
-[package.dependencies]
-click = ">=6.7"
-requests = ">=2.17.3"
-six = ">=1.10.0"
-tabulate = ">=0.7.7"
-
-[[package]]
-category = "main"
 description = "Decorators for Humans"
 name = "decorator"
 optional = false
@@ -532,27 +460,6 @@ version = ">=5"
 [[package.dependencies.tornado]]
 python = ">=3.8"
 version = ">=6.0.3"
-
-[[package]]
-category = "main"
-description = "A Python library for the Docker Engine API."
-name = "docker"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "4.2.2"
-
-[package.dependencies]
-requests = ">=2.14.2,<2.18.0 || >2.18.0"
-six = ">=1.4.0"
-websocket-client = ">=0.32.0"
-
-[package.dependencies.pypiwin32]
-python = ">=3.6"
-version = "223"
-
-[package.extras]
-ssh = ["paramiko (>=2.4.2)"]
-tls = ["pyOpenSSL (>=17.5.0)", "cryptography (>=1.3.4)", "idna (>=2.0.0)"]
 
 [[package]]
 category = "dev"
@@ -657,28 +564,6 @@ name = "gast"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "0.3.3"
-
-[[package]]
-category = "main"
-description = "Git Object Database"
-name = "gitdb"
-optional = false
-python-versions = ">=3.4"
-version = "4.0.5"
-
-[package.dependencies]
-smmap = ">=3.0.1,<4"
-
-[[package]]
-category = "main"
-description = "Python Git Library"
-name = "gitpython"
-optional = false
-python-versions = ">=3.4"
-version = "3.1.11"
-
-[package.dependencies]
-gitdb = ">=4.0.1,<5"
 
 [[package]]
 category = "main"
@@ -803,18 +688,6 @@ grpc = ["grpcio (>=1.0.0)"]
 
 [[package]]
 category = "main"
-description = "Convenient approach to monkey patching"
-name = "gorilla"
-optional = false
-python-versions = "*"
-version = "0.3.0"
-
-[package.extras]
-dev = ["coverage", "sphinx (>=1.3)", "tox"]
-docs = ["sphinx (>=1.3)"]
-
-[[package]]
-category = "main"
 description = "HTTP/2-based RPC framework"
 name = "grpcio"
 optional = false
@@ -826,24 +699,6 @@ six = ">=1.5.2"
 
 [package.extras]
 protobuf = ["grpcio-tools (>=1.32.0)"]
-
-[[package]]
-category = "main"
-description = "WSGI HTTP Server for UNIX"
-marker = "platform_system != \"Windows\""
-name = "gunicorn"
-optional = false
-python-versions = ">=3.4"
-version = "20.0.4"
-
-[package.dependencies]
-setuptools = ">=3.0"
-
-[package.extras]
-eventlet = ["eventlet (>=0.9.7)"]
-gevent = ["gevent (>=0.13)"]
-setproctitle = ["setproctitle"]
-tornado = ["tornado (>=0.2)"]
 
 [[package]]
 category = "main"
@@ -983,17 +838,6 @@ version = ">=4.0.0"
 
 [package.extras]
 test = ["pytest (>=3.6.0)", "pytest-cov", "mock"]
-
-[[package]]
-category = "main"
-description = "An ISO 8601 date/time/duration parser and formatter"
-name = "isodate"
-optional = false
-python-versions = "*"
-version = "0.6.0"
-
-[package.dependencies]
-six = "*"
 
 [[package]]
 category = "dev"
@@ -1256,21 +1100,6 @@ version = "0.2.0"
 
 [[package]]
 category = "main"
-description = "A super-fast templating language that borrows the  best ideas from the existing templating languages."
-name = "mako"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.1.3"
-
-[package.dependencies]
-MarkupSafe = ">=0.9.2"
-
-[package.extras]
-babel = ["babel"]
-lingua = ["lingua"]
-
-[[package]]
-category = "main"
 description = "Python implementation of Markdown."
 name = "markdown"
 optional = false
@@ -1327,44 +1156,6 @@ python-versions = "*"
 version = "0.8.4"
 
 [[package]]
-category = "main"
-description = "MLflow: An ML Workflow Tool"
-name = "mlflow"
-optional = false
-python-versions = ">=3.5"
-version = "1.11.0"
-
-[package.dependencies]
-Flask = "*"
-alembic = "<=1.4.1"
-azure-storage-blob = ">=12.0"
-click = ">=7.0"
-cloudpickle = "*"
-databricks-cli = ">=0.8.7"
-docker = ">=4.0.0"
-entrypoints = "*"
-gitpython = ">=2.1.0"
-gorilla = "*"
-gunicorn = "*"
-numpy = "*"
-pandas = "*"
-prometheus-flask-exporter = "*"
-protobuf = ">=3.6.0"
-python-dateutil = "*"
-pyyaml = "*"
-querystring-parser = "*"
-requests = ">=2.17.3"
-six = ">=1.10.0"
-sqlalchemy = "<=1.3.13"
-sqlparse = "*"
-waitress = "*"
-
-[package.extras]
-aliyun_oss = ["aliyunstoreplugin"]
-extras = ["boto3 (>=1.7.12)", "mleap (>=0.16.0)", "azure-storage-blob (>=12.0)", "google-cloud-storage", "azureml-core (>=1.2.0)", "scikit-learn (0.20)", "scikit-learn"]
-sqlserver = ["mlflow-dbstore"]
-
-[[package]]
 category = "dev"
 description = "More routines for operating on iterables, beyond itertools"
 name = "more-itertools"
@@ -1379,23 +1170,6 @@ name = "msgpack"
 optional = false
 python-versions = "*"
 version = "1.0.0"
-
-[[package]]
-category = "main"
-description = "AutoRest swagger generator Python client runtime."
-name = "msrest"
-optional = false
-python-versions = "*"
-version = "0.6.19"
-
-[package.dependencies]
-certifi = ">=2017.4.17"
-isodate = ">=0.6.0"
-requests = ">=2.16,<3.0"
-requests-oauthlib = ">=0.5.0"
-
-[package.extras]
-async = ["aiohttp (>=3.0)", "aiodns"]
 
 [[package]]
 category = "main"
@@ -1716,18 +1490,6 @@ twisted = ["twisted"]
 
 [[package]]
 category = "main"
-description = "Prometheus metrics exporter for Flask"
-name = "prometheus-flask-exporter"
-optional = false
-python-versions = "*"
-version = "0.18.1"
-
-[package.dependencies]
-flask = "*"
-prometheus_client = "*"
-
-[[package]]
-category = "main"
 description = "Library for building powerful interactive command lines in Python"
 name = "prompt-toolkit"
 optional = false
@@ -1851,18 +1613,6 @@ version = "2.4.7"
 
 [[package]]
 category = "main"
-description = ""
-marker = "sys_platform == \"win32\" and python_version >= \"3.6\""
-name = "pypiwin32"
-optional = false
-python-versions = "*"
-version = "223"
-
-[package.dependencies]
-pywin32 = ">=223"
-
-[[package]]
-category = "main"
 description = "A fully featured, pythonic library for representing and using quaternions."
 name = "pyquaternion"
 optional = false
@@ -1935,14 +1685,6 @@ six = ">=1.5"
 
 [[package]]
 category = "main"
-description = "Programmatically open an editor, capture the result."
-name = "python-editor"
-optional = false
-python-versions = "*"
-version = "1.0.4"
-
-[[package]]
-category = "main"
 description = "A lightweight library to help with training neural networks in PyTorch."
 name = "pytorch-ignite"
 optional = false
@@ -1963,7 +1705,7 @@ version = "2020.1"
 [[package]]
 category = "main"
 description = "Python for Window Extensions"
-marker = "sys_platform == \"win32\" and python_version >= \"3.6\" or sys_platform == \"win32\""
+marker = "sys_platform == \"win32\""
 name = "pywin32"
 optional = false
 python-versions = "*"
@@ -2023,17 +1765,6 @@ name = "qtpy"
 optional = false
 python-versions = "*"
 version = "1.9.0"
-
-[[package]]
-category = "main"
-description = "QueryString parser for Python/Django that correctly handles nested dictionaries"
-name = "querystring-parser"
-optional = false
-python-versions = "*"
-version = "1.2.4"
-
-[package.dependencies]
-six = "*"
 
 [[package]]
 category = "dev"
@@ -2197,14 +1928,6 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 version = "1.15.0"
 
 [[package]]
-category = "main"
-description = "A pure Python implementation of a sliding window memory map manager"
-name = "smmap"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "3.0.4"
-
-[[package]]
 category = "dev"
 description = "This package provides 26 stemmers for 25 languages generated from Snowball algorithms."
 name = "snowballstemmer"
@@ -2350,34 +2073,6 @@ lint = ["flake8", "mypy", "docutils-stubs"]
 test = ["pytest"]
 
 [[package]]
-category = "main"
-description = "Database Abstraction Library"
-name = "sqlalchemy"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.3.13"
-
-[package.extras]
-mssql = ["pyodbc"]
-mssql_pymssql = ["pymssql"]
-mssql_pyodbc = ["pyodbc"]
-mysql = ["mysqlclient"]
-oracle = ["cx-oracle"]
-postgresql = ["psycopg2"]
-postgresql_pg8000 = ["pg8000"]
-postgresql_psycopg2binary = ["psycopg2-binary"]
-postgresql_psycopg2cffi = ["psycopg2cffi"]
-pymysql = ["pymysql"]
-
-[[package]]
-category = "main"
-description = "A non-validating SQL parser."
-name = "sqlparse"
-optional = false
-python-versions = ">=3.5"
-version = "0.4.1"
-
-[[package]]
 category = "dev"
 description = "Function and command-line program to strip Python type hints."
 name = "strip-hints"
@@ -2389,7 +2084,7 @@ version = "0.1.9"
 wheel = "*"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Pretty-print tabular data"
 name = "tabulate"
 optional = false
@@ -2621,19 +2316,6 @@ socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7,<2.0)"]
 
 [[package]]
 category = "main"
-description = "Waitress WSGI server"
-marker = "platform_system == \"Windows\""
-name = "waitress"
-optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
-version = "1.4.4"
-
-[package.extras]
-docs = ["Sphinx (>=1.8.1)", "docutils", "pylons-sphinx-themes (>=1.0.9)"]
-testing = ["pytest", "pytest-cover", "coverage (>=5.0)"]
-
-[[package]]
-category = "main"
 description = "Measures the displayed width of unicode strings in a terminal"
 name = "wcwidth"
 optional = false
@@ -2649,7 +2331,7 @@ python-versions = "*"
 version = "0.5.1"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "WebSocket client for Python. hybi13 is supported."
 name = "websocket-client"
 optional = false
@@ -2737,7 +2419,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "e7ba88a4c99934a164e609b542e4242f3fd483395de9d6292be8d2f3dda627d5"
+content-hash = "25b4d5bc80414df22c278797fcd08185adf732113c043a3b156e5612a3ca0b94"
 lock-version = "1.0"
 python-versions = "^3.7"
 
@@ -2749,9 +2431,6 @@ absl-py = [
 alabaster = [
     {file = "alabaster-0.7.12-py2.py3-none-any.whl", hash = "sha256:446438bdcca0e05bd45ea2de1668c1d9b032e1a9154c2c259092d77031ddd359"},
     {file = "alabaster-0.7.12.tar.gz", hash = "sha256:a661d72d58e6ea8a57f7a86e37d86716863ee5e92788398526d58b26a4e4dc02"},
-]
-alembic = [
-    {file = "alembic-1.4.1.tar.gz", hash = "sha256:791a5686953c4b366d3228c5377196db2f534475bb38d26f70eb69668efd9028"},
 ]
 appdirs = [
     {file = "appdirs-1.4.4-py2.py3-none-any.whl", hash = "sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128"},
@@ -2794,14 +2473,6 @@ atomicwrites = [
 attrs = [
     {file = "attrs-20.2.0-py2.py3-none-any.whl", hash = "sha256:fce7fc47dfc976152e82d53ff92fa0407700c21acd20886a13777a0d20e655dc"},
     {file = "attrs-20.2.0.tar.gz", hash = "sha256:26b54ddbbb9ee1d34d5d3668dd37d6cf74990ab23c828c2888dccdceee395594"},
-]
-azure-core = [
-    {file = "azure-core-1.8.2.zip", hash = "sha256:621b53271f7988b766f8a7d7f7a2c44241e3d2c1d8db13e68089d6da6241748e"},
-    {file = "azure_core-1.8.2-py2.py3-none-any.whl", hash = "sha256:be23d411e19874f375c2ef0327c452be10b1e9a1023ac6afe334598f2920136b"},
-]
-azure-storage-blob = [
-    {file = "azure-storage-blob-12.5.0.zip", hash = "sha256:1469a5a0410296fb5ff96c326618d939c9cb0c0ea45eb931c89c98fa742d8daa"},
-    {file = "azure_storage_blob-12.5.0-py2.py3-none-any.whl", hash = "sha256:6f2de5b60f16141731b7561c218a8455053bcdb9b3775a0e5364fb2b041bcf1e"},
 ]
 babel = [
     {file = "Babel-2.8.0-py2.py3-none-any.whl", hash = "sha256:d670ea0b10f8b723672d3a6abeb87b565b244da220d76b4dba1b66269ec152d4"},
@@ -2949,30 +2620,6 @@ coverage = [
     {file = "coverage-5.3-cp39-cp39-win_amd64.whl", hash = "sha256:47a11bdbd8ada9b7ee628596f9d97fbd3851bd9999d398e9436bd67376dbece7"},
     {file = "coverage-5.3.tar.gz", hash = "sha256:280baa8ec489c4f542f8940f9c4c2181f0306a8ee1a54eceba071a449fb870a0"},
 ]
-cryptography = [
-    {file = "cryptography-3.2.1-cp27-cp27m-macosx_10_10_x86_64.whl", hash = "sha256:6dc59630ecce8c1f558277ceb212c751d6730bd12c80ea96b4ac65637c4f55e7"},
-    {file = "cryptography-3.2.1-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:75e8e6684cf0034f6bf2a97095cb95f81537b12b36a8fedf06e73050bb171c2d"},
-    {file = "cryptography-3.2.1-cp27-cp27m-manylinux2010_x86_64.whl", hash = "sha256:4e7268a0ca14536fecfdf2b00297d4e407da904718658c1ff1961c713f90fd33"},
-    {file = "cryptography-3.2.1-cp27-cp27m-win32.whl", hash = "sha256:7117319b44ed1842c617d0a452383a5a052ec6aa726dfbaffa8b94c910444297"},
-    {file = "cryptography-3.2.1-cp27-cp27m-win_amd64.whl", hash = "sha256:a733671100cd26d816eed39507e585c156e4498293a907029969234e5e634bc4"},
-    {file = "cryptography-3.2.1-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:a75f306a16d9f9afebfbedc41c8c2351d8e61e818ba6b4c40815e2b5740bb6b8"},
-    {file = "cryptography-3.2.1-cp27-cp27mu-manylinux2010_x86_64.whl", hash = "sha256:5849d59358547bf789ee7e0d7a9036b2d29e9a4ddf1ce5e06bb45634f995c53e"},
-    {file = "cryptography-3.2.1-cp35-abi3-macosx_10_10_x86_64.whl", hash = "sha256:bd717aa029217b8ef94a7d21632a3bb5a4e7218a4513d2521c2a2fd63011e98b"},
-    {file = "cryptography-3.2.1-cp35-abi3-manylinux1_x86_64.whl", hash = "sha256:efe15aca4f64f3a7ea0c09c87826490e50ed166ce67368a68f315ea0807a20df"},
-    {file = "cryptography-3.2.1-cp35-abi3-manylinux2010_x86_64.whl", hash = "sha256:32434673d8505b42c0de4de86da8c1620651abd24afe91ae0335597683ed1b77"},
-    {file = "cryptography-3.2.1-cp35-abi3-manylinux2014_aarch64.whl", hash = "sha256:7b8d9d8d3a9bd240f453342981f765346c87ade811519f98664519696f8e6ab7"},
-    {file = "cryptography-3.2.1-cp35-cp35m-win32.whl", hash = "sha256:d3545829ab42a66b84a9aaabf216a4dce7f16dbc76eb69be5c302ed6b8f4a29b"},
-    {file = "cryptography-3.2.1-cp35-cp35m-win_amd64.whl", hash = "sha256:a4e27ed0b2504195f855b52052eadcc9795c59909c9d84314c5408687f933fc7"},
-    {file = "cryptography-3.2.1-cp36-abi3-win32.whl", hash = "sha256:13b88a0bd044b4eae1ef40e265d006e34dbcde0c2f1e15eb9896501b2d8f6c6f"},
-    {file = "cryptography-3.2.1-cp36-abi3-win_amd64.whl", hash = "sha256:07ca431b788249af92764e3be9a488aa1d39a0bc3be313d826bbec690417e538"},
-    {file = "cryptography-3.2.1-cp36-cp36m-win32.whl", hash = "sha256:a035a10686532b0587d58a606004aa20ad895c60c4d029afa245802347fab57b"},
-    {file = "cryptography-3.2.1-cp36-cp36m-win_amd64.whl", hash = "sha256:d26a2557d8f9122f9bf445fc7034242f4375bd4e95ecda007667540270965b13"},
-    {file = "cryptography-3.2.1-cp37-cp37m-win32.whl", hash = "sha256:545a8550782dda68f8cdc75a6e3bf252017aa8f75f19f5a9ca940772fc0cb56e"},
-    {file = "cryptography-3.2.1-cp37-cp37m-win_amd64.whl", hash = "sha256:55d0b896631412b6f0c7de56e12eb3e261ac347fbaa5d5e705291a9016e5f8cb"},
-    {file = "cryptography-3.2.1-cp38-cp38-win32.whl", hash = "sha256:3cd75a683b15576cfc822c7c5742b3276e50b21a06672dc3a800a2d5da4ecd1b"},
-    {file = "cryptography-3.2.1-cp38-cp38-win_amd64.whl", hash = "sha256:d25cecbac20713a7c3bc544372d42d8eafa89799f492a43b79e1dfd650484851"},
-    {file = "cryptography-3.2.1.tar.gz", hash = "sha256:d3d5e10be0cf2a12214ddee45c6bd203dab435e3d83b4560c03066eda600bfe3"},
-]
 cycler = [
     {file = "cycler-0.10.0-py2.py3-none-any.whl", hash = "sha256:1d8a5ae1ff6c5cf9b93e8811e581232ad8920aeec647c37316ceac982b08cb2d"},
     {file = "cycler-0.10.0.tar.gz", hash = "sha256:cd7b2d1018258d7247a71425e9f26463dfb444d411c39569972f4ce586b0c9d8"},
@@ -3031,10 +2678,6 @@ dask = [
     {file = "dask-2.26.0-py3-none-any.whl", hash = "sha256:09e2e3423df23acf59e54202351895a9bf3e18210e343b6247b33034207b0a3a"},
     {file = "dask-2.26.0.tar.gz", hash = "sha256:44c5c358bf9037dcff1b8332379738b7766b2d93652fca850a10b6e8a05497f7"},
 ]
-databricks-cli = [
-    {file = "databricks-cli-0.14.0.tar.gz", hash = "sha256:68e5cdcf4ca26d3c628bca26e44563d58e64d3b2805b9adb94b4006976d9c7e1"},
-    {file = "databricks_cli-0.14.0-py2-none-any.whl", hash = "sha256:92718abd70d4a47d732acd5707d6652d1e326a96964eca903e0f13a8dd1e2724"},
-]
 decorator = [
     {file = "decorator-4.4.2-py2.py3-none-any.whl", hash = "sha256:41fa54c2a0cc4ba648be4fd43cff00aedf5b9465c9bf18d64325bc225f08f760"},
     {file = "decorator-4.4.2.tar.gz", hash = "sha256:e3a62f0520172440ca0dcc823749319382e377f37f140a0b99ef45fecb84bfe7"},
@@ -3055,10 +2698,6 @@ descartes = [
 distributed = [
     {file = "distributed-2.26.0-py3-none-any.whl", hash = "sha256:e584e538d0908a003e0cf2807c19d94cebaebf14d270663df65e1daabc49d6fe"},
     {file = "distributed-2.26.0.tar.gz", hash = "sha256:b5471a7af8ec3c1b309767bfd726ff20acb4408f72294f96e7bf8ff89a326a7d"},
-]
-docker = [
-    {file = "docker-4.2.2-py2.py3-none-any.whl", hash = "sha256:03a46400c4080cb6f7aa997f881ddd84fef855499ece219d75fbdb53289c17ab"},
-    {file = "docker-4.2.2.tar.gz", hash = "sha256:26eebadce7e298f55b76a88c4f8802476c5eaddbdbe38dbc6cce8781c47c9b54"},
 ]
 docutils = [
     {file = "docutils-0.16-py2.py3-none-any.whl", hash = "sha256:0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af"},
@@ -3089,14 +2728,6 @@ future = [
 gast = [
     {file = "gast-0.3.3-py2.py3-none-any.whl", hash = "sha256:8f46f5be57ae6889a4e16e2ca113b1703ef17f2b0abceb83793eaba9e1351a45"},
     {file = "gast-0.3.3.tar.gz", hash = "sha256:b881ef288a49aa81440d2c5eb8aeefd4c2bb8993d5f50edae7413a85bfdb3b57"},
-]
-gitdb = [
-    {file = "gitdb-4.0.5-py3-none-any.whl", hash = "sha256:91f36bfb1ab7949b3b40e23736db18231bf7593edada2ba5c3a174a7b23657ac"},
-    {file = "gitdb-4.0.5.tar.gz", hash = "sha256:c9e1f2d0db7ddb9a704c2a0217be31214e91a4fe1dea1efad19ae42ba0c285c9"},
-]
-gitpython = [
-    {file = "GitPython-3.1.11-py3-none-any.whl", hash = "sha256:6eea89b655917b500437e9668e4a12eabdcf00229a0df1762aabd692ef9b746b"},
-    {file = "GitPython-3.1.11.tar.gz", hash = "sha256:befa4d101f91bad1b632df4308ec64555db684c360bd7d2130b4807d49ce86b8"},
 ]
 google-api-core = [
     {file = "google-api-core-1.22.2.tar.gz", hash = "sha256:779107f17e0fef8169c5239d56a8fbff03f9f72a3893c0c9e5842ec29dfedd54"},
@@ -3130,10 +2761,6 @@ google-resumable-media = [
 googleapis-common-protos = [
     {file = "googleapis-common-protos-1.52.0.tar.gz", hash = "sha256:560716c807117394da12cecb0a54da5a451b5cf9866f1d37e9a5e2329a665351"},
     {file = "googleapis_common_protos-1.52.0-py2.py3-none-any.whl", hash = "sha256:c8961760f5aad9a711d37b675be103e0cc4e9a39327e0d6d857872f698403e24"},
-]
-gorilla = [
-    {file = "gorilla-0.3.0-py2.py3-none-any.whl", hash = "sha256:01cce2a62e2493cc2a2da28910a4740cdda1a6ef08a1fc4db76b6e637c274a69"},
-    {file = "gorilla-0.3.0.tar.gz", hash = "sha256:feb2899b923935c25420b94aa8c266ccb5c0315199c685b725303a73195d802c"},
 ]
 grpcio = [
     {file = "grpcio-1.32.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:3afb058b6929eba07dba9ae6c5b555aa1d88cb140187d78cc510bd72d0329f28"},
@@ -3175,10 +2802,6 @@ grpcio = [
     {file = "grpcio-1.32.0-cp38-cp38-win32.whl", hash = "sha256:5bddf9d53c8df70061916c3bfd2f468ccf26c348bb0fb6211531d895ed5e4c72"},
     {file = "grpcio-1.32.0-cp38-cp38-win_amd64.whl", hash = "sha256:14c0f017bfebbc18139551111ac58ecbde11f4bc375b73a53af38927d60308b6"},
     {file = "grpcio-1.32.0.tar.gz", hash = "sha256:01d3046fe980be25796d368f8fc5ff34b7cf5e1444f3789a017a7fe794465639"},
-]
-gunicorn = [
-    {file = "gunicorn-20.0.4-py2.py3-none-any.whl", hash = "sha256:cd4a810dd51bf497552cf3f863b575dabd73d6ad6a91075b65936b151cbf4f9c"},
-    {file = "gunicorn-20.0.4.tar.gz", hash = "sha256:1904bb2b8a43658807108d59c3f3d56c2b6121a701161de0ddf9ad140073c626"},
 ]
 h5py = [
     {file = "h5py-2.10.0-cp27-cp27m-macosx_10_6_intel.whl", hash = "sha256:ecf4d0b56ee394a0984de15bceeb97cbe1fe485f1ac205121293fc44dcf3f31f"},
@@ -3246,10 +2869,6 @@ ipython-genutils = [
 ipywidgets = [
     {file = "ipywidgets-7.5.1-py2.py3-none-any.whl", hash = "sha256:13ffeca438e0c0f91ae583dc22f50379b9d6b28390ac7be8b757140e9a771516"},
     {file = "ipywidgets-7.5.1.tar.gz", hash = "sha256:e945f6e02854a74994c596d9db83444a1850c01648f1574adf144fbbabe05c97"},
-]
-isodate = [
-    {file = "isodate-0.6.0-py2.py3-none-any.whl", hash = "sha256:aa4d33c06640f5352aca96e4b81afd8ab3b47337cc12089822d6f322ac772c81"},
-    {file = "isodate-0.6.0.tar.gz", hash = "sha256:2e364a3d5759479cdb2d37cce6b9376ea504db2ff90252a2e5b7cc89cc9ff2d8"},
 ]
 isort = [
     {file = "isort-4.3.21-py2.py3-none-any.whl", hash = "sha256:6e811fcb295968434526407adb8796944f1988c5b65e8139058f2014cbe100fd"},
@@ -3335,10 +2954,6 @@ kubernetes = [
 locket = [
     {file = "locket-0.2.0.tar.gz", hash = "sha256:1fee63c1153db602b50154684f5725564e63a0f6d09366a1cb13dffcec179fb4"},
 ]
-mako = [
-    {file = "Mako-1.1.3-py2.py3-none-any.whl", hash = "sha256:93729a258e4ff0747c876bd9e20df1b9758028946e976324ccd2d68245c7b6a9"},
-    {file = "Mako-1.1.3.tar.gz", hash = "sha256:8195c8c1400ceb53496064314c6736719c6f25e7479cd24c77be3d9361cddc27"},
-]
 markdown = [
     {file = "Markdown-3.2.2-py3-none-any.whl", hash = "sha256:c467cd6233885534bf0fe96e62e3cf46cfc1605112356c4f9981512b8174de59"},
     {file = "Markdown-3.2.2.tar.gz", hash = "sha256:1fafe3f1ecabfb514a5285fca634a53c1b32a81cb0feb154264d55bf2ff22c17"},
@@ -3415,10 +3030,6 @@ mistune = [
     {file = "mistune-0.8.4-py2.py3-none-any.whl", hash = "sha256:88a1051873018da288eee8538d476dffe1262495144b33ecb586c4ab266bb8d4"},
     {file = "mistune-0.8.4.tar.gz", hash = "sha256:59a3429db53c50b5c6bcc8a07f8848cb00d7dc8bdb431a4ab41920d201d4756e"},
 ]
-mlflow = [
-    {file = "mlflow-1.11.0-py3-none-any.whl", hash = "sha256:18c5a81b5ff2f4eb8c4b95f32230eda22364daa9a29af6208429d23a05992f65"},
-    {file = "mlflow-1.11.0.tar.gz", hash = "sha256:443d92761ac051c64f71ff51601a62c418a3f789642eda5238e933fc7c5bf5e2"},
-]
 more-itertools = [
     {file = "more-itertools-8.5.0.tar.gz", hash = "sha256:6f83822ae94818eae2612063a5101a7311e68ae8002005b5e05f03fd74a86a20"},
     {file = "more_itertools-8.5.0-py3-none-any.whl", hash = "sha256:9b30f12df9393f0d28af9210ff8efe48d10c94f73e5daf886f10c4b0b0b4f03c"},
@@ -3442,10 +3053,6 @@ msgpack = [
     {file = "msgpack-1.0.0-cp38-cp38-win32.whl", hash = "sha256:002a0d813e1f7b60da599bdf969e632074f9eec1b96cbed8fb0973a63160a408"},
     {file = "msgpack-1.0.0-cp38-cp38-win_amd64.whl", hash = "sha256:39c54fdebf5fa4dda733369012c59e7d085ebdfe35b6cf648f09d16708f1be5d"},
     {file = "msgpack-1.0.0.tar.gz", hash = "sha256:9534d5cc480d4aff720233411a1f765be90885750b07df772380b34c10ecb5c0"},
-]
-msrest = [
-    {file = "msrest-0.6.19-py2.py3-none-any.whl", hash = "sha256:87aa64948c3ef3dbf6f6956d2240493e68d714e4621b92b65b3c4d5808297929"},
-    {file = "msrest-0.6.19.tar.gz", hash = "sha256:55f8c3940bc5dc609f8cf9fcd639444716cc212a943606756272e0d0017bbb5b"},
 ]
 nbclient = [
     {file = "nbclient-0.5.0-py3-none-any.whl", hash = "sha256:8a6e27ff581cee50895f44c41936ce02369674e85e2ad58643d8d4a6c36771b0"},
@@ -3615,9 +3222,6 @@ prometheus-client = [
     {file = "prometheus_client-0.8.0-py2.py3-none-any.whl", hash = "sha256:983c7ac4b47478720db338f1491ef67a100b474e3bc7dafcbaefb7d0b8f9b01c"},
     {file = "prometheus_client-0.8.0.tar.gz", hash = "sha256:c6e6b706833a6bd1fd51711299edee907857be10ece535126a158f911ee80915"},
 ]
-prometheus-flask-exporter = [
-    {file = "prometheus_flask_exporter-0.18.1.tar.gz", hash = "sha256:01c8282eb695596531f29f4869c1b127e1918af4f191f1215c4b0b0d081f757e"},
-]
 prompt-toolkit = [
     {file = "prompt_toolkit-3.0.7-py3-none-any.whl", hash = "sha256:83074ee28ad4ba6af190593d4d4c607ff525272a504eb159199b6dd9f950c950"},
     {file = "prompt_toolkit-3.0.7.tar.gz", hash = "sha256:822f4605f28f7d2ba6b0b09a31e25e140871e96364d1d377667b547bb3bf4489"},
@@ -3716,10 +3320,6 @@ pyparsing = [
     {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},
     {file = "pyparsing-2.4.7.tar.gz", hash = "sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"},
 ]
-pypiwin32 = [
-    {file = "pypiwin32-223-py3-none-any.whl", hash = "sha256:67adf399debc1d5d14dffc1ab5acacb800da569754fafdc576b2a039485aa775"},
-    {file = "pypiwin32-223.tar.gz", hash = "sha256:71be40c1fbd28594214ecaecb58e7aa8b708eabfa0125c8a109ebd51edbd776a"},
-]
 pyquaternion = [
     {file = "pyquaternion-0.9.5-py2-none-any.whl", hash = "sha256:9da8a22375783c1d5f2d65d195b4eb6c1ce2c5a5cab4700860b3bacc4dacb460"},
     {file = "pyquaternion-0.9.5-py3-none-any.whl", hash = "sha256:bac5945d08b9a2f4106dc76206e40f353c7240fdf37a370e13b03113c135f59b"},
@@ -3739,13 +3339,6 @@ pytest-cov = [
 python-dateutil = [
     {file = "python-dateutil-2.8.1.tar.gz", hash = "sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"},
     {file = "python_dateutil-2.8.1-py2.py3-none-any.whl", hash = "sha256:75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a"},
-]
-python-editor = [
-    {file = "python-editor-1.0.4.tar.gz", hash = "sha256:51fda6bcc5ddbbb7063b2af7509e43bd84bfc32a4ff71349ec7847713882327b"},
-    {file = "python_editor-1.0.4-py2-none-any.whl", hash = "sha256:5f98b069316ea1c2ed3f67e7f5df6c0d8f10b689964a4a811ff64f0106819ec8"},
-    {file = "python_editor-1.0.4-py2.7.egg", hash = "sha256:ea87e17f6ec459e780e4221f295411462e0d0810858e055fc514684350a2f522"},
-    {file = "python_editor-1.0.4-py3-none-any.whl", hash = "sha256:1bf6e860a8ad52a14c3ee1252d5dc25b2030618ed80c022598f00176adc8367d"},
-    {file = "python_editor-1.0.4-py3.5.egg", hash = "sha256:c3da2053dbab6b29c94e43c486ff67206eafbe7eb52dbec7390b5e2fb05aac77"},
 ]
 pytorch-ignite = [
     {file = "pytorch-ignite-0.3.0.tar.gz", hash = "sha256:d39ec25cf592308d6c30bb10f1bc5038fc68ad20c8639750ac504d9e8b25074c"},
@@ -3832,10 +3425,6 @@ qtconsole = [
 qtpy = [
     {file = "QtPy-1.9.0-py2.py3-none-any.whl", hash = "sha256:fa0b8363b363e89b2a6f49eddc162a04c0699ae95e109a6be3bb145a913190ea"},
     {file = "QtPy-1.9.0.tar.gz", hash = "sha256:2db72c44b55d0fe1407be8fba35c838ad0d6d3bb81f23007886dc1fc0f459c8d"},
-]
-querystring-parser = [
-    {file = "querystring_parser-1.2.4-py2.py3-none-any.whl", hash = "sha256:d2fa90765eaf0de96c8b087872991a10238e89ba015ae59fedfed6bd61c242a0"},
-    {file = "querystring_parser-1.2.4.tar.gz", hash = "sha256:644fce1cffe0530453b43a83a38094dbe422ccba8c9b2f2a1c00280e14ca8a62"},
 ]
 recommonmark = [
     {file = "recommonmark-0.6.0-py2.py3-none-any.whl", hash = "sha256:2ec4207a574289355d5b6ae4ae4abb29043346ca12cdd5f07d374dc5987d2852"},
@@ -3957,10 +3546,6 @@ six = [
     {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},
     {file = "six-1.15.0.tar.gz", hash = "sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"},
 ]
-smmap = [
-    {file = "smmap-3.0.4-py2.py3-none-any.whl", hash = "sha256:54c44c197c819d5ef1991799a7e30b662d1e520f2ac75c9efbeb54a742214cf4"},
-    {file = "smmap-3.0.4.tar.gz", hash = "sha256:9c98bbd1f9786d22f14b3d4126894d56befb835ec90cef151af566c7e19b5d24"},
-]
 snowballstemmer = [
     {file = "snowballstemmer-2.0.0-py2.py3-none-any.whl", hash = "sha256:209f257d7533fdb3cb73bdbd24f436239ca3b2fa67d56f6ff88e86be08cc5ef0"},
     {file = "snowballstemmer-2.0.0.tar.gz", hash = "sha256:df3bac3df4c2c01363f3dd2cfa78cce2840a79b9f1c2d2de9ce8d31683992f52"},
@@ -4004,13 +3589,6 @@ sphinxcontrib-qthelp = [
 sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib-serializinghtml-1.1.4.tar.gz", hash = "sha256:eaa0eccc86e982a9b939b2b82d12cc5d013385ba5eadcc7e4fed23f4405f77bc"},
     {file = "sphinxcontrib_serializinghtml-1.1.4-py2.py3-none-any.whl", hash = "sha256:f242a81d423f59617a8e5cf16f5d4d74e28ee9a66f9e5b637a18082991db5a9a"},
-]
-sqlalchemy = [
-    {file = "SQLAlchemy-1.3.13.tar.gz", hash = "sha256:64a7b71846db6423807e96820993fa12a03b89127d278290ca25c0b11ed7b4fb"},
-]
-sqlparse = [
-    {file = "sqlparse-0.4.1-py3-none-any.whl", hash = "sha256:017cde379adbd6a1f15a61873f43e8274179378e95ef3fede90b5aa64d304ed0"},
-    {file = "sqlparse-0.4.1.tar.gz", hash = "sha256:0f91fd2e829c44362cbcfab3e9ae12e22badaa8a29ad5ff599f9ec109f0454e8"},
 ]
 strip-hints = [
     {file = "strip-hints-0.1.9.tar.gz", hash = "sha256:ef254b5a21030529ace3560903dc09452abc76e2355de21177a2b9916f98b9bf"},
@@ -4148,10 +3726,6 @@ typing-extensions = [
 urllib3 = [
     {file = "urllib3-1.25.10-py2.py3-none-any.whl", hash = "sha256:e7983572181f5e1522d9c98453462384ee92a0be7fac5f1413a1e35c56cc0461"},
     {file = "urllib3-1.25.10.tar.gz", hash = "sha256:91056c15fa70756691db97756772bb1eb9678fa585d9184f24534b100dc60f4a"},
-]
-waitress = [
-    {file = "waitress-1.4.4-py2.py3-none-any.whl", hash = "sha256:3d633e78149eb83b60a07dfabb35579c29aac2d24bb803c18b26fb2ab1a584db"},
-    {file = "waitress-1.4.4.tar.gz", hash = "sha256:1bb436508a7487ac6cb097ae7a7fe5413aefca610550baf58f0940e51ecfb261"},
 ]
 wcwidth = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},
