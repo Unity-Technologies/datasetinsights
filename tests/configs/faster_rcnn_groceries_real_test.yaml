@@ -47,6 +47,6 @@ val_interval: 1
 tracker:
   mlflow:
     experiment: datasetinsights
-    run:
-    client_id:
-    host:
+    run: test
+    client_id: test
+    host: test
