@@ -474,8 +474,8 @@ class FasterRCNN(Estimator):
         for metric_name, metric in self.metrics.items():
             result = metric.compute()
             logger.debug(result)
-            logger.info(f"metric {metric_name} has result: {result}")
             if metric.TYPE == "scalar":
+                logger.info(f"metric {metric_name} has result: {result}")
                 self.writer.add_scalar(f"val/{metric_name}", result, epoch)
                 self.kfp_writer.add_metric(name=metric_name, val=result)
                 self.mlflow_tracker.log_metric(f"val/{metric_name}", result)
@@ -485,6 +485,7 @@ class FasterRCNN(Estimator):
             # label_id that was missing from label_name should be removed from
             # dataset and the training procedure.
             elif metric.TYPE == "metric_per_label":
+                logger.info(f"metric {metric_name} has result: {result}")
                 label_results = {
                     label_mappings.get(id, str(id)): value
                     for id, value in result.items()
@@ -495,6 +496,11 @@ class FasterRCNN(Estimator):
                 )
                 fig = metric_per_class_plot(metric_name, result, label_mappings)
                 self.writer.add_figure(f"{metric_name}-per-class", fig, epoch)
+            elif metric.TYPE == "precision_recall":
+                fig = pr_curve_plot(
+                    pr_results=result, label_mappings=label_mappings
+                )
+                self.writer.add_figure(f"{metric_name}", fig, epoch)
 
     def save(self, path):
         """Serialize Estimator to path.
@@ -1086,7 +1092,7 @@ def metric_per_class_plot(metric_name, data, label_mappings, figsize=(20, 10)):
         metric_name (str): metric name.
         data (dict): a dictionary of metric per label.
         label_mappings (dict): a dict of {label_id: label_name} mapping
-        figsize (tuple): figure size of the plot. Default is (20, 10)
+        figsize (tuple): figure size of the plot. Default is (15, 8)
 
     Returns (matplotlib.pyplot.figure):
         a bar plot for metric per class.
@@ -1104,6 +1110,31 @@ def metric_per_class_plot(metric_name, data, label_mappings, figsize=(20, 10)):
     )
     plt.margins(0.2)
     plt.subplots_adjust(bottom=0.3)
+    return fig
+
+
+def pr_curve_plot(pr_results={}, label_mappings={}, figsize=(15, 8)):
+    """PR curve plot for each class.
+
+    Args:
+        pr_results (dict): a dict of {label_id: (precision, recall)} mapping
+        label_mappings (dict): a dict of {label_id: label_name} mapping
+        figsize (tuple): figure size of the plot. Default is (15, 8)
+
+    Returns (matplotlib.pyplot.figure):
+        a PR curve plot for each class.
+    """
+    fig = plt.figure(figsize=figsize)
+    plt.title("PR Curve")
+    plt.xlabel("Recall")
+    plt.ylabel("Precision")
+    plt.xlim(-0.01, 1.0)
+    plt.ylim(-0.01, 1.1)
+    for id in pr_results:
+        precision, recall = pr_results[id]
+        plt.plot(recall, precision, label=label_mappings[id])
+    plt.legend(loc="upper right")
+    plt.grid(True)
     return fig
 
 
