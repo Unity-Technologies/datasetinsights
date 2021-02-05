@@ -15,6 +15,7 @@ from datasetinsights.estimators.faster_rcnn import (
     list3d_2canonical,
     metric_per_class_plot,
     pad_box_lists,
+    pr_curve_plot,
     prepare_bboxes,
     reduce_dict,
     tensorlist2canonical,
@@ -480,6 +481,28 @@ def test_metric_per_class_plot(mock_plt):
     mock_plt.bar.assert_called_once_with(
         ["1", "11", "2", "9"], [0.1, 0.4, 0.2, 0.3]
     )
+    assert mock_plt.figure.called
+
+
+@patch("datasetinsights.estimators.faster_rcnn.plt")
+def test_pr_curve_plot(mock_plt):
+    """test pr curve plot."""
+    label_mappings = {
+        "0": "",
+        "1": "book_dorkdiaries_aladdin",
+        "2": "candy_minipralines_lindt",
+        "3": "candy_raffaello_confetteria",
+    }
+    data = {
+        "1": (np.array([1, 0.5, 0.667]), np.array([0.5, 0.5, 1])),
+        "2": (np.array([1, 1, 0.667]), np.array([0.25, 0.5, 0.5])),
+    }
+
+    pr_curve_plot(data, label_mappings)
+    mock_plt.title.assert_called_once_with("PR Curve")
+    mock_plt.xlabel.assert_called_once_with("Recall")
+    mock_plt.ylabel.assert_called_once_with("Precision")
+    assert mock_plt.plot.call_count == len(data)
     assert mock_plt.figure.called
 
 
