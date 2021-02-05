@@ -308,15 +308,13 @@ class FasterRCNN(Estimator):
                 {k: v.to(self.device) for k, v in t.items()} for t in targets
             ]
             loss_dict = self.model(images, targets)
-            logger.info("1")
+
             losses_grad = sum(loss for loss in loss_dict.values())
-            logger.info(f"2. losses_grad: {losses_grad}")
+
             loss_dict_reduced = reduce_dict(loss_dict)
-            logger.info(f"3. loss_dict_reduced: {loss_dict_reduced}")
             losses = sum(loss for loss in loss_dict_reduced.values())
-            logger.info(f"4. losses: {losses}")
             loss_metric.update(avg_loss=losses.item(), batch_size=len(targets))
-            logger.info(f"5. metric update")
+
             if not math.isfinite(losses):
                 raise BadLoss(
                     f"Loss is {losses}, stopping training. Input was "
@@ -499,7 +497,9 @@ class FasterRCNN(Estimator):
                 fig = metric_per_class_plot(metric_name, result, label_mappings)
                 self.writer.add_figure(f"{metric_name}-per-class", fig, epoch)
             elif metric.TYPE == "precision_recall":
-                fig = pr_curve_plot(result, label_mappings)
+                fig = pr_curve_plot(
+                    pr_results=result, label_mappings=label_mappings
+                )
                 self.writer.add_figure(f"{metric_name}", fig, epoch)
 
     def save(self, path):
@@ -1092,7 +1092,7 @@ def metric_per_class_plot(metric_name, data, label_mappings, figsize=(20, 10)):
         metric_name (str): metric name.
         data (dict): a dictionary of metric per label.
         label_mappings (dict): a dict of {label_id: label_name} mapping
-        figsize (tuple): figure size of the plot. Default is (20, 10)
+        figsize (tuple): figure size of the plot. Default is (15, 8)
 
     Returns (matplotlib.pyplot.figure):
         a bar plot for metric per class.
@@ -1113,13 +1113,13 @@ def metric_per_class_plot(metric_name, data, label_mappings, figsize=(20, 10)):
     return fig
 
 
-def pr_curve_plot(pr_results, label_mappings, figsize=(15, 8)):
+def pr_curve_plot(pr_results={}, label_mappings={}, figsize=(15, 8)):
     """PR curve plot for each class.
 
     Args:
         pr_results (dict): a dict of {label_id: (precision, recall)} mapping
         label_mappings (dict): a dict of {label_id: label_name} mapping
-        figsize (tuple): figure size of the plot. Default is (20, 10)
+        figsize (tuple): figure size of the plot. Default is (15, 8)
 
     Returns (matplotlib.pyplot.figure):
         a PR curve plot for each class.

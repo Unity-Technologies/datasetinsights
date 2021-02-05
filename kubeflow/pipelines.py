@@ -8,6 +8,19 @@ KFP_LOG_DIR = "/kfp_logs"
 KFP_UI_METADATA_FILENAME = "kfp_ui_metadata.json"
 KFP_METRICS_FILENAME = "kfp_metrics.json"
 
+mlflow_host_env = {
+    "name": "MLFLOW_HOST_ID",
+    "valueFrom": {
+        "secretKeyRef": {"name": "dev-mlflow-secret", "key": "MLFLOW_HOST_ID"}
+    },
+}
+mlflow_client_env = {
+    "name": "MLFLOW_CLIENT_ID",
+    "valueFrom": {
+        "secretKeyRef": {"name": "dev-mlflow-secret", "key": "MLFLOW_CLIENT_ID"}
+    },
+}
+
 
 def volume_op(*, volume_size):
     """ Create Kubernetes persistant volume to store data.
@@ -79,6 +92,7 @@ def train_op(
     num_gpu,
     gpu_type,
     checkpoint_file=None,
+    override=None,
 ):
     """ Create a Kubeflow ContainerOp to train an estimator.
 
@@ -98,6 +112,9 @@ def train_op(
             we set memory_request = memory_limit.
         num_gpu (int): Set the number of GPU for this operator
         gpu_type (str): Set the type of GPU
+        override (str): string to override parameters in config file. Defaults
+        to None. For example, if you want to change train epoch to 10, you can
+        type: "train.epochs=10".
 
     Returns:
         kfp.dsl.ContainerOp: Represents an op implemented by a container image
@@ -127,6 +144,8 @@ def train_op(
     ]
     if checkpoint_file:
         arguments.append(f"--checkpoint-file={checkpoint_file}")
+    if override:
+        arguments.append(f"--override={override}")
 
     train = dsl.ContainerOp(
         name="train",
@@ -134,6 +153,7 @@ def train_op(
         command=command,
         arguments=arguments,
         pvolumes={DATA_PATH: volume},
+        container_kwargs={"env": [mlflow_host_env, mlflow_client_env]},
         file_outputs={
             "mlpipeline-ui-metadata": os.path.join(
                 KFP_LOG_DIR, KFP_UI_METADATA_FILENAME
@@ -198,6 +218,7 @@ def evaluate_op(
             f"--kfp-ui-metadata-filename={KFP_UI_METADATA_FILENAME}",
             f"--kfp-metrics-filename={KFP_METRICS_FILENAME}",
         ],
+        container_kwargs={"env": [mlflow_host_env, mlflow_client_env]},
         file_outputs={
             "mlpipeline-metrics": os.path.join(
                 KFP_LOG_DIR, KFP_METRICS_FILENAME
@@ -372,6 +393,7 @@ def train_on_synthetic_and_real_dataset(
         "https://storage.googleapis.com/datasetinsights/data/groceries/v3.zip"
     ),
     config: str = "datasetinsights/configs/faster_rcnn_fine_tune.yaml",
+    override: str = "",
     checkpoint_file: str = (
         "https://storage.googleapis.com/datasetinsights/models/Synthetic"
         "/FasterRCNN.estimator"
@@ -410,6 +432,7 @@ def train_on_synthetic_and_real_dataset(
         num_gpu=num_gpu,
         gpu_type=gpu_type,
         checkpoint_file=checkpoint_file,
+        override=override,
     )
 
 
@@ -425,7 +448,7 @@ def train_on_synthetic_dataset_unity_simulation(
     config: str = "datasetinsights/configs/faster_rcnn_synthetic.yaml",
     tb_log_dir: str = "gs://<bucket>/runs/yyyymmdd-hhmm",
     checkpoint_dir: str = "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
-    volume_size: str = "100Gi",
+    volume_size: str = "1.2Ti",
 ):
     output = train_data = val_data = DATA_PATH
 
@@ -433,6 +456,7 @@ def train_on_synthetic_dataset_unity_simulation(
     # https://github.com/kubeflow/pipelines/issues/1956
     # Instead, they have to be configured when the pipeline is compiled.
     memory_limit = "64Gi"
+    train_memory_limit = "256Gi"
     num_gpu = 8
     gpu_type = "nvidia-tesla-v100"
 
@@ -455,7 +479,7 @@ def train_on_synthetic_dataset_unity_simulation(
         tb_log_dir=tb_log_dir,
         checkpoint_dir=checkpoint_dir,
         volume=download.pvolumes[DATA_PATH],
-        memory_limit=memory_limit,
+        memory_limit=train_memory_limit,
         num_gpu=num_gpu,
         gpu_type=gpu_type,
     )
@@ -482,8 +506,9 @@ def train_and_evaluate_combined_pipeline(
     ),
 ):
     output = train_data = val_data = test_data = DATA_PATH
-
     memory_limit = "64Gi"
+    train_memory_limit: str = "256Gi"
+
     train_num_gpu = 8
     evaluate_num_gpu = 1
     gpu_type = "nvidia-tesla-v100"
@@ -514,7 +539,7 @@ def train_and_evaluate_combined_pipeline(
         tb_log_dir=tb_log_dir,
         checkpoint_dir=checkpoint_dir,
         volume=evaluate_download.pvolumes[DATA_PATH],
-        memory_limit=memory_limit,
+        memory_limit=train_memory_limit,
         num_gpu=train_num_gpu,
         gpu_type=gpu_type,
     )
