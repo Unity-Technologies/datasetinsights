@@ -21,6 +21,8 @@ from datasetinsights.stats.visualization.plots import (
     decode_segmap,
     histogram_plot,
     match_boxes,
+    model_performance_box_plot,
+    model_performance_comparison_box_plot,
     plot_bboxes,
 )
 
@@ -31,6 +33,14 @@ def get_image_and_bbox():
     bbox = BBox2D(label=1, x=1, y=1, w=2, h=3)
     image = np.zeros((100, 200, 3))
     return image, bbox
+
+
+@pytest.fixture
+def get_evaluation_metrics():
+    mean_ap = [0.1, 0.2, 0.3]
+    mean_ap_50 = [0.3, 0.4, 0.5]
+    mean_ar = [0.2, 0.3, 0.4]
+    return [mean_ap, mean_ap_50, mean_ar]
 
 
 def test_decode_segmap():
@@ -55,6 +65,41 @@ def test_histogram_plot():
     ):
         fig = histogram_plot(df, x="x")
         assert fig == mock_layout
+
+
+@patch("datasetinsights.stats.visualization.plots.go.Figure.add_trace")
+@patch("datasetinsights.stats.visualization.plots.go.Figure.update_yaxes")
+def test_model_performance_box_plot(
+    mock_update, mock_add_trace, get_evaluation_metrics
+):
+    mean_ap, mean_ap_50, mean_ar = get_evaluation_metrics
+    title = "test plot"
+    model_performance_box_plot(
+        title=title, mean_ap=mean_ap, mean_ap_50=mean_ap_50, mean_ar=mean_ar
+    )
+    assert mock_add_trace.call_count == 3
+    assert mock_update.call_count == 1
+
+
+@patch("datasetinsights.stats.visualization.plots.go.Figure.add_trace")
+@patch("datasetinsights.stats.visualization.plots.go.Figure.update_yaxes")
+def test_model_performance_comparison_box_plot(
+    mock_update, mock_add_trace, get_evaluation_metrics
+):
+    mean_ap_base, mean_ap_50_base, mean_ar_base = get_evaluation_metrics
+    mean_ap_new, mean_ap_50_new, mean_ar_new = get_evaluation_metrics
+    title = "test plot"
+    model_performance_comparison_box_plot(
+        title=title,
+        mean_ap_base=mean_ap_base,
+        mean_ap_50_base=mean_ap_50_base,
+        mean_ar_base=mean_ar_base,
+        mean_ap_new=mean_ap_new,
+        mean_ap_50_new=mean_ap_50_new,
+        mean_ar_new=mean_ar_new,
+    )
+    assert mock_add_trace.call_count == 6
+    mock_update.assert_called_once()
 
 
 def test_bar_plot():
