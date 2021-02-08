@@ -375,7 +375,7 @@ def rotation_plot(df, x, y, z=None, max_samples=None, title=None, **kwargs):
 
 
 def model_performance_comparison_box_plot(
-    title,
+    title="",
     mean_ap_base=None,
     mean_ap_50_base=None,
     mean_ar_base=None,
