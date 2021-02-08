@@ -233,7 +233,7 @@ class CocoDetection(Dataset):
         try:
             fcntl.flock(file_descriptor, fcntl.LOCK_EX)
             unarchived_path = Path(data_path)
-            if not self._is_dataset_files_present(unarchived_path):
+            if not CocoDetection._is_dataset_files_present(unarchived_path):
                 shutil.unpack_archive(
                     filename=archive_file, extract_dir=unarchived_path,
                 )
@@ -242,7 +242,8 @@ class CocoDetection(Dataset):
             os.close(file_descriptor)
         return unarchived_path
 
-    def _is_dataset_files_present(self, data_path):
+    @staticmethod
+    def _is_dataset_files_present(data_path):
         """check whether dataset files exist.
 
         Args:
