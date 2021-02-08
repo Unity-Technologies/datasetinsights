@@ -1,9 +1,9 @@
 import os
 import tempfile
 from pathlib import Path
-from pytest import raises
-
 from unittest.mock import patch
+
+from pytest import raises
 
 from datasetinsights.datasets.coco import CocoDetection
 from datasetinsights.datasets.exceptions import DatasetNotFoundError
