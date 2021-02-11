@@ -8,9 +8,6 @@ import plotly.graph_objects as go
 from PIL import Image, ImageColor
 
 from datasetinsights.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
-from datasetinsights.evaluation_metrics.confusion_matrix import (
-    prediction_records,
-)
 from datasetinsights.stats.visualization.bbox2d_plot import (
     add_single_bbox_on_image,
 )
@@ -104,33 +101,6 @@ def _process_label(bbox, label_mappings=None):
         return f"{label}: {bbox.score * 100: .2f}%"
     else:
         return label
-
-
-def match_boxes(pred_bboxes, gt_bboxes):
-    """ Provide a list of colors for pred annotations.
-
-    Args:
-        pred_bboxes (list[BBox2D]): a list of prediction bounding boxes
-        gt_bboxes (list[BBox2D]): a list of ground truth bounding boxes
-
-    Returns:
-        list: a list of color names (either "green" or "red").
-        green: if the predicted bounding box can be matched to a ground
-        truth bounding box.
-        red: if the predicted bounding box can't be matched to a ground
-        truth bounding box.
-    """
-    records = prediction_records(gt_bboxes, pred_bboxes)
-    match_results = records.match_results
-
-    def get_color(match):
-        if match:
-            return "green"
-        else:
-            return "red"
-
-    colors = [get_color(match) for _, match in match_results]
-    return colors
 
 
 def plot_bboxes3d(image, bboxes, projection, colors=None):
