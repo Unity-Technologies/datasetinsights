@@ -4,8 +4,6 @@ import logging
 import os
 import shutil
 from pathlib import Path
-from typing import Tuple
-
 
 import datasetinsights.constants as const
 

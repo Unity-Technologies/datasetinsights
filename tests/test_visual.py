@@ -7,7 +7,6 @@ import pytest
 from PIL import Image
 from pytest import approx
 
-# from datasetinsights.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
 from datasetinsights.io.bbox import BBox2D
 from datasetinsights.stats.visualization.bbox2d_plot import (
     _COLOR_NAME_TO_RGB,
@@ -19,7 +18,6 @@ from datasetinsights.stats.visualization.plots import (
     _convert_euler_rotations_to_scatter_points,
     bar_plot,
     histogram_plot,
-    match_boxes,
     model_performance_box_plot,
     model_performance_comparison_box_plot,
     plot_bboxes,
@@ -40,15 +38,6 @@ def get_evaluation_metrics():
     mean_ap_50 = [0.3, 0.4, 0.5]
     mean_ar = [0.2, 0.3, 0.4]
     return [mean_ap, mean_ap_50, mean_ar]
-
-
-# def test_decode_segmap():
-#     ids = list(CITYSCAPES_COLOR_MAPPING.keys())
-#     colors = list(CITYSCAPES_COLOR_MAPPING.values())
-#     img = np.array([ids] * 2)
-#     color_img = np.array([colors] * 2) / 255.0
-#
-#     assert decode_segmap(img) == approx(color_img)
 
 
 def test_histogram_plot():
@@ -174,16 +163,6 @@ def test_plot_bboxes():
     ) as mock:
         plot_bboxes(img, boxes, label_mappings=label_mappings, colors=colors)
         assert mock.call_count == len(boxes)
-
-
-@patch("datasetinsights.evaluation_metrics.confusion_matrix.Records")
-def test_match_boxes(mock_record):
-    match_results = [(0.5, True), (0.6, False), (0.7, True)]
-    expected_colors = ["green", "red", "green"]
-    mock_record.return_value.match_results.return_value = match_results
-    colors = match_boxes(None, None)
-    for i in range(len(colors)):
-        assert colors[i] == expected_colors[i]
 
 
 @patch("datasetinsights.stats.visualization.bbox2d_plot._cv2.rectangle")
