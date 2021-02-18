@@ -20,7 +20,6 @@ from datasetinsights.stats.visualization.plots import (
     bar_plot,
     decode_segmap,
     histogram_plot,
-    match_boxes,
     model_performance_box_plot,
     model_performance_comparison_box_plot,
     plot_bboxes,
@@ -175,16 +174,6 @@ def test_plot_bboxes():
     ) as mock:
         plot_bboxes(img, boxes, label_mappings=label_mappings, colors=colors)
         assert mock.call_count == len(boxes)
-
-
-@patch("datasetinsights.evaluation_metrics.confusion_matrix.Records")
-def test_match_boxes(mock_record):
-    match_results = [(0.5, True), (0.6, False), (0.7, True)]
-    expected_colors = ["green", "red", "green"]
-    mock_record.return_value.match_results.return_value = match_results
-    colors = match_boxes(None, None)
-    for i in range(len(colors)):
-        assert colors[i] == expected_colors[i]
 
 
 @patch("datasetinsights.stats.visualization.bbox2d_plot._cv2.rectangle")

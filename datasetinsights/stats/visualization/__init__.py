@@ -1,3 +1,3 @@
-from .plots import grid_plot, match_boxes, plot_bboxes
+from .plots import grid_plot, plot_bboxes
 
-__all__ = ["match_boxes", "plot_bboxes", "grid_plot"]
+__all__ = ["plot_bboxes", "grid_plot"]

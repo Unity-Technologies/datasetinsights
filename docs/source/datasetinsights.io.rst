@@ -6,21 +6,12 @@ datasetinsights.io
    :maxdepth: 2
 
    datasetinsights.io.downloader
-   datasetinsights.io.tracker
 
 
 datasetinsights.io.bbox
 -----------------------
 
 .. automodule:: datasetinsights.io.bbox
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-datasetinsights.io.checkpoint
------------------------------
-
-.. automodule:: datasetinsights.io.checkpoint
    :members:
    :undoc-members:
    :show-inheritance:
@@ -49,14 +40,6 @@ datasetinsights.io.gcs
    :undoc-members:
    :show-inheritance:
 
-datasetinsights.io.kfp\_output
-------------------------------
-
-.. automodule:: datasetinsights.io.kfp_output
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 datasetinsights.io.loader
 -------------------------
 
@@ -73,13 +56,6 @@ datasetinsights.io.transforms
    :undoc-members:
    :show-inheritance:
 
-datasetinsights.io.config_handler
--------------------------
-
-.. automodule:: datasetinsights.io.config_handler
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 .. automodule:: datasetinsights.io
    :members:
