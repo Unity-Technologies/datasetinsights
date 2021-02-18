@@ -29,10 +29,10 @@ include = [
 [tool.poetry.dependencies]
 python = "^3.7"
 cython = "^0.29.14"
-google-cloud-storage = ">=1.24.1 <=1.28.1"
+google-cloud-storage = ">=1.31.1 <2.0.0"
 jupyter = "^1.0.0"
 kornia = "^0.1.4"
-numpy = ">=1.17 < 1.18"
+numpy = "^1.18.2"
 nuscenes-devkit = ">=1.0.2 <1.0.3"
 plotly = "^4.4.1"
 pyquaternion = "^0.9.5"
