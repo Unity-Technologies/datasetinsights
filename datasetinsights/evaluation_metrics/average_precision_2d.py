@@ -269,7 +269,7 @@ class MeanAveragePrecisionAverageOverIOU(EvaluationMetric):
     TYPE = "scalar"
 
     IOU_THRESHOULDS = np.linspace(
-        0.5, 0.95, np.round((0.95 - 0.5) / 0.05) + 1, endpoint=True
+        0.5, 0.95, int(np.round((0.95 - 0.5) / 0.05)) + 1, endpoint=True
     )
 
     def __init__(self):
