@@ -10,8 +10,6 @@ These instructions focus on the recommended containerized approach to run a trai
 
 You can use our docker image on your own container-orchestration system by following similar steps.
 
-![Synthetic Data pipeline](_images/Synthetic Data pipeline-Dataset Validation.png)
-
 ## Part 1: Dataset Overview
 
 ### UnityGroceries-SyntheticSample dataset
