@@ -58,7 +58,6 @@ class CocoDetection:
         self.root = data_path
         self._preprocess_dataset(data_path=self.root, split=self.split)
         self.transforms = transforms
-        self.label_mappings = self._get_label_mappings()
 
     @staticmethod
     def _preprocess_dataset(data_path, split):
