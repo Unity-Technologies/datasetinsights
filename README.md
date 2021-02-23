@@ -13,9 +13,9 @@ Dataset Insights maintains a pip package for easy installation. It can work in a
 
 We provide a sample [notebook](notebooks/SynthDet_Statistics.ipynb) to help you get started with dataset statistics for the [SynthDet](https://github.com/Unity-Technologies/SynthDet) project. We plan to support other sample Unity projects in the future.
 
-### Dataset Evaluation
+### Dataset Download
 
-Dataset evaluation provides tools to train and evaluate ML models for different datasets. You can run `download`, `train` and `evaluate` commands:
+Dataset download provides tools to download datasets from HTTP(s), GCS and Unity simulation project . You can run `download` command:
 
 [Download Dataset](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-download)
 
@@ -24,24 +24,6 @@ datasetinsights download \
   --source-uri=<xxx> \
   --output=$HOME/data
 ```
-
-[Train](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-train)
-
-```bash
-datasetinsights train \
- --config=datasetinsights/configs/faster_rcnn.yaml \
- --train-data=$HOME/data
-```
-
-[Evaluate](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-evaluate)
-
-```bash
-datasetinsights evaluate \
- --config=datasetinsights/configs/faster_rcnn.yaml \
- --test-data=$HOME/data
-```
-
-To learn more, see this [tutorial](https://datasetinsights.readthedocs.io/en/latest/Evaluation_Tutorial.html).
 
 ## Docker
 
