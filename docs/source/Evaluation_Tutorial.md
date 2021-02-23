@@ -30,7 +30,7 @@ If you want to run the full end-to-end pipeline including synthetic dataset gene
 
 This section shows you how to train a model on UnityGroceries-SyntheticSample dataset. Note that this is a small dataset which is the fastest to train but won't produce the best results; for that, you can train a model that uses a larger synthetic dataset and [fine tunes the model on real images](#train-on-synthetic-and-real-world-dataset-optional). To observe the best results we have obtained, you can follow the instructions to run one of our [pre-trained models](#using-our-pre-trained-models) below.
 
-To train the model, import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_synthdet_sample.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
+To train the model, import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/0.2.x/kubeflow/compiled/train_on_synthdet_sample.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
 ![upload pipeline](_images/kubeflow/upload_pipeline.png)
 
@@ -73,7 +73,7 @@ Then, open `http://localhost:6006` in web browser to see tensorboard results.
 
 In [part 2](#part-2-train-a-model), you trained a model using one of our pre-compiled pipeline. In this section, you will use a trained model from part 2 to generate predictions on the test split of UnityGroceries-Real dataset and measure its performance using well-known object detection metrics like [mAP](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.evaluation_metrics.html#datasetinsights.evaluation_metrics.average_precision_2d.MeanAveragePrecisionAverageOverIOU) and [mAR](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.evaluation_metrics.html#datasetinsights.evaluation_metrics.average_recall_2d.MeanAverageRecallAverageOverIOU).
 
-We have prepared another Kubeflow [pipeline](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/evaluate_the_model.yaml) for this. You can import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/evaluate_the_model.yaml) into your kubeflow cluster. Once your pipeline has been imported, you can run it via the web UI as shown below. Alternatively, you can use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool)
+We have prepared another Kubeflow [pipeline](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/0.2.x/kubeflow/compiled/evaluate_the_model.yaml) for this. You can import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/0.2.x/kubeflow/compiled/evaluate_the_model.yaml) into your kubeflow cluster. Once your pipeline has been imported, you can run it via the web UI as shown below. Alternatively, you can use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool)
 
 ![evaluate the model](_images/kubeflow/evaluate_the_model.png)
 
@@ -129,7 +129,7 @@ The following sections describe how to train using synthetic data generated on U
 
 To further improve model performance, you may also fine-tune your model on the UnityGroceries-Real dataset. We found that this approach of training first on synthetic and then fine-tuning on real produces the best results. The best results we have obtained are trained on a set of 400k synthetic images generated in Unity Simulation. To observe these results, you can follow the instructions to run one of our [pre-trained models](#using-our-pre-trained-models) below.
 
-To train the model, import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_synthetic_and_real_dataset.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
+To train the model, import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/0.2.x/kubeflow/compiled/train_on_synthetic_and_real_dataset.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
 ![upload pipeline](_images/kubeflow/upload_pipeline.png)
 Once your pipeline has been imported, you can run it via the web UI as shown below. Alternatively, you can use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool)
@@ -158,7 +158,7 @@ Next you can jump back to [part 3](#part-3-monitor-training-in-tensorboard) to m
 
 This section shows you how to train a model on the UnityGroceries-Real dataset. Note that this won't produce the best results; for that, you can train a model that uses a larger synthetic dataset and [fine tunes the model on real images](#train-on-synthetic-and-real-world-dataset-optional). To observe the best results we have obtained, you can follow the instructions to run one of our [pre-trained models](#using-our-pre-trained-models) below.
 
-To train the model, simply import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_real_world_dataset.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
+To train the model, simply import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/0.2.x/kubeflow/compiled/train_on_real_world_dataset.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
 ![upload pipeline](_images/kubeflow/upload_pipeline.png)
 
@@ -185,7 +185,7 @@ Next you can jump to [part 3](#part-3-monitor-training-in-tensorboard) to monito
 
 This section shows you how to train a model on your own dataset generated by running the [SynthDet] environment on [Unity Simulation](https://unity.com/products/unity-simulation). You can follow [these instructions](https://github.com/Unity-Technologies/SynthDet/blob/master/docs/RunningSynthDetCloud.md) to generate the dataset.
 
-To train the model, simply import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/master/kubeflow/compiled/train_on_synthetic_dataset_unity_simulation.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
+To train the model, simply import [**this pre-compiled pipeline**](https://raw.githubusercontent.com/Unity-Technologies/datasetinsights/0.2.x/kubeflow/compiled/train_on_synthetic_dataset_unity_simulation.yaml) into your kubeflow cluster. The figure below shows how to do this using the [web UI](https://www.kubeflow.org/docs/pipelines/pipelines-quickstart/#deploy-kubeflow-and-open-the-pipelines-ui). You can optionally use the [KFP CLI Tool](https://www.kubeflow.org/docs/pipelines/sdk/sdk-overview/#kfp-cli-tool).
 
 ![upload pipeline](_images/kubeflow/upload_pipeline.png)
 
@@ -210,7 +210,7 @@ Set `tb_log_dir` and `checkpoint_dir` to a location that is convenient for you a
 
 ## Using our pre-trained models
 
-We trained a model using `~400k` synthetic examples and then fine-tuned it using `~700` real images. You can use the same [visual inspection notebook](https://github.com/Unity-Technologies/datasetinsights/blob/master/notebooks/SynthDet_Evaluation.ipynb) mentioned above, but use one of our models from the list below:
+We trained a model using `~400k` synthetic examples and then fine-tuned it using `~700` real images. You can use the same [visual inspection notebook](https://github.com/Unity-Technologies/datasetinsights/blob/0.2.x/notebooks/SynthDet_Evaluation.ipynb) mentioned above, but use one of our models from the list below:
 
 - [Real World (760)](https://storage.googleapis.com/datasetinsights/models/Real-World/FasterRCNN.estimator)
 - [Synthetic (400,000)](https://storage.googleapis.com/datasetinsights/models/Synthetic/FasterRCNN.estimator)
