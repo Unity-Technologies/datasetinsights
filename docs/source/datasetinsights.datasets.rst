@@ -17,14 +17,6 @@ datasetinsights.datasets.base
    :undoc-members:
    :show-inheritance:
 
-datasetinsights.datasets.cityscapes
------------------------------------
-
-.. automodule:: datasetinsights.datasets.cityscapes
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 datasetinsights.datasets.coco
 -----------------------------
 
@@ -37,38 +29,6 @@ datasetinsights.datasets.exceptions
 -----------------------------------
 
 .. automodule:: datasetinsights.datasets.exceptions
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-datasetinsights.datasets.groceries\_real
-----------------------------------------
-
-.. automodule:: datasetinsights.datasets.groceries_real
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-datasetinsights.datasets.kitti
-------------------------------
-
-.. automodule:: datasetinsights.datasets.kitti
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-datasetinsights.datasets.nuscenes
----------------------------------
-
-.. automodule:: datasetinsights.datasets.nuscenes
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-datasetinsights.datasets.nyudepth
----------------------------------
-
-.. automodule:: datasetinsights.datasets.nyudepth
    :members:
    :undoc-members:
    :show-inheritance:
