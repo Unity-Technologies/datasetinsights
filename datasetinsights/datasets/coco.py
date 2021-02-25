@@ -31,8 +31,6 @@ class CocoDetection:
             sensor, in this case an image, and annotations, which in this
             dataset are 2d bounding box coordinates and labels.
         split (str): indicate split type of the dataset (train|val).
-        label_mappings (dict): a dict of {label_id: label_name} mapping.
-        coco (torchvision.datasets.CocoDetection): COCO dataset.
     """
 
     def __init__(
