@@ -9,7 +9,6 @@ from pathlib import Path
 
 from PIL import Image
 from pyquaternion import Quaternion
-from sklearn.model_selection import train_test_split
 
 from datasetinsights.datasets.unity_perception import (
     AnnotationDefinitions,
@@ -22,54 +21,6 @@ from .base import Dataset
 from .exceptions import DatasetNotFoundError
 
 logger = logging.getLogger(__name__)
-
-DEFAULT_TRAIN_SPLIT_RATIO = 0.9
-TRAIN = "train"
-VAL = "val"
-ALL = "all"
-VALID_SPLITS = (TRAIN, VAL, ALL)
-
-
-def _get_split(*, split, catalog, train_percentage=0.9, random_seed=47):
-    """
-
-    Args:
-        split (str): can be 'train', 'val' or 'all'
-        catalog (pandas Dataframe): dataframe which will be divided into splits
-        train_percentage (float): percentage of dataframe to put in train split
-        random_seed (int): random seed used for splitting dataset into train
-        and val
-
-    Returns: catalog (dataframe) divided into correct split
-
-    """
-    if split == ALL:
-        logger.info(f"split specified was 'all' using entire synthetic dataset")
-        return catalog
-    train, val = train_test_split(
-        catalog, train_size=train_percentage, random_state=random_seed
-    )
-    if split == TRAIN:
-        catalog = train
-        catalog.index = [i for i in range(len(catalog))]
-        logger.info(
-            f"split specified was {TRAIN}, using "
-            f"{train_percentage*100:.2f}% of the dataset"
-        )
-        return catalog
-    elif split == VAL:
-        catalog = val
-        catalog.index = [i for i in range(len(catalog))]
-        logger.info(
-            f"split specified was {VAL} using "
-            f"{(1-train_percentage)*100:.2f}% of the dataset "
-        )
-        return catalog
-    else:
-        raise ValueError(
-            f"split provided was {split} but only valid "
-            f"splits are: {VALID_SPLITS}"
-        )
 
 
 def read_bounding_box_3d(annotation, label_mappings=None):
@@ -164,11 +115,9 @@ class SynDetection2D(Dataset):
         self,
         *,
         data_path=None,
-        split="all",
         transforms=None,
         version=SCHEMA_VERSION,
         def_id=4,
-        train_split_ratio=DEFAULT_TRAIN_SPLIT_RATIO,
         random_seed=47,
         **kwargs,
     ):
@@ -193,19 +142,7 @@ class SynDetection2D(Dataset):
             m["label_id"]: m["label_name"] for m in init_definition["spec"]
         }
 
-        if split not in VALID_SPLITS:
-            raise ValueError(
-                f"split provided was {split} but only valid "
-                f"splits are: {VALID_SPLITS}"
-            )
-        self.split = split
         self.transforms = transforms
-        self.catalog = _get_split(
-            split=split,
-            catalog=self.catalog,
-            train_percentage=train_split_ratio,
-            random_seed=random_seed,
-        )
 
     def __getitem__(self, index):
         """
