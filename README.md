@@ -12,18 +12,33 @@ Dataset Insights maintains a pip package for easy installation. It can work in a
 
 ### Dataset Statistics
 
-We provide a sample [notebook](notebooks/SynthDet_Statistics.ipynb) to help you get started with dataset statistics for the [SynthDet](https://github.com/Unity-Technologies/SynthDet) project. We plan to support other sample Unity projects in the future.
+We provide a sample [notebook](notebooks/Perception_Statistics.ipynb) to help you load synthetic datasets generated from the [Perception package](https://github.com/Unity-Technologies/com.unity.perception) and visualize dataset statistics. We plan to support other sample Unity projects in the future.
 
 ### Dataset Download
 
-Dataset download provides tools to download datasets from HTTP(s), GCS and Unity simulation project . You can run `download` command:
+Dataset download provides tools to download datasets from HTTP(s), GCS and Unity simulation project . You can run `download` command from cli or use api to download the dataset.
 
-[Download Dataset](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-download)
+[CLI](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-download)
 
 ```bash
 datasetinsights download \
   --source-uri=<xxx> \
   --output=$HOME/data
+```
+[Programmatically](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.io.downloader.html#module-datasetinsights.io.downloader.gcs_downloader)
+
+```bash
+>>> from datasetinsights.io.downloader import UnitySimulationDownloader, GCSDatasetDownloader, HTTPDatasetDownloader
+
+>>> downloader = UnitySimulationDownloader(access_token=access_token)
+>>> downloader.download(source_uri=source_uri, output=data_root)
+
+>>> downloader = GCSDatasetDownloader()
+>>> downloader.download(source_uri=source_uri, output=data_root)
+
+>>> downloader = HTTPDatasetDownloader()
+>>> downloader.download(source_uri=source_uri, output=data_root)
+
 ```
 
 ## Docker
