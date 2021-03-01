@@ -4,7 +4,7 @@ version = "0.2.0"
 description = "Synthetic dataset insights."
 license = "Apache-2.0"
 authors = [
-  "Unity AI Perception Team <perception@unity3d.com>"
+  "Unity AI Perception Team <computer-vision@unity3d.com>"
 ]
 readme = "README.md"
 homepage = "https://datasetinsights.readthedocs.io/en/latest/Evaluation_Tutorial.html"
