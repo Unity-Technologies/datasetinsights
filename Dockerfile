@@ -13,7 +13,8 @@ RUN apt-get update \
     && ln -s /usr/bin/python3.7 /usr/local/bin/python
 
 # Pin setuptools to 49.x.x until this [issue](https://github.com/pypa/setuptools/issues/2350) is fixed.
-RUN python -m pip install --upgrade pip poetry==1.0.10 setuptools==49.6.0
+RUN python -m pip install --upgrade pip poetry==1.0.10 setuptools==49.6.0 -U pip cryptography==3.3.2
+# pin cryptography to 3.3.2 until this (https://github.com/Azure/azure-cli/issues/16858) is fixed.
 
 # Add Tini
 ENV TINI_VERSION v0.18.0
