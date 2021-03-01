@@ -40,22 +40,6 @@ datasetinsights.io.gcs
    :undoc-members:
    :show-inheritance:
 
-datasetinsights.io.loader
--------------------------
-
-.. automodule:: datasetinsights.io.loader
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-datasetinsights.io.transforms
------------------------------
-
-.. automodule:: datasetinsights.io.transforms
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 
 .. automodule:: datasetinsights.io
    :members:

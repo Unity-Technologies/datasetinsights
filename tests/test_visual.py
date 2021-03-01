@@ -7,7 +7,6 @@ import pytest
 from PIL import Image
 from pytest import approx
 
-from datasetinsights.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
 from datasetinsights.io.bbox import BBox2D
 from datasetinsights.stats.visualization.bbox2d_plot import (
     _COLOR_NAME_TO_RGB,
@@ -18,7 +17,6 @@ from datasetinsights.stats.visualization.bbox2d_plot import (
 from datasetinsights.stats.visualization.plots import (
     _convert_euler_rotations_to_scatter_points,
     bar_plot,
-    decode_segmap,
     histogram_plot,
     model_performance_box_plot,
     model_performance_comparison_box_plot,
@@ -40,15 +38,6 @@ def get_evaluation_metrics():
     mean_ap_50 = [0.3, 0.4, 0.5]
     mean_ar = [0.2, 0.3, 0.4]
     return [mean_ap, mean_ap_50, mean_ar]
-
-
-def test_decode_segmap():
-    ids = list(CITYSCAPES_COLOR_MAPPING.keys())
-    colors = list(CITYSCAPES_COLOR_MAPPING.values())
-    img = np.array([ids] * 2)
-    color_img = np.array([colors] * 2) / 255.0
-
-    assert decode_segmap(img) == approx(color_img)
 
 
 def test_histogram_plot():
