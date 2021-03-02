@@ -25,7 +25,7 @@ datasetinsights download \
 ```
 [Programmatically](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.io.downloader.html#module-datasetinsights.io.downloader.gcs_downloader)
 
-```bash python3 
+```bash python3
 from datasetinsights.io.downloader import UnitySimulationDownloader, GCSDatasetDownloader, HTTPDatasetDownloader
 downloader = UnitySimulationDownloader(access_token=access_token)
 downloader.download(source_uri=source_uri, output=data_root)
