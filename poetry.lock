@@ -1859,17 +1859,6 @@ notebook = ">=4.4.1"
 
 [[package]]
 category = "main"
-description = "Yet Another Configuration System"
-name = "yacs"
-optional = false
-python-versions = "*"
-version = "0.1.8"
-
-[package.dependencies]
-PyYAML = "*"
-
-[[package]]
-category = "main"
 description = "Mutable mapping tools"
 name = "zict"
 optional = false
@@ -1893,7 +1882,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "c02c0cc70fb73798220356fba60c664495cef500e603f5c930de66e6963c1880"
+content-hash = "845e28e5b5ea6ac89fba94eac0a085331ccab42fc80cae542181c73edf3aa3fd"
 lock-version = "1.0"
 python-versions = "^3.7"
 
@@ -2950,11 +2939,6 @@ werkzeug = [
 widgetsnbextension = [
     {file = "widgetsnbextension-3.5.1-py2.py3-none-any.whl", hash = "sha256:bd314f8ceb488571a5ffea6cc5b9fc6cba0adaf88a9d2386b93a489751938bcd"},
     {file = "widgetsnbextension-3.5.1.tar.gz", hash = "sha256:079f87d87270bce047512400efd70238820751a11d2d8cb137a5a5bdbaf255c7"},
-]
-yacs = [
-    {file = "yacs-0.1.8-py2-none-any.whl", hash = "sha256:d43d1854c1ffc4634c5b349d1c1120f86f05c3a294c9d141134f282961ab5d94"},
-    {file = "yacs-0.1.8-py3-none-any.whl", hash = "sha256:99f893e30497a4b66842821bac316386f7bd5c4f47ad35c9073ef089aa33af32"},
-    {file = "yacs-0.1.8.tar.gz", hash = "sha256:efc4c732942b3103bea904ee89af98bcd27d01f0ac12d8d4d369f1e7a2914384"},
 ]
 zict = [
     {file = "zict-2.0.0-py3-none-any.whl", hash = "sha256:26aa1adda8250a78dfc6a78d200bfb2ea43a34752cf58980bca75dde0ba0c6e9"},
