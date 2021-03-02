@@ -25,8 +25,8 @@ datasetinsights download \
 ```
 [Programmatically](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.io.downloader.html#module-datasetinsights.io.downloader.gcs_downloader)
 
-```bash
 ```python3
+
 from datasetinsights.io.downloader import UnitySimulationDownloader,
 GCSDatasetDownloader, HTTPDatasetDownloader
 
