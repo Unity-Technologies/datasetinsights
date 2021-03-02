@@ -4,26 +4,13 @@ from datetime import datetime
 TIMESTAMP_SUFFIX = datetime.now().strftime("%Y%m%d-%H%M%S")
 PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 
-
-GCS_BUCKET = "thea-dev"
 GCS_BASE_STR = "gs://"
 HTTP_URL_BASE_STR = "http://"
 HTTPS_URL_BASE_STR = "https://"
 LOCAL_FILE_BASE_STR = "file://"
 
-# This is a hack on yacs config system, as it does not allow null values
-# in configs. They are working on supporting null values in config
-# https://github.com/rbgirshick/yacs/pull/18.
 NULL_STRING = "None"
 
-# Root directory of all datasets
-# We assume the datasets are stored in the following structure:
-# data_root/
-#   cityscapes/
-#   kitti/
-#   nuscenes/
-#   synthetic/
-#   ...
 DEFAULT_DATA_ROOT = "/data"
 SYNTHETIC_SUBFOLDER = "synthetic"
 
