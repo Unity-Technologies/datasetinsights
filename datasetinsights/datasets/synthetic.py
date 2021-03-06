@@ -43,9 +43,11 @@ def read_bounding_box_3d(annotation, label_mappings=None):
         size = b["size"]
         rotation = b["rotation"]
         rotation = Quaternion(
-            b=rotation[0], c=rotation[1], d=rotation[2], a=rotation[3]
+            b=rotation["x"], c=rotation["y"], d=rotation["z"], a=rotation["w"]
         )
 
+        print(rotation)
+        
         if label_mappings and label_id not in label_mappings:
             continue
         box = BBox3D(
