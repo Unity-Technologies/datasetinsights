@@ -48,7 +48,7 @@ You can explore the downloaded dataset [schema](https://datasetinsights.readthed
 
 ```python3
 
-from datasetinsights.datasets.unity_perception import (AnnotationDefinitions, 
+from datasetinsights.datasets.unity_perception import (AnnotationDefinitions,
 MetricDefinitions, Captures, Metrics, Egos, Sensors)
 
 captures = Captures(data_root="/data", version="my_schema_version")
