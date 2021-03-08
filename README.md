@@ -27,8 +27,8 @@ datasetinsights download \
 
 ```python3
 
-from datasetinsights.io.downloader import UnitySimulationDownloader,
-GCSDatasetDownloader, HTTPDatasetDownloader
+from datasetinsights.io.downloader import (UnitySimulationDownloader,
+GCSDatasetDownloader, HTTPDatasetDownloader)
 
 downloader = UnitySimulationDownloader(access_token=access_token)
 downloader.download(source_uri=source_uri, output=data_root)
@@ -40,6 +40,37 @@ downloader = HTTPDatasetDownloader()
 downloader.download(source_uri=source_uri, output=data_root)
 
 ```
+### Dataset Explore
+You can explore the downloaded dataset [schema](https://datasetinsights.readthedocs.io/en/latest/Synthetic_Dataset_Schema.html#synthetic-dataset-schema) by using following API:
+
+[Unity Perception](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.datasets.unity_perception.html#datasetinsights-datasets-unity-perception)
+
+
+```python3
+
+from datasetinsights.datasets.unity_perception import (AnnotationDefinitions, 
+MetricDefinitions, Captures, Metrics, Egos, Sensors)
+
+captures = Captures(data_root="/data", version="my_schema_version")
+captures_df = captures.filter(def_id="my_definition_id")
+
+metrics = Metrics(data_root="/data", version="my_schema_version")
+metrics_df = metrics.filter_metrics(def_id="my_definition_id")
+
+annotation_def = AnnotationDefinitions(data_root="/data", version="my_schema_version")
+definition_dict = annotation_def.get_definition(def_id="my_definition_id")
+
+metric_def = MetricDefinitions(data_root="/data", version="my_schema_version")
+definition_dict = metric_def.get_definition(def_id="my_definition_id")
+
+egos = Egos(data_root="/data", version="my_schema_version")
+egos_df = egos.load_egos(data_root="/data", version="my_schema_version")
+
+sensors = Sensors(data_root="/data", version="my_schema_version")
+sensors_df = sensors.load_sensors(data_root="/data", version="my_schema_version")
+
+```
+
 
 ## Docker
 
