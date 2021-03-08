@@ -22,12 +22,12 @@ Dataset Statistics
 
 We provide a sample `notebook <https://github.com/Unity-Technologies/datasetinsights/blob/master/notebooks/SynthDet_Statistics.ipynb>`_ to help you get started with dataset statistics for the `SynthDet <https://github.com/Unity-Technologies/SynthDet>`_ project. We plan to support other sample Unity projects in the future.
 
-Dataset Evaluation
+Dataset Download
 ~~~~~~~~~~~~~~~~~~
 
-Dataset evaluation provides tools to train and evaluate ML models for different datasets. You can run :code:`download`, :code:`train` and :code:`evaluate` commands:
+You can download the datasets from HTTP(s), GCS, and Unity simulation projects using the download command from `CLI` or `API`.
 
-`Download Dataset <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-download>`_
+`CLI <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-download>`_
 
 .. code-block:: bash
 
@@ -35,24 +35,21 @@ Dataset evaluation provides tools to train and evaluate ML models for different 
       --source-uri=<xxx> \
       --output=$HOME/data
 
-`Train <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-train>`_
+`API <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.io.downloader.html#module-datasetinsights.io.downloader.gcs_downloader>`_
 
-.. code-block:: bash
+.. code-block:: python3
 
-   datasetinsights train \
-      --config=datasetinsights/configs/faster_rcnn.yaml \
-      --train-data=$HOME/data
+   from datasetinsights.io.downloader import UnitySimulationDownloader,
+   GCSDatasetDownloader, HTTPDatasetDownloader
 
-`Evaluate <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-evaluate>`_
+   downloader = UnitySimulationDownloader(access_token=access_token)
+   downloader.download(source_uri=source_uri, output=data_root)
 
-.. code-block:: bash
+   downloader = GCSDatasetDownloader()
+   downloader.download(source_uri=source_uri, output=data_root)
 
-   datasetinsights evaluate \
-      --config=datasetinsights/configs/faster_rcnn.yaml \
-      --test-data=$HOME/data
-
-To learn more, see this :doc:`Evaluation_Tutorial` Documentation.
-
+   downloader = HTTPDatasetDownloader()
+   downloader.download(source_uri=source_uri, output=data_root)
 
 Contents
 ========
@@ -69,7 +66,6 @@ Contents
    :caption: Getting Started
 
    SynthDet Guide <https://github.com/Unity-Technologies/SynthDet/blob/master/docs/Readme.md>
-   Evaluation_Tutorial
 
 
 .. toctree::
