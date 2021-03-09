@@ -11,7 +11,7 @@ Unity Dataset Insights is a python package for downloading, parsing and analyzin
 Installation
 ------------
 
-Dataset Insights maintains a pip package for easy installation. It can work in any standard Python environment using :code:`pip install datasetinsights` command. We support Python 3 (3.7 and 3.8).
+Dataset Insights maintains a pip package for easy installation. It can work in any standard Python environment using :code:`pip install datasetinsights` command. We support Python 3 (>= 3.7).
 
 Getting Started
 ---------------
@@ -35,49 +35,64 @@ You can download the datasets from HTTP(s), GCS, and Unity simulation projects u
 
 `API <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.io.downloader.html#module-datasetinsights.io.downloader.gcs_downloader>`_
 
+UnitySimulationDownloader downloads a dataset from Unity Simulation.
+
 .. code-block:: python3
 
-   from datasetinsights.io.downloader import (UnitySimulationDownloader,
-   GCSDatasetDownloader, HTTPDatasetDownloader)
-
+   from datasetinsights.io.downloader import UnitySimulationDownloader
    downloader = UnitySimulationDownloader(access_token=access_token)
    downloader.download(source_uri=source_uri, output=data_root)
 
+GCSDatasetDownloader downloads a dataset from GCS location.
+
+.. code-block:: python3
+
+   from datasetinsights.io.downloader import GCSDatasetDownloader
    downloader = GCSDatasetDownloader()
    downloader.download(source_uri=source_uri, output=data_root)
 
+HTTPDatasetDownloader downloads a dataset from any HTTP(S) location.
+
+.. code-block:: python3
+
+   from datasetinsights.io.downloader import HTTPDatasetDownloader
    downloader = HTTPDatasetDownloader()
    downloader.download(source_uri=source_uri, output=data_root)
 
 Dataset Explore
 ~~~~~~~~~~~~~~~~~~
 
-You can explore the downloaded dataset `schema <https://datasetinsights.readthedocs.io/en/latest/Synthetic_Dataset_Schema.html#synthetic-dataset-schema>`_ by using following API:
+You can explore the dataset `schema <https://datasetinsights.readthedocs.io/en/latest/Synthetic_Dataset_Schema.html#synthetic-dataset-schema>`_ by using following API:
 
 `Unity Perception <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.datasets.unity_perception.html#datasetinsights-datasets-unity-perception>`_
 
+AnnotationDefinitions and MetricDefinitions loads synthetic dataset definition tables and return a dictionary containing the definitions.
+
 .. code-block:: python3
 
-   from datasetinsights.datasets.unity_perception import (AnnotationDefinitions,
-   MetricDefinitions, Captures, Metrics, Egos, Sensors)
-
-   captures = Captures(data_root="/data", version="my_schema_version")
-   captures_df = captures.filter(def_id="my_definition_id")
-
-   metrics = Metrics(data_root="/data", version="my_schema_version")
-   metrics_df = metrics.filter_metrics(def_id="my_definition_id")
-
+   from datasetinsights.datasets.unity_perception import AnnotationDefinitions,
+   MetricDefinitions
    annotation_def = AnnotationDefinitions(data_root="/data", version="my_schema_version")
    definition_dict = annotation_def.get_definition(def_id="my_definition_id")
 
    metric_def = MetricDefinitions(data_root="/data", version="my_schema_version")
    definition_dict = metric_def.get_definition(def_id="my_definition_id")
 
-   egos = Egos(data_root="/data", version="my_schema_version")
-   egos_df = egos.load_egos(data_root="/data", version="my_schema_version")
+Captures loads synthetic dataset captures tables and return a pandas dataframe with captures and annotations columns.
 
-   sensors = Sensors(data_root="/data", version="my_schema_version")
-   sensors_df = sensors.load_sensors(data_root="/data", version="my_schema_version")
+.. code-block:: python3
+
+   from datasetinsights.datasets.unity_perception import Captures
+   captures = Captures(data_root="/data", version="my_schema_version")
+   captures_df = captures.filter(def_id="my_definition_id")
+
+Metrics loads synthetic dataset metrics table which holds extra metadata that can be used to describe a particular sequence, capture or annotation and return a pandas dataframe with captures and metrics columns.
+
+.. code-block:: python3
+
+   from datasetinsights.datasets.unity_perception import Metrics
+   metrics = Metrics(data_root="/data", version="my_schema_version")
+   metrics_df = metrics.filter_metrics(def_id="my_definition_id")
 
 Contents
 ========
