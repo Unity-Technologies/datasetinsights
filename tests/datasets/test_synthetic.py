@@ -2,11 +2,8 @@ import os
 import tempfile
 from pathlib import Path
 
-import pandas as pd
-
 from datasetinsights.datasets.synthetic import (
     SynDetection2D,
-    _get_split,
     read_bounding_box_2d,
 )
 from datasetinsights.io.bbox import BBox2D
@@ -48,20 +45,6 @@ def test_read_bounding_box_2d():
     bbox = read_bounding_box_2d(annotation, label_mappings)
 
     assert bbox == [BBox2D(27, 30, 50, 100, 100)]
-
-
-def test_get_split():
-    mock_catalog = pd.DataFrame({"id": [i for i in range(10)]})
-    actual_train = _get_split(
-        split="train", catalog=mock_catalog, train_percentage=0.6
-    )
-    actual_val = _get_split(
-        split="val", catalog=mock_catalog, train_percentage=0.6
-    )
-    expected_train = pd.DataFrame({"id": [3, 8, 0, 9, 6, 7]})
-    expected_val = pd.DataFrame({"id": [2, 1, 4, 5]})
-    pd.testing.assert_frame_equal(expected_train, actual_train)
-    pd.testing.assert_frame_equal(expected_val, actual_val)
 
 
 def test_is_dataset_files_present_returns_true():

@@ -7,7 +7,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 from PIL import Image, ImageColor
 
-from datasetinsights.datasets.cityscapes import CITYSCAPES_COLOR_MAPPING
 from datasetinsights.stats.visualization.bbox2d_plot import (
     add_single_bbox_on_image,
 )
@@ -21,34 +20,6 @@ FONT_SCALE = 35
 LINE_WIDTH_SCALE = 250
 ERROR_BAR_BASE_COLOR = "indianred"
 ERROR_BAR_COMPARE_COLOR = "lightseagreen"
-
-
-def decode_segmap(labels, dataset="cityscapes"):
-    """Decode segmentation class labels into a color image.
-
-    Args:
-        labels (np.array): an array of size (H, W) with integer grayscale
-        values denoting the class label at each spatial location.
-        dataset (str): dataset name. Defaults to "cityscapes".
-
-    Returns:
-        A np.array of the resulting decoded color image in (H, W, C).
-
-    .. note:: (H, W, C) stands for the (height, width, channel) of the 2D image.
-    """
-    if dataset == "cityscapes":
-        color_mapping = CITYSCAPES_COLOR_MAPPING
-    else:
-        raise ValueError(f"Dataset '{dataset}' is not supported.")
-
-    h, w = labels.shape
-    rgb = np.zeros((h, w, 3))
-    for id, color in color_mapping.items():
-        color = np.array(color)
-        select_mask = labels == id
-        rgb[select_mask, :] = color / 255.0
-
-    return rgb
 
 
 def grid_plot(images, figsize=(3, 5), img_type="rgb", titles=None):
