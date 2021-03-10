@@ -13,9 +13,8 @@ from datasetinsights.stats.visualization.bbox2d_plot import (
 from datasetinsights.stats.visualization.bbox3d_plot import (
     add_single_bbox3d_on_image,
 )
-from datasetinsights.stats.visualization.keypoints_plot import (
-    draw_keypoints_for_figure,
-)
+
+from .keypoints_plot import draw_keypoints_for_figure
 
 logger = logging.getLogger(__name__)
 COLORS = list(ImageColor.colormap.values())

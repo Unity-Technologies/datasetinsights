@@ -265,12 +265,13 @@ def test_add_single_bbox_on_image(mock, get_image_and_bbox):
     )
 
 
-def create_keypoint_template(guid):
+@pytest.fixture
+def test_template():
     """prepare a fake template"""
 
     templates = [
         {
-            "template_id": guid,
+            "template_id": "test_template",
             "template_name": "test_template",
             "key_points": [
                 {
@@ -322,18 +323,19 @@ def create_keypoint_template(guid):
     return templates
 
 
-def create_keypoints(guid, x, y, dim):
+@pytest.fixture
+def test_keypoints():
     keypoints = [
         {
             "label_id": 0,
             "instance_id": "0",
-            "template_guid": guid,
+            "template_guid": "test_template",
             "pose": "unset",
             "keypoints": [
-                {"index": 0, "x": x - dim, "y": y - dim, "state": 2},
-                {"index": 1, "x": x - dim, "y": y + dim, "state": 2},
-                {"index": 2, "x": x + dim, "y": y + dim, "state": 2},
-                {"index": 3, "x": x + dim, "y": y - dim, "state": 2},
+                {"index": 0, "x": 315, "y": 235, "state": 2},
+                {"index": 1, "x": 315, "y": 245, "state": 2},
+                {"index": 2, "x": 325, "y": 245, "state": 2},
+                {"index": 3, "x": 325, "y": 235, "state": 2},
             ],
         }
     ]
@@ -341,23 +343,15 @@ def create_keypoints(guid, x, y, dim):
     return keypoints
 
 
-def test_plot_keypoints():
-    x_dim = 320
-    y_dim = 240
+def test_plot_keypoints(test_template, test_keypoints):
     cur_dir = pathlib.Path(__file__).parent.absolute()
     img = Image.open(
         str(cur_dir / "mock_data" / "simrun" / "captures" / "camera_000.png")
     )
-    guid = 0
-    template = create_keypoint_template(guid)
-    x = x_dim / 2
-    y = y_dim / 2
-    dim = 5
     width = 6
-    keypoints = create_keypoints(guid, x, y, dim)
 
     with patch(
         "datasetinsights.stats.visualization.plots.draw_keypoints_for_figure"
     ) as mock:
-        plot_keypoints(img, keypoints, template, width)
+        plot_keypoints(img, test_keypoints, test_template, width)
         assert mock.call_count == 1

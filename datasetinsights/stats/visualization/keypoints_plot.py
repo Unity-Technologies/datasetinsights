@@ -3,7 +3,7 @@ simple Python API.
 """
 
 
-def get_color_from_color_node(color):
+def _get_color_from_color_node(color):
     """ Gets the color from the color node in the template.
 
     Args:
@@ -19,7 +19,7 @@ def get_color_from_color_node(color):
     return r, g, b, a
 
 
-def get_color_for_bone(bone):
+def _get_color_for_bone(bone):
     """ Gets the color for the bone from the template. A bone is a visual
         connection between two keypoints in the keypoint list of the figure.
 
@@ -42,12 +42,12 @@ def get_color_for_bone(bone):
 
     """
     if "color" in bone:
-        return get_color_from_color_node(bone["color"])
+        return _get_color_from_color_node(bone["color"])
     else:
         return 255, 0, 255, 255
 
 
-def get_color_for_keypoint(template, keypoint):
+def _get_color_for_keypoint(template, keypoint):
     """ Gets the color for the keypoint from the template. A keypoint is a
         location of interest inside of a figure. Keypoints are connected
         together with bones. The configuration of keypoint locations and bone
@@ -92,7 +92,7 @@ def get_color_for_keypoint(template, keypoint):
     node = template["key_points"][keypoint["index"]]
 
     if "color" in node:
-        return get_color_from_color_node(node["color"])
+        return _get_color_from_color_node(node["color"])
     else:
         return 0, 0, 255, 255
 
@@ -147,7 +147,7 @@ def draw_keypoints_for_figure(image, figure, draw, templates, visual_width=6):
             x2 = int(j2["x"])
             y2 = int(j2["y"])
 
-            color = get_color_for_bone(bone)
+            color = _get_color_for_bone(bone)
             draw.line((x1, y1, x2, y2), fill=color, width=visual_width)
 
     for k in figure["keypoints"]:
@@ -156,7 +156,7 @@ def draw_keypoints_for_figure(image, figure, draw, templates, visual_width=6):
             x = k["x"]
             y = k["y"]
 
-            color = get_color_for_keypoint(template, k)
+            color = _get_color_for_keypoint(template, k)
 
             half_width = visual_width / 2
 
