@@ -148,7 +148,7 @@ def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
     return Image.fromarray(np_image)
 
 
-def plot_keypoints(image, annotations, templates):
+def plot_keypoints(image, annotations, templates, visual_width=6):
     """ Plot an image with keypoint data.
 
     Currently only used for ground truth info. Keypoints and colors are defined
@@ -158,6 +158,7 @@ def plot_keypoints(image, annotations, templates):
         image (PIL Image): a PIL image.
         annotations (list): a list of keypoint annotation data.
         templates (list): a list of keypoint templates.
+        visual_width (int): the width of the visual elements
 
     Returns:
         PIL Image: a PIL image with keypoints drawn.
@@ -165,7 +166,7 @@ def plot_keypoints(image, annotations, templates):
     draw = ImageDraw.Draw(image)
 
     for figure in annotations:
-        draw_keypoints_for_figure(image, figure, draw, templates)
+        draw_keypoints_for_figure(image, figure, draw, templates, visual_width)
 
     return image
 

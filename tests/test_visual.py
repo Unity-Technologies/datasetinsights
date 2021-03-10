@@ -21,6 +21,7 @@ from datasetinsights.stats.visualization.plots import (
     model_performance_box_plot,
     model_performance_comparison_box_plot,
     plot_bboxes,
+    plot_keypoints,
 )
 
 
@@ -262,3 +263,101 @@ def test_add_single_bbox_on_image(mock, get_image_and_bbox):
         font_size=100,
         box_line_width=15,
     )
+
+
+def create_keypoint_template(guid):
+    """prepare a fake template"""
+
+    templates = [
+        {
+            "template_id": guid,
+            "template_name": "test_template",
+            "key_points": [
+                {
+                    "label": "lower_left",
+                    "index": 0,
+                    "color": {"r": 1, "g": 0, "b": 0, "a": 1},
+                },
+                {
+                    "label": "upper_left",
+                    "index": 1,
+                    "color": {"r": 1, "g": 0, "b": 0, "a": 1},
+                },
+                {
+                    "label": "upper_right",
+                    "index": 2,
+                    "color": {"r": 1, "g": 0, "b": 0, "a": 1},
+                },
+                {
+                    "label": "lower_right",
+                    "index": 3,
+                    "color": {"r": 1, "g": 0, "b": 0, "a": 1},
+                },
+            ],
+            "skeleton": [
+                {
+                    "joint1": 0,
+                    "joint2": 1,
+                    "color": {"r": 0, "g": 1, "b": 0, "a": 1},
+                },
+                {
+                    "joint1": 1,
+                    "joint2": 2,
+                    "color": {"r": 0, "g": 1, "b": 0, "a": 1},
+                },
+                {
+                    "joint1": 2,
+                    "joint2": 3,
+                    "color": {"r": 0, "g": 1, "b": 0, "a": 1},
+                },
+                {
+                    "joint1": 3,
+                    "joint2": 0,
+                    "color": {"r": 0, "g": 1, "b": 0, "a": 1},
+                },
+            ],
+        }
+    ]
+
+    return templates
+
+
+def create_keypoints(guid, x, y, dim):
+    keypoints = [
+        {
+            "label_id": 0,
+            "instance_id": "0",
+            "template_guid": guid,
+            "pose": "unset",
+            "keypoints": [
+                {"index": 0, "x": x - dim, "y": y - dim, "state": 2},
+                {"index": 1, "x": x - dim, "y": y + dim, "state": 2},
+                {"index": 2, "x": x + dim, "y": y + dim, "state": 2},
+                {"index": 3, "x": x + dim, "y": y - dim, "state": 2},
+            ],
+        }
+    ]
+
+    return keypoints
+
+
+def test_plot_keypoints():
+    x_dim = 320
+    y_dim = 240
+    cur_dir = pathlib.Path(__file__).parent.absolute()
+    img = Image.open(
+        str(cur_dir / "mock_data" / "simrun" / "captures" / "camera_000.png")
+    )
+    guid = 0
+    template = create_keypoint_template(guid)
+    x = x_dim / 2
+    y = y_dim / 2
+    dim = 5
+    width = 6
+    keypoints = create_keypoints(guid, x, y, dim)
+
+    with patch(
+        "datasetinsights.stats.visualization.plots.draw_keypoints_for_figure"
+    ) as mock:
+        plot_keypoints(img, keypoints, template, width)
+        assert mock.call_count == 1
