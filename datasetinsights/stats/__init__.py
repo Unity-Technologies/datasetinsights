@@ -6,6 +6,7 @@ from .visualization.plots import (
     model_performance_box_plot,
     model_performance_comparison_box_plot,
     plot_bboxes,
+    plot_keypoints,
     rotation_plot,
 )
 
@@ -18,4 +19,5 @@ __all__ = [
     "model_performance_comparison_box_plot",
     "rotation_plot",
     "RenderedObjectInfo",
+    "plot_keypoints",
 ]
