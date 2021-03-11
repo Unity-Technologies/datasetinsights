@@ -4,7 +4,7 @@ Unity Dataset Insights is a python package for downloading, parsing and analyzin
 
 ## Installation
 
-Dataset Insights maintains a pip package for easy installation. It can work in any standard Python environment using `pip install datasetinsights` command. We support Python 3 (>= 3.7).
+Dataset Insights maintains a pip package for easy installation. It can work in any standard Python environment using `pip install datasetinsights` command. We support Python 3 (3.7 and 3.8).
 
 ## Getting Started
 
@@ -29,20 +29,30 @@ UnitySimulationDownloader downloads a dataset from Unity Simulation.
 
 ```python3
 from datasetinsights.io.downloader import UnitySimulationDownloader
+
+source_uri=usim://<project_id>/<run_execution_id>
+dest = "~/data"
+access_token = "XXX"
 downloader = UnitySimulationDownloader(access_token=access_token)
-downloader.download(source_uri=source_uri, output=data_root)
+downloader.download(source_uri=source_uri, output=dest)
 ```
 GCSDatasetDownloader downloads a dataset from GCS location.
 ```python3
 from datasetinsights.io.downloader import GCSDatasetDownloader
+
+source_uri=gs://url/to/file.zip or gs://url/to/folder
+dest = "~/data"
 downloader = GCSDatasetDownloader()
-downloader.download(source_uri=source_uri, output=data_root)
+downloader.download(source_uri=source_uri, output=dest)
 ```
 HTTPDatasetDownloader downloads a dataset from any HTTP(S) location.
 ```python3
 from datasetinsights.io.downloader import HTTPDatasetDownloader
+
+source_uri=http://url.to.file.zip
+dest = "~/data"
 downloader = HTTPDatasetDownloader()
-downloader.download(source_uri=source_uri, output=data_root)
+downloader.download(source_uri=source_uri, output=dest)
 ```
 ### Dataset Explore
 You can explore the dataset [schema](https://datasetinsights.readthedocs.io/en/latest/Synthetic_Dataset_Schema.html#synthetic-dataset-schema) by using following API:
@@ -54,24 +64,24 @@ AnnotationDefinitions and MetricDefinitions loads synthetic dataset definition t
 ```python3
 from datasetinsights.datasets.unity_perception import AnnotationDefinitions,
 MetricDefinitions
-annotation_def = AnnotationDefinitions(data_root="/data", version="my_schema_version")
+annotation_def = AnnotationDefinitions(data_root=dest, version="my_schema_version")
 definition_dict = annotation_def.get_definition(def_id="my_definition_id")
 
-metric_def = MetricDefinitions(data_root="/data", version="my_schema_version")
+metric_def = MetricDefinitions(data_root=dest, version="my_schema_version")
 definition_dict = metric_def.get_definition(def_id="my_definition_id")
 ```
 Captures loads synthetic dataset captures tables and return a pandas dataframe with captures and annotations columns.
 
 ```python3
 from datasetinsights.datasets.unity_perception import Captures
-captures = Captures(data_root="/data", version="my_schema_version")
+captures = Captures(data_root=dest, version="my_schema_version")
 captures_df = captures.filter(def_id="my_definition_id")
 ```
 Metrics loads synthetic dataset metrics table which holds extra metadata that can be used to describe a particular sequence, capture or annotation and return a pandas dataframe with captures and metrics columns.
 
 ```python3
 from datasetinsights.datasets.unity_perception import Metrics
-metrics = Metrics(data_root="/data", version="my_schema_version")
+metrics = Metrics(data_root=dest, version="my_schema_version")
 metrics_df = metrics.filter_metrics(def_id="my_definition_id")
 ```
 
