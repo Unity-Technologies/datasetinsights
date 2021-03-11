@@ -25,20 +25,64 @@ datasetinsights download \
 ```
 [Programmatically](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.io.downloader.html#module-datasetinsights.io.downloader.gcs_downloader)
 
+UnitySimulationDownloader downloads a dataset from Unity Simulation.
+
 ```python3
+from datasetinsights.io.downloader import UnitySimulationDownloader
 
-from datasetinsights.io.downloader import UnitySimulationDownloader,
-GCSDatasetDownloader, HTTPDatasetDownloader
-
+source_uri=usim://<project_id>/<run_execution_id>
+dest = "~/data"
+access_token = "XXX"
 downloader = UnitySimulationDownloader(access_token=access_token)
-downloader.download(source_uri=source_uri, output=data_root)
+downloader.download(source_uri=source_uri, output=dest)
+```
+GCSDatasetDownloader downloads a dataset from GCS location.
+```python3
+from datasetinsights.io.downloader import GCSDatasetDownloader
 
+source_uri=gs://url/to/file.zip or gs://url/to/folder
+dest = "~/data"
 downloader = GCSDatasetDownloader()
-downloader.download(source_uri=source_uri, output=data_root)
+downloader.download(source_uri=source_uri, output=dest)
+```
+HTTPDatasetDownloader downloads a dataset from any HTTP(S) location.
+```python3
+from datasetinsights.io.downloader import HTTPDatasetDownloader
 
+source_uri=http://url.to.file.zip
+dest = "~/data"
 downloader = HTTPDatasetDownloader()
-downloader.download(source_uri=source_uri, output=data_root)
+downloader.download(source_uri=source_uri, output=dest)
+```
+### Dataset Explore
+You can explore the dataset [schema](https://datasetinsights.readthedocs.io/en/latest/Synthetic_Dataset_Schema.html#synthetic-dataset-schema) by using following API:
 
+[Unity Perception](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.datasets.unity_perception.html#datasetinsights-datasets-unity-perception)
+
+AnnotationDefinitions and MetricDefinitions loads synthetic dataset definition tables and return a dictionary containing the definitions.
+
+```python3
+from datasetinsights.datasets.unity_perception import AnnotationDefinitions,
+MetricDefinitions
+annotation_def = AnnotationDefinitions(data_root=dest, version="my_schema_version")
+definition_dict = annotation_def.get_definition(def_id="my_definition_id")
+
+metric_def = MetricDefinitions(data_root=dest, version="my_schema_version")
+definition_dict = metric_def.get_definition(def_id="my_definition_id")
+```
+Captures loads synthetic dataset captures tables and return a pandas dataframe with captures and annotations columns.
+
+```python3
+from datasetinsights.datasets.unity_perception import Captures
+captures = Captures(data_root=dest, version="my_schema_version")
+captures_df = captures.filter(def_id="my_definition_id")
+```
+Metrics loads synthetic dataset metrics table which holds extra metadata that can be used to describe a particular sequence, capture or annotation and return a pandas dataframe with captures and metrics columns.
+
+```python3
+from datasetinsights.datasets.unity_perception import Metrics
+metrics = Metrics(data_root=dest, version="my_schema_version")
+metrics_df = metrics.filter_metrics(def_id="my_definition_id")
 ```
 
 ## Docker

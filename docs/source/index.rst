@@ -6,28 +6,26 @@
 Dataset Insights
 ================
 
-Unity Dataset Insights is a python package for understanding synthetic datasets.
-This package enables users to analyze synthetic datasets generated using the `Perception SDK <https://github.com/Unity-Technologies/com.unity.perception>`_.
+Unity Dataset Insights is a python package for downloading, parsing and analyzing synthetic datasets generated using the Unity `Perception SDK <https://github.com/Unity-Technologies/com.unity.perception>`_.
 
 Installation
 ------------
 
-Dataset Insights maintains a pip package for easy installation. It can work in any standard Python environment using :code:`pip install datasetinsights` command. We support Python 3 (>= 3.7).
+Dataset Insights maintains a pip package for easy installation. It can work in any standard Python environment using :code:`pip install datasetinsights` command. We support Python 3 (3.7 and 3.8).
 
 Getting Started
 ---------------
 
 Dataset Statistics
 ~~~~~~~~~~~~~~~~~~
+We provide a sample `notebook <https://github.com/Unity-Technologies/datasetinsights/blob/master/notebooks/Perception_Statistics.ipynb>`_  to help you load synthetic datasets generated using `Perception package <https://github.com/Unity-Technologies/com.unity.perception>`_  and visualize dataset statistics. We plan to support other sample Unity projects in the future.
 
-We provide a sample `notebook <https://github.com/Unity-Technologies/datasetinsights/blob/master/notebooks/SynthDet_Statistics.ipynb>`_ to help you get started with dataset statistics for the `SynthDet <https://github.com/Unity-Technologies/SynthDet>`_ project. We plan to support other sample Unity projects in the future.
-
-Dataset Evaluation
+Dataset Download
 ~~~~~~~~~~~~~~~~~~
 
-Dataset evaluation provides tools to train and evaluate ML models for different datasets. You can run :code:`download`, :code:`train` and :code:`evaluate` commands:
+You can download the datasets from HTTP(s), GCS, and Unity simulation projects using the download command from `CLI` or `API`.
 
-`Download Dataset <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-download>`_
+`CLI <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-download>`_
 
 .. code-block:: bash
 
@@ -35,24 +33,76 @@ Dataset evaluation provides tools to train and evaluate ML models for different 
       --source-uri=<xxx> \
       --output=$HOME/data
 
-`Train <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-train>`_
+`API <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.io.downloader.html#module-datasetinsights.io.downloader.gcs_downloader>`_
 
-.. code-block:: bash
+UnitySimulationDownloader downloads a dataset from Unity Simulation.
 
-   datasetinsights train \
-      --config=datasetinsights/configs/faster_rcnn.yaml \
-      --train-data=$HOME/data
+.. code-block:: python3
 
-`Evaluate <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-evaluate>`_
+   from datasetinsights.io.downloader import UnitySimulationDownloader
 
-.. code-block:: bash
+   source_uri=usim://<project_id>/<run_execution_id>
+   dest = "~/data"
+   access_token = "XXX"
+   downloader = UnitySimulationDownloader(access_token=access_token)
+   downloader.download(source_uri=source_uri, output=data_root)
 
-   datasetinsights evaluate \
-      --config=datasetinsights/configs/faster_rcnn.yaml \
-      --test-data=$HOME/data
+GCSDatasetDownloader downloads a dataset from GCS location.
 
-To learn more, see this :doc:`Evaluation_Tutorial` Documentation.
+.. code-block:: python3
 
+   from datasetinsights.io.downloader import GCSDatasetDownloader
+
+   source_uri=gs://url/to/file.zip or gs://url/to/folder
+   dest = "~/data"
+   downloader = GCSDatasetDownloader()
+   downloader.download(source_uri=source_uri, output=data_root)
+
+HTTPDatasetDownloader downloads a dataset from any HTTP(S) location.
+
+.. code-block:: python3
+
+   from datasetinsights.io.downloader import HTTPDatasetDownloader
+
+   source_uri=http://url.to.file.zip
+   dest = "~/data"
+   downloader = HTTPDatasetDownloader()
+   downloader.download(source_uri=source_uri, output=data_root)
+
+Dataset Explore
+~~~~~~~~~~~~~~~~~~
+
+You can explore the dataset `schema <https://datasetinsights.readthedocs.io/en/latest/Synthetic_Dataset_Schema.html#synthetic-dataset-schema>`_ by using following API:
+
+`Unity Perception <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.datasets.unity_perception.html#datasetinsights-datasets-unity-perception>`_
+
+AnnotationDefinitions and MetricDefinitions loads synthetic dataset definition tables and return a dictionary containing the definitions.
+
+.. code-block:: python3
+
+   from datasetinsights.datasets.unity_perception import AnnotationDefinitions,
+   MetricDefinitions
+   annotation_def = AnnotationDefinitions(data_root=dest, version="my_schema_version")
+   definition_dict = annotation_def.get_definition(def_id="my_definition_id")
+
+   metric_def = MetricDefinitions(data_root=dest, version="my_schema_version")
+   definition_dict = metric_def.get_definition(def_id="my_definition_id")
+
+Captures loads synthetic dataset captures tables and return a pandas dataframe with captures and annotations columns.
+
+.. code-block:: python3
+
+   from datasetinsights.datasets.unity_perception import Captures
+   captures = Captures(data_root=dest, version="my_schema_version")
+   captures_df = captures.filter(def_id="my_definition_id")
+
+Metrics loads synthetic dataset metrics table which holds extra metadata that can be used to describe a particular sequence, capture or annotation and return a pandas dataframe with captures and metrics columns.
+
+.. code-block:: python3
+
+   from datasetinsights.datasets.unity_perception import Metrics
+   metrics = Metrics(data_root=dest, version="my_schema_version")
+   metrics_df = metrics.filter_metrics(def_id="my_definition_id")
 
 Contents
 ========
@@ -69,7 +119,6 @@ Contents
    :caption: Getting Started
 
    SynthDet Guide <https://github.com/Unity-Technologies/SynthDet/blob/master/docs/Readme.md>
-   Evaluation_Tutorial
 
 
 .. toctree::
