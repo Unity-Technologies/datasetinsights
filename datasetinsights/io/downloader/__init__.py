@@ -1,4 +1,4 @@
-from .base import create_downloader
+from .base import create_dataset_downloader
 from .gcs_downloader import GCSDatasetDownloader
 from .http_downloader import HTTPDatasetDownloader
 from .unity_simulation import UnitySimulationDownloader
@@ -6,6 +6,6 @@ from .unity_simulation import UnitySimulationDownloader
 __all__ = [
     "UnitySimulationDownloader",
     "HTTPDatasetDownloader",
-    "create_downloader",
+    "create_dataset_downloader",
     "GCSDatasetDownloader",
 ]

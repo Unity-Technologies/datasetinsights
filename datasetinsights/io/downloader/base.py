@@ -31,7 +31,7 @@ def _find_downloader(source_uri):
     return _registry.get(protocol)
 
 
-def create_downloader(source_uri, **kwargs):
+def create_dataset_downloader(source_uri, **kwargs):
     """
     This function instantiates the dataset downloader
      after finding it with the source-uri provided
