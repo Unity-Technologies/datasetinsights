@@ -1,4 +1,3 @@
-# .readthedocs.yml
 version: 2
 formats: all
 build:

@@ -38,8 +38,6 @@ git clone https://github.com/Unity-Technologies/datasetinsights.git
 cd datasetinsights
 ```
 
-Note: clone the repo from `git@gitlab.internal.unity3d.com:machine-learning/thea.git` before datasetinsights source are available on public github.
-
 4. Install datasetinsights in `develop` mode:
 
 ```bash
@@ -60,7 +58,7 @@ pre-commit install
 
 Adding new Python dependencies to datasetinsights environment using poetry like:
 
-```
+```bash
 poetry add numpy@^1.18.4
 ```
 
@@ -74,27 +72,13 @@ The datasetinsights contains the following modules.
 datasetinsights
 *    [commands](datasetinsights/commands)
         This module contains the cli commands.
-
-*    [configs](datasetinsights/configs)
-        This module contains estimator configuration files.
-
 *    [datasets](datasetinsights/datasets)
         This module contains different datasets.
         The dataset classes contain knowledge on how the
         dataset should be loaded into memory.
-
-*    [estimators](datasetinsights/estimators)
-        This module contain estimatos are used for
-        training and evaluating models on the datasets.
-
-*    [evaluation_metrics](datasetinsights/evaluation_metrics)
-        This module contains metrics used by the different
-        estimators and are specific in the estimator config file.
-
 *    [io](datasetinsights/io)
         This module contains functionality that relates to
         writing/downloading/uploading to/from different sources.
-
 *    [stats](datasetinsights/stats)
         This module contains code for visualizing and gathering
         statistics on the dataset
