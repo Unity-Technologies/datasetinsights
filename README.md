@@ -1,8 +1,6 @@
 <div align="center">
 <p align="center">
 
---
-
 [![PyPI python](https://img.shields.io/pypi/pyversions/datasetinsights)](https://pypi.org/project/datasetinsights)
 [![PyPI version](https://badge.fury.io/py/datasetinsights.svg)](https://pypi.org/project/datasetinsights)
 [![Downloads](https://pepy.tech/badge/datasetinsights)](https://pepy.tech/project/datasetinsights)
@@ -12,7 +10,7 @@
 </p>
 </div>
 
---
+---
 
 # Dataset Insights
 
