@@ -10,7 +10,7 @@ Unity Dataset Insights is a python package for downloading, parsing and analyzin
 
 ## Installation
 
-Dataset Insights maintains a pip package for easy installation. It can work in any standard Python environment using `pip install datasetinsights` command. We support Python 3 (3.7 and 3.8).
+Dataset Insights maintains a pip package for easy installation. It can work in any standard Python environment using `pip install datasetinsights` command.
 
 ## Getting Started
 
