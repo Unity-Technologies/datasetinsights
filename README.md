@@ -1,3 +1,9 @@
+# Dataset Insights
+
+Unity Dataset Insights is a python package for downloading, parsing and analyzing synthetic datasets generated using the Unity [Perception package](https://github.com/Unity-Technologies/com.unity.perception).
+
+---
+
 <div align="center">
 <p align="center">
 
@@ -9,12 +15,6 @@
 
 </p>
 </div>
-
----
-
-# Dataset Insights
-
-Unity Dataset Insights is a python package for downloading, parsing and analyzing synthetic datasets generated using the Unity [Perception package](https://github.com/Unity-Technologies/com.unity.perception).
 
 ## Installation
 
