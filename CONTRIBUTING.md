@@ -1,29 +1,27 @@
-Table of contents
-=================
+# Table of contents
 
 - [Contributing to datasetinsights](#contributing-to-datasetinsights)
 - [Developing datasetinsights](#developing-datasetinsights)
-    - [Add new dependencies](#add-new-dependencies)
+  - [Add new dependencies](#add-new-dependencies)
 - [Codebase structure](#codebase-structure)
-- [Train Model](#train-model)
 - [Unit testing](#unit-testing)
 - [Style Guide](#style-guide)
 - [Writing documentation](#writing-documentation)
-    - [Building documentation](#building-documentation)
+  - [Building documentation](#building-documentation)
 
 ## Contributing to datasetinsights
 
-If you are interested in contributing to datasetinsights, your contributions will fall into two categories:
+We encourage contributions to the datasetinsights repo, including but not limited to following categories:
 
-1. You want to propose a new models/datasets/evaluation metrics and implement it.
-2. You want to implement a feature or bug-fix for an outstanding issue.
+1. You want to improve the documentation of existing module.
+2. You want to provide bug-fix for an outstanding issue.
+3. You want to implement a new feature to support new type of perception package outputs.
 
 ## Developing datasetinsights
 
 Here are some steps to setup datasetinsights virtual environment with on your machine:
 
 1. Install [poetry](https://python-poetry.org/), [git](https://git-scm.com/) and [pre-commit](https://pre-commit.com/)
-
 2. Create a virtual environment. We recommend using [miniconda](https://docs.conda.io/en/latest/miniconda.html)
 
 ```bash
@@ -37,8 +35,6 @@ conda activate dins-dev
 git clone https://github.com/Unity-Technologies/datasetinsights.git
 cd datasetinsights
 ```
-
-Note: clone the repo from `git@gitlab.internal.unity3d.com:machine-learning/thea.git` before datasetinsights source are available on public github.
 
 4. Install datasetinsights in `develop` mode:
 
@@ -60,7 +56,7 @@ pre-commit install
 
 Adding new Python dependencies to datasetinsights environment using poetry like:
 
-```
+```bash
 poetry add numpy@^1.18.4
 ```
 
@@ -69,35 +65,13 @@ Let package management system resolve for dependencies.
 See [poetry add](https://python-poetry.org/docs/cli/#add) for detail instructions.
 
 ## Codebase structure
-The datasetinsights contains the following modules.
 
-datasetinsights
-*    [commands](datasetinsights/commands)
-        This module contains the cli commands.
+The datasetinsights package contains the following modules:
 
-*    [configs](datasetinsights/configs)
-        This module contains estimator configuration files.
-
-*    [datasets](datasetinsights/datasets)
-        This module contains different datasets.
-        The dataset classes contain knowledge on how the
-        dataset should be loaded into memory.
-
-*    [estimators](datasetinsights/estimators)
-        This module contain estimatos are used for
-        training and evaluating models on the datasets.
-
-*    [evaluation_metrics](datasetinsights/evaluation_metrics)
-        This module contains metrics used by the different
-        estimators and are specific in the estimator config file.
-
-*    [io](datasetinsights/io)
-        This module contains functionality that relates to
-        writing/downloading/uploading to/from different sources.
-
-*    [stats](datasetinsights/stats)
-        This module contains code for visualizing and gathering
-        statistics on the dataset
+- [commands](datasetinsights/commands) This module contains the cli commands.
+- [datasets](datasetinsights/datasets) This module contains different datasets. The dataset classes contain knowledge on how the dataset should be loaded into memory.
+- [io](datasetinsights/io) This module contains functionality that relates to writing/downloading/uploading to/from different sources.
+- [stats](datasetinsights/stats) This module contains code for visualizing and gathering statistics on the dataset
 
 ## Unit testing
 
@@ -124,7 +98,7 @@ In addition to Black, we use [isort](https://github.com/timothycrosley/isort) to
 
 Before submitting a pull request, run:
 
-```
+```bash
 pre-commit run --all-files
 ```
 
