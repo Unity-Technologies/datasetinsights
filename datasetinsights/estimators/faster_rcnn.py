@@ -5,6 +5,7 @@ import logging
 import math
 import os
 from typing import Dict, List, Tuple
+import webdataset as wds
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,7 +14,6 @@ import torch.distributed as dist
 import torchvision
 from codetiming import Timer
 from torchvision import transforms
-from tqdm import tqdm
 
 import datasetinsights.constants as const
 from datasetinsights.datasets import Dataset
@@ -79,7 +79,6 @@ class FasterRCNN(Estimator):
 
         logger.info(f"initializing faster rcnn")
         self.config = config
-
         self._init_distributed_mode()
         self.no_cuda = no_cuda
         self._init_device()
@@ -173,31 +172,31 @@ class FasterRCNN(Estimator):
 
         """
         config = self.config
-        train_dataset = create_dataset(config, train_data, TRAIN)
-        val_dataset = (
+        train_dataset, train_dataset1 = create_dataset(config, train_data, TRAIN)
+        val_dataset, val_dataset1 = (
             create_dataset(config, val_data, VAL) if val_data else None
         )
 
-        label_mappings = train_dataset.label_mappings
+        label_mappings = train_dataset1.label_mappings
 
-        logger.info(f"length of train dataset is {len(train_dataset)}")
-        if val_dataset:
-            logger.info(f"length of validation dataset is {len(val_dataset)}")
+        # logger.info(f"length of train dataset is {len(train_dataset1)}")
+        # if val_dataset:
+        #     logger.info(f"length of validation dataset is {len(val_dataset1)}")
 
-        train_sampler = FasterRCNN.create_sampler(
-            is_distributed=self.distributed,
-            dataset=train_dataset,
-            is_train=True,
-        )
-        val_sampler = FasterRCNN.create_sampler(
-            is_distributed=self.distributed, dataset=val_dataset, is_train=False
-        )
+        # train_sampler = FasterRCNN.create_sampler(
+        #     is_distributed=self.distributed,
+        #     dataset=train_dataset,
+        #     is_train=True,
+        # )
+        # val_sampler = FasterRCNN.create_sampler(
+        #     is_distributed=self.distributed, dataset=val_dataset, is_train=False
+        # )
 
         train_loader = dataloader_creator(
-            config, train_dataset, train_sampler, TRAIN, self.distributed
+            config, train_dataset, TRAIN, self.distributed
         )
         val_loader = dataloader_creator(
-            config, val_dataset, val_sampler, VAL, self.distributed
+            config, val_dataset, VAL, self.distributed
         )
 
         params = self.config.clone()
@@ -210,7 +209,6 @@ class FasterRCNN(Estimator):
                 train_dataloader=train_loader,
                 label_mappings=label_mappings,
                 val_dataloader=val_loader,
-                train_sampler=train_sampler,
             )
         except Exception as e:
             self.mlflow_tracker.end_run(status=TrackerFactory.RUN_FAILED)
@@ -263,9 +261,9 @@ class FasterRCNN(Estimator):
                     lr_scheduler=lr_scheduler,
                     accumulation_steps=accumulation_steps,
                 )
-            if self.distributed:
-                train_sampler.set_epoch(epoch)
-            self.checkpointer.save(self, epoch=epoch)
+            # if self.distributed:
+            #     train_sampler.set_epoch(epoch)
+            #self.checkpointer.save(self, epoch=epoch)
             with Timer(
                 name=f"epoch-{epoch}-evaluate-time",
                 text=const.TIMING_TEXT,
@@ -301,9 +299,10 @@ class FasterRCNN(Estimator):
         self.model.train()
         loss_metric = Loss()
         optimizer.zero_grad()
-        n_examples = len(data_loader.dataset)
+        # #n_examples = len(data_loader.dataset)
         for i, (images, targets) in enumerate(data_loader):
-            images = list(image.to(self.device) for image in images)
+            images = list(torchvision.transforms.functional.to_tensor(image).to(self.device) for image in images)
+            targets = prepare_bboxeswd(targets)
             targets = [
                 {k: v.to(self.device) for k, v in t.items()} for t in targets
             ]
@@ -322,16 +321,16 @@ class FasterRCNN(Estimator):
                 )
             elif i % self.config.train.log_frequency == 0:
                 intermediate_loss = loss_metric.compute()
-                examples_seen = epoch * n_examples + loss_metric.num_examples
-                logger.info(
-                    f"intermediate loss after mini batch {i} in epoch {epoch} "
-                    f"(total training examples: {examples_seen}) is "
-                    f"{intermediate_loss}"
-                )
-
-                self.writer.add_scalar(
-                    _TRAIN_INTERMEDIATE_LOSS, intermediate_loss, examples_seen,
-                )
+                # examples_seen = epoch * n_examples + loss_metric.num_examples
+                # logger.info(
+                #     f"intermediate loss after mini batch {i} in epoch {epoch} "
+                #     f"(total training examples: {examples_seen}) is "
+                #     f"{intermediate_loss}"
+                # )
+                #
+                # self.writer.add_scalar(
+                #     _TRAIN_INTERMEDIATE_LOSS, intermediate_loss, examples_seen,
+                # )
                 self.mlflow_tracker.log_metric(
                     _TRAIN_INTERMEDIATE_LOSS, intermediate_loss
                 )
@@ -424,8 +423,9 @@ class FasterRCNN(Estimator):
         loss_metric = Loss()
         for metric in self.metrics.values():
             metric.reset()
-        for i, (images, targets) in enumerate(tqdm(data_loader)):
-            images = list(image.to(self.device) for image in images)
+        for i, (images, targets) in enumerate(data_loader):
+            images = list(torchvision.transforms.functional.to_tensor(image).to(self.device) for image in images)
+            targets = prepare_bboxeswd(targets)
             targets_raw = [
                 {k: v.to(self.device) for k, v in t.items()} for t in targets
             ]
@@ -571,8 +571,8 @@ class FasterRCNN(Estimator):
             sampler = torch.utils.data.distributed.DistributedSampler(
                 dataset, shuffle=is_train
             )
-        elif is_train:
-            sampler = torch.utils.data.RandomSampler(dataset)
+        # elif is_train:
+        #     sampler = torch.utils.data.RandomSampler(dataset)
         else:
             sampler = torch.utils.data.SequentialSampler(dataset)
 
@@ -621,6 +621,12 @@ class FasterRCNN(Estimator):
         """transform bounding box and tesnor."""
         transforms = [BoxListToTensor(), ToTensor()]
         return Compose(transforms)
+    @staticmethod
+    def get_transform1():
+        """transform bounding box and tesnor."""
+        print("get_transform1")
+        transforms = [BoxListToTensor(), ToTensor()]
+        return Compose(transforms)
 
     @staticmethod
     def collate_fn(batch):
@@ -646,19 +652,24 @@ def create_dataset(config, data_path, split):
     Returns dataset: dataset obj must have len and __get_item__
 
     """
-    dataset = Dataset.create(
+    dataset1 = Dataset.create(
         config[split].dataset.name,
         data_path=data_path,
         transforms=FasterRCNN.get_transform(),
         **config[split].dataset.args,
     )
-    return dataset
+    if split==TRAIN:
+        url="https://storage.googleapis.com/thea-dev/data/WebDataset/GroceriesReal/train_100/groceries_train-{000000..000007}.tar"
+    else:
+        url = "https://storage.googleapis.com/thea-dev/data/WebDataset/GroceriesReal/test_100/groceries_test-{000000..000002}.tar"
+
+    dataset = (wds.WebDataset(url, shardshuffle=True).decode("rgb").to_tuple("jpg", "cls"))
+    return dataset,dataset1
 
 
 def create_dataloader(
     distributed,
     dataset,
-    sampler,
     train,
     *,
     batch_size=1,
@@ -679,43 +690,51 @@ def create_dataloader(
         torch.utils.data.DataLoader
 
     """
-    if distributed:
-        if train:
-            batch_sampler = torch.utils.data.BatchSampler(
-                sampler, batch_size, drop_last=False
-            )
-
-            loader = torch.utils.data.DataLoader(
-                dataset,
-                batch_sampler=batch_sampler,
-                num_workers=num_workers,
-                collate_fn=collate_fn,
-            )
-            return loader
-        else:
-            loader = torch.utils.data.DataLoader(
-                dataset,
-                batch_size=batch_size,
-                sampler=sampler,
-                num_workers=num_workers,
-                collate_fn=collate_fn,
-                drop_last=False,
-            )
-            return loader
-    else:
-        logger.info(f"not creating distributed dataloader")
+    # if distributed:
+    #     if train:
+    #         batch_sampler = torch.utils.data.BatchSampler(
+    #              batch_size, drop_last=False
+    #         )
+    #
+    #         loader = torch.utils.data.DataLoader(
+    #             dataset,
+    #             batch_sampler=batch_sampler,
+    #             num_workers=num_workers,
+    #             collate_fn=collate_fn,
+    #         )
+    #         return loader
+    #     else:
+    #         loader = torch.utils.data.DataLoader(
+    #             dataset,
+    #             batch_size=batch_size,
+    #             num_workers=num_workers,
+    #             collate_fn=collate_fn,
+    #             drop_last=False,
+    #         )
+    #         return loader
+    # else:
+    #logger.info(f"not creating distributed dataloader")
+    if train:
         data_loader = torch.utils.data.DataLoader(
             dataset,
             batch_size=batch_size,
-            sampler=sampler,
             num_workers=num_workers,
-            drop_last=train,
-            collate_fn=collate_fn,
+            collate_fn = collate_fn,
+            drop_last=False,
         )
-        return data_loader
+    else:
+        data_loader = torch.utils.data.DataLoader(
+            dataset,
+            batch_size=batch_size,
+            num_workers=num_workers,
+            collate_fn = collate_fn,
+            drop_last=False,
+        )
+
+    return data_loader
 
 
-def dataloader_creator(config, dataset, sampler, split, distributed):
+def dataloader_creator(config, dataset, split, distributed):
     """initiate data loading.
 
     Args:
@@ -735,7 +754,6 @@ def dataloader_creator(config, dataset, sampler, split, distributed):
         distributed=distributed,
         dataset=dataset,
         batch_size=config[split].batch_size,
-        sampler=sampler,
         collate_fn=FasterRCNN.collate_fn,
         train=is_train,
     )
@@ -887,6 +905,45 @@ def prepare_bboxes(bboxes: List[BBox2D]) -> Dict[str, torch.Tensor]:
 
     d = {"boxes": torch.Tensor(box_list), "labels": torch.LongTensor(labels)}
     return d
+
+
+def prepare_bboxeswd(bboxes: List[BBox2D]) -> Dict[str, torch.Tensor]:
+    """Prepare bounding boxes for model training.
+
+    Args:
+        bboxes: mini batch of bounding boxes (not including images).
+        Each example is a list of bounding boxes. Torchvision's implementation
+        of Faster-RCNN requires bounding boxes to be in the format of a
+        dictionary {'labels':[label ids, ...], and
+        'boxes': [[xleft, ytop, xright, ybottom of box1],
+        [xleft, ytop, xright, ybottom of box2]...]
+
+    Returns:
+        bounding boxes in the form that Faster RCNN expects
+    """
+    #print("bboxes", bboxes)
+    #bboxes = bboxes[0].decode('utf-8').strip('][').split(', ')
+    res=[]
+    for bbox in bboxes:
+        bbox = bbox.decode('utf-8').strip('][').split(', ')
+        labels = []
+        box_list = []
+        for bb in bbox:
+            bb = bb.split("|")
+            b = {k: float(v) for k, v in (x.split('=') for x in bb)}
+            #print(b)
+            labels.append(b['label'])
+            box = [b['x'], b['y'], b['x'] + b['w'], b['y'] + b['h']]
+            if box[0] >= box[2] or box[1] >= box[3]:
+                raise ValueError(
+                    f"box not properly formed with coordinates: "
+                    f"{box} [xleft, ytop, xright, ybottom]"
+                )
+            box_list.append(box)
+
+        d = {"boxes": torch.Tensor(box_list), "labels": torch.LongTensor(labels)}
+        res.append(d)
+    return tuple(res)
 
 
 def canonical2list(bbox: BBox2D):

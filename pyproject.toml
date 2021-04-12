@@ -46,6 +46,7 @@ dash = "1.12.0"
 tensorflow = "^2.2.0"
 click = "^7.1.2"
 mlflow = "^1.11.0"
+webdataset = "^0.1.54"
 
 
 [tool.poetry.dev-dependencies]
