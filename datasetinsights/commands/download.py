@@ -10,16 +10,13 @@ logger = logging.getLogger(__name__)
 
 
 class SourceURI(click.ParamType):
-    """Source URI Parameter.
+    """Represents the Source URI Parameter type.
 
-    Args:
-        click ([type]): [description]
+    This extends click.ParamType that allows click framework to validates
+    supported source URI according to the prefix pattern.
 
     Raises:
-        click.BadParameter: [description]
-
-    Returns:
-        [type]: [description]
+        click.BadParameter: if the validation failed.
     """
 
     name = "source_uri"
@@ -88,37 +85,46 @@ def cli(
     source_uri, output, include_binary, access_token, checksum_file,
 ):
     """Download datasets to localhost from known locations.
-    The download command can support downloading from 3 sources
-    usim:// http(s):// gs://
 
-    Download from Unity Simulation:
+    The download command can support downloading from 3 types of sources
 
-    You can specify project_it, run_execution_id, access_token in source-uri
+    1. Download from Unity Simulation:
 
-    datasetinsights download
-    --source-uri=usim://<access_token>@<project_id>/<run_execution_id>
-    --output=$HOME/data
+    You can specify project_id, run_execution_id, access_token in source-uri:
 
-    Alternatively, you can also override access_token such as
+    \b
+    datasetinsights download \\
+        --source-uri=usim://<access_token>@<project_id>/<run_execution_id> \\
+        --output=$HOME/data
 
-    datasetinsights download --source-uri=usim://<project_id>/<run_execution_id>
-     --output=$HOME/data --access-token=<access_token>
+    Alternatively, you can also override access_token such as:
 
-    Downloading from a http source:
+    \b
+    datasetinsights download \\
+        --source-uri=usim://<project_id>/<run_execution_id> \\
+        --output=$HOME/data \\
+        --access-token=<access_token>
 
-    datasetinsights download --source-uri=http://url.to.file.zip
-     --output=$HOME/data
+    2. Downloading from a public http(s) url:
 
-    Downloading from a gcs source:
+    \b
+    datasetinsights download \\
+        --source-uri=http://url/to/file.zip \\
+        --output=$HOME/data
 
-    datasetinsights download --source-uri=gs://url/to/file.zip
-     --output=$HOME/data
+    3. Downloading from a GCS url:
 
-    or
+    \b
+    datasetinsights download \\
+        --source-uri=gs://url/to/file.zip \\
+        --output=$HOME/data
 
-    datasetinsights download --source-uri=gs://url/to/folder
-     --output=$HOME/data
+    or download all objects under the same directory:
 
+    \b
+    datasetinsights download \\
+        --source-uri=gs://url/to/directory \\
+        --output=$HOME/data
     """
     ctx = click.get_current_context()
     logger.debug(f"Called download command with parameters: {ctx.params}")

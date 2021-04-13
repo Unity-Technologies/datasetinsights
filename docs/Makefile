@@ -14,7 +14,10 @@ clean:
 	rm -rf $(BUILDDIR)
 
 apidoc:
-	sphinx-apidoc --templatedir=$(TEMPLATEDIR) -o $(SOURCEDIR) -d 2 ../datasetinsights/ ../datasetinsights/stats/visualization ../datasetinsights/dashboard.py ../datasetinsights/datasets/protos
+	sphinx-apidoc --templatedir=$(TEMPLATEDIR) -o $(SOURCEDIR) -d 2 ../datasetinsights/ \
+		../datasetinsights/commands \
+		../datasetinsights/dashboard.py \
+		../datasetinsights/constants.py
 
 html:
 	sphinx-build -b html $(SOURCEDIR) $(BUILDDIR)/html
