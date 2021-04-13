@@ -9,7 +9,7 @@ babel==2.9.0
 backcall==0.2.0; python_version >= "3.3"
 black==19.10b0
 bleach==3.3.0
-bokeh==2.3.0
+bokeh==2.3.1
 brotli==1.0.9
 cachetools==4.2.1
 certifi==2020.12.5
@@ -29,7 +29,7 @@ dash-html-components==1.0.3
 dash-renderer==1.4.1
 dash-table==4.7.0
 dask==2.30.0
-decorator==4.4.2; python_version >= "3.3"
+decorator==5.0.6; python_version >= "3.3"
 defusedxml==0.7.1
 distributed==2.30.1
 docutils==0.16
@@ -37,19 +37,19 @@ entrypoints==0.3
 flake8==3.9.0
 flask==1.1.2
 flask-compress==1.9.0
-fsspec==0.8.7
+fsspec==0.9.0
 future==0.18.2
 google-api-core==1.26.3
-google-auth==1.28.0
+google-auth==1.28.1
 google-cloud-core==1.6.0
-google-cloud-storage==1.37.0
+google-cloud-storage==1.37.1
 google-crc32c==1.1.2; python_version >= "3.5"
 google-resumable-media==1.2.0
 googleapis-common-protos==1.53.0
 heapdict==1.0.1
 idna==2.10
 imagesize==1.2.0
-importlib-metadata==3.10.0; python_version < "3.8"
+importlib-metadata==3.10.1; python_version < "3.8"
 iniconfig==1.1.1
 ipykernel==5.5.3
 ipython==7.22.0
@@ -61,7 +61,7 @@ jedi==0.18.0; python_version >= "3.3"
 jinja2==2.11.3
 jsonschema==3.2.0
 jupyter==1.0.0
-jupyter-client==6.1.12
+jupyter-client==6.2.0
 jupyter-console==6.4.0
 jupyter-core==4.7.1
 jupyterlab-pygments==0.1.2
@@ -69,32 +69,32 @@ jupyterlab-widgets==1.0.0; python_version >= "3.6"
 kiwisolver==1.3.1
 locket==0.2.1
 markupsafe==1.1.1
-matplotlib==3.4.0
+matplotlib==3.4.1
 mccabe==0.6.1
 mistune==0.8.4
 msgpack==1.0.2
 nbclient==0.5.3
 nbconvert==6.0.7
-nbformat==5.1.2
+nbformat==5.1.3
 nest-asyncio==1.5.1
 notebook==6.3.0
 numpy==1.20.2
 opencv-python==4.5.1.48
 packaging==20.9
 pandas==1.1.5
-pandas==1.2.3
+pandas==1.2.4
 pandocfilters==1.4.3
-parso==0.8.1; python_version >= "3.3"
-partd==1.1.0
+parso==0.8.2; python_version >= "3.3"
+partd==1.2.0
 pathspec==0.8.1
 pexpect==4.8.0; python_version >= "3.3" and sys_platform != "win32"
 pickleshare==0.7.5; python_version >= "3.3"
-pillow==8.1.2
+pillow==8.2.0
 plotly==4.14.3
 pluggy==0.13.1
-prometheus-client==0.9.0
+prometheus-client==0.10.1
 prompt-toolkit==3.0.18
-protobuf==3.15.6
+protobuf==3.15.8
 psutil==5.8.0
 ptyprocess==0.7.0; python_version >= "3.3" and sys_platform != "win32" or os_name != "nt"
 py==1.10.0
@@ -107,7 +107,7 @@ pygments==2.8.1
 pyparsing==2.4.7
 pyquaternion==0.9.9
 pyrsistent==0.17.3
-pytest==6.2.2
+pytest==6.2.3
 pytest-cov==2.11.1
 python-dateutil==2.8.1
 pytz==2021.1
@@ -118,7 +118,7 @@ pyzmq==22.0.3
 qtconsole==5.0.3
 qtpy==1.9.0
 recommonmark==0.6.0
-regex==2021.3.17
+regex==2021.4.4
 requests==2.25.1
 responses==0.10.16
 retrying==1.3.3
@@ -127,9 +127,9 @@ send2trash==1.5.0
 six==1.15.0
 snowballstemmer==2.1.0
 sortedcontainers==2.3.0
-sphinx==3.5.3
+sphinx==3.5.4
 sphinx-click==2.7.1
-sphinx-rtd-theme==0.5.1
+sphinx-rtd-theme==0.5.2
 sphinxcontrib-applehelp==1.0.2
 sphinxcontrib-devhelp==1.0.2
 sphinxcontrib-htmlhelp==1.0.3
@@ -142,9 +142,9 @@ testpath==0.4.4
 toml==0.10.2
 toolz==0.11.1
 tornado==6.1
-tqdm==4.59.0
+tqdm==4.60.0
 traitlets==5.0.5
-typed-ast==1.4.2
+typed-ast==1.4.3
 typing-extensions==3.7.4.3
 urllib3==1.26.4
 wcwidth==0.2.5
