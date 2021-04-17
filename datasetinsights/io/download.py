@@ -41,7 +41,7 @@ def download_file(source_uri: str, dest_path: str, file_name: str = None):
     Returns:
         String of destination path.
     """
-    logger.info(f"Trying to download file from {source_uri} -> {dest_path}")
+    logger.debug(f"Trying to download file from {source_uri} -> {dest_path}")
     adapter = TimeoutHTTPAdapter(
         timeout=DEFAULT_TIMEOUT, max_retries=Retry(total=DEFAULT_MAX_RETRIES)
     )
