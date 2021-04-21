@@ -1,0 +1,155 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: train-on-synthetic-dataset-unity-simulation-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.4.0, pipelines.kubeflow.org/pipeline_compilation_time: '2021-04-15T12:38:27.858236',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "Train on synthetic dataset
+      Unity Simulation", "inputs": [{"default": "unitytechnologies/datasetinsights:latest",
+      "name": "docker", "optional": true, "type": "String"}, {"default": "<unity-project-id>",
+      "name": "project_id", "optional": true, "type": "String"}, {"default": "<unity-simulation-run-execution-id>",
+      "name": "run_execution_id", "optional": true, "type": "String"}, {"default":
+      "<unity-simulation-access-token>", "name": "access_token", "optional": true,
+      "type": "String"}, {"default": "datasetinsights/configs/faster_rcnn_synthetic.yaml",
+      "name": "config", "optional": true, "type": "String"}, {"default": "gs://<bucket>/runs/yyyymmdd-hhmm",
+      "name": "tb_log_dir", "optional": true, "type": "String"}, {"default": "gs://<bucket>/checkpoints/yyyymmdd-hhmm",
+      "name": "checkpoint_dir", "optional": true, "type": "String"}, {"default": "100Gi",
+      "name": "volume_size", "optional": true, "type": "String"}], "name": "Train
+      on synthetic dataset Unity Simulation"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.4.0}
+spec:
+  entrypoint: train-on-synthetic-dataset-unity-simulation
+  templates:
+  - name: download
+    container:
+      args: ['--source-uri=usim://{{inputs.parameters.access_token}}@{{inputs.parameters.project_id}}/{{inputs.parameters.run_execution_id}}',
+        --output=/data, --include-binary]
+      command: [datasetinsights, download]
+      env:
+      - {name: GOOGLE_APPLICATION_CREDENTIALS, value: /secret/gcp-credentials/user-gcp-sa.json}
+      - {name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE, value: /secret/gcp-credentials/user-gcp-sa.json}
+      image: '{{inputs.parameters.docker}}'
+      resources:
+        limits: {memory: 64Gi}
+        requests: {memory: 64Gi}
+      volumeMounts:
+      - {mountPath: /data, name: pvc}
+      - {mountPath: /secret/gcp-credentials, name: gcp-credentials-user-gcp-sa}
+    inputs:
+      parameters:
+      - {name: access_token}
+      - {name: docker}
+      - {name: project_id}
+      - {name: pvc-name}
+      - {name: run_execution_id}
+    volumes:
+    - name: gcp-credentials-user-gcp-sa
+      secret: {secretName: user-gcp-sa}
+    - name: pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
+  - name: pvc
+    resource:
+      action: create
+      manifest: |
+        apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          name: '{{workflow.name}}-pvc'
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: '{{inputs.parameters.volume_size}}'
+    inputs:
+      parameters:
+      - {name: volume_size}
+    outputs:
+      parameters:
+      - name: pvc-manifest
+        valueFrom: {jsonPath: '{}'}
+      - name: pvc-name
+        valueFrom: {jsonPath: '{.metadata.name}'}
+      - name: pvc-size
+        valueFrom: {jsonPath: '{.status.capacity.storage}'}
+  - name: train
+    container:
+      args: ['--config={{inputs.parameters.config}}', --train-data=/data, --val-data=/data,
+        '--tb-log-dir={{inputs.parameters.tb_log_dir}}', --kfp-log-dir=/kfp_logs,
+        --kfp-ui-metadata-filename=kfp_ui_metadata.json, '--checkpoint-dir={{inputs.parameters.checkpoint_dir}}']
+      command: [python, -m, torch.distributed.launch, --nproc_per_node=8, --use_env,
+        datasetinsights, train]
+      env:
+      - {name: GOOGLE_APPLICATION_CREDENTIALS, value: /secret/gcp-credentials/user-gcp-sa.json}
+      - {name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE, value: /secret/gcp-credentials/user-gcp-sa.json}
+      image: '{{inputs.parameters.docker}}'
+      resources:
+        limits: {nvidia.com/gpu: 8, memory: 256Gi}
+        requests: {memory: 256Gi}
+      volumeMounts:
+      - {mountPath: /data, name: pvc}
+      - {mountPath: /secret/gcp-credentials, name: gcp-credentials-user-gcp-sa}
+    inputs:
+      parameters:
+      - {name: checkpoint_dir}
+      - {name: config}
+      - {name: docker}
+      - {name: pvc-name}
+      - {name: tb_log_dir}
+    outputs:
+      artifacts:
+      - {name: mlpipeline-ui-metadata, path: /kfp_logs/kfp_ui_metadata.json}
+    nodeSelector: {cloud.google.com/gke-accelerator: nvidia-tesla-v100}
+    volumes:
+    - name: gcp-credentials-user-gcp-sa
+      secret: {secretName: user-gcp-sa}
+    - name: pvc
+      persistentVolumeClaim: {claimName: '{{inputs.parameters.pvc-name}}'}
+  - name: train-on-synthetic-dataset-unity-simulation
+    inputs:
+      parameters:
+      - {name: access_token}
+      - {name: checkpoint_dir}
+      - {name: config}
+      - {name: docker}
+      - {name: project_id}
+      - {name: run_execution_id}
+      - {name: tb_log_dir}
+      - {name: volume_size}
+    dag:
+      tasks:
+      - name: download
+        template: download
+        dependencies: [pvc]
+        arguments:
+          parameters:
+          - {name: access_token, value: '{{inputs.parameters.access_token}}'}
+          - {name: docker, value: '{{inputs.parameters.docker}}'}
+          - {name: project_id, value: '{{inputs.parameters.project_id}}'}
+          - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
+          - {name: run_execution_id, value: '{{inputs.parameters.run_execution_id}}'}
+      - name: pvc
+        template: pvc
+        arguments:
+          parameters:
+          - {name: volume_size, value: '{{inputs.parameters.volume_size}}'}
+      - name: train
+        template: train
+        dependencies: [download, pvc]
+        arguments:
+          parameters:
+          - {name: checkpoint_dir, value: '{{inputs.parameters.checkpoint_dir}}'}
+          - {name: config, value: '{{inputs.parameters.config}}'}
+          - {name: docker, value: '{{inputs.parameters.docker}}'}
+          - {name: pvc-name, value: '{{tasks.pvc.outputs.parameters.pvc-name}}'}
+          - {name: tb_log_dir, value: '{{inputs.parameters.tb_log_dir}}'}
+  arguments:
+    parameters:
+    - {name: docker, value: 'unitytechnologies/datasetinsights:latest'}
+    - {name: project_id, value: <unity-project-id>}
+    - {name: run_execution_id, value: <unity-simulation-run-execution-id>}
+    - {name: access_token, value: <unity-simulation-access-token>}
+    - {name: config, value: datasetinsights/configs/faster_rcnn_synthetic.yaml}
+    - {name: tb_log_dir, value: 'gs://<bucket>/runs/yyyymmdd-hhmm'}
+    - {name: checkpoint_dir, value: 'gs://<bucket>/checkpoints/yyyymmdd-hhmm'}
+    - {name: volume_size, value: 100Gi}
+  serviceAccountName: pipeline-runner
