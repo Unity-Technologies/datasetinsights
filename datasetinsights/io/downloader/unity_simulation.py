@@ -40,47 +40,35 @@ class UnitySimulationDownloader(DatasetDownloader, protocol="usim://"):
         `docs <https://github.com/Unity-Technologies/Unity-Simulation-Docs>`
 
         Args:
-        access_token: "Access token to be used to authenticate to
-         unity simulation for downloading the dataset"
+            access_token (str): Access token to be used to authenticate to
+                unity simulation for downloading the dataset
 
     """
 
     SOURCE_URI_PATTERN = r"usim://([^@]*)?@?([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})/(\w+)"  # noqa: E501
 
     def __init__(self, access_token=None, **kwargs):
-        """
-
-        Args:
-            access_token: Access token to be used to authenticate to
-            unity simulation for downloading the dataset
-        """
         super().__init__(**kwargs)
         self.access_token = access_token
         self.run_execution_id = None
         self.project_id = None
 
     def download(self, source_uri, output, include_binary=False, **kwargs):
-        """
+        """ Download from Unity Simulation
 
         Args:
             source_uri: This is the downloader-uri that indicates where on
                 unity simulation the dataset should be downloaded from.
-
-                The expected source-uri follows these patterns
-
+                The expected source-uri should follow these patterns:
                 usim://access-token@project-id/run-execution-id
                 or
                 usim://project-id/run-execution-id
-
-
-            output: This is the path to the directory
-                where the download will store the dataset.
-
-            include_binary: Whether to download binary files
-                such as images or LIDAR point
-                clouds. This flag applies to Datasets where metadata
-                (e.g. annotation json, dataset catalog, ...)
-                 can be separated from binary files.
+            output: This is the path to the directory where the download
+                method will store the dataset.
+            include_binary: Whether to download binary files such as images
+                or LIDAR point clouds. This flag applies to Datasets where
+                metadata (e.g. annotation json, dataset catalog, ...)
+                can be separated from binary files.
 
         """
         self.parse_source_uri(source_uri)
@@ -100,7 +88,7 @@ class UnitySimulationDownloader(DatasetDownloader, protocol="usim://"):
             dl_worker.download_binary_files()
 
     def parse_source_uri(self, source_uri):
-        """
+        """ Parse unity simulation source uri
 
         Args:
             source_uri: Parses source-uri in the following format
@@ -251,7 +239,6 @@ class Downloader:
     @Timer(name="download_metrics", text=const.TIMING_TEXT, logger=logging.info)
     def download_metrics(self):
         """ Download all metrics files.
-        See :ref:`metrics`
         """
         logger.info("Downloading metrics files...")
         matched_rows = self.manifest.filetype == FileType.METRIC

@@ -79,7 +79,5 @@ class DatasetDownloader(ABC):
         Args:
             source_uri: URI that points to the dataset that should be downloaded
             output: path to local folder where the dataset should be stored
-            **kwargs:
-
         """
         raise NotImplementedError("Subclass needs to implement this method")
