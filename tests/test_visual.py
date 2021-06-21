@@ -304,7 +304,7 @@ def test_plot_bboxes3d():
     with patch(
         "datasetinsights.stats.visualization.plots.add_single_bbox3d_on_image"
     ) as mock:
-        plot_bboxes3d(img, boxes, projection, colors, orthographic=True)
+        plot_bboxes3d(img, boxes, projection, colors)
         assert mock.call_count == len(boxes)
 
 
