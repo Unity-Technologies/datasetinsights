@@ -80,7 +80,7 @@ def _add_single_bbox3d_on_image(
 
 
 def add_single_bbox3d_on_image(
-    image, box, proj, color=None, box_line_width=2,
+    image, box, proj, color=None, box_line_width=2, orthographic=False,
 ):
     """" Add single 3D bounding box on a given image.
 
@@ -104,14 +104,20 @@ def add_single_bbox3d_on_image(
     bur = box.front_right_top_pt
     blr = box.front_right_bottom_pt
 
-    fll_raster = _project_pt_to_pixel_location(fll, proj, img_height, img_width)
-    ful_raster = _project_pt_to_pixel_location(ful, proj, img_height, img_width)
-    fur_raster = _project_pt_to_pixel_location(fur, proj, img_height, img_width)
-    flr_raster = _project_pt_to_pixel_location(flr, proj, img_height, img_width)
-    bll_raster = _project_pt_to_pixel_location(bll, proj, img_height, img_width)
-    bul_raster = _project_pt_to_pixel_location(bul, proj, img_height, img_width)
-    bur_raster = _project_pt_to_pixel_location(bur, proj, img_height, img_width)
-    blr_raster = _project_pt_to_pixel_location(blr, proj, img_height, img_width)
+    project_pt_to_pixel = (
+        _project_pt_to_pixel_location_orthographic
+        if orthographic
+        else _project_pt_to_pixel_location
+    )
+
+    fll_raster = project_pt_to_pixel(fll, proj, img_height, img_width)
+    ful_raster = project_pt_to_pixel(ful, proj, img_height, img_width)
+    fur_raster = project_pt_to_pixel(fur, proj, img_height, img_width)
+    flr_raster = project_pt_to_pixel(flr, proj, img_height, img_width)
+    bll_raster = project_pt_to_pixel(bll, proj, img_height, img_width)
+    bul_raster = project_pt_to_pixel(bul, proj, img_height, img_width)
+    bur_raster = project_pt_to_pixel(bur, proj, img_height, img_width)
+    blr_raster = project_pt_to_pixel(blr, proj, img_height, img_width)
 
     _add_single_bbox3d_on_image(
         image,
@@ -162,14 +168,18 @@ def _project_pt_to_pixel_location(pt, projection, img_height, img_width):
         ]
     )
 
-def _project_pt_to_pixel_location(pt, projection, img_height, img_width):
+
+def _project_pt_to_pixel_location_orthographic(
+    pt, projection, img_height, img_width
+):
     """ Projects a 3D coordinate into a pixel location from an orthographic camera.
 
-        Applies the passed in projection matrix to project a point from the camera's
-        coordinate space into pixel space.
+        Applies the passed in projection matrix to project a point from the
+        camera's coordinate space into pixel space.
 
         For a description of the math used in this method, see:
-        https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/projection-matrix-introduction
+        https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-
+        orthographic-projection-matrix/projection-matrix-introduction
 
         Args:
             pt (numpy array): The 3D point to project.
@@ -182,15 +192,18 @@ def _project_pt_to_pixel_location(pt, projection, img_height, img_width):
             representing a point's pixel coordinate in an image.
     """
 
-    projection = numpy.array([
-        [projection[0][0], 0, 0],
-        [0, -projection[1][1], 0], #The 'y' component needs to be flipped because of how Unity works
-        [0, 0, projection[2][2]]
-    ])
+    # The 'y' component needs to be flipped because of how Unity works
+    projection = numpy.array(
+        [
+            [projection[0][0], 0, 0],
+            [0, -projection[1][1], 0],
+            [0, 0, projection[2][2]],
+        ]
+    )
     temp = projection.dot(pt)
 
     pixel = [
         int((temp[0] + 1) * 0.5 * img_width),
-        int((temp[1] + 1) * 0.5 * img_height)
+        int((temp[1] + 1) * 0.5 * img_height),
     ]
     return pixel

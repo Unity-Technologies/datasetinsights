@@ -106,7 +106,9 @@ def plot_bboxes3d(image, bboxes, projection, colors=None):
     return Image.fromarray(np_image)
 
 
-def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
+def plot_bboxes(
+    image, bboxes, label_mappings=None, colors=None, orthographic=False
+):
     """ Plot an image with bounding boxes.
 
     For ground truth image, a color is randomly selected for each bounding box.
@@ -142,6 +144,7 @@ def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
             color,
             font_size=font_size,
             box_line_width=box_line_width,
+            orthographic=orthographic,
         )
 
     return Image.fromarray(np_image)
