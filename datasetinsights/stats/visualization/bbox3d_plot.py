@@ -129,7 +129,7 @@ def add_single_bbox3d_on_image(
 
 
 def _project_pt_to_pixel_location(pt, projection, img_height, img_width):
-    """ Projects a 3D coordinate into a pixel location.
+    """ Projects a 3D coordinate into a pixel location from a perspective camera.
 
     Applies the passed in projection matrix to project a point from the camera's
     coordinate space into pixel space.
@@ -161,3 +161,36 @@ def _project_pt_to_pixel_location(pt, projection, img_height, img_width):
             int((_pt[1] * img_height) / 2.0 + (img_height * 0.5)),
         ]
     )
+
+def _project_pt_to_pixel_location(pt, projection, img_height, img_width):
+    """ Projects a 3D coordinate into a pixel location from an orthographic camera.
+
+        Applies the passed in projection matrix to project a point from the camera's
+        coordinate space into pixel space.
+
+        For a description of the math used in this method, see:
+        https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/projection-matrix-introduction
+
+        Args:
+            pt (numpy array): The 3D point to project.
+            projection (numpy 2D array): The camera's 3x3 projection matrix.
+            img_height (int): The height of the image in pixels.
+            img_width (int): The width of the image in pixels.
+
+        Returns:
+            numpy array: a one-dimensional array with two values (x and y)
+            representing a point's pixel coordinate in an image.
+    """
+
+    projection = numpy.array([
+        [projection[0][0], 0, 0],
+        [0, -projection[1][1], 0], #The 'y' component needs to be flipped because of how Unity works
+        [0, 0, projection[2][2]]
+    ])
+    temp = projection.dot(pt)
+
+    pixel = [
+        int((temp[0] + 1) * 0.5 * img_width),
+        int((temp[1] + 1) * 0.5 * img_height)
+    ]
+    return pixel
