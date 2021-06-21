@@ -92,6 +92,7 @@ def plot_bboxes3d(image, bboxes, projection, colors=None, orthographic=False):
         captured the ground truth.
         colors (list): a color list for boxes. Defaults to none. If
         colors = None, it will default to coloring all boxes green.
+        orthographic (bool): true if proj is orthographic, else perspective
 
     Returns:
         PIL image: a PIL image with bounding boxes drawn on it.

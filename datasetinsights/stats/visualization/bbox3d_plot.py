@@ -91,6 +91,7 @@ def add_single_bbox3d_on_image(
         color(tuple): RGBA color of the bounding box. Defaults to None. If
         color = None the the tuple of [0, 255, 0, 255] (Green) will be used.
         box_line_width (int): line width of the bounding boxes. Defaults to 2.
+        orthographic (bool): true if proj is orthographic, else perspective
     """
     img_height, img_width, _ = image.shape
 
