@@ -78,7 +78,7 @@ def _process_label(bbox, label_mappings=None):
         return label
 
 
-def plot_bboxes3d(image, bboxes, projection, colors=None):
+def plot_bboxes3d(image, bboxes, projection, colors=None, orthographic=False):
     """ Plot an image with 3D bounding boxes
 
     Currently this method should only be used for ground truth images, and
@@ -101,14 +101,14 @@ def plot_bboxes3d(image, bboxes, projection, colors=None):
 
     for i, box in enumerate(bboxes):
         color = colors[i] if colors else None
-        add_single_bbox3d_on_image(np_image, box, projection, color)
+        add_single_bbox3d_on_image(
+            np_image, box, projection, color, orthographic=orthographic
+        )
 
     return Image.fromarray(np_image)
 
 
-def plot_bboxes(
-    image, bboxes, label_mappings=None, colors=None, orthographic=False
-):
+def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
     """ Plot an image with bounding boxes.
 
     For ground truth image, a color is randomly selected for each bounding box.
@@ -144,7 +144,6 @@ def plot_bboxes(
             color,
             font_size=font_size,
             box_line_width=box_line_width,
-            orthographic=orthographic,
         )
 
     return Image.fromarray(np_image)
