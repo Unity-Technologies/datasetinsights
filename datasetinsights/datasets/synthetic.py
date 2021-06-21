@@ -38,8 +38,8 @@ def read_bounding_box_3d(annotation, label_mappings=None):
             x=rotation["x"], y=rotation["y"], z=rotation["z"], w=rotation["w"]
         )
 
-        # if label_mappings and label_id not in label_mappings:
-        #    continue
+        if label_mappings and label_id not in label_mappings:
+            continue
         box = BBox3D(
             translation=translation,
             size=size,
