@@ -84,4 +84,4 @@ def test_project_pt_to_pixel_location_orthographic():
     assert pixel_loc[0] == int(
         (proj[0][0] * pt[0] + 1) * 0.5 * img_width
     )  # 328
-    assert pixel_loc[1] == img_width // 2
+    assert pixel_loc[1] == img_height // 2
