@@ -78,7 +78,7 @@ def _process_label(bbox, label_mappings=None):
         return label
 
 
-def plot_bboxes3d(image, bboxes, projection, colors=None):
+def plot_bboxes3d(image, bboxes, projection, colors=None, orthographic=False):
     """ Plot an image with 3D bounding boxes
 
     Currently this method should only be used for ground truth images, and
@@ -92,6 +92,7 @@ def plot_bboxes3d(image, bboxes, projection, colors=None):
         captured the ground truth.
         colors (list): a color list for boxes. Defaults to none. If
         colors = None, it will default to coloring all boxes green.
+        orthographic (bool): true if proj is orthographic, else perspective
 
     Returns:
         PIL image: a PIL image with bounding boxes drawn on it.
@@ -101,7 +102,9 @@ def plot_bboxes3d(image, bboxes, projection, colors=None):
 
     for i, box in enumerate(bboxes):
         color = colors[i] if colors else None
-        add_single_bbox3d_on_image(np_image, box, projection, color)
+        add_single_bbox3d_on_image(
+            np_image, box, projection, color, orthographic=orthographic
+        )
 
     return Image.fromarray(np_image)
 

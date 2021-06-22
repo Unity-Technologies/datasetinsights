@@ -5,9 +5,10 @@ import numpy as np
 import pandas as pd
 import pytest
 from PIL import Image
+from pyquaternion import Quaternion
 from pytest import approx
 
-from datasetinsights.io.bbox import BBox2D
+from datasetinsights.io.bbox import BBox2D, BBox3D
 from datasetinsights.stats.visualization.bbox2d_plot import (
     _COLOR_NAME_TO_RGB,
     _add_label_on_image,
@@ -21,6 +22,7 @@ from datasetinsights.stats.visualization.plots import (
     model_performance_box_plot,
     model_performance_comparison_box_plot,
     plot_bboxes,
+    plot_bboxes3d,
     plot_keypoints,
 )
 
@@ -263,6 +265,47 @@ def test_add_single_bbox_on_image(mock, get_image_and_bbox):
         font_size=100,
         box_line_width=15,
     )
+
+
+def test_plot_bboxes3d():
+    cur_dir = pathlib.Path(__file__).parent.absolute()
+    img = Image.open(
+        str(cur_dir / "mock_data" / "simrun" / "captures" / "camera_000.png")
+    )
+    boxes = [
+        BBox3D(
+            label=1,
+            translation=(0, 0, 0),
+            size=(1, 1, 1),
+            rotation=Quaternion(x=1, y=0, z=0, w=0),
+            sample_token=0,
+            score=1,
+        ),
+        BBox3D(
+            label=2,
+            translation=(0, 0, 0),
+            size=(1, 1, 1),
+            rotation=Quaternion(x=0, y=1, z=0, w=0),
+            sample_token=0,
+            score=1,
+        ),
+        BBox3D(
+            label=3,
+            translation=(0, 0, 0),
+            size=(1, 1, 1),
+            rotation=Quaternion(x=0, y=0, z=1, w=0),
+            sample_token=0,
+            score=1,
+        ),
+    ]
+    projection = [[0.08951352, 0, 0], [0, 0.2, 0], [0, 0, -0.0020006]]
+    colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
+
+    with patch(
+        "datasetinsights.stats.visualization.plots.add_single_bbox3d_on_image"
+    ) as mock:
+        plot_bboxes3d(img, boxes, projection, colors)
+        assert mock.call_count == len(boxes)
 
 
 @pytest.fixture

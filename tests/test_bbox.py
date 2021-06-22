@@ -3,6 +3,7 @@ import numpy
 from datasetinsights.io.bbox import BBox2D, BBox3D, group_bbox2d_per_label
 from datasetinsights.stats.visualization.bbox3d_plot import (
     _project_pt_to_pixel_location,
+    _project_pt_to_pixel_location_orthographic,
 )
 
 
@@ -59,3 +60,28 @@ def test_project_pt_to_pixel_location():
     pixel_loc = _project_pt_to_pixel_location(pt, proj, img_height, img_width)
     assert pixel_loc[0] == 320
     assert pixel_loc[1] == 240
+
+
+def test_project_pt_to_pixel_location_orthographic():
+    pt = [0, 0, 0]
+    proj = numpy.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+    img_height = 480
+    img_width = 640
+
+    pixel_loc = _project_pt_to_pixel_location_orthographic(
+        pt, proj, img_height, img_width
+    )
+    assert pixel_loc[0] == 320
+    assert pixel_loc[1] == 240
+
+    # more interesting case
+    pt = [0.3, 0, 0]
+    proj = numpy.array([[0.08951352, 0, 0], [0, 0.2, 0], [0, 0, -0.0020006]])
+
+    pixel_loc = _project_pt_to_pixel_location_orthographic(
+        pt, proj, img_height, img_width
+    )
+    assert pixel_loc[0] == int(
+        (proj[0][0] * pt[0] + 1) * 0.5 * img_width
+    )  # 328
+    assert pixel_loc[1] == img_height // 2
