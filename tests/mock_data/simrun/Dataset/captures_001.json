@@ -90,7 +90,7 @@
               "label_id": 34,
               "label_name": "bicycle",
               "x": 120,
-              "y": 331,
+              "y": 231,
               "width": 50,
               "height": 20
             },
@@ -98,8 +98,8 @@
               "instance_id": "a52dfb48-e5a4-4008-96b6-80da91caa777",
               "label_id": 25,
               "label_name": "person",
-              "x": 432,
-              "y": 683,
+              "x": 132,
+              "y": 83,
               "width": 10,
               "height": 20
             }
