@@ -6,12 +6,15 @@ from datasetinsights.datasets.transformers import COCOTransformer
 
 
 def assert_json_equals(file1, file2):
-    j1 = json.dumps(json.loads(file1), sort_keys=True)
-    j2 = json.dumps(json.loads(file2), sort_keys=True)
+    with open(file1, "r") as f1:
+        j1 = json.dumps(json.load(f1), sort_keys=True, indent=4)
+    with open(file2, "r") as f2:
+        j2 = json.dumps(json.load(f2), sort_keys=True, indent=4)
+
     assert j1 == j2
 
 
-def test_coco_transformer(mock_data_dir):
+def test_coco_transformer():
     parent_dir = Path(__file__).parent.parent.absolute()
     mock_data_dir = parent_dir / "mock_data" / "simrun"
     mock_coco_dir = parent_dir / "mock_data" / "coco"
@@ -21,6 +24,9 @@ def test_coco_transformer(mock_data_dir):
         transformer.execute(tmp_dir)
         output_file = Path(tmp_dir) / "instances.json"
         expected_file = mock_coco_dir / "instances.json"
+        output_image_folder = Path(tmp_dir) / "images"
 
-        assert Path.exists(output_file)
+        assert output_file.exists()
+        assert output_image_folder.exists()
+        assert list(output_image_folder.glob("*"))
         assert_json_equals(expected_file, output_file)

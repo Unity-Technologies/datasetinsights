@@ -1,0 +1,124 @@
+import json
+import logging
+import shutil
+from pathlib import Path
+
+from PIL import Image
+
+import datasetinsights.constants as const
+from datasetinsights.datasets.unity_perception import (
+    AnnotationDefinitions,
+    Captures,
+)
+
+logger = logging.getLogger(__name__)
+
+
+# TODO: prevent hard coded annotation definition id here.
+ANNOTATION_DEFINITION_ID = 4
+
+
+class COCOTransformer:
+    """Convert Synthetic dataset to COCO format
+
+    Args:
+        data_root (str): root directory of the dataset
+    """
+
+    def __init__(self, data_root):
+        self._data_root = Path(data_root)
+        self._captures = Captures(
+            data_root=data_root, version=const.DEFAULT_PERCEPTION_VERSION
+        ).filter(def_id=ANNOTATION_DEFINITION_ID)
+        self._annotation_definitions = AnnotationDefinitions(
+            data_root, version=const.DEFAULT_PERCEPTION_VERSION
+        )
+
+    def execute(self, output):
+        self._copy_images(output)
+        self._process_instances(output)
+
+    def _copy_images(self, output):
+        image_to_folder = Path(output) / "images"
+        image_to_folder.mkdir(parents=True, exist_ok=True)
+        for _, row in self._captures.iterrows():
+            image_from = self._data_root / row["filename"]
+            if not image_from.exists:
+                continue
+            image_to = image_to_folder / image_from.name
+            shutil.copy(str(image_from), str(image_to))
+
+    def _process_instances(self, output):
+        output = Path(output)
+        output.mkdir(parents=True, exist_ok=True)
+        instances = {
+            "info": {"description": "COCO Compatible Dataset"},
+            "licences": [{"url": "", "id": 1, "name": "default"}],
+            "images": self._images(),
+            "annotations": self._annotations(),
+            "categories": self._categories(),
+        }
+        output_file = output / "instances.json"
+        with open(output_file, "w") as out:
+            json.dump(instances, out)
+
+    def _images(self):
+        images = []
+        for _, row in self._captures.iterrows():
+            image_file = self._data_root / row["filename"]
+            if not image_file.exists:
+                continue
+            with Image.open(image_file) as im:
+                width, height = im.size
+            capture_id = row["id"]
+            record = {
+                "license": 1,
+                "file_name": Path(image_file).name,
+                "coco_url": "",
+                "height": height,
+                "width": width,
+                "date_captured": "",
+                "flickr_url": "",
+                "id": capture_id,
+            }
+            images.append(record)
+
+        return images
+
+    def _annotations(self):
+        annotations = []
+        for _, row in self._captures.iterrows():
+            image_id = row["id"]
+            for ann in row["annotation.values"]:
+                x = ann["x"]
+                y = ann["y"]
+                w = ann["width"]
+                h = ann["height"]
+                area = float(w) * float(h)
+                record = {
+                    "segmentation": [],  # TODO: parse instance segmentation map
+                    "area": area,
+                    "iscrowd": 0,
+                    "image_id": image_id,
+                    "bbox": [x, y, w, h],
+                    "category_id": ann["label_id"],
+                    "id": ann["instance_id"],
+                }
+                annotations.append(record)
+
+        return annotations
+
+    def _categories(self):
+        def_dict = self._annotation_definitions.get_definition(
+            def_id=ANNOTATION_DEFINITION_ID
+        )
+        categories = []
+        for r in def_dict["spec"]:
+            record = {
+                "id": r["label_id"],
+                "name": r["label_name"],
+                "supercategory": "default",
+            }
+            categories.append(record)
+
+        return categories

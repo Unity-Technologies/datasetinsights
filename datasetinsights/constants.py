@@ -1,7 +1,9 @@
 DEFAULT_DATA_ROOT = "/data"
 
-# Default Unity Project ID where USim jobs was executed
-DEFAULT_PROJECT_ID = "474ba200-4dcc-4976-818e-0efd28efed30"
+# Default perception schema version
+DEFAULT_PERCEPTION_VERSION = "0.0.1"
+
+# Unity Simulation API endpoints
 USIM_API_ENDPOINT = "https://api.simulation.unity3d.com"
 
 # Default Timing text for codetiming.Timer decorator

@@ -12,16 +12,6 @@
     "images": [
         {
             "license": 1,
-            "file_name": "camera_000.png",
-            "coco_url": "",
-            "height": 240,
-            "width": 320,
-            "date_captured": "",
-            "flickr_url": "",
-            "id": "e8b44709-dddf-439d-94d2-975460924903"
-        },
-        {
-            "license": 1,
             "file_name": "camera_001.png",
             "coco_url": "",
             "height": 240,
@@ -34,42 +24,42 @@
     "annotations": [
         {
             "segmentation": [],
-            "area": 10000,
+            "area": 10000.0,
             "iscrowd": 0,
             "image_id": "4521949a-2a71-4c03-beb0-4f6362676639",
             "bbox": [
-                30,
-                50,
-                100,
-                100
+                30.0,
+                50.0,
+                100.0,
+                100.0
             ],
             "category_id": 27,
             "id": "85149ab1-3b75-443b-8540-773b31559a26"
         },
         {
             "segmentation": [],
-            "area": 1000,
+            "area": 1000.0,
             "iscrowd": 0,
             "image_id": "4521949a-2a71-4c03-beb0-4f6362676639",
             "bbox": [
-                120,
-                231,
-                50,
-                20
+                120.0,
+                231.0,
+                50.0,
+                20.0
             ],
             "category_id": 34,
             "id": "f2e56dad-9bfd-4930-9dca-bfe08672de3a"
         },
         {
             "segmentation": [],
-            "area": 200,
+            "area": 200.0,
             "iscrowd": 0,
             "image_id": "4521949a-2a71-4c03-beb0-4f6362676639",
             "bbox": [
-                132,
-                83,
-                10,
-                20
+                132.0,
+                83.0,
+                10.0,
+                20.0
             ],
             "category_id": 25,
             "id": "a52dfb48-e5a4-4008-96b6-80da91caa777"
