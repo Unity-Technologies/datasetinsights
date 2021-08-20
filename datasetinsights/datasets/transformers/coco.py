@@ -1,3 +1,4 @@
+import hashlib
 import json
 import logging
 import shutil
@@ -16,7 +17,14 @@ logger = logging.getLogger(__name__)
 
 
 def uuid_to_int(input_uuid):
-    return uuid.UUID(input_uuid).int
+    try:
+        u = uuid.UUID(input_uuid).int
+    except (AttributeError, ValueError):
+        u = int(
+            hashlib.md5(str(input_uuid).encode("utf8")).hexdigest(), base=16
+        )
+
+    return u
 
 
 class COCOTransformer:
@@ -47,7 +55,7 @@ class COCOTransformer:
         image_to_folder.mkdir(parents=True, exist_ok=True)
         for _, row in self._captures.iterrows():
             image_from = self._data_root / row["filename"]
-            if not image_from.exists:
+            if not image_from.exists():
                 continue
             image_to = image_to_folder / image_from.name
             shutil.copy(str(image_from), str(image_to))
@@ -70,7 +78,7 @@ class COCOTransformer:
         images = []
         for _, row in self._captures.iterrows():
             image_file = self._data_root / row["filename"]
-            if not image_file.exists:
+            if not image_file.exists():
                 continue
             with Image.open(image_file) as im:
                 width, height = im.size
@@ -106,7 +114,8 @@ class COCOTransformer:
                     "image_id": image_id,
                     "bbox": [x, y, w, h],
                     "category_id": ann["label_id"],
-                    "id": uuid_to_int(ann["instance_id"]),
+                    "id": uuid_to_int(row["annotation.id"])
+                    | uuid_to_int(ann["instance_id"]),
                 }
                 annotations.append(record)
 
