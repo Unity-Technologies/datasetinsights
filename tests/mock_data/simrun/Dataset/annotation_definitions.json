@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "annotation_definitions": [
     {
-      "id": 1,
+      "id": "1",
       "name": "semantic segmentation",
       "description": "pixel-wise semantic segmentation label",
       "format": "PNG",
@@ -29,7 +29,7 @@
       ]
     },
     {
-      "id": 2,
+      "id": "2",
       "name": "3d bounding box",
       "description": "3d bounding box annotation of object instances",
       "format": "JSON",
@@ -40,7 +40,7 @@
       ]
     },
     {
-      "id": 3,
+      "id": "3",
       "name": "lidar semantic segmention",
       "description": "3d point cloud semantic segmentation",
       "format": "PCD",
@@ -51,7 +51,7 @@
       ]
     },
     {
-      "id": 4,
+      "id": "4",
       "name": "2d bounding box",
       "description": "2d bounding box annotation",
       "format": "JSON",

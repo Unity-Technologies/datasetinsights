@@ -30,13 +30,13 @@
       "annotations": [
         {
           "id": "a79ab4fb-acf3-47ad-8a6f-20af795e23e1",
-          "annotation_definition": 1,
+          "annotation_definition": "1",
           "filename": "annotations/semantic_segmentation_001.png",
           "values": null
         },
         {
           "id": "36db01f8-e322-4c81-a650-bec89a7e6100",
-          "annotation_definition": 2,
+          "annotation_definition": "2",
           "filename": null,
           "values": [
             {
@@ -73,7 +73,7 @@
         },
         {
           "id": "36db01f8-e322-4c81-a650-bec89a7e6100",
-          "annotation_definition": 4,
+          "annotation_definition": "4",
           "filename": null,
           "values": [
             {
@@ -132,7 +132,7 @@
       "annotations": [
         {
           "id": "3b7b2af7-4d9f-4f1d-a9f5-32365c5896c8",
-          "annotation_definition": 3,
+          "annotation_definition": "3",
           "filename": "annotations/lidar_semantic_segmentation_000.pcd"
         }
       ]

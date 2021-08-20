@@ -15,10 +15,11 @@ def assert_json_equals(file1, file2):
 
 
 def test_coco_transformer():
+    def_id = "4"
     parent_dir = Path(__file__).parent.parent.absolute()
     mock_data_dir = parent_dir / "mock_data" / "simrun"
     mock_coco_dir = parent_dir / "mock_data" / "coco"
-    transformer = COCOTransformer(str(mock_data_dir))
+    transformer = COCOTransformer(str(mock_data_dir), def_id)
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         transformer.execute(tmp_dir)

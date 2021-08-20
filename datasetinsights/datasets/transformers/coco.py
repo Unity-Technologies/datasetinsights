@@ -14,9 +14,6 @@ from datasetinsights.datasets.unity_perception import (
 
 logger = logging.getLogger(__name__)
 
-# TODO: prevent hard coded annotation definition id here.
-ANNOTATION_DEFINITION_ID = 4
-
 
 def uuid_to_int(input_uuid):
     return uuid.UUID(input_uuid).int
@@ -27,13 +24,16 @@ class COCOTransformer:
 
     Args:
         data_root (str): root directory of the dataset
+        bbox2d_definition_id (str): the annotation definition id for
+            2d bounding boxes in this dataset.
     """
 
-    def __init__(self, data_root):
+    def __init__(self, data_root, bbox2d_definition_id):
         self._data_root = Path(data_root)
+        self._bbox2d_definition_id = bbox2d_definition_id
         self._captures = Captures(
             data_root=data_root, version=const.DEFAULT_PERCEPTION_VERSION
-        ).filter(def_id=ANNOTATION_DEFINITION_ID)
+        ).filter(def_id=bbox2d_definition_id)
         self._annotation_definitions = AnnotationDefinitions(
             data_root, version=const.DEFAULT_PERCEPTION_VERSION
         )
@@ -114,7 +114,7 @@ class COCOTransformer:
 
     def _categories(self):
         def_dict = self._annotation_definitions.get_definition(
-            def_id=ANNOTATION_DEFINITION_ID
+            def_id=self._bbox2d_definition_id
         )
         categories = []
         for r in def_dict["spec"]:
