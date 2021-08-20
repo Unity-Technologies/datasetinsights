@@ -22,8 +22,8 @@ def test_coco_transformer():
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         transformer.execute(tmp_dir)
-        output_file = Path(tmp_dir) / "instances.json"
-        expected_file = mock_coco_dir / "instances.json"
+        output_file = Path(tmp_dir) / "annotations" / "instances.json"
+        expected_file = mock_coco_dir / "annotations" / "instances.json"
         output_image_folder = Path(tmp_dir) / "images"
 
         assert output_file.exists()

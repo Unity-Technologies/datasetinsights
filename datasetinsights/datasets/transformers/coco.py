@@ -1,6 +1,7 @@
 import json
 import logging
 import shutil
+import uuid
 from pathlib import Path
 
 from PIL import Image
@@ -13,9 +14,12 @@ from datasetinsights.datasets.unity_perception import (
 
 logger = logging.getLogger(__name__)
 
-
 # TODO: prevent hard coded annotation definition id here.
 ANNOTATION_DEFINITION_ID = 4
+
+
+def uuid_to_int(input_uuid):
+    return uuid.UUID(input_uuid).int
 
 
 class COCOTransformer:
@@ -49,10 +53,10 @@ class COCOTransformer:
             shutil.copy(str(image_from), str(image_to))
 
     def _process_instances(self, output):
-        output = Path(output)
+        output = Path(output) / "annotations"
         output.mkdir(parents=True, exist_ok=True)
         instances = {
-            "info": {"description": "COCO Compatible Dataset"},
+            "info": {"description": "COCO compatible Synthetic Dataset"},
             "licences": [{"url": "", "id": 1, "name": "default"}],
             "images": self._images(),
             "annotations": self._annotations(),
@@ -70,7 +74,7 @@ class COCOTransformer:
                 continue
             with Image.open(image_file) as im:
                 width, height = im.size
-            capture_id = row["id"]
+            capture_id = uuid_to_int(row["id"])
             record = {
                 "license": 1,
                 "file_name": Path(image_file).name,
@@ -88,7 +92,7 @@ class COCOTransformer:
     def _annotations(self):
         annotations = []
         for _, row in self._captures.iterrows():
-            image_id = row["id"]
+            image_id = uuid_to_int(row["id"])
             for ann in row["annotation.values"]:
                 x = ann["x"]
                 y = ann["y"]
@@ -102,7 +106,7 @@ class COCOTransformer:
                     "image_id": image_id,
                     "bbox": [x, y, w, h],
                     "category_id": ann["label_id"],
-                    "id": ann["instance_id"],
+                    "id": uuid_to_int(ann["instance_id"]),
                 }
                 annotations.append(record)
 

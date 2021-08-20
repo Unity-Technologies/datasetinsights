@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 @click.option(
     "-o",
     "--output",
-    type=click.Path(exists=True, file_okay=False, writable=True),
+    type=click.Path(file_okay=False, writable=True),
     required=True,
     help="Directory of the converted dataset.",
 )
