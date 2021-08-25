@@ -4,7 +4,13 @@ import re
 import click
 
 import datasetinsights.constants as const
+from datasetinsights.io import convert_synthetic_coco
+from datasetinsights.io.downloader import GCSDatasetDownloader
 from datasetinsights.io.downloader.base import create_dataset_downloader
+from os import makedirs
+from os.path import basename, isdir
+import os
+import zipfile
 
 logger = logging.getLogger(__name__)
 
@@ -129,12 +135,67 @@ def cli(
     ctx = click.get_current_context()
     logger.debug(f"Called download command with parameters: {ctx.params}")
 
-    downloader = create_dataset_downloader(
-        source_uri=source_uri, access_token=access_token
-    )
-    downloader.download(
-        source_uri=source_uri,
-        output=output,
-        include_binary=include_binary,
-        checksum_file=checksum_file,
-    )
+    # downloader = create_dataset_downloader(
+    #     source_uri=source_uri, access_token=access_token
+    # )
+    # downloader.download(
+    #     source_uri=source_uri,
+    #     output=output,
+    #     include_binary=include_binary,
+    #     checksum_file=checksum_file,
+    # )
+
+    downloader = GCSDatasetDownloader()
+    data_root = const.DEFAULT_DATA_ROOT
+    if not isdir(data_root):
+        makedirs(data_root)
+    # data_root="/Users/sanjay.vishwakarma"
+    datasets= source_uri.split("-")
+    print(datasets)
+
+    if "finetune" in source_uri:
+        data_prefix="gs://live_reach/dataset/coco/"
+        train_dir = data_root + "/coco_finetune"
+        os.makedirs(train_dir, exist_ok=True)
+
+        for i in range(1,len(datasets)):
+            dataset_nm=datasets[i]
+            downloader.download(
+                source_uri=data_prefix + dataset_nm,
+                output=train_dir,
+            )
+            if ".zip" in dataset_nm:
+                with zipfile.ZipFile(train_dir+"/"+dataset_nm, "r") as zip_dir:
+                    zip_dir.extractall(train_dir)
+
+    else: # download synthetic train data
+        data_prefix = "gs://live_reach/psp-20210729T1213/blobs/dataset/"
+        train_dir = data_root + "/psp/train"
+        os.makedirs(train_dir, exist_ok=True)
+        for i in range(1, len(datasets)):
+            dataset_nm = datasets[i]
+            downloader.download(
+                source_uri=data_prefix
+                           + "peoplesanspeople-"
+                           + dataset_nm,
+                output=train_dir,
+            )
+
+        src_data = train_dir
+        train_data = data_root + "/coco/train"
+        os.makedirs(train_data, exist_ok=True)
+        dataset_type = "train"
+
+        convert_synthetic_coco(src_data, train_data, dataset_type, 0)
+
+    #create val directory
+
+    val_data = data_root + "/coco/val"
+    os.makedirs(val_data, exist_ok=True)
+
+
+
+
+
+
+
