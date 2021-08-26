@@ -57,7 +57,8 @@ class COCOTransformer:
             image_from = self._data_root / row["filename"]
             if not image_from.exists():
                 continue
-            image_to = image_to_folder / image_from.name
+            capture_id = uuid_to_int(row["id"])
+            image_to = image_to_folder / f"camera_{capture_id}.png"
             shutil.copy(str(image_from), str(image_to))
 
     def _process_instances(self, output):
@@ -85,7 +86,7 @@ class COCOTransformer:
             capture_id = uuid_to_int(row["id"])
             record = {
                 "license": 1,
-                "file_name": Path(image_file).name,
+                "file_name": f"camera_{capture_id}.png",
                 "coco_url": "",
                 "height": height,
                 "width": width,
