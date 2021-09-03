@@ -31,6 +31,8 @@ logger = logging.getLogger(__name__)
 )
 # TODO(YC) We need to figure out a better way to supply definition ID here
 # in order to support other annotations like instance segmentation or keypoints.
+# Ideally, we should be able to detect all available annotations that's
+# compatible to COCO formats.
 @click.option(
     "-d",
     "--bbox2d-definition-id",

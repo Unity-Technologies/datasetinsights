@@ -28,7 +28,7 @@ def uuid_to_int(input_uuid):
 
 
 class COCOTransformer:
-    """Convert Synthetic dataset to COCO format
+    """Convert Synthetic dataset to COCO format.
 
     Args:
         data_root (str): root directory of the dataset
@@ -47,6 +47,12 @@ class COCOTransformer:
         )
 
     def execute(self, output):
+        """Execute COCO Transformer
+
+        Args:
+            output (str): the output directory where converted dataset will
+              be stored.
+        """
         self._copy_images(output)
         self._process_instances(output)
 
