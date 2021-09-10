@@ -13,7 +13,7 @@ import numpy as _np
 from PIL import ImageFont
 
 FONT_PATH = _os.path.join(
-    pathlib.Path(__file__).parent.absolute(), "font", "arial.ttf"
+    pathlib.Path(__file__).parent.absolute(), "font", "DroidSansFallback.ttf"
 )
 _COLOR_NAME_TO_RGB = dict(
     navy=((0, 38, 63), (119, 193, 250)),
