@@ -16,7 +16,9 @@ def test_annotation_definitions(mock_data_dir):
     )
 
     json_file = next(glob(mock_data_dir, AnnotationDefinitions.FILE_PATTERN))
-    records = json.load(open(json_file, "r"))[AnnotationDefinitions.TABLE_NAME]
+    records = json.load(open(json_file, "r", encoding="utf8"))[
+        AnnotationDefinitions.TABLE_NAME
+    ]
 
     def_ids = [r["id"] for r in records]
     for (i, def_id) in enumerate(def_ids):
