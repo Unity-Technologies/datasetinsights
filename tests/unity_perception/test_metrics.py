@@ -28,7 +28,9 @@ def test_filter_metrics(mock_data_base_dir, data_dir_name):
     actual_metrics = collections.defaultdict(pd.DataFrame)
     json_files = glob(mock_data_dir, metrics.FILE_PATTERN)
     for json_file in json_files:
-        records = json.load(open(json_file, "r"))[Metrics.TABLE_NAME]
+        records = json.load(open(json_file, "r", encoding="utf8"))[
+            Metrics.TABLE_NAME
+        ]
         for record in records:
             def_id = record["metric_definition"]
             def_ids.add(def_id)

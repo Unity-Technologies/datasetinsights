@@ -117,7 +117,7 @@ class Metrics:
     def _load_json(filename, table_name, version):
         """Load records from json files into a dict
         """
-        with open(filename, "r") as file:
+        with open(filename, "r", encoding="utf8") as file:
             data = json.load(file)
         verify_version(data, version)
 
