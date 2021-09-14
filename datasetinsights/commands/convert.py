@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
     help=("The 2D bounding box annotation definition ID"),
 )
 def cli(input, output, format, bbox2d_definition_id):
-    """Convert dataset from Perception forate to target format.
+    """Convert dataset from Perception format to target format.
     """
     ctx = click.get_current_context()
     logger.debug(f"Called convert command with parameters: {ctx.params}")
