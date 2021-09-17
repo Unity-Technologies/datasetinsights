@@ -23,7 +23,9 @@ def test_get_captures_and_annotations(mock_data_base_dir, data_dir_name):
     captures_per_definition = collections.defaultdict(int)
     json_files = glob(mock_data_dir, captures.FILE_PATTERN)
     for json_file in json_files:
-        records = json.load(open(json_file, "r"))[Captures.TABLE_NAME]
+        records = json.load(open(json_file, "r", encoding="utf8"))[
+            Captures.TABLE_NAME
+        ]
         for record in records:
             for annotation in record["annotations"]:
                 def_id = annotation["annotation_definition"]

@@ -79,7 +79,7 @@ def load_table(json_file, table_name, version, **kwargs):
         version.
     """
     logger.debug(f"Loading table {table_name} from {json_file}")
-    data = json.load(open(json_file, "r"))
+    data = json.load(open(json_file, "r", encoding="utf8"))
     verify_version(data, version)
     table = pd.json_normalize(data[table_name], **kwargs)
 

@@ -37,7 +37,7 @@ def main():
     LOG.info("Found {} annotation files.".format(len(annotation_files)))
     annotations = {}
     for afile in annotation_files:
-        with open(afile, "r") as fp:
+        with open(afile, "r", encoding="utf8") as fp:
             annotation_json = json.load(fp)
             # NOTE: Assumes annotation records are for unique files - will
             # overwrite if there are multiple records for the same filename
