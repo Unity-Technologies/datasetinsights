@@ -44,6 +44,8 @@ dash = "1.12.0"
 click = "^7.1.2"
 opencv-python = "^4.4.0.42"
 matplotlib = "^3.3.1"
+seaborn = "^0.11.2"
+pycocotools = "^2.0.2"
 
 
 [tool.poetry.dev-dependencies]
