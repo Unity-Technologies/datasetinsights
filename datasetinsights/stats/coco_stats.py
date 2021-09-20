@@ -1,9 +1,9 @@
-from tqdm import tqdm
-import numpy as np
 import math
-import pandas as pd
 import random
 
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
 
 COCO_AREA_RANGES = [
     [0 ** 2, 1e5 ** 2],  # all
