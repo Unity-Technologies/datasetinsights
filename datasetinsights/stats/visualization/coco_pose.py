@@ -221,9 +221,6 @@ def generate_heatmaps(kp_dict, color="red", title="", fig_dest=None):
         ax.set_yticklabels([])
         ax.set_xticklabels([])
 
-        props = dict(
-            boxstyle="square", facecolor="wheat", alpha=0.1, edgecolor="black"
-        )
         t = name.split("_")
         t = [x.capitalize() for x in t]
         t = " ".join(t)
