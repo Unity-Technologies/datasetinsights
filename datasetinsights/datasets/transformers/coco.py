@@ -12,6 +12,7 @@ from datasetinsights.datasets.unity_perception import (
     AnnotationDefinitions,
     Captures,
 )
+from datasetinsights.datasets.unity_perception.validation import NoRecordError
 
 logger = logging.getLogger(__name__)
 
@@ -27,24 +28,55 @@ def uuid_to_int(input_uuid):
     return u
 
 
-class COCOTransformer:
+class COCOInstancesTransformer:
     """Convert Synthetic dataset to COCO format.
+
+    This transformer convert Synthetic dataset into annotations in instance
+    format (e.g. instances_train2017.json, instances_val2017.json)
+
+    Note: We assume "valid images" in the COCO dataset must contain at least one
+    bounding box annotation. Therefore, all images that contain no bounding
+    boxes will be dropped. Instance segmentation are considered optional
+    in the converted dataset as some synthetic dataset might be generated
+    without it.
 
     Args:
         data_root (str): root directory of the dataset
-        bbox2d_definition_id (str): the annotation definition id for
-            2d bounding boxes in this dataset.
     """
 
-    def __init__(self, data_root, bbox2d_definition_id):
+    # The annotation_definition.name is not a reliable way to know the type
+    # of annotation definition. This will be improved once the perception
+    # package introduced the annotation definition type in the future.
+    BBOX_NAME = r"^(?:2[dD]\s)?bounding\sbox$"
+    INSTANCE_SEGMENTATION_NAME = r"^instance\ssegmentation$"
+
+    def __init__(self, data_root):
         self._data_root = Path(data_root)
-        self._bbox2d_definition_id = bbox2d_definition_id
-        self._captures = Captures(
-            data_root=data_root, version=const.DEFAULT_PERCEPTION_VERSION
-        ).filter(def_id=bbox2d_definition_id)
-        self._annotation_definitions = AnnotationDefinitions(
+
+        ann_def = AnnotationDefinitions(
             data_root, version=const.DEFAULT_PERCEPTION_VERSION
         )
+        self._bbox_def = ann_def.find_by_name(self.BBOX_NAME)
+        try:
+            self._instance_segmentation_def = ann_def.find_by_name(
+                self.INSTANCE_SEGMENTATION_NAME
+            )
+        except NoRecordError as e:
+            logger.warning(
+                "Can't find instance segmentation annotations in the dataset. "
+                "The converted file will not contain instance segmentation."
+            )
+            logger.warning(e)
+            self._instance_segmentation_def = None
+
+        captures = Captures(
+            data_root=data_root, version=const.DEFAULT_PERCEPTION_VERSION
+        )
+        self._bbox_captures = captures.filter(self._bbox_def["id"])
+        if self._instance_segmentation_def:
+            self._instance_segmentation_captures = captures.filter(
+                self._instance_segmentation_def
+            )
 
     def execute(self, output):
         """Execute COCO Transformer
@@ -59,7 +91,7 @@ class COCOTransformer:
     def _copy_images(self, output):
         image_to_folder = Path(output) / "images"
         image_to_folder.mkdir(parents=True, exist_ok=True)
-        for _, row in self._captures.iterrows():
+        for _, row in self._bbox_captures.iterrows():
             image_from = self._data_root / row["filename"]
             if not image_from.exists():
                 continue
@@ -83,7 +115,7 @@ class COCOTransformer:
 
     def _images(self):
         images = []
-        for _, row in self._captures.iterrows():
+        for _, row in self._bbox_captures.iterrows():
             image_file = self._data_root / row["filename"]
             if not image_file.exists():
                 continue
@@ -102,7 +134,7 @@ class COCOTransformer:
 
     def _annotations(self):
         annotations = []
-        for _, row in self._captures.iterrows():
+        for _, row in self._bbox_captures.iterrows():
             image_id = uuid_to_int(row["id"])
             for ann in row["annotation.values"]:
                 x = ann["x"]
@@ -116,7 +148,6 @@ class COCOTransformer:
                     "iscrowd": 0,
                     "image_id": image_id,
                     "bbox": [x, y, w, h],
-                    "keypoints": [],
                     "category_id": ann["label_id"],
                     "id": uuid_to_int(row["annotation.id"])
                     | uuid_to_int(ann["instance_id"]),
@@ -126,11 +157,8 @@ class COCOTransformer:
         return annotations
 
     def _categories(self):
-        def_dict = self._annotation_definitions.get_definition(
-            def_id=self._bbox2d_definition_id
-        )
         categories = []
-        for r in def_dict["spec"]:
+        for r in self._bbox_def["spec"]:
             record = {
                 "id": r["label_id"],
                 "name": r["label_name"],
