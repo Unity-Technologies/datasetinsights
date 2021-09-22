@@ -3,7 +3,7 @@ import logging
 import click
 
 import datasetinsights.constants as const
-from datasetinsights.datasets.transformers import COCOTransformer
+from datasetinsights.datasets.transformers import COCOInstancesTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -27,26 +27,19 @@ logger = logging.getLogger(__name__)
     "-f",
     "--format",
     required=True,
-    help=("The output dataset format. Currently only COCO is supported."),
+    help=(
+        "The output dataset format. "
+        "Currently only 'COCO-Instances' is supported."
+    ),
 )
-# TODO(YC) We need to figure out a better way to supply definition ID here
-# in order to support other annotations like instance segmentation or keypoints.
-# Ideally, we should be able to detect all available annotations that's
-# compatible to COCO formats.
-@click.option(
-    "-d",
-    "--bbox2d-definition-id",
-    required=True,
-    help=("The 2D bounding box annotation definition ID"),
-)
-def cli(input, output, format, bbox2d_definition_id):
+def cli(input, output, format):
     """Convert dataset from Perception format to target format.
     """
     ctx = click.get_current_context()
     logger.debug(f"Called convert command with parameters: {ctx.params}")
 
-    # TODO(YC) support other types of datasets
-    if format != "COCO":
+    # TODO(YC) support other formats like COCO-Keypoints
+    if format != "COCO-Instances":
         raise ValueError(f"Unsupported target conversion format {format}")
-    transformer = COCOTransformer(input, bbox2d_definition_id)
+    transformer = COCOInstancesTransformer(input)
     transformer.execute(output)

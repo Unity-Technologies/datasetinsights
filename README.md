@@ -68,8 +68,6 @@ datasetinsights download --source-uri=<xxx> --output=$HOME/data
 
 The download command supports HTTP(s), GCS, and Unity simulation URIs.
 
-
-
 Alternatively, you can download dataset directly from python [interface](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.io.downloader.html#module-datasetinsights.io.downloader). For example, `UnitySimulationDownloader` can download dataset from Unity Simulation.
 
 ```python
@@ -108,8 +106,7 @@ If you are interested in converting the synthetic dataset to COCO format for
 annotations that COCO supports, you can run the `convert` command:
 
 ```bash
-datasetinsights convert -i <input-directory> -o <output-directory> \
-  -f COCO -d <2d_bounding_box_definition_id>
+datasetinsights convert -i <input-directory> -o <output-directory> -f COCO-Instances
 ```
 
 You will need to provide 2D bounding box definition ID in the synthetic dataset. We currently only support 2D bounding box annotations for COCO format.
