@@ -172,8 +172,9 @@ class COCOInstancesTransformer:
 class COCOKeypointsTransformer:
     """Convert Synthetic dataset to COCO format.
 
-    This transformer convert Synthetic dataset into annotations in person keypoint
-    format (e.g. person_keypoints_train2017.json, person_keypoints_val2017.json)
+    This transformer convert Synthetic dataset into annotations
+    in person keypoint format
+    (e.g. person_keypoints_train2017.json, person_keypoints_val2017.json)
 
     Note: We assume "valid images" in the COCO dataset must contain at least one
     bounding box annotation. Therefore, all images that contain no bounding
