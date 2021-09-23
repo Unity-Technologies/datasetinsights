@@ -114,3 +114,5 @@ venv.bak/
 runs/
 checkpoints/
 metrics/
+coco_data/
+perception_data/
