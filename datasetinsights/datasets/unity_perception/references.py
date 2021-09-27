@@ -3,7 +3,7 @@
 import pandas as pd
 
 from .tables import DATASET_TABLES, SCHEMA_VERSION, glob, load_table
-from .validation import NoRecordError
+from .validation import DuplicateRecordError, NoRecordError
 
 
 class AnnotationDefinitions:
@@ -68,7 +68,10 @@ class AnnotationDefinitions:
             def_id (int): annotation definition id used to filter results
 
         Returns:
-            a dictionary containing the annotation definition
+            dict: a dictionary containing the annotation definition
+
+        Raises:
+            NoRecordError: If no annotation are found for a given definition id
         """
         mask = self.table.id == def_id
         definition = self.table[mask]
@@ -76,6 +79,40 @@ class AnnotationDefinitions:
             raise NoRecordError(
                 f"No records are found in the annotation_definitions file "
                 f"that matches the specified definition id: {def_id}"
+            )
+        definition = definition.to_dict("records")[0]
+
+        return definition
+
+    def find_by_name(self, pattern):
+        """ Get the annotation definition by matching patterns
+
+        This method will try to match the pattern of the annotation definition
+        by name to determine
+
+        Args:
+            pattern (srt): the regex pattern
+
+        Returns:
+            dict: a dictionary containing the annotation definition
+
+        Raises:
+            NoRecordError: If no annotation are found for a given definition id
+            DuplicateRecordError: If more than one record is found by the given
+              pattern
+        """
+        mask = self.table.name.str.contains(pattern)
+        definition = self.table[mask]
+        if definition.empty:
+            raise NoRecordError(
+                "No records are found in the annotation definition table"
+                f"that matches the specified pattern: {pattern}"
+            )
+        if definition.shape[0] > 1:
+            raise DuplicateRecordError(
+                "Found more than one annodation definition that matches"
+                f"the pattern {pattern}. The matched records are: \n"
+                f"{definition}"
             )
         definition = definition.to_dict("records")[0]
 

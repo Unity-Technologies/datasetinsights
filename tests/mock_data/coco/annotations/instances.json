@@ -1,0 +1,81 @@
+{
+    "info": {
+        "description": "COCO compatible Synthetic Dataset"
+    },
+    "licences": [
+        {
+            "url": "",
+            "id": 1,
+            "name": "default"
+        }
+    ],
+    "images": [
+        {
+            "file_name": "camera_91891091516384550185081373185892902457.png",
+            "height": 240,
+            "width": 320,
+            "id": 91891091516384550185081373185892902457
+        }
+    ],
+    "annotations": [
+        {
+            "segmentation": [],
+            "area": 10000.0,
+            "iscrowd": 0,
+            "image_id": 91891091516384550185081373185892902457,
+            "bbox": [
+                30.0,
+                50.0,
+                100.0,
+                100.0
+            ],
+            "category_id": 27,
+            "id": 244409769007218865362436775986662996774
+        },
+        {
+            "segmentation": [],
+            "area": 1000.0,
+            "iscrowd": 0,
+            "image_id": 91891091516384550185081373185892902457,
+            "bbox": [
+                120.0,
+                231.0,
+                50.0,
+                20.0
+            ],
+            "category_id": 34,
+            "id": 328316353567376980370842232520647311162
+        },
+        {
+            "segmentation": [],
+            "area": 200.0,
+            "iscrowd": 0,
+            "image_id": 91891091516384550185081373185892902457,
+            "bbox": [
+                132.0,
+                83.0,
+                10.0,
+                20.0
+            ],
+            "category_id": 25,
+            "id": 244577869532652886288531412869200144247
+        }
+    ],
+    "categories": [
+        {
+            "id": 27,
+            "name": "car",
+            "supercategory": "default"
+        },
+        {
+            "id": 34,
+            "name": "bicycle",
+            "supercategory": "default"
+        },
+        {
+            "id": 25,
+            "name": "person",
+            "supercategory": "default"
+        }
+    ]
+}
