@@ -1,11 +1,13 @@
-import json
 import math
-import os
+from typing import List, Tuple
 
+import matplotlib.pyplot
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from matplotlib import collections as mc
+
+from datasetinsights.io.coco import load_coco_annotations
 
 COCO_SKELETON = [
     [16, 14],
@@ -50,14 +52,15 @@ COCO_KEYPOINTS = [
 ]
 
 
-def _load_annotations_from_json(json_file):
-    f = open(json_file)
-    data = json.load(f)
-    annotations = data["annotations"]
-    return annotations
-
-
 def _is_torso_visible_or_labelled(kp):
+    """
+
+    Args:
+        kp (list): List of keypoints
+
+    Returns: True if torso is visible else False
+
+    """
     return (
         (kp[17] == 1 or kp[17] == 2)
         and (kp[20] == 1 or kp[20] == 2)
@@ -66,16 +69,24 @@ def _is_torso_visible_or_labelled(kp):
     )
 
 
-def _get_ann_where_torso_visible(annotations):
-    visible_kp_annotations = []
+def _get_kp_where_torso_visible(annotations):
+    keypoints = []
     for ann in annotations:
         kp = ann["keypoints"]
         if _is_torso_visible_or_labelled(kp):
-            visible_kp_annotations.append(ann)
-    return visible_kp_annotations
+            keypoints.append(kp)
+    return keypoints
 
 
-def _calc_mid(p1, p2):
+def _calc_mid(p1: Tuple[float], p2: Tuple[float]):
+    """
+    Calculate mid point of two points
+    Args:
+        p1 (Tuple[float]): Point 1
+        p2 (Tuple[float]): Point 2
+
+    Returns: x,y value of mid point
+    """
     return (p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2
 
 
@@ -90,15 +101,19 @@ def _remove_visibility_flag_from_kp(kp):
 
 
 def _translate_kp(x, y, tx, ty):
-    x = [number - tx if number > 0.0 else 0.0 for number in x]
-    y = [number - ty if number > 0.0 else 0.0 for number in y]
-    return x, y
+    x = np.array(x)
+    y = np.array(y)
+    x = x - tx
+    y = y - ty
+    return x.tolist(), y.tolist()
 
 
 def _scale_kp(x, y, sf):
-    x = [number / sf for number in x]
-    y = [number / sf for number in y]
-    return x, y
+    x = np.array(x)
+    y = np.array(y)
+    x = x / sf
+    y = y / sf
+    return x.tolist(), y.tolist()
 
 
 def _translate_and_scale_xy_kp(x, y):
@@ -122,25 +137,26 @@ def _translate_and_scale_xy_kp(x, y):
 
 def process_annotations(json_file):
 
-    annotations = _load_annotations_from_json(json_file)
-    annotations = _get_ann_where_torso_visible(annotations)
+    annotations = load_coco_annotations(json_file)
+    keypoints = _get_kp_where_torso_visible(annotations)
 
     kp_dict = {}
     for name in COCO_KEYPOINTS:
         kp_dict[name] = {"x": [], "y": []}
 
-    for ann in annotations:
-        keypoints = ann["keypoints"]
-        keypoints = _remove_visibility_flag_from_kp(keypoints)
+    for kp in keypoints:
+        kp = _remove_visibility_flag_from_kp(kp)
 
         # Separate x and y keypoints
-        x_kp, y_kp = keypoints[0::2], keypoints[1::2]
+        x_kp, y_kp = kp[0::2], kp[1::2]
         x_kp, y_kp = _translate_and_scale_xy_kp(x_kp, y_kp)
 
         # save keypoints to dict
         idx = 0
         for xi, yi in zip(x_kp, y_kp):
             if xi == 0 and yi == 0:
+                pass
+            elif xi > 2.5 or xi < -2.5 or yi > 2.5 or yi < -2.5:
                 pass
             else:
                 kp_dict[COCO_KEYPOINTS[idx]]["x"].append(xi)
@@ -150,7 +166,31 @@ def process_annotations(json_file):
     return kp_dict
 
 
-def generate_scatter_plot(kp_dict, title="", fig_path=None):
+def _eliminate_axes(axes: List[str], ax: matplotlib.pyplot.Axes):
+    for axis in axes:
+        ax.spines[axis].set_color("none")
+
+
+def _turn_off_x_tick_labels(ax: matplotlib.pyplot.Axes):
+    ax.set_xticklabels([])
+
+
+def _turn_off_y_tick_labels(ax: matplotlib.pyplot.Axes):
+    ax.set_yticklabels([])
+
+
+def _turn_off_xy_tick_labels(ax: matplotlib.pyplot.Axes):
+    _turn_off_x_tick_labels(ax=ax)
+    _turn_off_y_tick_labels(ax=ax)
+
+
+def save_figure(fig: matplotlib.pyplot.Figure, fig_path: str):
+    fig.savefig(fname=fig_path, bbox_inches="tight", pad_inches=0.15)
+
+
+def generate_scatter_plot(
+    kp_dict, title="",
+):
     fig, ax = plt.subplots(dpi=300, figsize=(8, 8))
     colors = plt.cm.rainbow(np.linspace(0, 1, len(COCO_KEYPOINTS)))[::-1]
     i = 0
@@ -171,12 +211,10 @@ def generate_scatter_plot(kp_dict, title="", fig_path=None):
     ax.spines["bottom"].set_position("center")
 
     # Eliminate upper and right axes
-    ax.spines["right"].set_color("none")
-    ax.spines["top"].set_color("none")
+    _eliminate_axes(axes=["upper", "right"], ax=ax)
 
     # Turn off tick labels
-    ax.set_yticklabels([])
-    ax.set_xticklabels([])
+    _turn_off_xy_tick_labels(ax=ax)
     ax.set_title(title)
 
     # Invert axes
@@ -187,12 +225,11 @@ def generate_scatter_plot(kp_dict, title="", fig_path=None):
         loc="lower center", bbox_to_anchor=(0.5, -0.17), ncol=5, fancybox=True,
     )
 
-    if fig_path:
-        plt.savefig(fig_path, bbox_inches="tight", pad_inches=0.15)
-    plt.show()
+    return fig
 
 
-def generate_heatmaps(kp_dict, color="red", title="", fig_dest=None):
+def generate_heatmaps(kp_dict, color="red", title=""):
+    figures = []
 
     for name in COCO_KEYPOINTS:
         fig, ax = plt.subplots(dpi=100, figsize=(8, 8))
@@ -214,12 +251,10 @@ def generate_heatmaps(kp_dict, color="red", title="", fig_dest=None):
         ax.spines["bottom"].set_position("center")
 
         # Eliminate upper and right axes
-        ax.spines["right"].set_color("none")
-        ax.spines["top"].set_color("none")
+        _eliminate_axes(axes=["upper", "right"], ax=ax)
 
         # Turn off tick labels
-        ax.set_yticklabels([])
-        ax.set_xticklabels([])
+        _turn_off_xy_tick_labels(ax=ax)
 
         t = name.split("_")
         t = [x.capitalize() for x in t]
@@ -238,14 +273,9 @@ def generate_heatmaps(kp_dict, color="red", title="", fig_dest=None):
 
         ax.set_aspect("equal")
 
-        if fig_dest:
-            plt.savefig(
-                os.path.join(fig_dest, f"{name}_heatmap.png"),
-                bbox_inches="tight",
-                pad_inches=0.15,
-            )
+        figures.append(fig)
 
-        plt.show()
+    return figures
 
 
 def _get_avg_kp(kp_dict):
@@ -258,16 +288,14 @@ def _get_avg_kp(kp_dict):
     return x_avg, y_avg
 
 
-def _get_skeleton(x, y):
+def _get_skeleton(x_kp, y_kp):
     s = []
     for p1, p2 in COCO_SKELETON:
-        p1 -= 1
-        p2 -= 1
-        s.append([(x[p1], y[p1]), (x[p2], y[p2])])
+        s.append([(x_kp[p1 - 1], y_kp[p1 - 1]), (x_kp[p2 - 1], y_kp[p2 - 1])])
     return s
 
 
-def generate_avg_skeleton(kp_dict, title="", fig_path=None, scatter=False):
+def generate_avg_skeleton(kp_dict, title="", scatter=False):
     x_avg, y_avg = _get_avg_kp(kp_dict)
     skeleton = _get_skeleton(x_avg, y_avg)
 
@@ -284,12 +312,10 @@ def generate_avg_skeleton(kp_dict, title="", fig_path=None, scatter=False):
     ax.spines["bottom"].set_position("center")
 
     # Eliminate upper and right axes
-    ax.spines["right"].set_color("none")
-    ax.spines["top"].set_color("none")
+    _eliminate_axes(axes=["upper", "right"], ax=ax)
 
     # Turn off tick labels
-    ax.set_yticklabels([])
-    ax.set_xticklabels([])
+    _turn_off_xy_tick_labels(ax=ax)
 
     ax.set_title(title)
 
@@ -300,6 +326,5 @@ def generate_avg_skeleton(kp_dict, title="", fig_path=None, scatter=False):
         plt.scatter(x_avg, y_avg, s=7)
 
     fig.tight_layout(pad=0.2)
-    if fig_path:
-        plt.savefig(fig_path, bbox_inches="tight", pad_inches=0.15)
-    plt.show()
+
+    return fig
