@@ -135,14 +135,14 @@ def _translate_and_scale_xy_kp(x, y):
     return x, y
 
 
-def process_annotations(json_file):
+def _process_annotations(annotation_file):
 
-    annotations = load_coco_annotations(json_file)
+    annotations = load_coco_annotations(annotation_file=annotation_file)
     keypoints = _get_kp_where_torso_visible(annotations)
 
-    kp_dict = {}
+    processed_kp_dict = {}
     for name in COCO_KEYPOINTS:
-        kp_dict[name] = {"x": [], "y": []}
+        processed_kp_dict[name] = {"x": [], "y": []}
 
     for kp in keypoints:
         kp = _remove_visibility_flag_from_kp(kp)
@@ -159,11 +159,11 @@ def process_annotations(json_file):
             elif xi > 2.5 or xi < -2.5 or yi > 2.5 or yi < -2.5:
                 pass
             else:
-                kp_dict[COCO_KEYPOINTS[idx]]["x"].append(xi)
-                kp_dict[COCO_KEYPOINTS[idx]]["y"].append(yi)
+                processed_kp_dict[COCO_KEYPOINTS[idx]]["x"].append(xi)
+                processed_kp_dict[COCO_KEYPOINTS[idx]]["y"].append(yi)
             idx += 1
 
-    return kp_dict
+    return processed_kp_dict
 
 
 def _eliminate_axes(axes: List[str], ax: matplotlib.pyplot.Axes):
@@ -189,8 +189,9 @@ def save_figure(fig: matplotlib.pyplot.Figure, fig_path: str):
 
 
 def generate_scatter_plot(
-    kp_dict, title="",
+    annotation_file, title="",
 ):
+    kp_dict = _process_annotations(annotation_file=annotation_file)
     fig, ax = plt.subplots(dpi=300, figsize=(8, 8))
     colors = plt.cm.rainbow(np.linspace(0, 1, len(COCO_KEYPOINTS)))[::-1]
     i = 0
@@ -228,7 +229,9 @@ def generate_scatter_plot(
     return fig
 
 
-def generate_heatmaps(kp_dict, color="red", title=""):
+def generate_heatmaps(annotation_file, color="red", title=""):
+    kp_dict = _process_annotations(annotation_file=annotation_file)
+
     figures = []
 
     for name in COCO_KEYPOINTS:
@@ -295,7 +298,9 @@ def _get_skeleton(x_kp, y_kp):
     return s
 
 
-def generate_avg_skeleton(kp_dict, title="", scatter=False):
+def generate_avg_skeleton(annotation_file, title="", scatter=False):
+    kp_dict = _process_annotations(annotation_file=annotation_file)
+
     x_avg, y_avg = _get_avg_kp(kp_dict)
     skeleton = _get_skeleton(x_avg, y_avg)
 
