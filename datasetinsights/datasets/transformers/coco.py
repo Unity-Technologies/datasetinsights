@@ -293,9 +293,9 @@ class COCOKeypointsTransformer:
                 # -- kpt ---
                 keypoints_vals = []
                 num_keypoints = 0
-                for kpt in ann_kpt['keypoints']:
-                    keypoints_vals.append([int(np.floor(kpt['x'])), int(np.floor(kpt['y'])), kpt['state']])
-                    if int(kpt['state']) != 0:
+                for kpt in ann_kpt["keypoints"]:
+                    keypoints_vals.append([int(np.floor(kpt["x"])), int(np.floor(kpt["y"])), kpt["state"]])
+                    if int(kpt["state"]) != 0:
                         num_keypoints += 1
 
                 keypoints_vals = [item for sublist in keypoints_vals for item in sublist]
@@ -321,11 +321,11 @@ class COCOKeypointsTransformer:
         key_points = []
         skeleton = []
 
-        for kp in self._kpt_def['spec'][0]['key_points']:
-            key_points.append(kp['label'])
+        for kp in self._kpt_def["spec"][0]["key_points"]:
+            key_points.append(kp["label"])
 
-        for sk in self._kpt_def['spec'][0]['skeleton']:
-            skeleton.append([sk['joint1'] + 1, sk['joint2'] + 1])
+        for sk in self._kpt_def["spec"][0]["skeleton"]:
+            skeleton.append([sk["joint1"] + 1, sk["joint2"] + 1])
 
         for r in self._bbox_def["spec"]:
             record = {

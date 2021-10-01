@@ -38,7 +38,6 @@ def cli(input, output, format):
     ctx = click.get_current_context()
     logger.debug(f"Called convert command with parameters: {ctx.params}")
 
-    # TODO(YC) support other formats like COCO-Keypoints
     if format not in ["COCO-Instances", "COCO-Keypoints"]:
         raise ValueError(f"Unsupported target conversion format {format}")
     if format == "COCO-Instances":
