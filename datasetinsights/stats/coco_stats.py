@@ -29,8 +29,9 @@ COCO_AREA_DICT = {
 }
 
 
-def _get_empty_bbox_heatmap(coco_img_ids, coco_obj):
+def _get_empty_bbox_heatmap(coco_obj):
     # calculate bbox shape according to largest image in the dataset
+    coco_img_ids = coco_obj.getImgIds()
     max_height, max_width = 0, 0
     for idx in coco_img_ids:
         img = coco_obj.loadImgs(idx)[0]
@@ -95,7 +96,7 @@ def get_bbox_heatmap(annotation_file):
     coco = COCO(annotation_file)
     img_ids = coco.getImgIds()
     cat_ids = coco.getCatIds()
-    bbox_heatmap = _get_empty_bbox_heatmap(coco_img_ids=img_ids, coco_obj=coco)
+    bbox_heatmap = _get_empty_bbox_heatmap(coco_obj=coco)
 
     for idx in tqdm(img_ids):
         img = coco.loadImgs(idx)[0]
