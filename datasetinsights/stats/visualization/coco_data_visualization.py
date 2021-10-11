@@ -115,6 +115,7 @@ def display_ann_for_all_img(
     cat_id: Union[int, List] = 1,
 ):
     """
+    Plots annotations for all or specified number of images in the dataset
 
     Args:
         annotation_file (str): COCO annotation json file.
