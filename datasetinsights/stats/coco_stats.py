@@ -1,40 +1,114 @@
 import math
+import os
+from typing import Dict, List, Union
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import pycocotools.coco
 from pycocotools.coco import COCO
 from tqdm import tqdm
 
-COCO_AREA_RANGES = [
-    [0 ** 2, 1e5 ** 2],  # all
-    [0 ** 2, 32 ** 2],  # small
-    [32 ** 2, 96 ** 2],  # medium
-    [96 ** 2, 1e5 ** 2],  # large
-    [96 ** 2, 128 ** 2],  # 96-128
-    [128 ** 2, 256 ** 2],  # 128-256
-    [256 ** 2, 512 ** 2],  # 256-512
-    [512 ** 2, 1e5 ** 2],
-]  # 512-inf
-
-COCO_AREA_DICT = {
-    0: "all",
-    1: "small",
-    2: "medium",
-    3: "large",
-    4: "96-128",
-    5: "128-256",
-    6: "256-512",
-    7: "512-inf",
-}
+from datasetinsights.io.coco import load_coco_annotations
+from datasetinsights.io.exceptions import (
+    InvalidCOCOCategoryIdError,
+    InvalidCOCOImageIdError,
+)
 
 
-def _get_empty_bbox_heatmap(coco_obj):
-    # calculate bbox shape according to largest image in the dataset
-    coco_img_ids = coco_obj.getImgIds()
+def _load_coco_cat_data(coco_obj: COCO, cat_id: int = 1):
+    try:
+        data = coco_obj.loadCats(ids=cat_id)
+    except KeyError:
+        raise InvalidCOCOCategoryIdError
+    return data[0]
+
+
+def get_coco_keypoints(coco_obj: COCO, cat_id: int = 1):
+    data = _load_coco_cat_data(coco_obj=coco_obj, cat_id=cat_id)
+    try:
+        keypoints = data["keypoints"]
+    except KeyError:
+        raise ValueError(f"No keypoints found for cat id: {cat_id}")
+    return keypoints
+
+
+def get_coco_skeleton(coco_obj: COCO, cat_id: int = 1):
+    data = _load_coco_cat_data(coco_obj=coco_obj, cat_id=cat_id)
+    try:
+        skeleton = data["skeleton"]
+    except KeyError:
+        raise ValueError(f"No skeleton found for cat id: {cat_id}")
+    return skeleton
+
+
+def load_img_ann_for_single_image(coco_obj: COCO, img_id: int) -> Dict:
+    """
+
+    Args:
+        coco_obj (pycocotools.coco.COCO): COCO object
+        img_id (int): Image id of the image
+
+    Returns:
+        Dict: Returns dict of image metadata.
+
+    """
+    try:
+        img = coco_obj.loadImgs(ids=[img_id])
+    except KeyError:
+        raise InvalidCOCOImageIdError
+    return img[0]
+
+
+def load_image_from_img_ann(img_annotation: dict, data_dir: str) -> np.ndarray:
+    """
+
+    Args:
+        img_annotation (dict): Image metadata dict
+        data_dir (str): Directory where data(images) is located
+
+    Returns:
+        np.ndarray: Numpy array of image
+
+    """
+    image_path = os.path.join(data_dir, img_annotation["file_name"])
+    img = plt.imread(image_path)
+    return img
+
+
+def load_annotations_for_single_img(coco_obj, img_id) -> List[Dict]:
+    """
+
+    Args:
+        coco_obj (pycocotools.coco.COCO): COCO object
+        img_id (int): Image id of the image
+
+    Returns:
+        List[Dict]: List of annotation objects of an image
+
+    """
+    ann_ids = coco_obj.getAnnIds(imgIds=img_id)
+    annotations = coco_obj.loadAnns(ann_ids)
+    return annotations
+
+
+def _get_empty_bbox_heatmap(coco_obj: COCO, cat_id: Union[List, int] = 1):
+    """
+
+    Args:
+        coco_obj (pycocotools.coco.COCO): COCO object
+        cat_id (Union[int, List]): List or int of category ids, Default: 1
+        for person category
+
+    Returns:
+        np.ndarray: BBox numpy array of zeros
+
+    """
+    coco_img_ids = coco_obj.getImgIds(catIds=cat_id)
     max_height, max_width = 0, 0
+
+    # calculate bbox shape according to largest image in the dataset
     for idx in coco_img_ids:
-        img = coco_obj.loadImgs(idx)[0]
+        img = load_img_ann_for_single_image(coco_obj=coco_obj, img_id=idx)
         max_height = max(img["height"], max_height)
         max_width = max(img["width"], max_width)
 
@@ -42,38 +116,59 @@ def _get_empty_bbox_heatmap(coco_obj):
     return bbox_heatmap
 
 
-def _get_labeled_kpt_dict(coco_obj: pycocotools.coco.COCO):
+def _get_labeled_kpt_dict(coco_obj: COCO, cat_id: int = 1):
+    """
+
+    Args:
+        coco_obj (pycocotools.coco.COCO): COCO object
+        cat_id (int): Category id, Default: 1 for person category
+
+    Returns:
+        Dict: Keypoint dictionary with initial values for each kp as 0.0
+
+    """
     kpt_dict = {}
-    coco_kpts = coco_obj.loadCats(coco_obj.getCatIds())[0]["keypoints"]
-    for key in coco_kpts:
-        kpt_dict[key] = 0.0
+    coco_keypoints = get_coco_keypoints(coco_obj=coco_obj, cat_id=cat_id)
+    for keypoint in coco_keypoints:
+        kpt_dict[keypoint] = 0.0
     return kpt_dict
 
 
-def _get_bbox_area_dict():
-    bbox_dict = {}
-    for key in COCO_AREA_DICT:
-        bbox_dict[key] = 0
-    return bbox_dict
+def _get_bbox_relative_size(bbox_area: float, image_h: float, image_w: float):
+    """
 
+    Args:
+        bbox_area (float): Bounding box area size
+        image_h (float): Image height
+        image_w (float): Image width
 
-def _get_bbox_relative_size(bbox_area, image_h, image_w):
+    Returns:
+        float: Relative size of bbox w.r.t image size
+
+    """
     bbox_relative_size = math.sqrt(bbox_area / (image_h * image_w))
     return bbox_relative_size
 
 
-def get_labeled_keypoints(annotation_file):
-    coco = COCO(annotation_file)
+def get_labeled_keypoints_dict(annotation_file: str):
+    """
+
+    Args:
+        annotation_file (JSON): COCO annotations json file path
+
+    Returns:
+
+    """
+    coco = load_coco_annotations(annotation_file=annotation_file)
     labeled_kpt_dict = _get_labeled_kpt_dict(coco_obj=coco)
     keypoints = list(labeled_kpt_dict.keys())
-    img_ids = coco.getImgIds()
-    cat_ids = coco.getCatIds()
+    img_ids = coco.getImgIds(catIds=1)
     total_instances = 0
 
     for idx in tqdm(img_ids):
-        img = coco.loadImgs(idx)[0]
+        img_ann = load_img_ann_for_single_image(coco_obj=coco, img_id=idx)
         annotation_ids = coco.getAnnIds(
-            imgIds=img["id"], catIds=cat_ids, iscrowd=None
+            imgIds=img_ann["id"], catIds=1, iscrowd=None
         )
         annotations = coco.loadAnns(annotation_ids)
         num_annotations = len(annotations)
@@ -93,15 +188,14 @@ def get_labeled_keypoints(annotation_file):
 
 
 def get_bbox_heatmap(annotation_file):
-    coco = COCO(annotation_file)
-    img_ids = coco.getImgIds()
-    cat_ids = coco.getCatIds()
+    coco = load_coco_annotations(annotation_file=annotation_file)
+    img_ids = coco.getImgIds(catIds=1)
     bbox_heatmap = _get_empty_bbox_heatmap(coco_obj=coco)
 
     for idx in tqdm(img_ids):
-        img = coco.loadImgs(idx)[0]
+        img_ann = load_img_ann_for_single_image(coco_obj=coco, img_id=idx)
         annotation_ids = coco.getAnnIds(
-            imgIds=img["id"], catIds=cat_ids, iscrowd=None
+            imgIds=img_ann["id"], catIds=1, iscrowd=None
         )
         annotations = coco.loadAnns(annotation_ids)
 
@@ -115,16 +209,15 @@ def get_bbox_heatmap(annotation_file):
 
 
 def bbox_relative_size_list(annotation_file):
-    coco = COCO(annotation_file)
-    img_ids = coco.getImgIds()
-    cat_ids = coco.getCatIds()
+    coco = load_coco_annotations(annotation_file=annotation_file)
+    img_ids = coco.getImgIds(catIds=1)
     bbox_relative_size = []
 
     for idx in tqdm(img_ids):
-        img = coco.loadImgs(idx)[0]
-        h, w = img["height"], img["width"]
+        img_ann = load_img_ann_for_single_image(coco_obj=coco, img_id=idx)
+        h, w = img_ann["height"], img_ann["width"]
         annotation_ids = coco.getAnnIds(
-            imgIds=img["id"], catIds=cat_ids, iscrowd=None
+            imgIds=img_ann["id"], catIds=1, iscrowd=None
         )
         annotations = coco.loadAnns(annotation_ids)
 
@@ -140,12 +233,12 @@ def bbox_relative_size_list(annotation_file):
 
 def _convert_coco_annotations_to_df(annotation_file):
     coco = COCO(annotation_file)
-    img_ids = coco.getImgIds()
+    img_ids = coco.getImgIds(catIds=1)
 
     coco_data = []
 
     for i, img_id in enumerate(img_ids):
-        img_meta = coco.imgs[img_id]
+        img_meta = load_img_ann_for_single_image(coco_obj=coco, img_id=img_id)
         ann_ids = coco.getAnnIds(imgIds=img_id)
 
         # basic parameters of an image

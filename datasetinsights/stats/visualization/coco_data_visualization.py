@@ -1,63 +1,15 @@
-import os
 import random
-from typing import Dict, List, Union
+from typing import List, Union
 
 import matplotlib.pyplot as plt
-import numpy as np
 from pycocotools.coco import COCO
 
 from datasetinsights.io.coco import load_coco_annotations
-from datasetinsights.io.exceptions import InvalidCOCOImageIdError
-
-
-def _load_img_ann_for_single_image(coco_obj: COCO, img_id: int) -> Dict:
-    """
-
-    Args:
-        coco_obj (pycocotools.coco.COCO): COCO object
-        img_id (int): Image id of the image
-
-    Returns:
-        Dict: Returns dict of image metadata.
-
-    """
-    try:
-        img = coco_obj.loadImgs(ids=[img_id])[0]
-    except KeyError:
-        raise InvalidCOCOImageIdError
-    return img
-
-
-def _load_image_from_img_ann(img_annotation: dict, data_dir: str) -> np.ndarray:
-    """
-
-    Args:
-        img_annotation (dict): Image metadata dict
-        data_dir (str): Directory where data(images) is located
-
-    Returns:
-        np.ndarray: Numpy array of image
-
-    """
-    image_path = os.path.join(data_dir, img_annotation["file_name"])
-    img = plt.imread(image_path)
-    return img
-
-
-def _load_annotations_for_single_img(coco_obj, img_id) -> List[Dict]:
-    """
-
-    Args:
-        coco_obj (pycocotools.coco.COCO): COCO object
-        img_id (int): Image id of the image
-
-    Returns:
-        List[Dict]: List of annotation objects of an image
-
-    """
-    ann_ids = coco_obj.getAnnIds(imgIds=img_id)
-    annotations = coco_obj.loadAnns(ann_ids)
-    return annotations
+from datasetinsights.stats.coco_stats import (
+    load_annotations_for_single_img,
+    load_image_from_img_ann,
+    load_img_ann_for_single_image,
+)
 
 
 def display_single_img(
@@ -74,8 +26,8 @@ def display_single_img(
         plt.Figure: Figure object
 
     """
-    img_ann = _load_img_ann_for_single_image(coco_obj=coco_obj, img_id=img_id)
-    img = _load_image_from_img_ann(img_annotation=img_ann, data_dir=data_dir)
+    img_ann = load_img_ann_for_single_image(coco_obj=coco_obj, img_id=img_id)
+    img = load_image_from_img_ann(img_annotation=img_ann, data_dir=data_dir)
     fig, ax = plt.subplots(dpi=100)
     ax.axis("off")
     ax.imshow(img)
@@ -96,11 +48,11 @@ def display_ann_for_single_img(
         plt.Figure: Figure object
 
     """
-    img_ann = _load_img_ann_for_single_image(coco_obj=coco_obj, img_id=img_id)
-    annotations = _load_annotations_for_single_img(
+    img_ann = load_img_ann_for_single_image(coco_obj=coco_obj, img_id=img_id)
+    annotations = load_annotations_for_single_img(
         coco_obj=coco_obj, img_id=img_ann["id"]
     )
-    img = _load_image_from_img_ann(img_annotation=img_ann, data_dir=data_dir)
+    img = load_image_from_img_ann(img_annotation=img_ann, data_dir=data_dir)
     fig, ax = plt.subplots(dpi=100)
     ax.axis("off")
     ax.imshow(img)
@@ -130,13 +82,11 @@ def display_ann_for_all_img(
         img_ids = random.sample(img_ids, k=num_imgs)
     for img_id in img_ids:
         fig, (ax1, ax2) = plt.subplots(1, 2, dpi=100, figsize=(18.5, 10.5))
-        img_ann = _load_img_ann_for_single_image(coco_obj=coco, img_id=img_id)
-        annotations = _load_annotations_for_single_img(
+        img_ann = load_img_ann_for_single_image(coco_obj=coco, img_id=img_id)
+        annotations = load_annotations_for_single_img(
             coco_obj=coco, img_id=img_ann["id"]
         )
-        img = _load_image_from_img_ann(
-            img_annotation=img_ann, data_dir=data_dir
-        )
+        img = load_image_from_img_ann(img_annotation=img_ann, data_dir=data_dir)
         ax1.axis("off")
         ax1.imshow(img)
         ax2.axis("off")

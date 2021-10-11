@@ -16,3 +16,8 @@ class InvalidTrackerError(Exception):
 class InvalidCOCOImageIdError(Exception):
     """ Raised when invalid image id is given.
     """
+
+
+class InvalidCOCOCategoryIdError(Exception):
+    """ Raised when invalid image id is given.
+    """
