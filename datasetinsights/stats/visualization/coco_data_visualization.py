@@ -13,12 +13,16 @@ from datasetinsights.stats.coco_stats import (
 
 
 def display_single_img(
-    coco_obj: COCO, img_id: int, data_dir: str
+    data_dir: str,
+    img_id: int,
+    annotation_file: str = None,
+    coco_obj: COCO = None,
 ) -> plt.Figure:
     """
     Displays single image with the give image id
     Args:
         coco_obj (pycocotools.coco.COCO): COCO object
+        annotation_file (str): COCO annotation json file.
         img_id (int): Image id of the image
         data_dir (str): Directory where data(images) is located
 
@@ -26,7 +30,16 @@ def display_single_img(
         plt.Figure: Figure object
 
     """
-    img_ann = load_img_ann_for_single_image(coco_obj=coco_obj, img_id=img_id)
+    if coco_obj:
+        coco = coco_obj
+    elif annotation_file:
+        coco = load_coco_annotations(annotation_file=annotation_file)
+    else:
+        raise ValueError(
+            "Must provide either annotation file or "
+            "pycocotools.coco.COCO object"
+        )
+    img_ann = load_img_ann_for_single_image(coco_obj=coco, img_id=img_id)
     img = load_image_from_img_ann(img_annotation=img_ann, data_dir=data_dir)
     fig, ax = plt.subplots(dpi=100)
     ax.axis("off")
@@ -35,34 +48,48 @@ def display_single_img(
 
 
 def display_ann_for_single_img(
-    coco_obj: COCO, img_id: int, data_dir: str
+    data_dir: str,
+    img_id: int,
+    annotation_file: str = None,
+    coco_obj: COCO = None,
 ) -> plt.Figure:
     """
 
     Args:
-        coco_obj (pycocotools.coco.COCO): COCO object
         img_id (int): Image id of the image
         data_dir (str): Directory where data(images) is located
+        annotation_file (str): COCO annotation json file.
+        coco_obj (pycocotools.coco.COCO): COCO object
 
     Returns:
         plt.Figure: Figure object
 
     """
-    img_ann = load_img_ann_for_single_image(coco_obj=coco_obj, img_id=img_id)
+    if coco_obj:
+        coco = coco_obj
+    elif annotation_file:
+        coco = load_coco_annotations(annotation_file=annotation_file)
+    else:
+        raise ValueError(
+            "Must provide either annotation file or "
+            "pycocotools.coco.COCO object"
+        )
+    img_ann = load_img_ann_for_single_image(coco_obj=coco, img_id=img_id)
     annotations = load_annotations_for_single_img(
-        coco_obj=coco_obj, img_id=img_ann["id"]
+        coco_obj=coco, img_id=img_ann["id"]
     )
     img = load_image_from_img_ann(img_annotation=img_ann, data_dir=data_dir)
     fig, ax = plt.subplots(dpi=100)
     ax.axis("off")
     ax.imshow(img)
-    coco_obj.showAnns(annotations, draw_bbox=True)
+    coco.showAnns(annotations, draw_bbox=True)
     return fig
 
 
 def display_ann_for_all_img(
-    annotation_file: str,
     data_dir: str,
+    annotation_file: str = None,
+    coco_obj: COCO = None,
     num_imgs: int = None,
     cat_id: Union[int, List] = 1,
 ):
@@ -70,13 +97,23 @@ def display_ann_for_all_img(
     Plots annotations for all or specified number of images in the dataset
 
     Args:
-        annotation_file (str): COCO annotation json file.
         data_dir (str): Directory where data(images) is located
+        annotation_file (str): COCO annotation json file.
+        coco_obj (pycocotools.coco.COCO): COCO object
         num_imgs (int): Number of images to be displayed
         cat_id (Union[int, List]): List or int of category ids
 
     """
-    coco = load_coco_annotations(annotation_file=annotation_file)
+    if coco_obj:
+        coco = coco_obj
+    elif annotation_file:
+        coco = load_coco_annotations(annotation_file=annotation_file)
+    else:
+        raise ValueError(
+            "Must provide either annotation file or "
+            "pycocotools.coco.COCO object"
+        )
+
     img_ids = coco.getImgIds(catIds=cat_id)
     if num_imgs:
         img_ids = random.sample(img_ids, k=num_imgs)
