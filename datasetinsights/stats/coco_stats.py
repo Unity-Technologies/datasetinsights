@@ -15,7 +15,8 @@ from datasetinsights.io.exceptions import (
 )
 
 
-def _load_coco_cat_data(coco_obj: COCO, cat_id: int = 1):
+def _get_coco_cat_data(coco_obj: COCO, cat_id: int = 1) -> Dict:
+    """Returns COCO Category meta data."""
     try:
         data = coco_obj.loadCats(ids=cat_id)
     except KeyError:
@@ -23,8 +24,17 @@ def _load_coco_cat_data(coco_obj: COCO, cat_id: int = 1):
     return data[0]
 
 
-def get_coco_keypoints(coco_obj: COCO, cat_id: int = 1):
-    data = _load_coco_cat_data(coco_obj=coco_obj, cat_id=cat_id)
+def get_coco_keypoints(coco_obj: COCO, cat_id: int = 1) -> List:
+    """
+    Args:
+        coco_obj (pycocotools.coco.COCO): COCO object
+        cat_id (int): COCO category id
+
+    Returns:
+        List: List of COCO keypoints
+
+    """
+    data = _get_coco_cat_data(coco_obj=coco_obj, cat_id=cat_id)
     try:
         keypoints = data["keypoints"]
     except KeyError:
@@ -32,8 +42,17 @@ def get_coco_keypoints(coco_obj: COCO, cat_id: int = 1):
     return keypoints
 
 
-def get_coco_skeleton(coco_obj: COCO, cat_id: int = 1):
-    data = _load_coco_cat_data(coco_obj=coco_obj, cat_id=cat_id)
+def get_coco_skeleton(coco_obj: COCO, cat_id: int = 1) -> List[List]:
+    """
+    Args:
+        coco_obj (pycocotools.coco.COCO): COCO object
+        cat_id (int): COCO category id
+
+    Returns:
+        List: List of list of COCO skeleton points
+
+    """
+    data = _get_coco_cat_data(coco_obj=coco_obj, cat_id=cat_id)
     try:
         skeleton = data["skeleton"]
     except KeyError:
@@ -91,7 +110,9 @@ def load_annotations_for_single_img(coco_obj, img_id) -> List[Dict]:
     return annotations
 
 
-def _get_empty_bbox_heatmap(coco_obj: COCO, cat_id: Union[List, int] = 1):
+def _get_empty_bbox_heatmap(
+    coco_obj: COCO, cat_id: Union[List, int] = 1
+) -> np.ndarray:
     """
 
     Args:
@@ -116,7 +137,7 @@ def _get_empty_bbox_heatmap(coco_obj: COCO, cat_id: Union[List, int] = 1):
     return bbox_heatmap
 
 
-def _get_labeled_kpt_dict(coco_obj: COCO, cat_id: int = 1):
+def _get_labeled_kpt_dict(coco_obj: COCO, cat_id: int = 1) -> Dict:
     """
 
     Args:
@@ -134,7 +155,9 @@ def _get_labeled_kpt_dict(coco_obj: COCO, cat_id: int = 1):
     return kpt_dict
 
 
-def _get_bbox_relative_size(bbox_area: float, image_h: float, image_w: float):
+def _get_bbox_relative_size(
+    bbox_area: float, image_h: float, image_w: float
+) -> float:
     """
 
     Args:
@@ -150,14 +173,15 @@ def _get_bbox_relative_size(bbox_area: float, image_h: float, image_w: float):
     return bbox_relative_size
 
 
-def get_labeled_keypoints_dict(annotation_file: str):
+def get_labeled_keypoints_dict(annotation_file: str) -> Dict:
     """
-
     Args:
         annotation_file (JSON): COCO annotations json file path
 
     Returns:
-
+        Dict: Labeled keypoints dictionary where key is the keypoint and and
+        val is the probability of that keypoint to occur in the bbox given
+        that kp is labeled.
     """
     coco = load_coco_annotations(annotation_file=annotation_file)
     labeled_kpt_dict = _get_labeled_kpt_dict(coco_obj=coco)
@@ -179,7 +203,7 @@ def get_labeled_keypoints_dict(annotation_file: str):
             kp_visibility_flags = annotations[person]["keypoints"][2::3]
             for i in range(len(keypoints)):
                 if kp_visibility_flags[i] != 0:
-                    kp_visibility_flags[keypoints[i]] += 1
+                    labeled_kpt_dict[keypoints[i]] += 1
 
     for key in labeled_kpt_dict.keys():
         labeled_kpt_dict[key] = labeled_kpt_dict[key] / total_instances
@@ -187,7 +211,18 @@ def get_labeled_keypoints_dict(annotation_file: str):
     return labeled_kpt_dict
 
 
-def get_bbox_heatmap(annotation_file):
+def get_bbox_heatmap(annotation_file: str) -> np.ndarray:
+    """
+
+    Args:
+        annotation_file (JSON): COCO annotations json file path
+
+    Returns:
+        np.ndarray: numpy array of size of the max sized image in the dataset
+        with values describing bbox intensity over the entire dataset images
+        at a particular pixel.
+
+    """
     coco = load_coco_annotations(annotation_file=annotation_file)
     img_ids = coco.getImgIds(catIds=1)
     bbox_heatmap = _get_empty_bbox_heatmap(coco_obj=coco)
@@ -208,7 +243,16 @@ def get_bbox_heatmap(annotation_file):
     return bbox_heatmap
 
 
-def bbox_relative_size_list(annotation_file):
+def get_bbox_relative_size_list(annotation_file: str) -> List[float]:
+    """
+
+    Args:
+        annotation_file (JSON): COCO annotations json file path
+
+    Returns:
+        List[float]: List of all bbox sizes relative to its image size
+
+    """
     coco = load_coco_annotations(annotation_file=annotation_file)
     img_ids = coco.getImgIds(catIds=1)
     bbox_relative_size = []
@@ -231,7 +275,10 @@ def bbox_relative_size_list(annotation_file):
     return bbox_relative_size
 
 
-def _convert_coco_annotations_to_df(annotation_file):
+def _convert_coco_annotations_to_df(annotation_file: str) -> pd.DataFrame:
+    """
+    Converts coco annotation file to pandas df for processing.
+    """
     coco = COCO(annotation_file)
     img_ids = coco.getImgIds(catIds=1)
 
@@ -270,7 +317,15 @@ def _convert_coco_annotations_to_df(annotation_file):
     return coco_df
 
 
-def _get_annotations_per_img(annotation_file):
+def _get_annotations_per_img(annotation_file: str):
+    """Calculates number of images having # of annotations.
+        Ex.     # Images     # annotations
+                    5               10
+                    8               2
+        Above example shows that in the dataset there's 5 images with 10
+        annotations and 8 images with 2 annotations.
+
+    """
     coco_df = _convert_coco_annotations_to_df(annotation_file=annotation_file)
     annotated_persons_df = coco_df[(coco_df["is_crowd"] == 0)]
 
@@ -284,13 +339,24 @@ def _get_annotations_per_img(annotation_file):
     persons_in_img_cnt_df = persons_in_img_df.groupby(["cnt"]).count()
 
     # extract arrays
-    x_occurrences = persons_in_img_cnt_df.index.values
-    y_images = persons_in_img_cnt_df["path"].values
+    ann_occurrences = persons_in_img_cnt_df.index.values
+    num_images = persons_in_img_cnt_df["path"].values
 
-    return x_occurrences, y_images
+    return ann_occurrences, num_images
 
 
-def get_bbox_per_img_dict(annotation_file):
+def get_bbox_per_img_dict(annotation_file: str) -> Dict:
+    """
+
+    Args:
+        annotation_file (JSON): COCO annotations json file path
+
+    Returns:
+        Dict: Dictionary of number of bbox per image where key is the number
+        of bbox and val is the probability of that number of bbox images in
+        the dataset.
+
+    """
     x_occ, y_img = _get_annotations_per_img(annotation_file=annotation_file)
     bbox_dict = {}
     for i in range(1, max(x_occ) + 1):
@@ -303,6 +369,9 @@ def get_bbox_per_img_dict(annotation_file):
 
 
 def _get_keypoints_per_img(annotation_file):
+    """Gives number of keypoints in an image and number of images with that #
+    of keypoints.
+    """
     coco_df = _convert_coco_annotations_to_df(annotation_file=annotation_file)
     annotated_persons_df = coco_df[(coco_df["is_crowd"] == 0)]
 
@@ -319,7 +388,18 @@ def _get_keypoints_per_img(annotation_file):
     return num_kp, count
 
 
-def get_keypoints_per_bbox_dict(annotation_file):
+def get_keypoints_per_bbox_dict(annotation_file: str) -> Dict:
+    """
+
+    Args:
+        annotation_file (JSON): COCO annotations json file path
+
+    Returns:
+        Dict: Dictionary of keypoints per bbox where key is number of
+        keypoints and val is probability of that number of keypoints in the
+        entire dataset.
+
+    """
     num_kp, count = _get_keypoints_per_img(annotation_file=annotation_file)
     kpt_dict = {}
     for i in range(0, max(num_kp) + 1):
