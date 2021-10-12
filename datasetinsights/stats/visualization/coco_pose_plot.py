@@ -193,27 +193,29 @@ def _turn_off_xy_tick_labels(ax: plt.Axes):
     _turn_off_y_tick_labels(ax=ax)
 
 
-def save_figure(fig: plt.Figure, fig_path: str):
-    """
-    Args:
-        fig (plt.Figure): Figure object
-        fig_path (str): Path where figure is to be saved
-    """
-    fig.savefig(fname=fig_path, bbox_inches="tight", pad_inches=0.15)
-
-
-def generate_scatter_plot(annotation_file: str, title: str = "",) -> plt.Figure:
+def generate_scatter_plot(
+    annotation_file: str = None, coco_obj: COCO = None, title: str = "",
+) -> plt.Figure:
     """
 
     Args:
         annotation_file (JSON): COCO format json annotation file path
+        coco_obj (pycocotools.coco.COCO): COCO object
         title (str): Title of the plot
 
     Returns:
         plt.Figure: Figure object
 
     """
-    coco = load_coco_annotations(annotation_file=annotation_file)
+    if coco_obj:
+        coco = coco_obj
+    elif annotation_file:
+        coco = load_coco_annotations(annotation_file=annotation_file)
+    else:
+        raise ValueError(
+            f"Must provide either annotation file or "
+            f"pycocotools.coco.COCO object"
+        )
     kp_dict = _process_annotations(coco_obj=coco)
     coco_keypoints = list(kp_dict.keys())
     fig, ax = plt.subplots(dpi=300, figsize=(8, 8))
@@ -254,18 +256,27 @@ def generate_scatter_plot(annotation_file: str, title: str = "",) -> plt.Figure:
 
 
 def generate_heatmaps(
-    annotation_file: str, color: str = "red",
+    annotation_file: str = None, coco_obj: COCO = None, color: str = "red",
 ) -> List[plt.Figure]:
     """
 
     Args:
         annotation_file (JSON): COCO format json annotation file path
+        coco_obj (pycocotools.coco.COCO): COCO object
         color (str): Color of the heatmap
 
     Returns:
         plt.Figure: Figure object
     """
-    coco = load_coco_annotations(annotation_file=annotation_file)
+    if coco_obj:
+        coco = coco_obj
+    elif annotation_file:
+        coco = load_coco_annotations(annotation_file=annotation_file)
+    else:
+        raise ValueError(
+            f"Must provide either annotation file or "
+            f"pycocotools.coco.COCO object"
+        )
     kp_dict = _process_annotations(coco_obj=coco)
     coco_keypoints = get_coco_keypoints(coco_obj=coco)
 
@@ -336,19 +347,31 @@ def _get_skeleton(x_kp, y_kp, coco_skeleton):
 
 
 def generate_avg_skeleton(
-    annotation_file: str, title: str = "", scatter: bool = False
+    annotation_file: str = None,
+    coco_obj: COCO = None,
+    title: str = "",
+    scatter: bool = False,
 ) -> plt.Figure:
     """
 
     Args:
         annotation_file (JSON): COCO format json annotation file path
+        coco_obj (pycocotools.coco.COCO): COCO object
         title (str): Title of the plot
         scatter (bool): Overlay scatter plot on average skeleton
 
     Returns:
         plt.Figure: Figure object
     """
-    coco = load_coco_annotations(annotation_file=annotation_file)
+    if coco_obj:
+        coco = coco_obj
+    elif annotation_file:
+        coco = load_coco_annotations(annotation_file=annotation_file)
+    else:
+        raise ValueError(
+            f"Must provide either annotation file or "
+            f"pycocotools.coco.COCO object"
+        )
     kp_dict = _process_annotations(coco_obj=coco)
 
     x_avg, y_avg = _get_avg_kp(kp_dict)
