@@ -1,13 +1,12 @@
 import math
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple
 
-import matplotlib.pyplot
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from matplotlib import collections as mc
 
-from datasetinsights.io.coco import load_coco_annotations
+from datasetinsights.io.coco import load_coco_annotations_json
 
 COCO_SKELETON = [
     [16, 14],
@@ -52,13 +51,14 @@ COCO_KEYPOINTS = [
 ]
 
 
-def _is_torso_visible_or_labelled(kp):
+def _is_torso_visible_or_labeled(kp: List) -> bool:
     """
 
     Args:
         kp (list): List of keypoints
 
-    Returns: True if torso is visible else False
+    Returns: True if torso (left hip, right hip, left shoulder,
+    right shoulder) is visible else False
 
     """
     return (
@@ -69,16 +69,17 @@ def _is_torso_visible_or_labelled(kp):
     )
 
 
-def _get_kp_where_torso_visible(annotations):
+def _get_kp_where_torso_visible(annotations: Dict) -> List:
+    """Return list of keypoint where torso is visible or labeled"""
     keypoints = []
     for ann in annotations:
         kp = ann["keypoints"]
-        if _is_torso_visible_or_labelled(kp):
+        if _is_torso_visible_or_labeled(kp):
             keypoints.append(kp)
     return keypoints
 
 
-def _calc_mid(p1: Tuple[float], p2: Tuple[float]):
+def _calc_mid(p1: Tuple[Any, Any], p2: Tuple[Any, Any]):
     """
     Calculate mid point of two points
     Args:
@@ -90,17 +91,40 @@ def _calc_mid(p1: Tuple[float], p2: Tuple[float]):
     return (p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2
 
 
-def _calc_dist(p1, p2):
+def _calc_dist(p1: Tuple[Any, Any], p2: Tuple[Any, Any]) -> float:
+    """
+    Args:
+        p1 (Tuple[float]): Point 1
+        p2 (Tuple[float]): Point 2
+
+    Returns:
+        float: Distance between two points
+
+    """
     return math.sqrt(((p1[0] - p2[0]) ** 2) + ((p1[1] - p2[1]) ** 2))
 
 
-def _remove_visibility_flag_from_kp(kp):
+def _remove_visibility_flag_from_kp(kp: List) -> List:
+    """Removes visible flag which is every third element in the keypoints
+    list."""
     updated_kp = list(kp)
     del updated_kp[2::3]
     return updated_kp
 
 
-def _translate_kp(x, y, tx, ty):
+def _translate_kp(x: List, y: List, tx: float, ty: float) -> Tuple[List, List]:
+    """
+
+    Args:
+        x (List): List of x keypoints
+        y (List): List of y keypoints
+        tx (float): Value of translation in x direction
+        ty (float): Value of translation in y direction
+
+    Returns:
+        Tuple[List, List]: List of x and y translated keypoints
+
+    """
     x = np.array(x)
     y = np.array(y)
     x = x - tx
@@ -108,7 +132,17 @@ def _translate_kp(x, y, tx, ty):
     return x.tolist(), y.tolist()
 
 
-def _scale_kp(x, y, sf):
+def _scale_kp(x: List, y: List, sf: float) -> Tuple[List, List]:
+    """
+
+    Args:
+        x (List): List of x keypoints
+        y (List): List of y keypoints
+        sf (float): Scale value
+
+    Returns:
+        Tuple[List, List]: List of x and y scaled keypoints
+    """
     x = np.array(x)
     y = np.array(y)
     x = x / sf
@@ -116,7 +150,8 @@ def _scale_kp(x, y, sf):
     return x.tolist(), y.tolist()
 
 
-def _translate_and_scale_xy_kp(x, y):
+def _translate_and_scale_xy_kp(x: List, y: List) -> Tuple[List, List]:
+    """Return x and y keypoints after performing translation and scaling."""
 
     left_hip, right_hip = (x[11], y[11]), (x[12], y[12])
     left_shoulder, right_shoulder = (x[5], y[5]), (x[6], y[6])
@@ -135,9 +170,18 @@ def _translate_and_scale_xy_kp(x, y):
     return x, y
 
 
-def _process_annotations(annotation_file):
+def _process_annotations(annotation_file: str) -> Dict:
+    """
+    Process annotation file to extract information for pose plots.
+    Args:
+        annotation_file (JSON): COCO format json annotation file path
 
-    annotations = load_coco_annotations(annotation_file=annotation_file)
+    Returns:
+        Dict: Processed keypoint dict useful for plotting pose plots.
+
+    """
+
+    annotations = load_coco_annotations_json(annotation_file=annotation_file)
     keypoints = _get_kp_where_torso_visible(annotations)
 
     processed_kp_dict = {}
@@ -166,31 +210,44 @@ def _process_annotations(annotation_file):
     return processed_kp_dict
 
 
-def _eliminate_axes(axes: List[str], ax: matplotlib.pyplot.Axes):
+def _eliminate_axes(axes: List[str], ax: plt.Axes):
     for axis in axes:
         ax.spines[axis].set_color("none")
 
 
-def _turn_off_x_tick_labels(ax: matplotlib.pyplot.Axes):
+def _turn_off_x_tick_labels(ax: plt.Axes):
     ax.set_xticklabels([])
 
 
-def _turn_off_y_tick_labels(ax: matplotlib.pyplot.Axes):
+def _turn_off_y_tick_labels(ax: plt.Axes):
     ax.set_yticklabels([])
 
 
-def _turn_off_xy_tick_labels(ax: matplotlib.pyplot.Axes):
+def _turn_off_xy_tick_labels(ax: plt.Axes):
     _turn_off_x_tick_labels(ax=ax)
     _turn_off_y_tick_labels(ax=ax)
 
 
-def save_figure(fig: matplotlib.pyplot.Figure, fig_path: str):
+def save_figure(fig: plt.Figure, fig_path: str):
+    """
+    Args:
+        fig (plt.Figure): Figure object
+        fig_path (str): Path where figure is to be saved
+    """
     fig.savefig(fname=fig_path, bbox_inches="tight", pad_inches=0.15)
 
 
-def generate_scatter_plot(
-    annotation_file, title="",
-):
+def generate_scatter_plot(annotation_file: str, title: str = "",) -> plt.Figure:
+    """
+
+    Args:
+        annotation_file (JSON): COCO format json annotation file path
+        title (str): Title of the plot
+
+    Returns:
+        plt.Figure: Figure object
+
+    """
     kp_dict = _process_annotations(annotation_file=annotation_file)
     fig, ax = plt.subplots(dpi=300, figsize=(8, 8))
     colors = plt.cm.rainbow(np.linspace(0, 1, len(COCO_KEYPOINTS)))[::-1]
@@ -229,7 +286,18 @@ def generate_scatter_plot(
     return fig
 
 
-def generate_heatmaps(annotation_file, color="red", title=""):
+def generate_heatmaps(
+    annotation_file: str, color: str = "red",
+) -> List[plt.Figure]:
+    """
+
+    Args:
+        annotation_file (JSON): COCO format json annotation file path
+        color (str): Color of the heatmap
+
+    Returns:
+        plt.Figure: Figure object
+    """
     kp_dict = _process_annotations(annotation_file=annotation_file)
 
     figures = []
@@ -298,7 +366,19 @@ def _get_skeleton(x_kp, y_kp):
     return s
 
 
-def generate_avg_skeleton(annotation_file, title="", scatter=False):
+def generate_avg_skeleton(
+    annotation_file: str, title: str = "", scatter: bool = False
+) -> plt.Figure:
+    """
+
+    Args:
+        annotation_file (JSON): COCO format json annotation file path
+        title (str): Title of the plot
+        scatter (bool): Overlay scatter plot on average skeleton
+
+    Returns:
+        plt.Figure: Figure object
+    """
     kp_dict = _process_annotations(annotation_file=annotation_file)
 
     x_avg, y_avg = _get_avg_kp(kp_dict)
