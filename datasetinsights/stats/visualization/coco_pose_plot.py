@@ -6,7 +6,7 @@ import numpy as np
 import seaborn as sns
 from matplotlib import collections as mc
 
-from datasetinsights.io.coco import load_coco_annotations_json
+from datasetinsights.io.coco import load_coco_annotations
 
 COCO_SKELETON = [
     [16, 14],
@@ -181,7 +181,10 @@ def _process_annotations(annotation_file: str) -> Dict:
 
     """
 
-    annotations = load_coco_annotations_json(annotation_file=annotation_file)
+    coco = load_coco_annotations(annotation_file=annotation_file)
+    img_ids = coco.getImgIds(catIds=1)
+    ann_ids = coco.getAnnIds(imgIds=img_ids)
+    annotations = coco.loadAnns(ids=ann_ids)
     keypoints = _get_kp_where_torso_visible(annotations)
 
     processed_kp_dict = {}
