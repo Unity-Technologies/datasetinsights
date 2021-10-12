@@ -19,5 +19,5 @@ class InvalidCOCOImageIdError(Exception):
 
 
 class InvalidCOCOCategoryIdError(Exception):
-    """ Raised when invalid image id is given.
+    """ Raised when invalid category id is given.
     """
