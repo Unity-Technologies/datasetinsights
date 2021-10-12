@@ -173,7 +173,9 @@ def _get_bbox_relative_size(
     return bbox_relative_size
 
 
-def get_labeled_keypoints_dict(annotation_file: str = None, coco_obj: COCO =None) -> Dict:
+def get_labeled_keypoints_dict(
+    annotation_file: str = None, coco_obj: COCO = None
+) -> Dict:
     """
     Args:
         annotation_file (JSON): COCO annotations json file path
@@ -220,7 +222,9 @@ def get_labeled_keypoints_dict(annotation_file: str = None, coco_obj: COCO =None
     return labeled_kpt_dict
 
 
-def get_bbox_heatmap(annotation_file: str = None, coco_obj: COCO =None) -> np.ndarray:
+def get_bbox_heatmap(
+    annotation_file: str = None, coco_obj: COCO = None
+) -> np.ndarray:
     """
 
     Args:
@@ -261,7 +265,9 @@ def get_bbox_heatmap(annotation_file: str = None, coco_obj: COCO =None) -> np.nd
     return bbox_heatmap
 
 
-def get_bbox_relative_size_list(annotation_file: str = None, coco_obj: COCO =None) -> List[float]:
+def get_bbox_relative_size_list(
+    annotation_file: str = None, coco_obj: COCO = None
+) -> List[float]:
     """
 
     Args:
@@ -311,7 +317,9 @@ def _convert_coco_annotations_to_df(coco_obj: COCO) -> pd.DataFrame:
     coco_data = []
 
     for i, img_id in enumerate(img_ids):
-        img_meta = load_img_ann_for_single_image(coco_obj=coco_obj, img_id=img_id)
+        img_meta = load_img_ann_for_single_image(
+            coco_obj=coco_obj, img_id=img_id
+        )
         ann_ids = coco_obj.getAnnIds(imgIds=img_id)
 
         # basic parameters of an image
@@ -343,7 +351,9 @@ def _convert_coco_annotations_to_df(coco_obj: COCO) -> pd.DataFrame:
     return coco_df
 
 
-def _get_annotations_per_img(annotation_file: str = None, coco_obj: COCO = None):
+def _get_annotations_per_img(
+    annotation_file: str = None, coco_obj: COCO = None
+):
     """Calculates number of images having # of annotations.
         Ex.     # Images     # annotations
                     5               10
@@ -380,7 +390,9 @@ def _get_annotations_per_img(annotation_file: str = None, coco_obj: COCO = None)
     return ann_occurrences, num_images
 
 
-def get_bbox_per_img_dict(annotation_file: str = None, coco_obj: COCO = None) -> Dict:
+def get_bbox_per_img_dict(
+    annotation_file: str = None, coco_obj: COCO = None
+) -> Dict:
     """
 
     Args:
@@ -393,8 +405,9 @@ def get_bbox_per_img_dict(annotation_file: str = None, coco_obj: COCO = None) ->
         the dataset.
 
     """
-    x_occ, y_img = _get_annotations_per_img(annotation_file=annotation_file,
-                                            coco_obj=coco_obj)
+    x_occ, y_img = _get_annotations_per_img(
+        annotation_file=annotation_file, coco_obj=coco_obj
+    )
     bbox_dict = {}
     for i in range(1, max(x_occ) + 1):
         if i in x_occ:
@@ -434,7 +447,9 @@ def _get_keypoints_per_img(annotation_file: str = None, coco_obj: COCO = None):
     return num_kp, count
 
 
-def get_keypoints_per_bbox_dict(annotation_file: str = None, coco_obj: COCO = None) -> Dict:
+def get_keypoints_per_bbox_dict(
+    annotation_file: str = None, coco_obj: COCO = None
+) -> Dict:
     """
 
     Args:
@@ -447,8 +462,9 @@ def get_keypoints_per_bbox_dict(annotation_file: str = None, coco_obj: COCO = No
         entire dataset.
 
     """
-    num_kp, count = _get_keypoints_per_img(annotation_file=annotation_file,
-                                           coco_obj=coco_obj)
+    num_kp, count = _get_keypoints_per_img(
+        annotation_file=annotation_file, coco_obj=coco_obj
+    )
     kpt_dict = {}
     for i in range(0, max(num_kp) + 1):
         if i in num_kp:
