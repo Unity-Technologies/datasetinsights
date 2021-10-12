@@ -173,17 +173,26 @@ def _get_bbox_relative_size(
     return bbox_relative_size
 
 
-def get_labeled_keypoints_dict(annotation_file: str) -> Dict:
+def get_labeled_keypoints_dict(annotation_file: str = None, coco_obj: COCO =None) -> Dict:
     """
     Args:
         annotation_file (JSON): COCO annotations json file path
+        coco_obj (pycocotools.coco.COCO): COCO object
 
     Returns:
         Dict: Labeled keypoints dictionary where key is the keypoint and and
         val is the probability of that keypoint to occur in the bbox given
         that kp is labeled.
     """
-    coco = load_coco_annotations(annotation_file=annotation_file)
+    if coco_obj:
+        coco = coco_obj
+    elif annotation_file:
+        coco = load_coco_annotations(annotation_file=annotation_file)
+    else:
+        raise ValueError(
+            "Must provide either annotation file or "
+            "pycocotools.coco.COCO object"
+        )
     labeled_kpt_dict = _get_labeled_kpt_dict(coco_obj=coco)
     keypoints = list(labeled_kpt_dict.keys())
     img_ids = coco.getImgIds(catIds=1)
@@ -211,11 +220,12 @@ def get_labeled_keypoints_dict(annotation_file: str) -> Dict:
     return labeled_kpt_dict
 
 
-def get_bbox_heatmap(annotation_file: str) -> np.ndarray:
+def get_bbox_heatmap(annotation_file: str = None, coco_obj: COCO =None) -> np.ndarray:
     """
 
     Args:
         annotation_file (JSON): COCO annotations json file path
+        coco_obj (pycocotools.coco.COCO): COCO object
 
     Returns:
         np.ndarray: numpy array of size of the max sized image in the dataset
@@ -223,7 +233,15 @@ def get_bbox_heatmap(annotation_file: str) -> np.ndarray:
         at a particular pixel.
 
     """
-    coco = load_coco_annotations(annotation_file=annotation_file)
+    if coco_obj:
+        coco = coco_obj
+    elif annotation_file:
+        coco = load_coco_annotations(annotation_file=annotation_file)
+    else:
+        raise ValueError(
+            "Must provide either annotation file or "
+            "pycocotools.coco.COCO object"
+        )
     img_ids = coco.getImgIds(catIds=1)
     bbox_heatmap = _get_empty_bbox_heatmap(coco_obj=coco)
 
@@ -243,17 +261,26 @@ def get_bbox_heatmap(annotation_file: str) -> np.ndarray:
     return bbox_heatmap
 
 
-def get_bbox_relative_size_list(annotation_file: str) -> List[float]:
+def get_bbox_relative_size_list(annotation_file: str = None, coco_obj: COCO =None) -> List[float]:
     """
 
     Args:
         annotation_file (JSON): COCO annotations json file path
+        coco_obj (pycocotools.coco.COCO): COCO object
 
     Returns:
         List[float]: List of all bbox sizes relative to its image size
 
     """
-    coco = load_coco_annotations(annotation_file=annotation_file)
+    if coco_obj:
+        coco = coco_obj
+    elif annotation_file:
+        coco = load_coco_annotations(annotation_file=annotation_file)
+    else:
+        raise ValueError(
+            "Must provide either annotation file or "
+            "pycocotools.coco.COCO object"
+        )
     img_ids = coco.getImgIds(catIds=1)
     bbox_relative_size = []
 
@@ -275,25 +302,24 @@ def get_bbox_relative_size_list(annotation_file: str) -> List[float]:
     return bbox_relative_size
 
 
-def _convert_coco_annotations_to_df(annotation_file: str) -> pd.DataFrame:
+def _convert_coco_annotations_to_df(coco_obj: COCO) -> pd.DataFrame:
     """
     Converts coco annotation file to pandas df for processing.
     """
-    coco = COCO(annotation_file)
-    img_ids = coco.getImgIds(catIds=1)
+    img_ids = coco_obj.getImgIds(catIds=1)
 
     coco_data = []
 
     for i, img_id in enumerate(img_ids):
-        img_meta = load_img_ann_for_single_image(coco_obj=coco, img_id=img_id)
-        ann_ids = coco.getAnnIds(imgIds=img_id)
+        img_meta = load_img_ann_for_single_image(coco_obj=coco_obj, img_id=img_id)
+        ann_ids = coco_obj.getAnnIds(imgIds=img_id)
 
         # basic parameters of an image
         img_file_name = img_meta["file_name"]
         w = img_meta["width"]
         h = img_meta["height"]
         # retrieve metadata for all persons in the current image
-        meta = coco.loadAnns(ann_ids)
+        meta = coco_obj.loadAnns(ann_ids)
 
         # iterate over all metadata
         for m in meta:
@@ -317,7 +343,7 @@ def _convert_coco_annotations_to_df(annotation_file: str) -> pd.DataFrame:
     return coco_df
 
 
-def _get_annotations_per_img(annotation_file: str):
+def _get_annotations_per_img(annotation_file: str = None, coco_obj: COCO = None):
     """Calculates number of images having # of annotations.
         Ex.     # Images     # annotations
                     5               10
@@ -326,7 +352,16 @@ def _get_annotations_per_img(annotation_file: str):
         annotations and 8 images with 2 annotations.
 
     """
-    coco_df = _convert_coco_annotations_to_df(annotation_file=annotation_file)
+    if coco_obj:
+        coco = coco_obj
+    elif annotation_file:
+        coco = load_coco_annotations(annotation_file=annotation_file)
+    else:
+        raise ValueError(
+            "Must provide either annotation file or "
+            "pycocotools.coco.COCO object"
+        )
+    coco_df = _convert_coco_annotations_to_df(coco_obj=coco)
     annotated_persons_df = coco_df[(coco_df["is_crowd"] == 0)]
 
     persons_in_img_df = pd.DataFrame(
@@ -345,11 +380,12 @@ def _get_annotations_per_img(annotation_file: str):
     return ann_occurrences, num_images
 
 
-def get_bbox_per_img_dict(annotation_file: str) -> Dict:
+def get_bbox_per_img_dict(annotation_file: str = None, coco_obj: COCO = None) -> Dict:
     """
 
     Args:
         annotation_file (JSON): COCO annotations json file path
+        coco_obj (pycocotools.coco.COCO): COCO object
 
     Returns:
         Dict: Dictionary of number of bbox per image where key is the number
@@ -357,7 +393,8 @@ def get_bbox_per_img_dict(annotation_file: str) -> Dict:
         the dataset.
 
     """
-    x_occ, y_img = _get_annotations_per_img(annotation_file=annotation_file)
+    x_occ, y_img = _get_annotations_per_img(annotation_file=annotation_file,
+                                            coco_obj=coco_obj)
     bbox_dict = {}
     for i in range(1, max(x_occ) + 1):
         if i in x_occ:
@@ -368,11 +405,20 @@ def get_bbox_per_img_dict(annotation_file: str) -> Dict:
     return bbox_dict
 
 
-def _get_keypoints_per_img(annotation_file):
+def _get_keypoints_per_img(annotation_file: str = None, coco_obj: COCO = None):
     """Gives number of keypoints in an image and number of images with that #
     of keypoints.
     """
-    coco_df = _convert_coco_annotations_to_df(annotation_file=annotation_file)
+    if coco_obj:
+        coco = coco_obj
+    elif annotation_file:
+        coco = load_coco_annotations(annotation_file=annotation_file)
+    else:
+        raise ValueError(
+            "Must provide either annotation file or "
+            "pycocotools.coco.COCO object"
+        )
+    coco_df = _convert_coco_annotations_to_df(coco_obj=coco)
     annotated_persons_df = coco_df[(coco_df["is_crowd"] == 0)]
 
     kp_in_bbox = pd.DataFrame(
@@ -388,11 +434,12 @@ def _get_keypoints_per_img(annotation_file):
     return num_kp, count
 
 
-def get_keypoints_per_bbox_dict(annotation_file: str) -> Dict:
+def get_keypoints_per_bbox_dict(annotation_file: str = None, coco_obj: COCO = None) -> Dict:
     """
 
     Args:
         annotation_file (JSON): COCO annotations json file path
+        coco_obj (pycocotools.coco.COCO): COCO object
 
     Returns:
         Dict: Dictionary of keypoints per bbox where key is number of
@@ -400,7 +447,8 @@ def get_keypoints_per_bbox_dict(annotation_file: str) -> Dict:
         entire dataset.
 
     """
-    num_kp, count = _get_keypoints_per_img(annotation_file=annotation_file)
+    num_kp, count = _get_keypoints_per_img(annotation_file=annotation_file,
+                                           coco_obj=coco_obj)
     kpt_dict = {}
     for i in range(0, max(num_kp) + 1):
         if i in num_kp:
