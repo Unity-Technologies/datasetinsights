@@ -135,7 +135,7 @@ def _translate_and_scale_xy_kp(x: List, y: List) -> Tuple[List, List]:
 
 def _process_annotations(coco_obj: COCO) -> Dict:
     """
-    Process annotation file to extract information for pose plots.
+    Process annotations to extract information for pose plots.
     Args:
         coco_obj (pycocotools.coco.COCO): COCO object
 
@@ -236,7 +236,7 @@ def generate_scatter_plot(annotation_file: str, title: str = "",) -> plt.Figure:
     ax.spines["bottom"].set_position("center")
 
     # Eliminate upper and right axes
-    _eliminate_axes(axes=["upper", "right"], ax=ax)
+    _eliminate_axes(axes=["top", "right"], ax=ax)
 
     # Turn off tick labels
     _turn_off_xy_tick_labels(ax=ax)
@@ -291,7 +291,7 @@ def generate_heatmaps(
         ax.spines["bottom"].set_position("center")
 
         # Eliminate upper and right axes
-        _eliminate_axes(axes=["upper", "right"], ax=ax)
+        _eliminate_axes(axes=["top", "right"], ax=ax)
 
         # Turn off tick labels
         _turn_off_xy_tick_labels(ax=ax)
@@ -368,7 +368,7 @@ def generate_avg_skeleton(
     ax.spines["bottom"].set_position("center")
 
     # Eliminate upper and right axes
-    _eliminate_axes(axes=["upper", "right"], ax=ax)
+    _eliminate_axes(axes=["top", "right"], ax=ax)
 
     # Turn off tick labels
     _turn_off_xy_tick_labels(ax=ax)
