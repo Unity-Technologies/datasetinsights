@@ -5,50 +5,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from matplotlib import collections as mc
+from pycocotools.coco import COCO
 
 from datasetinsights.io.coco import load_coco_annotations
-
-COCO_SKELETON = [
-    [16, 14],
-    [14, 12],
-    [17, 15],
-    [15, 13],
-    [12, 13],
-    [6, 12],
-    [7, 13],
-    [6, 7],
-    [6, 8],
-    [7, 9],
-    [8, 10],
-    [9, 11],
-    [2, 3],
-    [1, 2],
-    [1, 3],
-    [2, 4],
-    [3, 5],
-    [4, 6],
-    [5, 7],
-]
-
-COCO_KEYPOINTS = [
-    "nose",
-    "left_eye",
-    "right_eye",
-    "left_ear",
-    "right_ear",
-    "left_shoulder",
-    "right_shoulder",
-    "left_elbow",
-    "right_elbow",
-    "left_wrist",
-    "right_wrist",
-    "left_hip",
-    "right_hip",
-    "left_knee",
-    "right_knee",
-    "left_ankle",
-    "right_ankle",
-]
+from datasetinsights.stats.coco_stats import (
+    get_coco_keypoints,
+    get_coco_skeleton,
+)
 
 
 def _is_torso_visible_or_labeled(kp: List) -> bool:
@@ -170,25 +133,24 @@ def _translate_and_scale_xy_kp(x: List, y: List) -> Tuple[List, List]:
     return x, y
 
 
-def _process_annotations(annotation_file: str) -> Dict:
+def _process_annotations(coco_obj: COCO) -> Dict:
     """
     Process annotation file to extract information for pose plots.
     Args:
-        annotation_file (JSON): COCO format json annotation file path
+        coco_obj (pycocotools.coco.COCO): COCO object
 
     Returns:
         Dict: Processed keypoint dict useful for plotting pose plots.
 
     """
-
-    coco = load_coco_annotations(annotation_file=annotation_file)
-    img_ids = coco.getImgIds(catIds=1)
-    ann_ids = coco.getAnnIds(imgIds=img_ids)
-    annotations = coco.loadAnns(ids=ann_ids)
+    img_ids = coco_obj.getImgIds(catIds=1)
+    ann_ids = coco_obj.getAnnIds(imgIds=img_ids)
+    annotations = coco_obj.loadAnns(ids=ann_ids)
     keypoints = _get_kp_where_torso_visible(annotations)
+    coco_keypoints = get_coco_keypoints(coco_obj=coco_obj)
 
     processed_kp_dict = {}
-    for name in COCO_KEYPOINTS:
+    for name in coco_keypoints:
         processed_kp_dict[name] = {"x": [], "y": []}
 
     for kp in keypoints:
@@ -206,8 +168,8 @@ def _process_annotations(annotation_file: str) -> Dict:
             elif xi > 2.5 or xi < -2.5 or yi > 2.5 or yi < -2.5:
                 pass
             else:
-                processed_kp_dict[COCO_KEYPOINTS[idx]]["x"].append(xi)
-                processed_kp_dict[COCO_KEYPOINTS[idx]]["y"].append(yi)
+                processed_kp_dict[coco_keypoints[idx]]["x"].append(xi)
+                processed_kp_dict[coco_keypoints[idx]]["y"].append(yi)
             idx += 1
 
     return processed_kp_dict
@@ -251,11 +213,13 @@ def generate_scatter_plot(annotation_file: str, title: str = "",) -> plt.Figure:
         plt.Figure: Figure object
 
     """
-    kp_dict = _process_annotations(annotation_file=annotation_file)
+    coco = load_coco_annotations(annotation_file=annotation_file)
+    kp_dict = _process_annotations(coco_obj=coco)
+    coco_keypoints = list(kp_dict.keys())
     fig, ax = plt.subplots(dpi=300, figsize=(8, 8))
-    colors = plt.cm.rainbow(np.linspace(0, 1, len(COCO_KEYPOINTS)))[::-1]
+    colors = plt.cm.rainbow(np.linspace(0, 1, len(coco_keypoints)))[::-1]
     i = 0
-    for name in COCO_KEYPOINTS:
+    for name in coco_keypoints:
         plt.scatter(
             kp_dict[name]["x"],
             kp_dict[name]["y"],
@@ -301,11 +265,13 @@ def generate_heatmaps(
     Returns:
         plt.Figure: Figure object
     """
-    kp_dict = _process_annotations(annotation_file=annotation_file)
+    coco = load_coco_annotations(annotation_file=annotation_file)
+    kp_dict = _process_annotations(coco_obj=coco)
+    coco_keypoints = get_coco_keypoints(coco_obj=coco)
 
     figures = []
 
-    for name in COCO_KEYPOINTS:
+    for name in coco_keypoints:
         fig, ax = plt.subplots(dpi=100, figsize=(8, 8))
         sns.kdeplot(
             x=kp_dict[name]["x"],
@@ -354,17 +320,17 @@ def generate_heatmaps(
 
 def _get_avg_kp(kp_dict):
     x_avg, y_avg = [], []
-    for name in COCO_KEYPOINTS:
-        kp_x = np.array(kp_dict[name]["x"])
-        kp_y = np.array(kp_dict[name]["y"])
+    for key in kp_dict:
+        kp_x = np.array(kp_dict[key]["x"])
+        kp_y = np.array(kp_dict[key]["y"])
         x_avg.append(np.mean(kp_x))
         y_avg.append(np.mean(kp_y))
     return x_avg, y_avg
 
 
-def _get_skeleton(x_kp, y_kp):
+def _get_skeleton(x_kp, y_kp, coco_skeleton):
     s = []
-    for p1, p2 in COCO_SKELETON:
+    for p1, p2 in coco_skeleton:
         s.append([(x_kp[p1 - 1], y_kp[p1 - 1]), (x_kp[p2 - 1], y_kp[p2 - 1])])
     return s
 
@@ -382,10 +348,12 @@ def generate_avg_skeleton(
     Returns:
         plt.Figure: Figure object
     """
-    kp_dict = _process_annotations(annotation_file=annotation_file)
+    coco = load_coco_annotations(annotation_file=annotation_file)
+    kp_dict = _process_annotations(coco_obj=coco)
 
     x_avg, y_avg = _get_avg_kp(kp_dict)
-    skeleton = _get_skeleton(x_avg, y_avg)
+    coco_skeleton = get_coco_skeleton(coco_obj=coco)
+    skeleton = _get_skeleton(x_avg, y_avg, coco_skeleton)
 
     c = plt.cm.rainbow(np.linspace(0, 1, len(skeleton)))
     lc = mc.LineCollection(skeleton, colors=c, linewidths=1)
