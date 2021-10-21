@@ -108,8 +108,12 @@ annotations that COCO supports, you can run the `convert` command:
 ```bash
 datasetinsights convert -i <input-directory> -o <output-directory> -f COCO-Instances
 ```
+or
+```bash
+datasetinsights convert -i <input-directory> -o <output-directory> -f COCO-Keypoints
+```
 
-You will need to provide 2D bounding box definition ID in the synthetic dataset. We currently only support 2D bounding box annotations for COCO format.
+You will need to provide 2D bounding box definition ID in the synthetic dataset. We currently only support 2D bounding box and human keypoint annotations for COCO format.
 
 ## Docker
 

@@ -1,0 +1,1708 @@
+{
+  "version": "0.0.1",
+  "metrics": [
+    {
+      "capture_id": "1da6133b-faad-4517-99c0-6d7f08624344",
+      "annotation_id": null,
+      "sequence_id": "bbb31bcd-550f-46f8-b247-744d3134362e",
+      "step": 0,
+      "metric_definition": "51da3c27-369d-4929-aea6-d01614635ce2",
+      "values": [
+        {
+          "label_id": 1,
+          "label_name": "person",
+          "count": 7
+        }
+      ]
+    },
+    {
+      "capture_id": "1da6133b-faad-4517-99c0-6d7f08624344",
+      "annotation_id": null,
+      "sequence_id": "bbb31bcd-550f-46f8-b247-744d3134362e",
+      "step": 0,
+      "metric_definition": "5ba92024-b3b7-41a7-9d3f-c03a6a8ddd01",
+      "values": [
+        {
+          "label_id": 1,
+          "instance_id": 14,
+          "instance_color": {
+            "r": 255,
+            "g": 53,
+            "b": 0,
+            "a": 255
+          },
+          "visible_pixels": 9907
+        },
+        {
+          "label_id": 1,
+          "instance_id": 2,
+          "instance_color": {
+            "r": 0,
+            "g": 74,
+            "b": 255,
+            "a": 255
+          },
+          "visible_pixels": 351
+        },
+        {
+          "label_id": 1,
+          "instance_id": 43,
+          "instance_color": {
+            "r": 255,
+            "g": 0,
+            "b": 65,
+            "a": 255
+          },
+          "visible_pixels": 14893
+        },
+        {
+          "label_id": 1,
+          "instance_id": 31,
+          "instance_color": {
+            "r": 0,
+            "g": 192,
+            "b": 255,
+            "a": 255
+          },
+          "visible_pixels": 7485
+        },
+        {
+          "label_id": 1,
+          "instance_id": 48,
+          "instance_color": {
+            "r": 255,
+            "g": 73,
+            "b": 0,
+            "a": 255
+          },
+          "visible_pixels": 780
+        },
+        {
+          "label_id": 1,
+          "instance_id": 3,
+          "instance_color": {
+            "r": 149,
+            "g": 255,
+            "b": 0,
+            "a": 255
+          },
+          "visible_pixels": 906
+        },
+        {
+          "label_id": 1,
+          "instance_id": 35,
+          "instance_color": {
+            "r": 255,
+            "g": 20,
+            "b": 0,
+            "a": 255
+          },
+          "visible_pixels": 3771
+        }
+      ]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "db1b258e-d1d0-41b6-8751-16f601a2e230",
+      "values": [
+        {
+          "iteration": 11
+        }
+      ]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_DirectionalLightSun": 0,
+                       "LightPositionY_DirectionalLightSun": 22,
+                       "LightPositionZ_DirectionalLightSun": 14 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_DirectionalLightSun": 24.86984,
+                       "LightRotationY_DirectionalLightSun": 29.48603,
+                       "LightRotationZ_DirectionalLightSun": 27.10685 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_DirectionalLightSun": 10000 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_DirectionalLightSun": 1,
+                       "LightColorG_DirectionalLightSun": 0.9568627,
+                       "LightColorB_DirectionalLightSun": 0.8392157,
+                       "LightColorA_DirectionalLightSun": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight1": -10,
+                       "LightPositionY_PointLight1": 0,
+                       "LightPositionZ_PointLight1": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight1": 0,
+                       "LightRotationY_PointLight1": 0,
+                       "LightRotationZ_PointLight1": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight1": 40281.93 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight1": 0.4380382,
+                       "LightColorG_PointLight1": 0.8985156,
+                       "LightColorB_PointLight1": 0.762244,
+                       "LightColorA_PointLight1": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight2": 10,
+                       "LightPositionY_PointLight2": 0,
+                       "LightPositionZ_PointLight2": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight2": 0,
+                       "LightRotationY_PointLight2": 0,
+                       "LightRotationZ_PointLight2": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight2": 8965.292 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight2": 0.1515472,
+                       "LightColorG_PointLight2": 0.004576802,
+                       "LightColorB_PointLight2": 0.9352638,
+                       "LightColorA_PointLight2": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight3": 0,
+                       "LightPositionY_PointLight3": 10,
+                       "LightPositionZ_PointLight3": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight3": 0,
+                       "LightRotationY_PointLight3": 0,
+                       "LightRotationZ_PointLight3": 270 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight3": 46727.66 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight3": 0.1015857,
+                       "LightColorG_PointLight3": 0.6183584,
+                       "LightColorB_PointLight3": 0.4872802,
+                       "LightColorA_PointLight3": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight4": 0,
+                       "LightPositionY_PointLight4": -11,
+                       "LightPositionZ_PointLight4": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight4": 0,
+                       "LightRotationY_PointLight4": 0,
+                       "LightRotationZ_PointLight4": 270 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight4": 14422.72 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight4": 0.09776413,
+                       "LightColorG_PointLight4": 0.1485015,
+                       "LightColorB_PointLight4": 0.4107467,
+                       "LightColorA_PointLight4": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight5": 0,
+                       "LightPositionY_PointLight5": 0,
+                       "LightPositionZ_PointLight5": 10 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight5": 90,
+                       "LightRotationY_PointLight5": 89.99998,
+                       "LightRotationZ_PointLight5": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight5": 24215.27 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight5": 0.178939,
+                       "LightColorG_PointLight5": 0.6338921,
+                       "LightColorB_PointLight5": 0.4958832,
+                       "LightColorA_PointLight5": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight6": 0,
+                       "LightPositionY_PointLight6": 0,
+                       "LightPositionZ_PointLight6": -7 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight6": 90,
+                       "LightRotationY_PointLight6": 89.99998,
+                       "LightRotationZ_PointLight6": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight6": 43162.73 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight6": 0.8055727,
+                       "LightColorG_PointLight6": 0.7350633,
+                       "LightColorB_PointLight6": 0.4935122,
+                       "LightColorA_PointLight6": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLightSceneMoving": -3.342957,
+                       "LightPositionY_PointLightSceneMoving": 3.932395,
+                       "LightPositionZ_PointLightSceneMoving": 1.408313 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLightSceneMoving": 310.9057,
+                       "LightRotationY_PointLightSceneMoving": 342.8281,
+                       "LightRotationZ_PointLightSceneMoving": 311.9506 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLightSceneMoving": 35459.69 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLightSceneMoving": 0.1923422,
+                       "LightColorG_PointLightSceneMoving": 0.9167202,
+                       "LightColorB_PointLightSceneMoving": 0.9749933,
+                       "LightColorA_PointLightSceneMoving": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "1529faeb-863f-40c2-840f-5fe4221c1065",
+      "values": [{ "CameraPositionX": -4.602051, "CameraPositionY": -2.178579, "CameraPositionZ": 11.22269 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "5199deef-2eb0-42fe-b00d-1d2418aedaff",
+      "values": [{ "CameraRotationX": 359.9213, "CameraRotationY": 177.8374, "CameraRotationZ": 356.2022 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "42e7fa88-084b-423d-ba6e-830c711383e1",
+      "values": [{ "CameraFieldOfView": 14.37993 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "11aa1dfc-3495-467c-a998-71d9bfe6980e",
+      "values": [{ "CameraFocalLength": 21.04186 }]
+    },
+    {
+      "capture_id": "3a27e924-4722-4318-a6a1-b323fbd8848f",
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "51da3c27-369d-4929-aea6-d01614635ce2",
+      "values": [
+        {
+          "label_id": 1,
+          "label_name": "person",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "capture_id": "3a27e924-4722-4318-a6a1-b323fbd8848f",
+      "annotation_id": null,
+      "sequence_id": "a1f44033-9c0c-4718-a069-340282f949a4",
+      "step": 0,
+      "metric_definition": "5ba92024-b3b7-41a7-9d3f-c03a6a8ddd01",
+      "values": [
+        {
+          "label_id": 1,
+          "instance_id": 16,
+          "instance_color": {
+            "r": 96,
+            "g": 255,
+            "b": 0,
+            "a": 255
+          },
+          "visible_pixels": 10
+        }
+      ]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "db1b258e-d1d0-41b6-8751-16f601a2e230",
+      "values": [
+        {
+          "iteration": 12
+        }
+      ]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_DirectionalLightSun": 0,
+                       "LightPositionY_DirectionalLightSun": 22,
+                       "LightPositionZ_DirectionalLightSun": 14 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_DirectionalLightSun": 326.1357,
+                       "LightRotationY_DirectionalLightSun": 186.8975,
+                       "LightRotationZ_DirectionalLightSun": 10.68737 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_DirectionalLightSun": 10000 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_DirectionalLightSun": 1,
+                       "LightColorG_DirectionalLightSun": 0.9568627,
+                       "LightColorB_DirectionalLightSun": 0.8392157,
+                       "LightColorA_DirectionalLightSun": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight1": -10,
+                       "LightPositionY_PointLight1": 0,
+                       "LightPositionZ_PointLight1": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight1": 0,
+                       "LightRotationY_PointLight1": 0,
+                       "LightRotationZ_PointLight1": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight1": 11605.63 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight1": 0.4752959,
+                       "LightColorG_PointLight1": 0.6429162,
+                       "LightColorB_PointLight1": 0.6970248,
+                       "LightColorA_PointLight1": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight2": 10,
+                       "LightPositionY_PointLight2": 0,
+                       "LightPositionZ_PointLight2": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight2": 0,
+                       "LightRotationY_PointLight2": 0,
+                       "LightRotationZ_PointLight2": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight2": 28885.98 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight2": 0.9223067,
+                       "LightColorG_PointLight2": 0.7852197,
+                       "LightColorB_PointLight2": 0.438663,
+                       "LightColorA_PointLight2": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight3": 0,
+                       "LightPositionY_PointLight3": 10,
+                       "LightPositionZ_PointLight3": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight3": 0,
+                       "LightRotationY_PointLight3": 0,
+                       "LightRotationZ_PointLight3": 270 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight3": 5243.77 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight3": 0.9758931,
+                       "LightColorG_PointLight3": 0.4013045,
+                       "LightColorB_PointLight3": 0.1971549,
+                       "LightColorA_PointLight3": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight4": 0,
+                       "LightPositionY_PointLight4": -11,
+                       "LightPositionZ_PointLight4": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight4": 0,
+                       "LightRotationY_PointLight4": 0,
+                       "LightRotationZ_PointLight4": 270 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight4": 41932.79 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight4": 0.5398356,
+                       "LightColorG_PointLight4": 0.1130142,
+                       "LightColorB_PointLight4": 0.9881064,
+                       "LightColorA_PointLight4": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight5": 0,
+                       "LightPositionY_PointLight5": 0,
+                       "LightPositionZ_PointLight5": 10 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight5": 90,
+                       "LightRotationY_PointLight5": 89.99998,
+                       "LightRotationZ_PointLight5": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight5": 15680.37 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight5": 0.6655809,
+                       "LightColorG_PointLight5": 0.3021133,
+                       "LightColorB_PointLight5": 0.6470891,
+                       "LightColorA_PointLight5": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight6": 0,
+                       "LightPositionY_PointLight6": 0,
+                       "LightPositionZ_PointLight6": -7 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight6": 90,
+                       "LightRotationY_PointLight6": 89.99998,
+                       "LightRotationZ_PointLight6": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight6": 39458.07 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight6": 0.6185141,
+                       "LightColorG_PointLight6": 0.4890759,
+                       "LightColorB_PointLight6": 0.2084802,
+                       "LightColorA_PointLight6": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLightSceneMoving": 1.611604,
+                       "LightPositionY_PointLightSceneMoving": 8.231001,
+                       "LightPositionZ_PointLightSceneMoving": 1.746181 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLightSceneMoving": 351.8976,
+                       "LightRotationY_PointLightSceneMoving": 47.99248,
+                       "LightRotationZ_PointLightSceneMoving": 319.3264 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLightSceneMoving": 10460.14 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLightSceneMoving": 0.7973773,
+                       "LightColorG_PointLightSceneMoving": 0.9504275,
+                       "LightColorB_PointLightSceneMoving": 0.3801321,
+                       "LightColorA_PointLightSceneMoving": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "1529faeb-863f-40c2-840f-5fe4221c1065",
+      "values": [{ "CameraPositionX": -4.642939, "CameraPositionY": 0.9962457, "CameraPositionZ": 16.88654 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "5199deef-2eb0-42fe-b00d-1d2418aedaff",
+      "values": [{ "CameraRotationX": 0.9033127, "CameraRotationY": 183.3598, "CameraRotationZ": 2.042438 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "42e7fa88-084b-423d-ba6e-830c711383e1",
+      "values": [{ "CameraFieldOfView": 17.63592 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "11aa1dfc-3495-467c-a998-71d9bfe6980e",
+      "values": [{ "CameraFocalLength": 13.35325 }]
+    },
+    {
+      "capture_id": "d07a6814-2fc3-4f66-bcfa-164224aa30ac",
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "51da3c27-369d-4929-aea6-d01614635ce2",
+      "values": [
+        {
+          "label_id": 1,
+          "label_name": "person",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "capture_id": "d07a6814-2fc3-4f66-bcfa-164224aa30ac",
+      "annotation_id": null,
+      "sequence_id": "6463ef29-a34a-482a-99c3-ae97d3b922bf",
+      "step": 0,
+      "metric_definition": "5ba92024-b3b7-41a7-9d3f-c03a6a8ddd01",
+      "values": [
+        {
+          "label_id": 1,
+          "instance_id": 25,
+          "instance_color": {
+            "r": 254,
+            "g": 0,
+            "b": 255,
+            "a": 255
+          },
+          "visible_pixels": 10471
+        },
+        {
+          "label_id": 1,
+          "instance_id": 39,
+          "instance_color": {
+            "r": 0,
+            "g": 255,
+            "b": 232,
+            "a": 255
+          },
+          "visible_pixels": 30540
+        },
+        {
+          "label_id": 1,
+          "instance_id": 3,
+          "instance_color": {
+            "r": 149,
+            "g": 255,
+            "b": 0,
+            "a": 255
+          },
+          "visible_pixels": 9096
+        }
+      ]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "db1b258e-d1d0-41b6-8751-16f601a2e230",
+      "values": [
+        {
+          "iteration": 13
+        }
+      ]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_DirectionalLightSun": 0,
+                       "LightPositionY_DirectionalLightSun": 22,
+                       "LightPositionZ_DirectionalLightSun": 14 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_DirectionalLightSun": 310.2505,
+                       "LightRotationY_DirectionalLightSun": 202.4825,
+                       "LightRotationZ_DirectionalLightSun": 3.777455 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_DirectionalLightSun": 10000 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_DirectionalLightSun": 1,
+                       "LightColorG_DirectionalLightSun": 0.9568627,
+                       "LightColorB_DirectionalLightSun": 0.8392157,
+                       "LightColorA_DirectionalLightSun": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight1": -10,
+                       "LightPositionY_PointLight1": 0,
+                       "LightPositionZ_PointLight1": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight1": 0,
+                       "LightRotationY_PointLight1": 0,
+                       "LightRotationZ_PointLight1": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight1": 12985.53 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight1": 0.6391623,
+                       "LightColorG_PointLight1": 0.2775596,
+                       "LightColorB_PointLight1": 0.8687506,
+                       "LightColorA_PointLight1": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight2": 10,
+                       "LightPositionY_PointLight2": 0,
+                       "LightPositionZ_PointLight2": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight2": 0,
+                       "LightRotationY_PointLight2": 0,
+                       "LightRotationZ_PointLight2": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight2": 23660.55 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight2": 0.0008212328,
+                       "LightColorG_PointLight2": 0.7463368,
+                       "LightColorB_PointLight2": 0.7660776,
+                       "LightColorA_PointLight2": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight3": 0,
+                       "LightPositionY_PointLight3": 10,
+                       "LightPositionZ_PointLight3": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight3": 0,
+                       "LightRotationY_PointLight3": 0,
+                       "LightRotationZ_PointLight3": 270 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight3": 29979.34 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight3": 0.5800811,
+                       "LightColorG_PointLight3": 0.1380579,
+                       "LightColorB_PointLight3": 0.3015097,
+                       "LightColorA_PointLight3": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight4": 0,
+                       "LightPositionY_PointLight4": -11,
+                       "LightPositionZ_PointLight4": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight4": 0,
+                       "LightRotationY_PointLight4": 0,
+                       "LightRotationZ_PointLight4": 270 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight4": 18187.21 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight4": 0.2039402,
+                       "LightColorG_PointLight4": 0.6428097,
+                       "LightColorB_PointLight4": 0.2141868,
+                       "LightColorA_PointLight4": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight5": 0,
+                       "LightPositionY_PointLight5": 0,
+                       "LightPositionZ_PointLight5": 10 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight5": 90,
+                       "LightRotationY_PointLight5": 89.99998,
+                       "LightRotationZ_PointLight5": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight5": 38369.98 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight5": 0.08640993,
+                       "LightColorG_PointLight5": 0.5206053,
+                       "LightColorB_PointLight5": 0.9794619,
+                       "LightColorA_PointLight5": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight6": 0,
+                       "LightPositionY_PointLight6": 0,
+                       "LightPositionZ_PointLight6": -7 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight6": 90,
+                       "LightRotationY_PointLight6": 89.99998,
+                       "LightRotationZ_PointLight6": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight6": 41281.66 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight6": 0.9240818,
+                       "LightColorG_PointLight6": 0.04897654,
+                       "LightColorB_PointLight6": 0.6960738,
+                       "LightColorA_PointLight6": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLightSceneMoving": 1.738598,
+                       "LightPositionY_PointLightSceneMoving": 10.61408,
+                       "LightPositionZ_PointLightSceneMoving": 1.137496 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLightSceneMoving": 340.0859,
+                       "LightRotationY_PointLightSceneMoving": 319.1318,
+                       "LightRotationZ_PointLightSceneMoving": 46.27487 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLightSceneMoving": 45895 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLightSceneMoving": 0.5623164,
+                       "LightColorG_PointLightSceneMoving": 0.9984409,
+                       "LightColorB_PointLightSceneMoving": 0.5217347,
+                       "LightColorA_PointLightSceneMoving": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "1529faeb-863f-40c2-840f-5fe4221c1065",
+      "values": [{ "CameraPositionX": 2.264143, "CameraPositionY": -2.163907, "CameraPositionZ": 10.58995 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "5199deef-2eb0-42fe-b00d-1d2418aedaff",
+      "values": [{ "CameraRotationX": 356.4076, "CameraRotationY": 178.6218, "CameraRotationZ": 356.3637 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "42e7fa88-084b-423d-ba6e-830c711383e1",
+      "values": [{ "CameraFieldOfView": 31.83705 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "11aa1dfc-3495-467c-a998-71d9bfe6980e",
+      "values": [{ "CameraFocalLength": 21.42347 }]
+    },
+    {
+      "capture_id": "05342ffe-fa8b-4a2c-bbe6-dc6f6a629716",
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "51da3c27-369d-4929-aea6-d01614635ce2",
+      "values": [
+        {
+          "label_id": 1,
+          "label_name": "person",
+          "count": 6
+        }
+      ]
+    },
+    {
+      "capture_id": "05342ffe-fa8b-4a2c-bbe6-dc6f6a629716",
+      "annotation_id": null,
+      "sequence_id": "21bfc57c-96ba-4802-b583-ce10d7ffb9c1",
+      "step": 0,
+      "metric_definition": "5ba92024-b3b7-41a7-9d3f-c03a6a8ddd01",
+      "values": [
+        {
+          "label_id": 1,
+          "instance_id": 24,
+          "instance_color": {
+            "r": 181,
+            "g": 255,
+            "b": 0,
+            "a": 255
+          },
+          "visible_pixels": 479
+        },
+        {
+          "label_id": 1,
+          "instance_id": 10,
+          "instance_color": {
+            "r": 0,
+            "g": 160,
+            "b": 255,
+            "a": 255
+          },
+          "visible_pixels": 5068
+        },
+        {
+          "label_id": 1,
+          "instance_id": 26,
+          "instance_color": {
+            "r": 0,
+            "g": 255,
+            "b": 180,
+            "a": 255
+          },
+          "visible_pixels": 14939
+        },
+        {
+          "label_id": 1,
+          "instance_id": 19,
+          "instance_color": {
+            "r": 255,
+            "g": 191,
+            "b": 0,
+            "a": 255
+          },
+          "visible_pixels": 25489
+        },
+        {
+          "label_id": 1,
+          "instance_id": 6,
+          "instance_color": {
+            "r": 255,
+            "g": 138,
+            "b": 0,
+            "a": 255
+          },
+          "visible_pixels": 4992
+        },
+        {
+          "label_id": 1,
+          "instance_id": 8,
+          "instance_color": {
+            "r": 11,
+            "g": 255,
+            "b": 0,
+            "a": 255
+          },
+          "visible_pixels": 16076
+        }
+      ]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "db1b258e-d1d0-41b6-8751-16f601a2e230",
+      "values": [
+        {
+          "iteration": 14
+        }
+      ]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_DirectionalLightSun": 0,
+                       "LightPositionY_DirectionalLightSun": 22,
+                       "LightPositionZ_DirectionalLightSun": 14 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_DirectionalLightSun": 68.32818,
+                       "LightRotationY_DirectionalLightSun": 15.0899,
+                       "LightRotationZ_DirectionalLightSun": 20.72692 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_DirectionalLightSun": 10000 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_DirectionalLightSun": 1,
+                       "LightColorG_DirectionalLightSun": 0.9568627,
+                       "LightColorB_DirectionalLightSun": 0.8392157,
+                       "LightColorA_DirectionalLightSun": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight1": -10,
+                       "LightPositionY_PointLight1": 0,
+                       "LightPositionZ_PointLight1": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight1": 0,
+                       "LightRotationY_PointLight1": 0,
+                       "LightRotationZ_PointLight1": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight1": 46506.88 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight1": 0.09323144,
+                       "LightColorG_PointLight1": 0.08586109,
+                       "LightColorB_PointLight1": 0.9336258,
+                       "LightColorA_PointLight1": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight2": 10,
+                       "LightPositionY_PointLight2": 0,
+                       "LightPositionZ_PointLight2": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight2": 0,
+                       "LightRotationY_PointLight2": 0,
+                       "LightRotationZ_PointLight2": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight2": 11415.03 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight2": 0.6847063,
+                       "LightColorG_PointLight2": 0.8185902,
+                       "LightColorB_PointLight2": 0.1443628,
+                       "LightColorA_PointLight2": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight3": 0,
+                       "LightPositionY_PointLight3": 10,
+                       "LightPositionZ_PointLight3": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight3": 0,
+                       "LightRotationY_PointLight3": 0,
+                       "LightRotationZ_PointLight3": 270 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight3": 36374.08 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight3": 0.1231502,
+                       "LightColorG_PointLight3": 0.3138891,
+                       "LightColorB_PointLight3": 0.4522032,
+                       "LightColorA_PointLight3": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight4": 0,
+                       "LightPositionY_PointLight4": -11,
+                       "LightPositionZ_PointLight4": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight4": 0,
+                       "LightRotationY_PointLight4": 0,
+                       "LightRotationZ_PointLight4": 270 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight4": 33009.75 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight4": 0.4593306,
+                       "LightColorG_PointLight4": 0.752457,
+                       "LightColorB_PointLight4": 0.7464482,
+                       "LightColorA_PointLight4": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight5": 0,
+                       "LightPositionY_PointLight5": 0,
+                       "LightPositionZ_PointLight5": 10 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight5": 90,
+                       "LightRotationY_PointLight5": 89.99998,
+                       "LightRotationZ_PointLight5": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight5": 35519.93 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight5": 0.8535079,
+                       "LightColorG_PointLight5": 0.1875063,
+                       "LightColorB_PointLight5": 0.4485011,
+                       "LightColorA_PointLight5": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLight6": 0,
+                       "LightPositionY_PointLight6": 0,
+                       "LightPositionZ_PointLight6": -7 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLight6": 90,
+                       "LightRotationY_PointLight6": 89.99998,
+                       "LightRotationZ_PointLight6": 0 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLight6": 23536.18 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLight6": 0.05740666,
+                       "LightColorG_PointLight6": 0.153005,
+                       "LightColorB_PointLight6": 0.2106937,
+                       "LightColorA_PointLight6": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "c0b5e272-9715-4ea2-930e-cfe8cecf1b6e",
+      "values": [{ "LightPositionX_PointLightSceneMoving": 1.962017,
+                       "LightPositionY_PointLightSceneMoving": 7.118594,
+                       "LightPositionZ_PointLightSceneMoving": 2.138234 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "317735b9-b4a4-4f6b-a4c9-eb846463a583",
+      "values": [{ "LightRotationX_PointLightSceneMoving": 16.38657,
+                       "LightRotationY_PointLightSceneMoving": 35.49665,
+                       "LightRotationZ_PointLightSceneMoving": 328.7716 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "1a709e09-81bd-43b5-b8f0-f3952a1af444",
+      "values": [{ "LightIntensity_PointLightSceneMoving": 46059.06 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "a640e390-fa13-4bb0-b2cd-1e0cb3f43eb9",
+      "values": [{ "LightColorR_PointLightSceneMoving": 0.1824936,
+                       "LightColorG_PointLightSceneMoving": 0.2773448,
+                       "LightColorB_PointLightSceneMoving": 0.9762373,
+                       "LightColorA_PointLightSceneMoving": 1 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "1529faeb-863f-40c2-840f-5fe4221c1065",
+      "values": [{ "CameraPositionX": -3.679675, "CameraPositionY": 0.8634681, "CameraPositionZ": 16.6425 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "5199deef-2eb0-42fe-b00d-1d2418aedaff",
+      "values": [{ "CameraRotationX": 2.550998, "CameraRotationY": 177.5668, "CameraRotationZ": 3.190194 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "42e7fa88-084b-423d-ba6e-830c711383e1",
+      "values": [{ "CameraFieldOfView": 8.024416 }]
+    },
+    {
+      "capture_id": null,
+      "annotation_id": null,
+      "sequence_id": "55b927a1-dcf9-4eb2-ab63-331fe712cbc3",
+      "step": 0,
+      "metric_definition": "11aa1dfc-3495-467c-a998-71d9bfe6980e",
+      "values": [{ "CameraFocalLength": 19.02279 }]
+    }
+  ]
+}
