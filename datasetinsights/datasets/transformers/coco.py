@@ -5,8 +5,8 @@ import shutil
 import uuid
 from pathlib import Path
 
-from PIL import Image
 import numpy as np
+from PIL import Image
 
 import datasetinsights.constants as const
 from datasetinsights.datasets.unity_perception import (
@@ -169,6 +169,7 @@ class COCOInstancesTransformer:
 
         return categories
 
+
 class COCOKeypointsTransformer:
     """Convert Synthetic dataset to COCO format.
     This transformer convert Synthetic dataset into annotations
@@ -275,10 +276,14 @@ class COCOKeypointsTransformer:
 
     def _annotations(self):
         annotations = []
-        for [_, row_bb], [_, row_kpt] in zip(self._bbox_captures.iterrows(), self._kpt_captures.iterrows()):
+        for [_, row_bb], [_, row_kpt] in zip(
+            self._bbox_captures.iterrows(), self._kpt_captures.iterrows()
+        ):
             image_id = uuid_to_int(row_bb["id"])
 
-            for ann_bb, ann_kpt in zip(row_bb["annotation.values"], row_kpt["annotation.values"]):
+            for ann_bb, ann_kpt in zip(
+                row_bb["annotation.values"], row_kpt["annotation.values"]
+            ):
                 # --- bbox ---
                 x = ann_bb["x"]
                 y = ann_bb["y"]
@@ -290,11 +295,19 @@ class COCOKeypointsTransformer:
                 keypoints_vals = []
                 num_keypoints = 0
                 for kpt in ann_kpt["keypoints"]:
-                    keypoints_vals.append([int(np.floor(kpt["x"])), int(np.floor(kpt["y"])), kpt["state"]])
+                    keypoints_vals.append(
+                        [
+                            int(np.floor(kpt["x"])),
+                            int(np.floor(kpt["y"])),
+                            kpt["state"],
+                        ]
+                    )
                     if int(kpt["state"]) != 0:
                         num_keypoints += 1
 
-                keypoints_vals = [item for sublist in keypoints_vals for item in sublist]
+                keypoints_vals = [
+                    item for sublist in keypoints_vals for item in sublist
+                ]
 
                 record = {
                     "segmentation": [],  # TODO: parse instance segmentation map
@@ -306,7 +319,7 @@ class COCOKeypointsTransformer:
                     "num_keypoints": num_keypoints,
                     "category_id": ann_bb["label_id"],
                     "id": uuid_to_int(row_bb["annotation.id"])
-                          | uuid_to_int(ann_bb["instance_id"]),
+                    | uuid_to_int(ann_bb["instance_id"]),
                 }
                 annotations.append(record)
 
