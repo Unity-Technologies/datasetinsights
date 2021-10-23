@@ -2,7 +2,10 @@ import json
 import tempfile
 from pathlib import Path
 
-from datasetinsights.datasets.transformers import COCOInstancesTransformer
+from datasetinsights.datasets.transformers import (
+    COCOInstancesTransformer,
+    COCOKeypointsTransformer,
+)
 
 
 def assert_json_equals(file1, file2):
@@ -18,12 +21,28 @@ def test_coco_transformer():
     parent_dir = Path(__file__).parent.parent.absolute()
     mock_data_dir = parent_dir / "mock_data" / "simrun"
     mock_coco_dir = parent_dir / "mock_data" / "coco"
+
+    # --- bbox ---
     transformer = COCOInstancesTransformer(str(mock_data_dir))
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         transformer.execute(tmp_dir)
         output_file = Path(tmp_dir) / "annotations" / "instances.json"
         expected_file = mock_coco_dir / "annotations" / "instances.json"
+        output_image_folder = Path(tmp_dir) / "images"
+
+        assert output_file.exists()
+        assert output_image_folder.exists()
+        assert list(output_image_folder.glob("*"))
+        assert_json_equals(expected_file, output_file)
+
+    # --- keypoint ---
+    transformer = COCOKeypointsTransformer(str(mock_data_dir))
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        transformer.execute(tmp_dir)
+        output_file = Path(tmp_dir) / "annotations" / "keypoints.json"
+        expected_file = mock_coco_dir / "annotations" / "keypoints.json"
         output_image_folder = Path(tmp_dir) / "images"
 
         assert output_file.exists()
