@@ -17,13 +17,12 @@ def assert_json_equals(file1, file2):
     assert j1 == j2
 
 
-def test_coco_transformer():
+def test_coco_instances_transformer():
     parent_dir = Path(__file__).parent.parent.absolute()
-    mock_data_dir = parent_dir / "mock_data" / "simrun"
+    mock_data_dir_instances = parent_dir / "mock_data" / "simrun"
     mock_coco_dir = parent_dir / "mock_data" / "coco"
 
-    # --- bbox ---
-    transformer = COCOInstancesTransformer(str(mock_data_dir))
+    transformer = COCOInstancesTransformer(str(mock_data_dir_instances))
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         transformer.execute(tmp_dir)
@@ -36,7 +35,12 @@ def test_coco_transformer():
         assert list(output_image_folder.glob("*"))
         assert_json_equals(expected_file, output_file)
 
-    # --- keypoint ---
+
+def test_coco_keypoints_transformer():
+    parent_dir = Path(__file__).parent.parent.absolute()
+    mock_data_dir = parent_dir / "mock_data" / "simrun_keypoint_dataset"
+    mock_coco_dir = parent_dir / "mock_data" / "coco"
+
     transformer = COCOKeypointsTransformer(str(mock_data_dir))
 
     with tempfile.TemporaryDirectory() as tmp_dir:
