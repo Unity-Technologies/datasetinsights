@@ -15,9 +15,9 @@ classifiers = [
   "Environment :: Console",
   "Framework :: Jupyter",
   "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
   "Topic :: Scientific/Engineering :: Artificial Intelligence",
   "Topic :: Scientific/Engineering :: Visualization",
   "Topic :: Software Development :: Libraries :: Python Modules",
@@ -29,10 +29,9 @@ include = [
 
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.8 <3.11"
 cython = "^0.29.14"
 google-cloud-storage = "^1.24.1"
-jupyter = "^1.0.0"
 numpy = "^1.17"
 plotly = "^4.4.1"
 pyquaternion = "^0.9.5"
@@ -40,7 +39,7 @@ codetiming = "^1.2.0"
 pandas = "^1.0.1"
 tqdm = "^4.45.0"
 dask = {extras = ["complete"], version = "^2.14.0"}
-dash = "1.12.0"
+dash = "^1.12.0"
 click = "^7.1.2"
 opencv-python = "^4.4.0.42"
 matplotlib = "^3.3.1"
