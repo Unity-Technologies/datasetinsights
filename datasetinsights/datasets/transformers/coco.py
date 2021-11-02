@@ -8,6 +8,7 @@ from pathlib import Path
 from PIL import Image
 
 import datasetinsights.constants as const
+from datasetinsights.datasets.transformers.base import DatasetTransformer
 from datasetinsights.datasets.unity_perception import (
     AnnotationDefinitions,
     Captures,
@@ -28,7 +29,7 @@ def uuid_to_int(input_uuid):
     return u
 
 
-class COCOInstancesTransformer:
+class COCOInstancesTransformer(DatasetTransformer, format="COCO-Instances"):
     """Convert Synthetic dataset to COCO format.
 
     This transformer convert Synthetic dataset into annotations in instance
