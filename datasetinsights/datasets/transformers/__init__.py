@@ -1,4 +1,4 @@
-from .coco import COCOInstancesTransformer
 from .base import get_dataset_transformer
+from .coco import COCOInstancesTransformer
 
-__all__ = ["COCOInstancesTransformer"]
+__all__ = ["COCOInstancesTransformer", "get_dataset_transformer"]

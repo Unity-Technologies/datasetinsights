@@ -3,7 +3,7 @@ import logging
 import click
 
 import datasetinsights.constants as const
-from datasetinsights.datasets.transformers import COCOInstancesTransformer, get_dataset_transformer
+from datasetinsights.datasets.transformers import get_dataset_transformer
 
 logger = logging.getLogger(__name__)
 

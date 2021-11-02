@@ -17,8 +17,9 @@ def get_dataset_transformer(format, **kwargs):
     if format in _registry.keys():
         transformer = _registry[format]
     else:
-        raise ValueError(f"Transformer not found for conversion format "
-                         f"'{format}'")
+        raise ValueError(
+            f"Transformer not found for conversion format '{format}'"
+        )
 
     return transformer(**kwargs)
 
