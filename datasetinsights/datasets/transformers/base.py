@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
 
-_registry = {}
-
 
 def get_dataset_transformer(format, **kwargs):
     """
@@ -14,8 +12,8 @@ def get_dataset_transformer(format, **kwargs):
     Returns: Transformer object instance.
 
     """
-    if format in _registry.keys():
-        transformer = _registry[format]
+    if format in DatasetTransformer.REGISTRY.keys():
+        transformer = DatasetTransformer.REGISTRY[format]
     else:
         raise ValueError(
             f"Transformer not found for conversion format '{format}'"
@@ -25,16 +23,15 @@ def get_dataset_transformer(format, **kwargs):
 
 
 class DatasetTransformer(ABC):
-    """ Base class for all ddataset transformer.
+    """ Base class for all dataset transformer.
     """
 
-    def __init__(self, **kwargs):
-        pass
+    REGISTRY = {}
 
     @classmethod
     def __init_subclass__(cls, format=None, **kwargs):
         if format:
-            _registry[format] = cls
+            cls.REGISTRY[format] = cls
         else:
             raise NotImplementedError(
                 f"Subclass needs to have class keyword argument named "
