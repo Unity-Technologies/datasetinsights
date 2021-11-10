@@ -1,3 +1,3 @@
-from .coco import COCOInstancesTransformer
+from .coco import COCOInstancesTransformer, COCOKeypointsTransformer
 
-__all__ = ["COCOInstancesTransformer"]
+__all__ = ["COCOInstancesTransformer", "COCOKeypointsTransformer"]
