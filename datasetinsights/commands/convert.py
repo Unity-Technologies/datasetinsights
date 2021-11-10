@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
     required=True,
     help=(
         "The output dataset format. "
-        "Currently only 'COCO-Instances' is supported."
+        "Currently only 'COCO-Instances' and 'COCO-Keypoints' is supported."
     ),
 )
 def cli(input, output, format):
