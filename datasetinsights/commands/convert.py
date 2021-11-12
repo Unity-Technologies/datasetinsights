@@ -3,10 +3,7 @@ import logging
 import click
 
 import datasetinsights.constants as const
-from datasetinsights.datasets.transformers import (
-    COCOInstancesTransformer,
-    COCOKeypointsTransformer,
-)
+from datasetinsights.datasets.transformers import get_dataset_transformer
 
 logger = logging.getLogger(__name__)
 
@@ -41,10 +38,5 @@ def cli(input, output, format):
     ctx = click.get_current_context()
     logger.debug(f"Called convert command with parameters: {ctx.params}")
 
-    if format not in ["COCO-Instances", "COCO-Keypoints"]:
-        raise ValueError(f"Unsupported target conversion format {format}")
-    if format == "COCO-Instances":
-        transformer = COCOInstancesTransformer(input)
-    elif format == "COCO-Keypoints":
-        transformer = COCOKeypointsTransformer(input)
-    transformer.execute(output)
+    transformer = get_dataset_transformer(format=format, input=input)
+    transformer.execute(output=output)

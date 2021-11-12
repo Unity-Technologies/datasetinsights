@@ -9,6 +9,7 @@ import numpy as np
 from PIL import Image
 
 import datasetinsights.constants as const
+from datasetinsights.datasets.transformers.base import DatasetTransformer
 from datasetinsights.datasets.unity_perception import (
     AnnotationDefinitions,
     Captures,
@@ -29,7 +30,7 @@ def uuid_to_int(input_uuid):
     return u
 
 
-class COCOInstancesTransformer:
+class COCOInstancesTransformer(DatasetTransformer, format="COCO-Instances"):
     """Convert Synthetic dataset to COCO format.
 
     This transformer convert Synthetic dataset into annotations in instance
@@ -79,7 +80,7 @@ class COCOInstancesTransformer:
                 self._instance_segmentation_def
             )
 
-    def execute(self, output):
+    def execute(self, output, **kwargs):
         """Execute COCO Transformer
 
         Args:
@@ -170,7 +171,7 @@ class COCOInstancesTransformer:
         return categories
 
 
-class COCOKeypointsTransformer:
+class COCOKeypointsTransformer(DatasetTransformer, format="COCO-Keypoints"):
     """Convert Synthetic dataset to COCO format.
     This transformer convert Synthetic dataset into annotations
     in person keypoint format
@@ -221,7 +222,7 @@ class COCOKeypointsTransformer:
                 self._instance_segmentation_def
             )
 
-    def execute(self, output):
+    def execute(self, output, **kwargs):
         """Execute COCO Transformer
         Args:
             output (str): the output directory where converted dataset will
