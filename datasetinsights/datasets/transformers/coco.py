@@ -390,4 +390,3 @@ class COCOKeypointsTransformer(DatasetTransformer, format="COCO-Keypoints"):
             categories.append(record)
 
         return categories
-

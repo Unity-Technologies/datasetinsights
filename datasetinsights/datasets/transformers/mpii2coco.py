@@ -7,6 +7,7 @@ import numpy as np
 from coco import COCO_KEYPOINTS, COCO_SKELETON
 from PIL import Image
 from scipy.io import loadmat
+
 from datasetinsights.datasets.transformers.base import DatasetTransformer
 
 
