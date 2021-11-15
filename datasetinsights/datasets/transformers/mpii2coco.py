@@ -4,12 +4,13 @@ import shutil
 from pathlib import Path
 
 import numpy as np
-from coco import coco_keypoints, coco_skeleton
+from coco import COCO_KEYPOINTS, COCO_SKELETON
 from PIL import Image
 from scipy.io import loadmat
+from datasetinsights.datasets.transformers.base import DatasetTransformer
 
 
-class MPIItoCOCOTransformer:
+class MPIItoCOCOTransformer(DatasetTransformer, format="mpii2coco"):
     def __init__(self, data_root, db_type="train"):
         self._data_root = Path(data_root)
         self._db_type = db_type
@@ -19,7 +20,7 @@ class MPIItoCOCOTransformer:
 
         self._joint_num = 17
 
-    def execute(self, output):
+    def execute(self, output, **kwargs):
         self._process_instances(output)
 
     @staticmethod
@@ -97,9 +98,9 @@ class MPIItoCOCOTransformer:
             "id": 1,  # to be same as COCO, not using 0
             "name": "person",
             # coco skeleton
-            "skeleton": coco_skeleton,
+            "skeleton": COCO_SKELETON,
             # coco keypoints
-            "keypoints": coco_keypoints,
+            "keypoints": COCO_KEYPOINTS,
         }
 
         return category

@@ -3,12 +3,14 @@ import shutil
 from pathlib import Path
 
 import numpy as np
-from coco import coco_keypoints, coco_skeleton
+from coco import COCO_KEYPOINTS, COCO_SKELETON
 from PIL import Image
 from scipy import io
 from tqdm import tqdm
+from datasetinsights.datasets.transformers.base import DatasetTransformer
 
-joints_lspet = [
+
+LSPET_JOINTS = (
     "right_ankle",
     "right_knee",
     "right_hip",
@@ -23,17 +25,17 @@ joints_lspet = [
     "left_wrist",
     "neck",
     "head_top",
-]
+)
 
 
-class LSPETtoCOCOTransformer:
+class LSPETtoCOCOTransformer(DatasetTransformer, format="lspet2coco"):
     def __init__(self, data_root):
         self._data_root = Path(data_root)
         annotation_file_path = self._data_root / "joints.mat"
         self._annotation_file = io.loadmat(str(annotation_file_path))["joints"]
 
-    def execute(self, output):
-        pass
+    def execute(self, output, **kwargs):
+        self._process_instances(output)
 
     @staticmethod
     def _coco_category():
@@ -42,9 +44,9 @@ class LSPETtoCOCOTransformer:
             "id": 1,  # to be same as COCO, not using 0
             "name": "person",
             # coco skeleton
-            "skeleton": coco_skeleton,
+            "skeleton": COCO_SKELETON,
             # coco keypoints
-            "keypoints": coco_keypoints,
+            "keypoints": COCO_KEYPOINTS,
         }
         return category
 
@@ -88,8 +90,8 @@ class LSPETtoCOCOTransformer:
         }
 
         joints_lspet_dict = {}
-        for j in range(len(joints_lspet)):
-            joints_lspet_dict[joints_lspet[j]] = {
+        for j in range(len(LSPET_JOINTS)):
+            joints_lspet_dict[LSPET_JOINTS[j]] = {
                 "x": self._annotation_file[j][0],
                 "y": self._annotation_file[j][1],
                 "v": self._annotation_file[j][2],
@@ -115,11 +117,11 @@ class LSPETtoCOCOTransformer:
             }
             instances["images"].append(img_dict)
 
-            kpt = np.zeros((len(coco_keypoints), 3))  # xcoord, ycoord, vis
-            bbox_kpt = np.zeros((len(joints_lspet), 3))  # xcoord, ycoord, vis
+            kpt = np.zeros((len(COCO_KEYPOINTS), 3))  # xcoord, ycoord, vis
+            bbox_kpt = np.zeros((len(LSPET_JOINTS), 3))  # xcoord, ycoord, vis
 
-            for j in range(len(coco_keypoints)):
-                kpt_name = coco_keypoints[j]
+            for j in range(len(COCO_KEYPOINTS)):
+                kpt_name = COCO_KEYPOINTS[j]
                 if kpt_name in joints_lspet_dict.keys():
                     kpt[j][0] = joints_lspet_dict[kpt_name]["x"][i]
                     kpt[j][1] = joints_lspet_dict[kpt_name]["y"][i]
@@ -128,8 +130,8 @@ class LSPETtoCOCOTransformer:
                 else:
                     kpt[j][0], kpt[j][1], kpt[j][2] = 0, 0, 0
 
-            for j in range(len(joints_lspet)):
-                joint_name = joints_lspet[j]
+            for j in range(len(LSPET_JOINTS)):
+                joint_name = LSPET_JOINTS[j]
                 bbox_kpt[j][0] = joints_lspet_dict[joint_name]["x"][i]
                 bbox_kpt[j][1] = joints_lspet_dict[joint_name]["y"][i]
                 bbox_kpt[j][2] = joints_lspet_dict[joint_name]["v"][i]
