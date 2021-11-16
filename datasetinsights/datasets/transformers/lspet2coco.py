@@ -1,4 +1,5 @@
 import json
+import os.path
 import shutil
 from pathlib import Path
 
@@ -28,11 +29,18 @@ LSPET_JOINTS = (
 )
 
 
-class LSPETtoCOCOTransformer(DatasetTransformer, format="lspet2coco"):
-    def __init__(self, data_root):
+class LSPETtoCOCOTransformer(
+    DatasetTransformer, format="lspet2coco",
+):
+    def __init__(self, data_root, ann_file_path=None):
         self._data_root = Path(data_root)
-        annotation_file_path = self._data_root / "joints.mat"
-        self._annotation_file = io.loadmat(str(annotation_file_path))["joints"]
+        if ann_file_path:
+            self._annotation_file = io.loadmat(str(ann_file_path))["joints"]
+        elif os.path.isfile(str(self._data_root / "joints.mat")):
+            ann_file_path = self._data_root / "joints.mat"
+            self._annotation_file = io.loadmat(str(ann_file_path))["joints"]
+        else:
+            raise ValueError("Annotation file does not exists.")
 
     def execute(self, output, **kwargs):
         self._process_instances(output)

@@ -12,12 +12,19 @@ from datasetinsights.datasets.transformers.base import DatasetTransformer
 
 
 class MPIItoCOCOTransformer(DatasetTransformer, format="mpii2coco"):
-    def __init__(self, data_root, db_type="train"):
+    def __init__(self, data_root, db_type="train", ann_file_path=None):
         self._data_root = Path(data_root)
         self._db_type = db_type
 
-        annotation_file_path = self._data_root / "mpii_human_pose_v1_u12_1.mat"
-        self._annotation_file = loadmat(str(annotation_file_path))["RELEASE"]
+        if ann_file_path:
+            self._annotation_file = loadmat(str(ann_file_path))["RELEASE"]
+        elif os.path.isfile(
+            str(self._data_root / "mpii_human_pose_v1_u12_1.mat")
+        ):
+            ann_file_path = self._data_root / "mpii_human_pose_v1_u12_1.mat"
+            self._annotation_file = loadmat(str(ann_file_path))["RELEASE"]
+        else:
+            raise ValueError("Annotation file does not exists.")
 
         self._joint_num = 17
 
