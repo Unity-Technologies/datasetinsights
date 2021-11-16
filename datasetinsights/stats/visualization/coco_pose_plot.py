@@ -7,11 +7,8 @@ import seaborn as sns
 from matplotlib import collections as mc
 from pycocotools.coco import COCO
 
-from datasetinsights.io.coco import load_coco_annotations
-from datasetinsights.stats.coco_stats import (
-    get_coco_keypoints,
-    get_coco_skeleton,
-)
+from datasetinsights.constants import COCO_KEYPOINTS, COCO_SKELETON
+from datasetinsights.stats.coco_stats import get_coco_keypoints
 
 
 def _is_torso_visible_or_labeled(kp: List) -> bool:
@@ -133,7 +130,7 @@ def _translate_and_scale_xy_kp(x: List, y: List) -> Tuple[List, List]:
     return x, y
 
 
-def _process_annotations(coco_obj: COCO) -> Dict:
+def process_annotations(coco_obj: COCO) -> Dict:
     """
     Process annotations to extract information for pose plots.
     Args:
@@ -193,30 +190,17 @@ def _turn_off_xy_tick_labels(ax: plt.Axes):
     _turn_off_y_tick_labels(ax=ax)
 
 
-def generate_scatter_plot(
-    annotation_file: str = None, coco_obj: COCO = None, title: str = "",
-) -> plt.Figure:
+def generate_scatter_plot(kp_dict: Dict, title: str = "",) -> plt.Figure:
     """
 
     Args:
-        annotation_file (JSON): COCO format json annotation file path
-        coco_obj (pycocotools.coco.COCO): COCO object
+        kp_dict (JSON): Keypoints dict containing x and y position of keypoints
         title (str): Title of the plot
 
     Returns:
         plt.Figure: Figure object
 
     """
-    if coco_obj:
-        coco = coco_obj
-    elif annotation_file:
-        coco = load_coco_annotations(annotation_file=annotation_file)
-    else:
-        raise ValueError(
-            f"Must provide either annotation file or "
-            f"pycocotools.coco.COCO object"
-        )
-    kp_dict = _process_annotations(coco_obj=coco)
     coco_keypoints = list(kp_dict.keys())
     fig, ax = plt.subplots(dpi=300, figsize=(8, 8))
     colors = plt.cm.rainbow(np.linspace(0, 1, len(coco_keypoints)))[::-1]
@@ -255,34 +239,19 @@ def generate_scatter_plot(
     return fig
 
 
-def generate_heatmaps(
-    annotation_file: str = None, coco_obj: COCO = None, color: str = "red",
-) -> List[plt.Figure]:
+def generate_heatmaps(kp_dict: Dict, color: str = "red",) -> List[plt.Figure]:
     """
 
     Args:
-        annotation_file (JSON): COCO format json annotation file path
-        coco_obj (pycocotools.coco.COCO): COCO object
+        kp_dict (JSON): Keypoints dict containing x and y position of keypoints
         color (str): Color of the heatmap
 
     Returns:
         plt.Figure: Figure object
     """
-    if coco_obj:
-        coco = coco_obj
-    elif annotation_file:
-        coco = load_coco_annotations(annotation_file=annotation_file)
-    else:
-        raise ValueError(
-            f"Must provide either annotation file or "
-            f"pycocotools.coco.COCO object"
-        )
-    kp_dict = _process_annotations(coco_obj=coco)
-    coco_keypoints = get_coco_keypoints(coco_obj=coco)
-
     figures = []
 
-    for name in coco_keypoints:
+    for name in COCO_KEYPOINTS:
         fig, ax = plt.subplots(dpi=100, figsize=(8, 8))
         sns.kdeplot(
             x=kp_dict[name]["x"],
@@ -347,36 +316,21 @@ def _get_skeleton(x_kp, y_kp, coco_skeleton):
 
 
 def generate_avg_skeleton(
-    annotation_file: str = None,
-    coco_obj: COCO = None,
-    title: str = "",
-    scatter: bool = False,
+    kp_dict: Dict, title: str = "", scatter: bool = False,
 ) -> plt.Figure:
     """
 
     Args:
-        annotation_file (JSON): COCO format json annotation file path
-        coco_obj (pycocotools.coco.COCO): COCO object
+        kp_dict (JSON): Keypoints dict containing x and y position of keypoints
         title (str): Title of the plot
         scatter (bool): Overlay scatter plot on average skeleton
 
     Returns:
         plt.Figure: Figure object
     """
-    if coco_obj:
-        coco = coco_obj
-    elif annotation_file:
-        coco = load_coco_annotations(annotation_file=annotation_file)
-    else:
-        raise ValueError(
-            f"Must provide either annotation file or "
-            f"pycocotools.coco.COCO object"
-        )
-    kp_dict = _process_annotations(coco_obj=coco)
 
     x_avg, y_avg = _get_avg_kp(kp_dict)
-    coco_skeleton = get_coco_skeleton(coco_obj=coco)
-    skeleton = _get_skeleton(x_avg, y_avg, coco_skeleton)
+    skeleton = _get_skeleton(x_avg, y_avg, COCO_SKELETON)
 
     c = plt.cm.rainbow(np.linspace(0, 1, len(skeleton)))
     lc = mc.LineCollection(skeleton, colors=c, linewidths=1)

@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
+from datasetinsights.constants import COCO_KEYPOINTS, COCO_SKELETON
 from datasetinsights.io.coco import load_coco_annotations
 from datasetinsights.io.exceptions import (
     InvalidCOCOCategoryIdError,
@@ -16,49 +17,6 @@ from datasetinsights.stats.coco_stats import (
     load_image_from_img_ann,
     load_img_ann_for_single_image,
 )
-
-COCO_SKELETON = [
-    [16, 14],
-    [14, 12],
-    [17, 15],
-    [15, 13],
-    [12, 13],
-    [6, 12],
-    [7, 13],
-    [6, 7],
-    [6, 8],
-    [7, 9],
-    [8, 10],
-    [9, 11],
-    [2, 3],
-    [1, 2],
-    [1, 3],
-    [2, 4],
-    [3, 5],
-    [4, 6],
-    [5, 7],
-]
-
-COCO_KEYPOINTS = [
-    "nose",
-    "left_eye",
-    "right_eye",
-    "left_ear",
-    "right_ear",
-    "left_shoulder",
-    "right_shoulder",
-    "left_elbow",
-    "right_elbow",
-    "left_wrist",
-    "right_wrist",
-    "left_hip",
-    "right_hip",
-    "left_knee",
-    "right_knee",
-    "left_ankle",
-    "right_ankle",
-]
-
 
 parent_dir = Path(__file__).parent.absolute()
 mock_coco_dir = parent_dir / "mock_data" / "coco"
