@@ -4,7 +4,6 @@ from unittest.mock import MagicMock, Mock, patch
 from datasetinsights.io.coco import load_coco_annotations
 from datasetinsights.stats.visualization.coco_data_visualization import (
     display_ann_for_all_img,
-    display_ann_for_single_img,
     display_single_img,
 )
 
@@ -31,7 +30,7 @@ def test_display_single_img():
         assert fig == mock_fig
 
 
-def test_display_ann_for_single_image():
+def test_display_single_img_with_ann():
     mock_ax = Mock()
     mock_fig = Mock()
     mock_subplots = MagicMock(return_value=(mock_fig, mock_ax))
@@ -47,8 +46,11 @@ def test_display_ann_for_single_image():
             ".coco_data_visualization.COCO.showAnns",
             mock_coco_show_ann,
         ):
-            fig = display_ann_for_single_img(
-                coco_obj=coco, img_id=1, data_dir=str(coco_img_dir)
+            fig = display_single_img(
+                coco_obj=coco,
+                img_id=1,
+                data_dir=str(coco_img_dir),
+                show_annotation=True,
             )
             assert mock_coco_show_ann.call_count == 1
             assert fig == mock_fig
