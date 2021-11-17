@@ -4,12 +4,15 @@ import shutil
 from pathlib import Path
 
 import numpy as np
-from coco import COCO_KEYPOINTS, COCO_SKELETON
 from PIL import Image
 from scipy import io
 from tqdm import tqdm
 
 from datasetinsights.datasets.transformers.base import DatasetTransformer
+from datasetinsights.datasets.transformers.coco import (
+    COCO_KEYPOINTS,
+    COCO_SKELETON,
+)
 
 LSPET_JOINTS = (
     "right_ankle",
