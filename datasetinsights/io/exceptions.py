@@ -11,3 +11,13 @@ class ChecksumError(Exception):
 class InvalidTrackerError(Exception):
     """ Raises when unknown tracker requested .
     """
+
+
+class InvalidCOCOImageIdError(Exception):
+    """ Raised when invalid image id is given.
+    """
+
+
+class InvalidCOCOCategoryIdError(Exception):
+    """ Raised when invalid category id is given.
+    """
