@@ -80,5 +80,3 @@ def test_display_ann_for_all_img():
 
             assert mock_ax_1.imshow.call_count == 1
             assert mock_coco_show_ann.call_count == 1
-            annotations = mock_coco_show_ann.call_args_list[0][0][0]
-            assert len(annotations) == 8
