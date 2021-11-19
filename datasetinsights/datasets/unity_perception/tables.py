@@ -9,7 +9,7 @@ import pandas as pd
 from .validation import verify_version
 
 logger = logging.getLogger(__name__)
-SCHEMA_VERSION = "0.0.1"  # Synthetic dataset schema version
+SCHEMA_VERSION = "0.1.1"  # Synthetic dataset schema version
 
 
 class FileType(Enum):
