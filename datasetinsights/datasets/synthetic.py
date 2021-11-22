@@ -28,14 +28,14 @@ def read_bounding_box_3d(annotation, label_mappings=None):
     for b in annotation:
         label_id = b["label_id"]
         translation = (
-            b["translation"][0],
-            b["translation"][1],
-            b["translation"][2],
+            b["translation"]["x"],
+            b["translation"]["y"],
+            b["translation"]["z"],
         )
-        size = (b["size"][0], b["size"][1], b["size"][2])
+        size = (b["size"]["x"], b["size"]["y"], b["size"]["z"])
         rotation = b["rotation"]
         rotation = Quaternion(
-            x=rotation[0], y=rotation[1], z=rotation[2], w=rotation[3]
+            x=rotation["x"], y=rotation["y"], z=rotation["z"], w=rotation["w"]
         )
 
         if label_mappings and label_id not in label_mappings:
