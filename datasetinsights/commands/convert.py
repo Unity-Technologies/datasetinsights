@@ -38,5 +38,5 @@ def cli(input, output, format):
     ctx = click.get_current_context()
     logger.debug(f"Called convert command with parameters: {ctx.params}")
 
-    transformer = get_dataset_transformer(format=format, input=input)
+    transformer = get_dataset_transformer(format=format, data_root=input)
     transformer.execute(output=output)
