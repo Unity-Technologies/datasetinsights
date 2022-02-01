@@ -1,9 +1,9 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
+import dataformatter.datasets.unity_perception as sim
 import pandas as pd
 
-import datasetinsights.datasets.unity_perception as sim
 import datasetinsights.stats.visualization.constants as constants
 
 from .plots import histogram_plot, rotation_plot

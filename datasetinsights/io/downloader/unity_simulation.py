@@ -9,14 +9,14 @@ import numpy as np
 import pandas as pd
 import requests
 from codetiming import Timer
+from dataformatter.datasets.unity_perception.tables import (
+    DATASET_TABLES,
+    FileType,
+)
 from requests.packages.urllib3.util.retry import Retry
 from tqdm import tqdm
 
 import datasetinsights.constants as const
-from datasetinsights.datasets.unity_perception.tables import (
-    DATASET_TABLES,
-    FileType,
-)
 from datasetinsights.io.download import TimeoutHTTPAdapter, download_file
 from datasetinsights.io.downloader.base import DatasetDownloader
 from datasetinsights.io.exceptions import DownloadError

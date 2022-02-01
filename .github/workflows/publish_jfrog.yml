@@ -1,0 +1,46 @@
+# via: https://docs.github.com/en/actions/guides/building-and-testing-python
+name: Build and publish package to JFrog
+
+# see: https://docs.github.com/en/actions/reference/events-that-trigger-workflows#release
+on:
+  release:
+    types: [published]
+
+env:
+  JFROG_USER: ${{ secrets.JFROG_USER }}
+  JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install linux packages
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install mpich redis protobuf-compiler prometheus
+      - name: Set up Python 3.7.5
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7.5
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install wheel twine flake8 pytest setuptools setuptools_scm
+      - name: Build package
+        run: |
+          python setup.py sdist
+          python setup.py bdist_wheel
+      - name: Test datasetinsights install
+        run: |
+          pip install dist/datasetinsights-*.whl
+      - name: Upload to JFrog
+        run: |
+          twine upload dist/* --repository-url https://unity3d.jfrog.io/artifactory/api/pypi/ai-simulation-pypi-local -u "$JFROG_USER" -p "$JFROG_TOKEN" --verbose
+      - name: Uninstall datasetinsights
+        run: |
+          pip uninstall datasetinsights -y
+      - name: Test install datasetinsights from JFrog
+        run: |
+          pip install datasetinsights --extra-index-url https://"$JFROG_USER":"$JFROG_TOKEN"@unity3d.jfrog.io/artifactory/api/pypi/ai-simulation-pypi-local/simple

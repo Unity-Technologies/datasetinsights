@@ -1,8 +1,9 @@
 import logging
 
+from dataformatter.datasets.unity_perception import MetricDefinitions, Metrics
+from dataformatter.datasets.unity_perception.tables import SCHEMA_VERSION
+
 import datasetinsights.constants as const
-from datasetinsights.datasets.unity_perception import MetricDefinitions, Metrics
-from datasetinsights.datasets.unity_perception.tables import SCHEMA_VERSION
 
 logger = logging.getLogger(__name__)
 
