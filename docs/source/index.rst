@@ -35,17 +35,6 @@ You can download the datasets from HTTP(s), GCS, and Unity simulation projects u
 
 `API <https://datasetinsights.readthedocs.io/en/latest/datasetinsights.io.downloader.html#module-datasetinsights.io.downloader.gcs_downloader>`_
 
-UnitySimulationDownloader downloads a dataset from Unity Simulation.
-
-.. code-block:: python3
-
-   from datasetinsights.io.downloader import UnitySimulationDownloader
-
-   source_uri=usim://<project_id>/<run_execution_id>
-   dest = "~/data"
-   access_token = "XXX"
-   downloader = UnitySimulationDownloader(access_token=access_token)
-   downloader.download(source_uri=source_uri, output=data_root)
 
 GCSDatasetDownloader downloads a dataset from GCS location.
 

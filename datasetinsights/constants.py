@@ -3,8 +3,6 @@ DEFAULT_DATA_ROOT = "/data"
 # Default perception schema version
 DEFAULT_PERCEPTION_VERSION = "0.0.1"
 
-# Unity Simulation API endpoints
-USIM_API_ENDPOINT = "https://api.simulation.unity3d.com"
 
 # Default Timing text for codetiming.Timer decorator
 TIMING_TEXT = "[{name}] elapsed time: {:0.4f} seconds."
