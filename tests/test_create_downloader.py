@@ -2,9 +2,6 @@ import pytest
 
 from datasetinsights.io.downloader.base import create_dataset_downloader
 from datasetinsights.io.downloader.http_downloader import HTTPDatasetDownloader
-from datasetinsights.io.downloader.unity_simulation import (
-    UnitySimulationDownloader,
-)
 
 
 @pytest.mark.parametrize(
@@ -17,16 +14,6 @@ def test_create_dataset_downloader_http_downloader(source_uri):
 
     # assert
     assert isinstance(downloader, HTTPDatasetDownloader)
-
-
-def test_create_dataset_downloader_unity_simulation_downloader():
-    # arrange
-    source_uri = "usim://"
-    # act
-    downloader = create_dataset_downloader(source_uri=source_uri)
-
-    # assert
-    assert isinstance(downloader, UnitySimulationDownloader)
 
 
 def test_create_dataset_downloader_invalid_input():
