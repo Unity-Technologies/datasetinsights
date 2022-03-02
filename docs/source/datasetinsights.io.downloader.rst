@@ -26,14 +26,6 @@ datasetinsights.io.downloader.http\_downloader
    :undoc-members:
    :show-inheritance:
 
-datasetinsights.io.downloader.unity\_simulation
------------------------------------------------
-
-.. automodule:: datasetinsights.io.downloader.unity_simulation
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 
 
 .. automodule:: datasetinsights.io.downloader

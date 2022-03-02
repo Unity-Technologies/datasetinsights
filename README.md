@@ -66,19 +66,9 @@ You can download the datasets using the [download](https://datasetinsights.readt
 datasetinsights download --source-uri=<xxx> --output=$HOME/data
 ```
 
-The download command supports HTTP(s), GCS, and Unity simulation URIs.
+The download command supports HTTP(s), and GCS.
 
-Alternatively, you can download dataset directly from python [interface](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.io.downloader.html#module-datasetinsights.io.downloader). For example, `UnitySimulationDownloader` can download dataset from Unity Simulation.
-
-```python
-from datasetinsights.io.downloader import UnitySimulationDownloader
-
-source_uri=usim://<project_id>/<run_execution_id>
-dest = "~/data"
-access_token = "XXX"
-downloader = UnitySimulationDownloader(access_token=access_token)
-downloader.download(source_uri=source_uri, output=dest)
-```
+Alternatively, you can download dataset directly from python [interface](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.io.downloader.html#module-datasetinsights.io.downloader).
 
 `GCSDatasetDownloader` can download a dataset from GCS locations.
 ```python
@@ -108,8 +98,12 @@ annotations that COCO supports, you can run the `convert` command:
 ```bash
 datasetinsights convert -i <input-directory> -o <output-directory> -f COCO-Instances
 ```
+or
+```bash
+datasetinsights convert -i <input-directory> -o <output-directory> -f COCO-Keypoints
+```
 
-You will need to provide 2D bounding box definition ID in the synthetic dataset. We currently only support 2D bounding box annotations for COCO format.
+You will need to provide 2D bounding box definition ID in the synthetic dataset. We currently only support 2D bounding box and human keypoint annotations for COCO format.
 
 ## Docker
 

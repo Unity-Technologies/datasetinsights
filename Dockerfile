@@ -14,8 +14,8 @@ RUN apt-get update \
         python3-pip \
     && ln -s /usr/bin/python3.8 /usr/local/bin/python
 
-# pin cryptography to 3.3.2 until this (https://github.com/pyca/cryptography/issues/5753) is fixed.
-RUN python -m pip install --upgrade pip setuptools poetry notebook cryptography==3.3.2
+RUN python -m pip install --upgrade pip
+RUN python -m pip install setuptools==60.2.0 cryptography==36.0.1 poetry==1.1.12 notebook==6.4.8
 
 # Add Tini
 ENV TINI_VERSION v0.18.0
