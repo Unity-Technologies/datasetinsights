@@ -8,12 +8,14 @@ RUN apt-get update \
         libxext6 \
         libxrender-dev \
         libgl1-mesa-dev \
-        python3.7-dev \
+        libffi-dev \
+        libzmq3-dev \
+        python3.8-dev \
         python3-pip \
-    && ln -s /usr/bin/python3.7 /usr/local/bin/python
+    && ln -s /usr/bin/python3.8 /usr/local/bin/python
 
 RUN python -m pip install --upgrade pip
-RUN python -m pip install setuptools==60.2.0 cryptography==36.0.1 poetry==1.1.12
+RUN python -m pip install setuptools==60.2.0 cryptography==36.0.1 poetry==1.1.12 notebook==6.4.8
 
 # Add Tini
 ENV TINI_VERSION v0.18.0

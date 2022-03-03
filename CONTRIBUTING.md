@@ -1,13 +1,14 @@
 # Table of contents
 
-- [Contributing to datasetinsights](#contributing-to-datasetinsights)
-- [Developing datasetinsights](#developing-datasetinsights)
-  - [Add new dependencies](#add-new-dependencies)
-- [Codebase structure](#codebase-structure)
-- [Unit testing](#unit-testing)
-- [Style Guide](#style-guide)
-- [Writing documentation](#writing-documentation)
-  - [Building documentation](#building-documentation)
+- [Table of contents](#table-of-contents)
+  - [Contributing to datasetinsights](#contributing-to-datasetinsights)
+  - [Developing datasetinsights](#developing-datasetinsights)
+    - [Add new dependencies](#add-new-dependencies)
+  - [Codebase structure](#codebase-structure)
+  - [Unit testing](#unit-testing)
+  - [Style Guide](#style-guide)
+  - [Writing documentation](#writing-documentation)
+    - [Building documentation](#building-documentation)
 
 ## Contributing to datasetinsights
 
@@ -25,7 +26,7 @@ Here are some steps to setup datasetinsights virtual environment with on your ma
 2. Create a virtual environment. We recommend using [miniconda](https://docs.conda.io/en/latest/miniconda.html)
 
 ```bash
-conda create -n dins-dev python=3.7
+conda create -n dins-dev python=3.8
 conda activate dins-dev
 ```
 
