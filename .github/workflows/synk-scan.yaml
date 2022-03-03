@@ -20,4 +20,4 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           command: monitor
-          args: --all-projects --exclude=docs/
+          args: --all-projects --exclude=docs --command=python3
