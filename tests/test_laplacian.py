@@ -24,4 +24,4 @@ def test_get_fg_bg_var_laplacian():
     annotations = json.load(f)["annotations"]
     bbox_var_lap, img_var_lap = get_fg_bg_var_laplacian(laplacian, annotations)
     assert len(bbox_var_lap) > 0
-    assert len(img_var_lap) > 0
+    assert img_var_lap is not None
