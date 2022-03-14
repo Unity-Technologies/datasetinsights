@@ -70,7 +70,7 @@ def _translate_and_scale_xy(X: List, Y: List):
     return X, Y
 
 
-def process_annotations(annotations: List) -> Dict:
+def get_scale_keypoints(annotations: List) -> Dict:
     """
     Process keypoints annotations to extract information for pose plots.
     Args:

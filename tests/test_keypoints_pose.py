@@ -9,7 +9,7 @@ from datasetinsights.stats.visualization.constants import (
 )
 from datasetinsights.stats.visualization.keypoints_pose import (
     get_average_skeleton,
-    process_annotations,
+    get_scale_keypoints,
 )
 
 
@@ -34,9 +34,9 @@ def _setup_annotations():
     keypoints_list = None
 
 
-def test_process_annotations(_setup_annotations):
+def test_get_scale_keypoints(_setup_annotations):
     annotations = _setup_annotations
-    processed_kp_dict = process_annotations(annotations)
+    processed_kp_dict = get_scale_keypoints(annotations)
 
     assert set(COCO_KEYPOINTS).issubset(set(processed_kp_dict.keys()))
     for keypoint in COCO_KEYPOINTS:
