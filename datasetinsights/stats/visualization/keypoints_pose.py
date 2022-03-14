@@ -120,7 +120,8 @@ def _get_avg_kp(kp_dict: Dict):
 
 def get_average_skeleton(kp_dict: Dict, skeleton=COCO_SKELETON) -> List:
     """
-    return skeleton link list of average keypoints values.
+    return skeleton (a list of connected human joints) of
+    average keypoints values.
     Args:
         kp_dict (dict): key-value pair of keypoints name -> (x,y) list
     Returns:
