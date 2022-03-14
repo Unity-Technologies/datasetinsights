@@ -47,7 +47,7 @@ def _calc_dist(p1: Tuple[Any, Any], p2: Tuple[Any, Any]) -> float:
     return math.sqrt(((p1[0] - p2[0]) ** 2) + ((p1[1] - p2[1]) ** 2))
 
 
-def _translate_and_scale_xy(X: List, Y: List):
+def _translate_and_scale_xy(X: np.ndarray, Y: np.ndarray):
     """
     Return keypoints axis list X and Y after performing translation and scaling.
     """
@@ -56,18 +56,16 @@ def _translate_and_scale_xy(X: List, Y: List):
 
     # Translate all points according to mid_hip being at 0,0
     mid_hip = _calc_mid(right_hip, left_hip)
-    X = [number - mid_hip[0] if number > 0.0 else 0.0 for number in X]
-    Y = [number - mid_hip[1] if number > 0.0 else 0.0 for number in Y]
+    X = np.where(X > 0.0, X - mid_hip[0], 0.0)
+    Y = np.where(Y > 0.0, Y - mid_hip[1], 0.0)
 
     # Calculate scale factor
     scale = (
         _calc_dist(left_shoulder, left_hip)
         + _calc_dist(right_shoulder, right_hip)
     ) / 2
-    X = [number / scale for number in X]
-    Y = [number / scale for number in Y]
 
-    return X, Y
+    return X / scale, Y / scale
 
 
 def get_scale_keypoints(annotations: List) -> Dict:
@@ -87,7 +85,7 @@ def get_scale_keypoints(annotations: List) -> Dict:
 
     for kp in keypoints:
         # Separate x and y keypoints
-        x_kp, y_kp = kp[0::3], kp[1::3]
+        x_kp, y_kp = np.array(kp[0::3]), np.array(kp[1::3])
         x_kp, y_kp = _translate_and_scale_xy(x_kp, y_kp)
 
         # save keypoints to dict
