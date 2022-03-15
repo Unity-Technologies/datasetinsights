@@ -122,8 +122,3 @@ def get_bbox_per_img_dict(annotation_df: pd.DataFrame) -> Dict:
     for key, value in zip(x_occurences, y_images):
         bbox_num_dict[key] = value / total_images
     return bbox_num_dict
-
-
-if __name__ == "__main__":
-    a = [[1, 1, 2, 2], [1, 1, 2, 1], [1, 2, 1, 2]]
-    print(get_bbox_relative_size_list(np.array(a)))
