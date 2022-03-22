@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 from datasetinsights.stats.visualization.constants import COCO_KEYPOINTS
-from datasetinsights.stats.visualization.stats import (
+from datasetinsights.stats.image_analysis import (
     convert_coco_annotations_to_df,
     get_bbox_heatmap,
     get_bbox_per_img_dict,
