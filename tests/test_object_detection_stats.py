@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from datasetinsights.stats.image_analysis import (
+from datasetinsights.stats.calculation import (
     convert_coco_annotations_to_df,
     get_bbox_heatmap,
     get_bbox_per_img_dict,
