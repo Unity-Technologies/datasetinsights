@@ -3,13 +3,13 @@ from pathlib import Path
 
 import pytest
 
+from datasetinsights.stats.image_analysis import (
+    get_average_skeleton,
+    get_scale_keypoints,
+)
 from datasetinsights.stats.visualization.constants import (
     COCO_KEYPOINTS,
     COCO_SKELETON,
-)
-from datasetinsights.stats.visualization.keypoints_pose import (
-    get_average_skeleton,
-    get_scale_keypoints,
 )
 
 

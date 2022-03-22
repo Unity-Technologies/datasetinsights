@@ -5,7 +5,6 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from datasetinsights.stats.visualization.constants import COCO_KEYPOINTS
 from datasetinsights.stats.image_analysis import (
     convert_coco_annotations_to_df,
     get_bbox_heatmap,
@@ -13,6 +12,7 @@ from datasetinsights.stats.image_analysis import (
     get_bbox_relative_size_list,
     get_visible_keypoints_dict,
 )
+from datasetinsights.stats.visualization.constants import COCO_KEYPOINTS
 
 
 @pytest.fixture()
