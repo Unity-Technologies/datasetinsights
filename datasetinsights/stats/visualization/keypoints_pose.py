@@ -14,6 +14,11 @@ def _is_torso_visible_or_labeled(kp: List) -> bool:
     True if torso (left hip, right hip, left shoulder,
     right shoulder) is visible else False
     """
+    if len(kp) != 51:
+        raise ValueError(
+            "keypoint list doesn't fit the format of "
+            "COCO human keypoints (17 keypoints)"
+        )
     return (
         (kp[17] == 1 or kp[17] == 2)
         and (kp[20] == 1 or kp[20] == 2)

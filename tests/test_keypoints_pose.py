@@ -50,6 +50,12 @@ def test_get_scale_keypoints(_setup_annotations):
         assert count == 0
 
 
+def test_get_scale_keypoints_bad_case():
+    annotations = [[0] * 40, [1] * 60]
+    with pytest.raises(ValueError):
+        get_scale_keypoints(annotations)
+
+
 @pytest.fixture()
 def _setup_kp_dict():
     kp_dict = {}
