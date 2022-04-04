@@ -6,7 +6,14 @@ from scipy import ndimage
 from tqdm import tqdm
 
 
-def get_psd2d(image: np.ndarray):
+def get_psd2d(image: np.ndarray) -> np.ndarray:
+    """
+    Args:
+        image (np.ndarray): Grayscale Image
+
+    Returns:
+        np.ndarray: 2D PSD of the image
+    """
     h, w = image.shape
     fourier_image = np.fft.fft2(image)
     N = h * w * 2
@@ -15,7 +22,14 @@ def get_psd2d(image: np.ndarray):
     return psd2d
 
 
-def get_psd1d(psd_2d: np.ndarray):
+def get_psd1d(psd_2d: np.ndarray) -> np.ndarray:
+    """
+    Args:
+        psd_2d (np.ndarray): 2D PSD of the image
+
+    Returns:
+        np.ndarray: 1D PSD of the given 2D PSD
+    """
     h = psd_2d.shape[0]
     w = psd_2d.shape[1]
     wc = w // 2
@@ -23,7 +37,7 @@ def get_psd1d(psd_2d: np.ndarray):
 
     # create an array of integer radial distances from the center
     y, x = np.ogrid[-h // 2 : h // 2, -w // 2 : w // 2]
-    r = np.hypot(x, y).astype(np.int)
+    r = np.hypot(x, y).astype(int)
     idx = np.arange(0, min(wc, hc))
     psd_1d = ndimage.sum(psd_2d, r, index=idx)
     return psd_1d
@@ -46,13 +60,24 @@ def _load_images_from_dir(img_dir: str, img_type: str = "png"):
 
 
 def get_average_psd_1d(img_dir: str, img_type: str = "png"):
+    """
+    Get average PSD of entire dataset.
+    Args:
+        img_dir (str): Path of image directory
+        img_type (str): Image tpye (PNG, JPG, etc)
+
+    Returns:
+        avg_psd_1d (np.ndarray): Avg PSD 1D
+        std_psd_1d (np.ndarray): Standard deviation of PSD
+
+    """
     images = _load_images_from_dir(img_dir, img_type)
     total_psd_1d = []
     max_len = float("-inf")
 
     for image in tqdm(images):
         psd_2d = get_psd2d(image)
-        psd_1d = get_psd1d_az(psd_2d)
+        psd_1d = get_psd1d(psd_2d)
         max_len = max(max_len, len(psd_1d))
         total_psd_1d.append(psd_1d)
 

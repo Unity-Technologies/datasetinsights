@@ -4,8 +4,10 @@ import pathlib
 import numpy as np
 
 from datasetinsights.stats.image_analysis import (
+    get_average_psd_1d,
     get_bbox_fg_bg_var_laplacian,
     get_final_mask,
+    get_psd2d,
     get_seg_fg_bg_var_laplacian,
     laplacian_img,
 )
@@ -54,3 +56,19 @@ def test_get_final_mask():
     final_mask = get_final_mask(masks=[mask_a, mask_b, mask_c])
 
     assert np.array_equal(expected_final_mask, final_mask)
+
+
+def test_get_psd2d():
+    test_img = np.array([[1, 0, 0], [0, 0, 0], [0, 0, 0]])
+    psd2d = get_psd2d(image=test_img)
+
+    assert psd2d.shape == test_img.shape
+
+
+def test_get_avg_psd():
+    cur_dir = pathlib.Path(__file__).parent.absolute()
+    img_dir_path = str(cur_dir / "mock_data" / "coco" / "images")
+    avg_psd_1d, std_psd_1d = get_average_psd_1d(img_dir_path)
+
+    assert avg_psd_1d is not None
+    assert type(std_psd_1d) == np.ndarray
