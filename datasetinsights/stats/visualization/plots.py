@@ -25,7 +25,7 @@ ERROR_BAR_COMPARE_COLOR = "lightseagreen"
 
 
 def grid_plot(images, figsize=(3, 5), img_type="rgb", titles=None):
-    """ Plot 2D array of images in grid.
+    """Plot 2D array of images in grid.
     Args:
         images (list): 2D array of images.
         figsize (tuple): target figure size of each image in the grid.
@@ -79,7 +79,7 @@ def _process_label(bbox, label_mappings=None):
 
 
 def plot_bboxes3d(image, bboxes, projection, colors=None, orthographic=False):
-    """ Plot an image with 3D bounding boxes
+    """Plot an image with 3D bounding boxes
 
     Currently this method should only be used for ground truth images, and
     doesn't support predictions. If a list of colors is not provided as an
@@ -110,7 +110,7 @@ def plot_bboxes3d(image, bboxes, projection, colors=None, orthographic=False):
 
 
 def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
-    """ Plot an image with bounding boxes.
+    """Plot an image with bounding boxes.
 
     For ground truth image, a color is randomly selected for each bounding box.
     For prediction, the color of a boundnig box is coded based on IOU value
@@ -151,7 +151,7 @@ def plot_bboxes(image, bboxes, label_mappings=None, colors=None):
 
 
 def plot_keypoints(image, annotations, templates, visual_width=6):
-    """ Plot an image with keypoint data.
+    """Plot an image with keypoint data.
 
     Currently only used for ground truth info. Keypoints and colors are defined
     in templates.
@@ -235,7 +235,9 @@ def histogram_plot(
 
     fig = px.histogram(df, x=x, **kwargs)
     fig = fig.update_layout(
-        xaxis=dict(title=x_title), yaxis=dict(title=y_title), title_text=title,
+        xaxis=dict(title=x_title),
+        yaxis=dict(title=y_title),
+        title_text=title,
     )
 
     return fig

@@ -33,8 +33,7 @@ logger = logging.getLogger(__name__)
     ),
 )
 def cli(input, output, format):
-    """Convert dataset from Perception format to target format.
-    """
+    """Convert dataset from Perception format to target format."""
     ctx = click.get_current_context()
     logger.debug(f"Called convert command with parameters: {ctx.params}")
 

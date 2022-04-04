@@ -16,7 +16,7 @@ app = get_app()
 
 
 def main_layout():
-    """ Method for generating main app layout.
+    """Method for generating main app layout.
 
     Returns:
         html layout: main layout design with tabs for overview statistics
@@ -39,7 +39,8 @@ def main_layout():
                         value="dataset_overview",
                         children=[
                             dcc.Tab(
-                                label="Overview", value="dataset_overview",
+                                label="Overview",
+                                value="dataset_overview",
                             ),
                             dcc.Tab(
                                 label="Object Detection",
@@ -68,7 +69,7 @@ def main_layout():
     Output("data_root_value", "children"), [Input("dropdown", "value")]
 )
 def store_data_root(value):
-    """ Method for storing data-root value in a hidden division.
+    """Method for storing data-root value in a hidden division.
 
     Returns:
         json : data-root encoded in json to be stored in data_root_value div.
@@ -83,7 +84,7 @@ def store_data_root(value):
     [Input("page_tabs", "value"), Input("data_root_value", "children")],
 )
 def render_content(value, json_data_root):
-    """ Method for rendering dashboard layout based
+    """Method for rendering dashboard layout based
         on the selected tab value.
 
     Args:
@@ -102,7 +103,7 @@ def render_content(value, json_data_root):
 
 
 def check_path(path):
-    """ Method for checking if the given data-root path is valid or not."""
+    """Method for checking if the given data-root path is valid or not."""
     if os.path.isdir(path):
         return path
     else:

@@ -38,7 +38,7 @@ class Captures:
     FILE_PATTERN = DATASET_TABLES[TABLE_NAME].file
 
     def __init__(self, data_root=DEFAULT_DATA_ROOT, version=SCHEMA_VERSION):
-        """ Initialize Captures
+        """Initialize Captures
 
         Args:
             data_root (str): the root directory of the dataset

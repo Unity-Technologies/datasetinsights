@@ -48,7 +48,8 @@ def test_download_except_called_once(mock_create, args):
 
 
 @pytest.mark.parametrize(
-    "args", [["download"], ["download", "--source-uri=s3://"]],
+    "args",
+    [["download"], ["download", "--source-uri=s3://"]],
 )
 @patch("datasetinsights.commands.download.create_dataset_downloader")
 def test_download_except_not_called(mock_create, args):

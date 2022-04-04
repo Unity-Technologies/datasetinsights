@@ -39,7 +39,7 @@ _DEFAULT_COLOR_NAME = "green"
 def add_single_bbox_on_image(
     image, bbox, label, color, font_size=100, box_line_width=15
 ):
-    """ Add single bounding box with label on a given image.
+    """Add single bounding box with label on a given image.
 
     Args:
         image (numpy array): a numpy array for an image.
@@ -76,7 +76,7 @@ def _color_image(image, font_color, background_color):
 def _get_label_image(
     text, font_color_tuple_bgr, background_color_tuple_bgr, font_size=100
 ):
-    """ Add text and background color for one label.
+    """Add text and background color for one label.
 
     Args:
         text (str): label name.
@@ -113,7 +113,7 @@ def _add_single_bbox_on_image(
     font_size=100,
     box_line_width=15,
 ):
-    """ Add single bounding box with label on a given image.
+    """Add single bounding box with label on a given image.
 
     Add single bounding box and a label text with label on a given image. If the
     label text exceeds the original image border, it would be cropped.

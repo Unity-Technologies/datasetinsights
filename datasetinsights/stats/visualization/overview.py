@@ -14,7 +14,7 @@ app = get_app()
 
 
 def generate_total_counts_figure(max_samples, roinfo):
-    """ Method for generating total object count bar plot using ploty.
+    """Method for generating total object count bar plot using ploty.
 
     Args:
         max_samples(int): maximum number of samples that will be included
@@ -39,7 +39,7 @@ def generate_total_counts_figure(max_samples, roinfo):
 
 
 def generate_per_capture_count_figure(max_samples, roinfo):
-    """ Method for generating object count per capture histogram using ploty.
+    """Method for generating object count per capture histogram using ploty.
 
     Args:
         max_samples(int): maximum number of samples that will be included
@@ -63,7 +63,7 @@ def generate_per_capture_count_figure(max_samples, roinfo):
 
 
 def generate_pixels_visible_per_object_figure(max_samples, roinfo):
-    """ Method for generating pixels visible per object histogram using ploty.
+    """Method for generating pixels visible per object histogram using ploty.
 
     Args:
         max_samples(int): maximum number of samples that will be included
@@ -88,7 +88,7 @@ def generate_pixels_visible_per_object_figure(max_samples, roinfo):
 
 
 def html_overview(data_root):
-    """ Method for displaying overview statistics.
+    """Method for displaying overview statistics.
 
     Args:
         data_root(str): path to the dataset.
@@ -118,7 +118,10 @@ def html_overview(data_root):
             dcc.Markdown(
                 """ # Total Object Count  """, style={"text-align": "center"}
             ),
-            dcc.Graph(id="total_count", figure=total_counts_fig,),
+            dcc.Graph(
+                id="total_count",
+                figure=total_counts_fig,
+            ),
             html.Div(
                 [
                     dcc.Markdown(
@@ -135,9 +138,12 @@ def html_overview(data_root):
             html.Div(
                 [
                     dcc.Graph(
-                        id="per_object_count", figure=per_capture_count_fig,
+                        id="per_object_count",
+                        figure=per_capture_count_fig,
                     ),
-                    dcc.Graph(id="per_object_count_filter_graph",),
+                    dcc.Graph(
+                        id="per_object_count_filter_graph",
+                    ),
                 ],
                 style={"columnCount": 2},
             ),
@@ -160,7 +166,9 @@ def html_overview(data_root):
                         id="pixels_visible_per_object",
                         figure=pixels_visible_per_object_fig,
                     ),
-                    dcc.Graph(id="pixels_visible_filter_graph",),
+                    dcc.Graph(
+                        id="pixels_visible_filter_graph",
+                    ),
                 ],
                 style={"columnCount": 2},
             ),
@@ -177,7 +185,7 @@ def html_overview(data_root):
     ],
 )
 def update_visible_pixels_figure(label_value, json_data_root):
-    """ Method for generating pixels visible histogram for selected object.
+    """Method for generating pixels visible histogram for selected object.
     Args:
         label_value (str): value selected by user using drop-down
     Returns:
@@ -209,7 +217,7 @@ def update_visible_pixels_figure(label_value, json_data_root):
     ],
 )
 def update_object_counts_capture_figure(label_value, json_data_root):
-    """ Method for generating object count per capture histogram for selected
+    """Method for generating object count per capture histogram for selected
         object.
     Args:
         label_value (str): value selected by user using drop-down

@@ -58,7 +58,7 @@ class BBox2D:
     """
 
     def __init__(self, label, x, y, w, h, score=1.0):
-        """ Initialize 2D bounding box object
+        """Initialize 2D bounding box object
 
         Args:
             label (str): string representation of the label

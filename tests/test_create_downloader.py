@@ -5,7 +5,8 @@ from datasetinsights.io.downloader.http_downloader import HTTPDatasetDownloader
 
 
 @pytest.mark.parametrize(
-    "source_uri", ["http://", "https://"],
+    "source_uri",
+    ["http://", "https://"],
 )
 def test_create_dataset_downloader_http_downloader(source_uri):
 

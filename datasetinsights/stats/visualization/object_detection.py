@@ -34,7 +34,7 @@ class ScaleFactor:
 
     @staticmethod
     def generate_scale_data(captures):
-        """ Method to extract scale parameter from sensor data.
+        """Method to extract scale parameter from sensor data.
 
         Args:
             captures(sim.Captures): a collection of capture records.
@@ -50,7 +50,7 @@ class ScaleFactor:
         return df_scale_factor
 
     def _generate_scale_factor_figures(self):
-        """ Method for generating plots for scale factor distribution.
+        """Method for generating plots for scale factor distribution.
 
         Returns:
             plotly.graph_objects.Figure: scale factor distribution.
@@ -72,7 +72,7 @@ class ScaleFactor:
         return scale_factor_distribution_figure
 
     def html(self):
-        """ Method for generating plots for scale factor distribution.
+        """Method for generating plots for scale factor distribution.
 
         Returns:
             html layout: displays scale factor distribution.
@@ -117,7 +117,7 @@ class UserParameter:
         )
 
     def html(self):
-        """ Method for generating html layout for the
+        """Method for generating html layout for the
             user input parameter table.
 
         Returns:
@@ -154,7 +154,7 @@ class UserParameter:
 
 
 class Lighting:
-    """ This class contains methods for object lighting statistics
+    """This class contains methods for object lighting statistics
     visualization.
 
     Attributes:
@@ -177,7 +177,7 @@ class Lighting:
         self.lighting = self._read_lighting_info()
 
     def _read_lighting_info(self):
-        """ Method to obtain per-frame light color and orientation information.
+        """Method to obtain per-frame light color and orientation information.
 
         Returns:
             pandas.DataFrame: contains information about per-frame light color
@@ -197,7 +197,7 @@ class Lighting:
         return combined
 
     def _generate_figures_lighting(self):
-        """ Method for generating plots for displaying light orientations,
+        """Method for generating plots for displaying light orientations,
             rotations and color distribution.
 
         Args:
@@ -273,7 +273,7 @@ class Lighting:
         }
 
     def html(self):
-        """ Method for generating html layout for the
+        """Method for generating html layout for the
             lighting statistics.
 
         Returns:
@@ -345,7 +345,7 @@ class Lighting:
 
 
 class ObjectPlacement:
-    """ This class contains methods for object orientation statistics
+    """This class contains methods for object orientation statistics
     visualization.
 
     Attributes:
@@ -368,7 +368,7 @@ class ObjectPlacement:
         self.rotation = self._read_foreground_placement_info()
 
     def _read_foreground_placement_info(self):
-        """ Method to obtain rotations of the foreground objects.
+        """Method to obtain rotations of the foreground objects.
 
         Returns:
             pandas.DataFrame: contains information about foreground object
@@ -387,7 +387,7 @@ class ObjectPlacement:
         return combined
 
     def _generate_figures_orientation(self, orientation):
-        """ Method for generating object orientation statistics
+        """Method for generating object orientation statistics
 
         Args:
             orientation(pandas.DataFrame): contains object orientations
@@ -441,7 +441,7 @@ class ObjectPlacement:
         }
 
     def html(self):
-        """ Method for generating html layout for the object
+        """Method for generating html layout for the object
             orientation statistics.
 
         Returns:
@@ -502,7 +502,7 @@ class ObjectPlacement:
 
 
 def render_object_detection_layout(data_root):
-    """ Method for displaying object detection statistics.
+    """Method for displaying object detection statistics.
 
     Args:
         data_root(str): path to the dataset.
