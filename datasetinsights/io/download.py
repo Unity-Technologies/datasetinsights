@@ -71,7 +71,7 @@ def download_file(source_uri: str, dest_path: str, file_name: str = None):
 
 
 def checksum_matches(filepath, expected_checksum, algorithm="CRC32"):
-    """ Check if the checksum matches
+    """Check if the checksum matches
 
     Args:
         filepath (str): the doaloaded file path
@@ -86,7 +86,7 @@ def checksum_matches(filepath, expected_checksum, algorithm="CRC32"):
 
 
 def validate_checksum(filepath, expected_checksum, algorithm="CRC32"):
-    """ Validate checksum of the downloaded file.
+    """Validate checksum of the downloaded file.
 
     Args:
         filepath (str): the doaloaded file path
@@ -101,7 +101,7 @@ def validate_checksum(filepath, expected_checksum, algorithm="CRC32"):
 
 
 def compute_checksum(filepath, algorithm="CRC32"):
-    """ Compute the checksum of a file.
+    """Compute the checksum of a file.
 
     Args:
         filepath (str): the doaloaded file path
@@ -121,8 +121,7 @@ def compute_checksum(filepath, algorithm="CRC32"):
 
 
 def _crc32_checksum(filepath):
-    """ Calculate the checksum of a file using CRC32.
-    """
+    """Calculate the checksum of a file using CRC32."""
     with open(filepath, "rb") as f:
         checksum = zlib.crc32(f.read())
 
@@ -130,8 +129,7 @@ def _crc32_checksum(filepath):
 
 
 def _md5_checksum(filename):
-    """ Calculate the checksum of a file using MD5.
-    """
+    """Calculate the checksum of a file using MD5."""
     md5 = hashlib.md5()
     with open(filename, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
@@ -140,7 +138,7 @@ def _md5_checksum(filename):
 
 
 def get_checksum_from_file(filepath):
-    """ This method return checksum of the file whose filepath is given.
+    """This method return checksum of the file whose filepath is given.
 
     Args:
         filepath (str): Path of the checksum file.
@@ -168,7 +166,7 @@ def get_checksum_from_file(filepath):
 
 
 def _read_checksum_from_txt(filepath):
-    """ This method reads checksum from a txt file and returns it.
+    """This method reads checksum from a txt file and returns it.
 
     Args:
         filepath (str): Local filepath of the checksum file.
@@ -190,14 +188,14 @@ def _parse_filename(response, uri):
 
 
 def _get_filename_from_response(response):
-    """ Gets filename from requests response object
+    """Gets filename from requests response object
 
-        Args:
-            response: requests.Response() object that contains the server's
-            response to the HTTP request.
+    Args:
+        response: requests.Response() object that contains the server's
+        response to the HTTP request.
 
-        Returns:
-            filename (str): Name of the file to be downloaded
+    Returns:
+        filename (str): Name of the file to be downloaded
     """
     cd = response.headers.get("content-disposition")
     if not cd:
@@ -209,7 +207,7 @@ def _get_filename_from_response(response):
 
 
 def _get_file_name_from_uri(uri):
-    """ Gets filename from URI
+    """Gets filename from URI
 
     Args:
         uri (str): URI

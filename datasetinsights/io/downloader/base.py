@@ -6,14 +6,14 @@ _registry = {}
 
 def _find_downloader(source_uri):
     """
-     This function returns the correct DatasetDownloader
-     from a registry based on the source-uri provided
+    This function returns the correct DatasetDownloader
+    from a registry based on the source-uri provided
 
-        Args:
-            source_uri: URI of where this data should be downloaded.
+       Args:
+           source_uri: URI of where this data should be downloaded.
 
-        Returns: The dataset downloader class that is registered with the
-                 source-uri protocol.
+       Returns: The dataset downloader class that is registered with the
+                source-uri protocol.
 
     """
     protocols = "|".join(_registry.keys())
@@ -73,7 +73,7 @@ class DatasetDownloader(ABC):
 
     @abstractmethod
     def download(self, source_uri, output, **kwargs):
-        """ This method downloads a dataset stored at the source_uri and stores it
+        """This method downloads a dataset stored at the source_uri and stores it
         in the output directory
 
         Args:

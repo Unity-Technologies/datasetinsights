@@ -20,7 +20,7 @@ class AnnotationDefinitions:
     FILE_PATTERN = DATASET_TABLES[TABLE_NAME].file
 
     def __init__(self, data_root, version=SCHEMA_VERSION):
-        """ Initialize AnnotationDefinitions
+        """Initialize AnnotationDefinitions
 
         Args:
             data_root (str): the root directory of the dataset containing
@@ -85,7 +85,7 @@ class AnnotationDefinitions:
         return definition
 
     def find_by_name(self, pattern):
-        """ Get the annotation definition by matching patterns
+        """Get the annotation definition by matching patterns
 
         This method will try to match the pattern of the annotation definition
         by name to determine
@@ -136,7 +136,7 @@ class MetricDefinitions:
     FILE_PATTERN = DATASET_TABLES[TABLE_NAME].file
 
     def __init__(self, data_root, version=SCHEMA_VERSION):
-        """ Initialize MetricDefinitions
+        """Initialize MetricDefinitions
         Args:
             data_root (str): the root directory of the dataset containing
         tables
@@ -147,17 +147,17 @@ class MetricDefinitions:
     def load_metric_definitions(self, data_root, version):
         """Load metric definition files.
 
-        :ref:`metric_definitions.json`
+            :ref:`metric_definitions.json`
 
-        Args:
-            data_root (str): the root directory of the dataset containing tables
-            version (str): desired schema version
+            Args:
+                data_root (str): the root dir of the dataset containing tables
+                version (str): desired schema version
 
-        Returns:
-            A Pandas dataframe with metric definition records.
-        a collection of metric_definitions records with columns: id
-    (id for metric definition), name, description, spec (definition specific
-    spec)
+            Returns:
+                A Pandas dataframe with metric definition records.
+            a collection of metric_definitions records with columns: id
+        (id for metric definition), name, description, spec (definition specific
+        spec)
         """
         definitions = []
         for def_file in glob(data_root, self.FILE_PATTERN):
@@ -255,7 +255,7 @@ class Sensors:
     FILE_PATTERN = DATASET_TABLES[TABLE_NAME].file
 
     def __init__(self, data_root, version=SCHEMA_VERSION):
-        """ Initialize Sensors
+        """Initialize Sensors
 
         Args:
             data_root (str): the root directory of the dataset containing

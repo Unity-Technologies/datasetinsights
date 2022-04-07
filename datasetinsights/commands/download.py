@@ -23,8 +23,7 @@ class SourceURI(click.ParamType):
     PREFIX_PATTERN = r"^gs://|^http(s)?://|^usim://"
 
     def convert(self, value, param, ctx):
-        """ Validate source URI and Converts the value.
-        """
+        """Validate source URI and Converts the value."""
         match = re.search(self.PREFIX_PATTERN, value)
         if not match:
             message = (
@@ -36,7 +35,9 @@ class SourceURI(click.ParamType):
         return value
 
 
-@click.command(context_settings=const.CONTEXT_SETTINGS,)
+@click.command(
+    context_settings=const.CONTEXT_SETTINGS,
+)
 @click.option(
     "-s",
     "--source-uri",
@@ -82,7 +83,11 @@ class SourceURI(click.ParamType):
     "integrity of the downloaded dataset.",
 )
 def cli(
-    source_uri, output, include_binary, access_token, checksum_file,
+    source_uri,
+    output,
+    include_binary,
+    access_token,
+    checksum_file,
 ):
     """Download datasets to localhost from known locations.
 

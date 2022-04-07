@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def read_bounding_box_3d(annotation, label_mappings=None):
-    """ Convert dictionary representations of 3d bounding boxes into objects
+    """Convert dictionary representations of 3d bounding boxes into objects
     of the BBox3d class
 
     Args:

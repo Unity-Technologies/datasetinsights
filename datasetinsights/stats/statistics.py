@@ -134,7 +134,7 @@ class RenderedObjectInfo:
         return agg
 
     def per_capture_counts(self):
-        """ Aggregate Object Counts Per Label
+        """Aggregate Object Counts Per Label
 
         Returns:
             pd.DataFrame: Total object counts table.
