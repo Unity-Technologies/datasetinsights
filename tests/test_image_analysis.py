@@ -9,6 +9,7 @@ from datasetinsights.stats.image_analysis import (
     get_final_mask,
     get_psd2d,
     get_seg_fg_bg_var_laplacian,
+    get_wt_coeffs_var,
     laplacian_img,
 )
 
@@ -72,3 +73,13 @@ def test_get_avg_psd():
 
     assert avg_psd_1d is not None
     assert type(std_psd_1d) == np.ndarray
+
+
+def test_get_wt_coeff_var():
+    cur_dir = pathlib.Path(__file__).parent.absolute()
+    img_dir_path = str(cur_dir / "mock_data" / "coco" / "images")
+    h, v, d = get_wt_coeffs_var(img_dir_path)
+
+    assert h is not None
+    assert v is not None
+    assert d is not None
