@@ -1,3 +1,4 @@
+import glob
 import json
 import pathlib
 
@@ -78,8 +79,9 @@ def test_get_avg_psd():
 def test_get_wt_coeff_var():
     cur_dir = pathlib.Path(__file__).parent.absolute()
     img_dir_path = str(cur_dir / "mock_data" / "coco" / "images")
+    num_img = len(glob.glob(img_dir_path + f"/*.png"))
     h, v, d = get_wt_coeffs_var(img_dir_path)
 
-    assert h is not None
-    assert v is not None
-    assert d is not None
+    assert h is not None and len(h) == num_img
+    assert v is not None and len(v) == num_img
+    assert d is not None and len(d) == num_img
