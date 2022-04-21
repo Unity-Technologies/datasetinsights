@@ -6,6 +6,7 @@ from .laplacian import (
     laplacian_img,
 )
 from .spectral_analysis import get_average_psd_1d, get_psd1d, get_psd2d
+from .wavelet import get_wt_coeffs_var
 
 __all__ = [
     "get_bbox_var_laplacian",
@@ -16,4 +17,5 @@ __all__ = [
     "get_average_psd_1d",
     "get_psd1d",
     "get_psd2d",
+    "get_wt_coeffs_var",
 ]
