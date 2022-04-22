@@ -3,9 +3,10 @@ from pathlib import Path
 
 import pytest
 
-from datasetinsights.stats.calculation import (
+from datasetinsights.stats.keypoints_stats import (
     get_average_skeleton,
     get_scale_keypoints,
+    get_visible_keypoints_dict,
 )
 from datasetinsights.stats.visualization.constants import (
     COCO_KEYPOINTS,
@@ -48,6 +49,15 @@ def test_get_scale_keypoints(_setup_annotations):
             map(lambda x: x > 2.5 or x < -2.5, processed_kp_dict[keypoint]["y"])
         )
         assert count == 0
+
+def test_get_visible_keypoints_dict(_setup_annotations):
+    keypoint_list = _setup_annotations
+
+    labeled_kpt_dict = get_visible_keypoints_dict(keypoint_list)
+    for keypoint in COCO_KEYPOINTS:
+        assert keypoint in labeled_kpt_dict.keys()
+    for value in labeled_kpt_dict.values():
+        assert value < 1 and value >= 0
 
 
 def test_get_scale_keypoints_bad_case():

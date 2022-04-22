@@ -5,14 +5,12 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from datasetinsights.stats.calculation import (
+from datasetinsights.stats.object_detection_stats import (
     convert_coco_annotations_to_df,
     get_bbox_heatmap,
     get_bbox_per_img_dict,
     get_bbox_relative_size_list,
-    get_visible_keypoints_dict,
 )
-from datasetinsights.stats.visualization.constants import COCO_KEYPOINTS
 
 
 @pytest.fixture()
@@ -83,16 +81,6 @@ def test_get_bbox_relative_size_list(_setup_annotation_df):
     assert bbox_relative_size[0] == math.sqrt(
         test_row["area"] / (test_row["width"] * test_row["height"])
     )
-
-
-def test_get_visible_keypoints_dict(_setup_annotation_df):
-    keypoint_list = _setup_annotation_df["keypoints"].values.tolist()
-
-    labeled_kpt_dict = get_visible_keypoints_dict(keypoint_list)
-    for keypoint in COCO_KEYPOINTS:
-        assert keypoint in labeled_kpt_dict.keys()
-    for value in labeled_kpt_dict.values():
-        assert value < 1 and value >= 0
 
 
 def test_get_bbox_per_img_dict(_setup_annotation_df):

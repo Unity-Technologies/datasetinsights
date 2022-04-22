@@ -68,29 +68,6 @@ def get_bbox_heatmap(annotation_df: pd.DataFrame) -> np.ndarray:
     return bbox_heatmap
 
 
-def get_visible_keypoints_dict(keypoint_list: List) -> Dict:
-    """
-    Args:
-        keypoint_list (List): List of keypoints lists with format
-        [x1, y1, v1, x2, y2, v2, ...] with the order of COCO_KEYPOINTS
-    Returns:
-        labeled_kpt_dict (Dict): Labeled keypoints dictionary where
-        key is the keypoint and and val is the probability of that
-        keypoint to occur in the bbox given that kp is labeled.
-    """
-    total_instances = len(keypoint_list)
-    keypoints = COCO_KEYPOINTS
-
-    kp_visibility_list = np.array(keypoint_list)[:, 2::3]
-    kp_visibility_list = np.where(kp_visibility_list == 0.0, 0.0, 1.0)
-
-    labeled_kpt_dict = {}
-    for i, key in enumerate(keypoints):
-        labeled_kpt_dict[key] = sum(kp_visibility_list[:, i]) / total_instances
-
-    return labeled_kpt_dict
-
-
 def get_bbox_per_img_dict(annotation_df: pd.DataFrame) -> Dict:
     """
     Args:
