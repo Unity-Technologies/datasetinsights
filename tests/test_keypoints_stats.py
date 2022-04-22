@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from datasetinsights.stats.keypoints_stats import (
+from datasetinsights.stats import (
     get_average_skeleton,
     get_scale_keypoints,
     get_visible_keypoints_dict,
