@@ -3,10 +3,7 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
-from datasetinsights.stats.visualization.constants import (
-    COCO_KEYPOINTS,
-    COCO_SKELETON,
-)
+from datasetinsights.stats.constants import COCO_KEYPOINTS, COCO_SKELETON
 
 
 def _is_torso_visible_or_labeled(kp: List) -> bool:
@@ -14,6 +11,11 @@ def _is_torso_visible_or_labeled(kp: List) -> bool:
     True if torso (left hip, right hip, left shoulder,
     right shoulder) is visible else False
     """
+    if len(kp) != 51:
+        raise ValueError(
+            "keypoint list doesn't fit the format of "
+            "COCO human keypoints (17 keypoints)"
+        )
     return (
         (kp[17] == 1 or kp[17] == 2)
         and (kp[20] == 1 or kp[20] == 2)
@@ -130,3 +132,26 @@ def get_average_skeleton(kp_dict: Dict, skeleton=COCO_SKELETON) -> List:
     for p1, p2 in skeleton:
         s.append([(x[p1 - 1], y[p1 - 1]), (x[p2 - 1], y[p2 - 1])])
     return s
+
+
+def get_visible_keypoints_dict(keypoint_list: List) -> Dict:
+    """
+    Args:
+        keypoint_list (List): List of keypoints lists with format
+        [x1, y1, v1, x2, y2, v2, ...] with the order of COCO_KEYPOINTS
+    Returns:
+        labeled_kpt_dict (Dict): Labeled keypoints dictionary where
+        key is the keypoint and and val is the probability of that
+        keypoint to occur in the bbox given that kp is labeled.
+    """
+    total_instances = len(keypoint_list)
+    keypoints = COCO_KEYPOINTS
+
+    kp_visibility_list = np.array(keypoint_list)[:, 2::3]
+    kp_visibility_list = np.where(kp_visibility_list == 0.0, 0.0, 1.0)
+
+    labeled_kpt_dict = {}
+    for i, key in enumerate(keypoints):
+        labeled_kpt_dict[key] = sum(kp_visibility_list[:, i]) / total_instances
+
+    return labeled_kpt_dict
