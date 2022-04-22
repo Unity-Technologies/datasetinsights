@@ -9,15 +9,13 @@ class VersionError(Exception):
 
 
 class DuplicateRecordError(Exception):
-    """ Raise when the definition file has duplicate definition id
-    """
+    """Raise when the definition file has duplicate definition id"""
 
     pass
 
 
 class NoRecordError(Exception):
-    """ Raise when no record is found matching a given definition id
-    """
+    """Raise when no record is found matching a given definition id"""
 
     pass
 
@@ -39,7 +37,7 @@ def verify_version(json_data, version):
 
 
 def check_duplicate_records(table, column, table_name):
-    """ Check if table has duplicate records for a given column
+    """Check if table has duplicate records for a given column
 
     Args:
         table (pd.DataFrame): a pandas dataframe

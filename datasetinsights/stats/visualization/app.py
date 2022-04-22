@@ -4,7 +4,7 @@ import dash
 
 
 def _init_app():
-    """ Intializes the dash app."""
+    """Intializes the dash app."""
 
     this_dir = os.path.dirname(os.path.abspath(__file__))
     css_file = os.path.join(this_dir, "stylesheet.css")

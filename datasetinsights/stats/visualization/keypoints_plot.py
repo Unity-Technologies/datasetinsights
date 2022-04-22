@@ -4,7 +4,7 @@ simple Python API.
 
 
 def _get_color_from_color_node(color):
-    """ Gets the color from the color node in the template.
+    """Gets the color from the color node in the template.
 
     Args:
         color (tuple): The color's channel values expressed in a range from 0..1
@@ -20,7 +20,7 @@ def _get_color_from_color_node(color):
 
 
 def _get_color_for_bone(bone):
-    """ Gets the color for the bone from the template. A bone is a visual
+    """Gets the color for the bone from the template. A bone is a visual
         connection between two keypoints in the keypoint list of the figure.
 
         bone
@@ -48,7 +48,7 @@ def _get_color_for_bone(bone):
 
 
 def _get_color_for_keypoint(template, keypoint):
-    """ Gets the color for the keypoint from the template. A keypoint is a
+    """Gets the color for the keypoint from the template. A keypoint is a
         location of interest inside of a figure. Keypoints are connected
         together with bones. The configuration of keypoint locations and bone
         connections are defined in a template file.
@@ -98,7 +98,7 @@ def _get_color_for_keypoint(template, keypoint):
 
 
 def draw_keypoints_for_figure(image, figure, draw, templates, visual_width=6):
-    """ Draws keypoints for a figure on an image.
+    """Draws keypoints for a figure on an image.
 
     keypoints {
         label_id: <int> Integer identifier of the label.

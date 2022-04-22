@@ -3,12 +3,10 @@ from datasetinsights.io.gcs import GCSClient
 
 
 class GCSDatasetDownloader(DatasetDownloader, protocol="gs://"):
-    """ This class is used to download data from GCS
-    """
+    """This class is used to download data from GCS"""
 
     def __init__(self, **kwargs):
-        """ initiating GCSDownloader
-        """
+        """initiating GCSDownloader"""
         self.client = GCSClient()
 
     def download(self, source_uri=None, output=None, **kwargs):

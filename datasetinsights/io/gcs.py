@@ -15,21 +15,20 @@ logger = logging.getLogger(__name__)
 
 
 class GCSClient:
-    """ This class is used to download data from GCS location
-        and perform function such as downloading the dataset and checksum
-        validation.
+    """This class is used to download data from GCS location
+    and perform function such as downloading the dataset and checksum
+    validation.
     """
 
     GCS_PREFIX = "^gs://"
     KEY_SEPARATOR = "/"
 
     def __init__(self, **kwargs):
-        """ Initialize a client to google cloud storage (GCS).
-        """
+        """Initialize a client to google cloud storage (GCS)."""
         self.client = Client(**kwargs)
 
     def download(self, *, url=None, local_path=None, bucket=None, key=None):
-        """ This method is used to download the dataset from GCS.
+        """This method is used to download the dataset from GCS.
 
         Args:
             url (str): This is the downloader-uri that indicates where
@@ -58,29 +57,26 @@ class GCSClient:
             self._download_folder(bucket_obj, key, local_path)
 
     def _download_folder(self, bucket, key, local_path):
-        """ download all files from directory
-        """
+        """download all files from directory"""
         blobs = bucket.list_blobs(prefix=key)
         for blob in blobs:
             local_file_path = blob.name.replace(key, local_path)
             self._download_validate(blob, local_file_path)
 
     def _download_file(self, bucket, key, local_path):
-        """ download single file
-        """
+        """download single file"""
         blob = bucket.get_blob(key)
         key_suffix = key.replace("/" + basename(key), "")
         local_file_path = blob.name.replace(key_suffix, local_path)
         self._download_validate(blob, local_file_path)
 
     def _download_validate(self, blob, local_file_path):
-        """ download file and validate checksum
-        """
+        """download file and validate checksum"""
         self._download_blob(blob, local_file_path)
         self._checksum(blob, local_file_path)
 
     def _download_blob(self, blob, local_file_path):
-        """ download blob from gcs
+        """download blob from gcs
         Raises:
             NotFound: This will raise when object not found
         """
@@ -148,31 +144,31 @@ class GCSClient:
     def upload(
         self, *, local_path=None, bucket=None, key=None, url=None, pattern="*"
     ):
-        """ Upload a file or list of files from directory to GCS
+        """Upload a file or list of files from directory to GCS
 
-            Args:
-                url (str): This is the gcs location that indicates where
-                the dataset should be uploaded.
+        Args:
+            url (str): This is the gcs location that indicates where
+            the dataset should be uploaded.
 
-                local_path (str): This is the path to the directory or file
-                where the data is stored.
+            local_path (str): This is the path to the directory or file
+            where the data is stored.
 
-                bucket (str): gcs bucket name
-                key (str): object key path
-                pattern: Unix glob patterns. Use **/* for recursive glob.
+            bucket (str): gcs bucket name
+            key (str): object key path
+            pattern: Unix glob patterns. Use **/* for recursive glob.
 
-                Examples:
-                    For file upload:
-                        >>> url = "gs://bucket/folder/data.zip"
-                        >>> local_path = "/tmp/folder/data.zip"
-                        >>> bucket ="bucket"
-                        >>> key ="folder/data.zip"
-                    For directory upload:
-                        >>> url = "gs://bucket/folder"
-                        >>> local_path = "/tmp/folder"
-                        >>> bucket ="bucket"
-                        >>> key ="folder"
-                        >>> key ="**/*"
+            Examples:
+                For file upload:
+                    >>> url = "gs://bucket/folder/data.zip"
+                    >>> local_path = "/tmp/folder/data.zip"
+                    >>> bucket ="bucket"
+                    >>> key ="folder/data.zip"
+                For directory upload:
+                    >>> url = "gs://bucket/folder"
+                    >>> local_path = "/tmp/folder"
+                    >>> bucket ="bucket"
+                    >>> key ="folder"
+                    >>> key ="**/*"
 
         """
         if not (bucket and key) and url:
@@ -190,8 +186,7 @@ class GCSClient:
             self._upload_file(local_path=local_path, bucket=bucket_obj, key=key)
 
     def _upload_file(self, local_path=None, bucket=None, key=None):
-        """ Upload a single object to GCS
-        """
+        """Upload a single object to GCS"""
         blob = bucket.blob(key)
         logger.info(f"Uploading from {local_path} to {key}.")
         blob.upload_from_filename(local_path)
@@ -199,8 +194,7 @@ class GCSClient:
     def _upload_folder(
         self, local_path=None, bucket=None, key=None, pattern="*"
     ):
-        """Upload all files from a folder to GCS based on pattern
-        """
+        """Upload all files from a folder to GCS based on pattern"""
         for path in Path(local_path).glob(pattern):
             if path.is_dir():
                 continue
@@ -212,11 +206,11 @@ class GCSClient:
             )
 
     def get_most_recent_blob(self, url=None, bucket_name=None, key=None):
-        """ Get the last updated blob in a given bucket under given prefix
+        """Get the last updated blob in a given bucket under given prefix
 
-            Args:
-                bucket_name (str): gcs bucket name
-                key (str): object key path
+        Args:
+            bucket_name (str): gcs bucket name
+            key (str): object key path
         """
         if not (bucket_name and key) and url:
             bucket_name, key = self._parse(url)
@@ -237,8 +231,7 @@ class GCSClient:
             )
 
     def _list_blobs(self, bucket_name=None, prefix=None):
-        """List all blobs with given prefix
-        """
+        """List all blobs with given prefix"""
         blobs = self.client.list_blobs(bucket_name, prefix=prefix)
         blob_list = list(blobs)
         logger.debug(f"Blobs in {bucket_name} under prefix {prefix}:")

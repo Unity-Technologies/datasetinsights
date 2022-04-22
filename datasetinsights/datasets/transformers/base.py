@@ -23,8 +23,7 @@ def get_dataset_transformer(format, **kwargs):
 
 
 class DatasetTransformer(ABC):
-    """ Base class for all dataset transformer.
-    """
+    """Base class for all dataset transformer."""
 
     REGISTRY = {}
 

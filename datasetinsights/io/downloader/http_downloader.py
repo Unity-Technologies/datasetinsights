@@ -13,13 +13,13 @@ logger = logging.getLogger(__name__)
 
 
 class HTTPDatasetDownloader(DatasetDownloader, protocol="http://"):
-    """ This class is used to download data from any HTTP or HTTPS public url
-        and perform function such as downloading the dataset and checksum
-        validation if checksum file path is provided.
+    """This class is used to download data from any HTTP or HTTPS public url
+    and perform function such as downloading the dataset and checksum
+    validation if checksum file path is provided.
     """
 
     def download(self, source_uri, output, checksum_file=None, **kwargs):
-        """ This method is used to download the dataset from HTTP or HTTPS url.
+        """This method is used to download the dataset from HTTP or HTTPS url.
 
         Args:
             source_uri (str): This is the downloader-uri that indicates where

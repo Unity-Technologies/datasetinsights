@@ -24,7 +24,9 @@ def test_download_without_checksum(mock_download_file):
 @patch("datasetinsights.io.downloader.http_downloader.validate_checksum")
 @patch("datasetinsights.io.downloader.http_downloader.get_checksum_from_file")
 def test_download_with_checksum(
-    mock_get_checksum_from_file, mock_validate_check_sum, mock_download_file,
+    mock_get_checksum_from_file,
+    mock_validate_check_sum,
+    mock_download_file,
 ):
     # arrange
     source_uri = "http://some/path"

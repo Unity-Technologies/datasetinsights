@@ -19,7 +19,7 @@ def _add_single_bbox3d_on_image(
     color=None,
     box_line_width=2,
 ):
-    """ Add a single 3D bounding box to the passed in image.
+    """Add a single 3D bounding box to the passed in image.
 
     For this version of the method, all of the passed in coordinates should be
     integer tuples already projected in image pixel coordinate space.
@@ -80,9 +80,14 @@ def _add_single_bbox3d_on_image(
 
 
 def add_single_bbox3d_on_image(
-    image, box, proj, color=None, box_line_width=2, orthographic=False,
+    image,
+    box,
+    proj,
+    color=None,
+    box_line_width=2,
+    orthographic=False,
 ):
-    """" Add single 3D bounding box on a given image.
+    """ " Add single 3D bounding box on a given image.
 
     Args:
         image (numpy array): a numpy array for an image
@@ -136,7 +141,7 @@ def add_single_bbox3d_on_image(
 
 
 def _project_pt_to_pixel_location(pt, projection, img_height, img_width):
-    """ Projects a 3D coordinate into a pixel location from a perspective camera.
+    """Projects a 3D coordinate into a pixel location from a perspective camera.
 
     Applies the passed in projection matrix to project a point from the camera's
     coordinate space into pixel space.
@@ -173,24 +178,24 @@ def _project_pt_to_pixel_location(pt, projection, img_height, img_width):
 def _project_pt_to_pixel_location_orthographic(
     pt, projection, img_height, img_width
 ):
-    """ Projects a 3D coordinate into a pixel location from an orthographic camera.
+    """Projects a 3D coordinate into a pixel location from an orthographic camera.
 
-        Applies the passed in projection matrix to project a point from the
-        camera's coordinate space into pixel space.
+    Applies the passed in projection matrix to project a point from the
+    camera's coordinate space into pixel space.
 
-        For a description of the math used in this method, see:
-        https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-
-        orthographic-projection-matrix/projection-matrix-introduction
+    For a description of the math used in this method, see:
+    https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-
+    orthographic-projection-matrix/projection-matrix-introduction
 
-        Args:
-            pt (numpy array): The 3D point to project.
-            projection (numpy 2D array): The camera's 3x3 projection matrix.
-            img_height (int): The height of the image in pixels.
-            img_width (int): The width of the image in pixels.
+    Args:
+        pt (numpy array): The 3D point to project.
+        projection (numpy 2D array): The camera's 3x3 projection matrix.
+        img_height (int): The height of the image in pixels.
+        img_width (int): The width of the image in pixels.
 
-        Returns:
-            numpy array: a one-dimensional array with two values (x and y)
-            representing a point's pixel coordinate in an image.
+    Returns:
+        numpy array: a one-dimensional array with two values (x and y)
+        representing a point's pixel coordinate in an image.
     """
 
     # The 'y' component needs to be flipped because of how Unity works

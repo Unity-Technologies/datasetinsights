@@ -14,7 +14,8 @@ from datasetinsights.datasets.unity_perception.tables import (
 
 
 @pytest.mark.parametrize(
-    "data_dir_name", ["simrun", "no_annotations_or_metrics"],
+    "data_dir_name",
+    ["simrun", "no_annotations_or_metrics"],
 )
 def test_get_captures_and_annotations(mock_data_base_dir, data_dir_name):
     mock_data_dir = mock_data_base_dir / data_dir_name
