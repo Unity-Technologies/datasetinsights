@@ -8,10 +8,7 @@ from datasetinsights.stats import (
     get_scale_keypoints,
     get_visible_keypoints_dict,
 )
-from datasetinsights.stats.visualization.constants import (
-    COCO_KEYPOINTS,
-    COCO_SKELETON,
-)
+from datasetinsights.stats.constants import COCO_KEYPOINTS, COCO_SKELETON
 
 
 @pytest.fixture()

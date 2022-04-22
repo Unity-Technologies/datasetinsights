@@ -3,10 +3,7 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
-from datasetinsights.stats.visualization.constants import (
-    COCO_KEYPOINTS,
-    COCO_SKELETON,
-)
+from datasetinsights.stats.constants import COCO_KEYPOINTS, COCO_SKELETON
 
 
 def _is_torso_visible_or_labeled(kp: List) -> bool:
