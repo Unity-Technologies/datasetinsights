@@ -50,6 +50,7 @@ def test_get_scale_keypoints(_setup_annotations):
         )
         assert count == 0
 
+
 def test_get_visible_keypoints_dict(_setup_annotations):
     keypoint_list = _setup_annotations
 

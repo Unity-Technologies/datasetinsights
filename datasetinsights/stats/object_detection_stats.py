@@ -1,10 +1,8 @@
 import json
-from typing import Dict, List
+from typing import Dict
 
 import numpy as np
 import pandas as pd
-
-from datasetinsights.stats.visualization.constants import COCO_KEYPOINTS
 
 
 def convert_coco_annotations_to_df(filename: str) -> pd.DataFrame:

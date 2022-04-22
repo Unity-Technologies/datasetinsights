@@ -1,3 +1,15 @@
+from datasetinsights.stats.keypoints_stats import (
+    get_average_skeleton,
+    get_scale_keypoints,
+    get_visible_keypoints_dict,
+)
+from datasetinsights.stats.object_detection_stats import (
+    convert_coco_annotations_to_df,
+    get_bbox_heatmap,
+    get_bbox_per_img_dict,
+    get_bbox_relative_size_list,
+)
+
 from .statistics import RenderedObjectInfo
 from .visualization.plots import (
     bar_plot,
@@ -9,17 +21,7 @@ from .visualization.plots import (
     plot_keypoints,
     rotation_plot,
 )
-from datasetinsights.stats.object_detection_stats import (
-    convert_coco_annotations_to_df,
-    get_bbox_heatmap,
-    get_bbox_per_img_dict,
-    get_bbox_relative_size_list,
-)
-from datasetinsights.stats.keypoints_stats import (
-    get_average_skeleton,
-    get_scale_keypoints,
-    get_visible_keypoints_dict,
-)
+
 __all__ = [
     "bar_plot",
     "grid_plot",
