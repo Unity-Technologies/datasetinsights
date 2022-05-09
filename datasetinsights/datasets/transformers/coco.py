@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
+from pycocotools.mask import encode as mask_to_rle
 
 import datasetinsights.constants as const
 from datasetinsights.datasets.transformers.base import DatasetTransformer
@@ -63,6 +64,7 @@ class COCOInstancesTransformer(DatasetTransformer, format="COCO-Instances"):
             self._instance_segmentation_def = ann_def.find_by_name(
                 self.INSTANCE_SEGMENTATION_NAME
             )
+            self._has_instance_seg = True
         except NoRecordError as e:
             logger.warning(
                 "Can't find instance segmentation annotations in the dataset. "
@@ -70,6 +72,7 @@ class COCOInstancesTransformer(DatasetTransformer, format="COCO-Instances"):
             )
             logger.warning(e)
             self._instance_segmentation_def = None
+            self._has_instance_seg = False
 
         captures = Captures(
             data_root=data_root, version=const.DEFAULT_PERCEPTION_VERSION
@@ -77,7 +80,7 @@ class COCOInstancesTransformer(DatasetTransformer, format="COCO-Instances"):
         self._bbox_captures = captures.filter(self._bbox_def["id"])
         if self._instance_segmentation_def:
             self._instance_segmentation_captures = captures.filter(
-                self._instance_segmentation_def
+                self._instance_segmentation_def["id"]
             )
 
     def execute(self, output, **kwargs):
@@ -134,18 +137,62 @@ class COCOInstancesTransformer(DatasetTransformer, format="COCO-Instances"):
 
         return images
 
+    @staticmethod
+    def _calculate_segmentation(instance_id, seg_instances, seg_img):
+        segmentation = []
+        for ins in seg_instances:
+            if instance_id == ins["instance_id"]:
+                ins_color = ins["color"]
+                ins_color = (
+                    ins_color["r"],
+                    ins_color["g"],
+                    ins_color["b"],
+                    ins_color["a"],
+                )
+                ins_mask = (seg_img == ins_color).prod(axis=-1).astype(np.uint8)
+                segmentation = mask_to_rle(np.asfortranarray(ins_mask))
+                segmentation["counts"] = segmentation["counts"].decode()
+
+        return segmentation
+
+    def _get_instance_seg_img(self, seg_row):
+        file_path = (
+            self._data_root / seg_row["annotation.filename"].to_list()[0]
+        )
+        with Image.open(file_path) as img:
+            w, h = img.size
+            img = np.array(img.getdata(), dtype=np.uint8).reshape(h, w, 4)
+
+        return img
+
     def _annotations(self):
         annotations = []
         for _, row in self._bbox_captures.iterrows():
             image_id = uuid_to_int(row["id"])
+            if self._has_instance_seg:
+                seg_row = self._instance_segmentation_captures.loc[
+                    self._instance_segmentation_captures["id"] == str(row["id"])
+                ]
+                seg_instances = seg_row["annotation.values"].to_list()[0]
+                seg_img = self._get_instance_seg_img(seg_row)
+
             for ann in row["annotation.values"]:
+                instance_id = ann["instance_id"]
                 x = ann["x"]
                 y = ann["y"]
                 w = ann["width"]
                 h = ann["height"]
                 area = float(w) * float(h)
+
+                if self._has_instance_seg:
+                    segmentation = self._calculate_segmentation(
+                        instance_id, seg_instances, seg_img
+                    )
+                else:
+                    segmentation = []
+
                 record = {
-                    "segmentation": [],  # TODO: parse instance segmentation map
+                    "segmentation": segmentation,
                     "area": area,
                     "iscrowd": 0,
                     "image_id": image_id,
