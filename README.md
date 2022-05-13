@@ -18,46 +18,6 @@ Datasetinsights is published to PyPI. You can simply run `pip install datasetins
 
 We provide a sample [notebook](notebooks/Perception_Statistics.ipynb) to help you load synthetic datasets generated using [Perception package](https://github.com/Unity-Technologies/com.unity.perception) and visualize dataset statistics. We plan to support other sample Unity projects in the future.
 
-### Load Datasets
-
-The [Unity Perception](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.datasets.unity_perception.html#datasetinsights-datasets-unity-perception) package provides datasets under this [schema](https://datasetinsights.readthedocs.io/en/latest/Synthetic_Dataset_Schema.html#synthetic-dataset-schema). The datasetinsighs package also provide convenient python modules to parse datasets.
-
-For example, you can load `AnnotationDefinitions` into a python dictionary by providing the corresponding annotation definition ID:
-
-```python
-from datasetinsights.datasets.unity_perception import AnnotationDefinitions
-
-annotation_def = AnnotationDefinitions(data_root=dest, version="my_schema_version")
-definition_dict = annotation_def.get_definition(def_id="my_definition_id")
-```
-
-Similarly, for `MetricDefinitions`:
-```python
-from datasetinsights.datasets.unity_perception import MetricDefinitions
-
-metric_def = MetricDefinitions(data_root=dest, version="my_schema_version")
-definition_dict = metric_def.get_definition(def_id="my_definition_id")
-```
-
-The `Captures` table provide the collection of simulation captures and annotations. You can load these records directly as a Pandas `DataFrame`:
-
-```python
-from datasetinsights.datasets.unity_perception import Captures
-
-captures = Captures(data_root=dest, version="my_schema_version")
-captures_df = captures.filter(def_id="my_definition_id")
-```
-
-
-The `Metrics` table can store simulation metrics for a capture or annotation. You can also load these records as a Pandas `DataFrame`:
-
-```python
-from datasetinsights.datasets.unity_perception import Metrics
-
-metrics = Metrics(data_root=dest, version="my_schema_version")
-metrics_df = metrics.filter_metrics(def_id="my_definition_id")
-```
-
 ### Download Datasets
 
 You can download the datasets using the [download](https://datasetinsights.readthedocs.io/en/latest/datasetinsights.commands.html#datasetinsights-commands-download) command:
@@ -90,20 +50,6 @@ downloader = HTTPDatasetDownloader()
 downloader.download(source_uri=source_uri, output=dest)
 ```
 
-### Convert Datasets
-
-If you are interested in converting the synthetic dataset to COCO format for
-annotations that COCO supports, you can run the `convert` command:
-
-```bash
-datasetinsights convert -i <input-directory> -o <output-directory> -f COCO-Instances
-```
-or
-```bash
-datasetinsights convert -i <input-directory> -o <output-directory> -f COCO-Keypoints
-```
-
-You will need to provide 2D bounding box definition ID in the synthetic dataset. We currently only support 2D bounding box and human keypoint annotations for COCO format.
 
 ## Docker
 
