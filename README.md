@@ -90,21 +90,6 @@ downloader = HTTPDatasetDownloader()
 downloader.download(source_uri=source_uri, output=dest)
 ```
 
-### Convert Datasets
-
-If you are interested in converting the synthetic dataset to COCO format for
-annotations that COCO supports, you can run the `convert` command:
-
-```bash
-datasetinsights convert -i <input-directory> -o <output-directory> -f COCO-Instances
-```
-or
-```bash
-datasetinsights convert -i <input-directory> -o <output-directory> -f COCO-Keypoints
-```
-
-You will need to provide 2D bounding box definition ID in the synthetic dataset. We currently only support 2D bounding box and human keypoint annotations for COCO format.
-
 ## Docker
 
 You can use the pre-build docker image [unitytechnologies/datasetinsights](https://hub.docker.com/r/unitytechnologies/datasetinsights) to interact with datasets.
