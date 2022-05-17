@@ -138,17 +138,21 @@ class COCOInstancesTransformer(DatasetTransformer, format="COCO-Instances"):
         return images
 
     @staticmethod
-    def _calculate_segmentation(instance_id, seg_instances, seg_img):
+    def _compute_segmentation(instance_id, seg_instances, seg_img):
         segmentation = []
         for ins in seg_instances:
             if instance_id == ins["instance_id"]:
                 ins_color = ins["color"]
-                ins_color = (
-                    ins_color["r"],
-                    ins_color["g"],
-                    ins_color["b"],
-                    ins_color["a"],
-                )
+                if np.shape(seg_img)[-1] == 4:
+                    ins_color = (
+                        ins_color["r"],
+                        ins_color["g"],
+                        ins_color["b"],
+                        ins_color["a"],
+                    )
+                else:
+                    ins_color = (ins_color["r"], ins_color["g"], ins_color["b"])
+
                 ins_mask = (seg_img == ins_color).prod(axis=-1).astype(np.uint8)
                 segmentation = mask_to_rle(np.asfortranarray(ins_mask))
                 segmentation["counts"] = segmentation["counts"].decode()
@@ -159,9 +163,13 @@ class COCOInstancesTransformer(DatasetTransformer, format="COCO-Instances"):
         file_path = (
             self._data_root / seg_row["annotation.filename"].to_list()[0]
         )
+
         with Image.open(file_path) as img:
             w, h = img.size
-            img = np.array(img.getdata(), dtype=np.uint8).reshape(h, w, 4)
+            if np.shape(img)[-1] == 4:
+                img = np.array(img.getdata(), dtype=np.uint8).reshape(h, w, 4)
+            else:
+                img = np.array(img.getdata(), dtype=np.uint8).reshape(h, w, 3)
 
         return img
 
@@ -185,7 +193,7 @@ class COCOInstancesTransformer(DatasetTransformer, format="COCO-Instances"):
                 area = float(w) * float(h)
 
                 if self._has_instance_seg:
-                    segmentation = self._calculate_segmentation(
+                    segmentation = self._compute_segmentation(
                         instance_id, seg_instances, seg_img
                     )
                 else:
