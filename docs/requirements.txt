@@ -21,7 +21,7 @@ dash-core-components==1.17.1; python_version >= "2.7" and python_full_version < 
 dash-html-components==1.1.4; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.3.0"
 dash-table==4.12.0; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.3.0"
 dash==1.21.0; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.3.0")
-dask==2.30.0; python_version >= "3.6"
+dask==2021.10.0; python_version >= "3.6"
 distributed==2.30.1; python_version >= "3.6"
 docutils==0.16; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
 flake8==3.9.2; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0")
@@ -49,13 +49,13 @@ markupsafe==2.0.1; python_version >= "3.7"
 matplotlib==3.4.3; python_version >= "3.7"
 mccabe==0.6.1; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
 msgpack==1.0.2; python_version >= "3.6"
-numpy==1.21.3; python_version >= "3.7" and python_version < "3.11"
+numpy==1.22.2; python_version >= "3.7" and python_version < "3.11"
 opencv-python==4.5.4.58; python_version >= "3.6"
 packaging==21.2; python_version >= "3.7" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6")
 pandas==1.3.4; python_full_version >= "3.7.1"
 partd==1.2.0; python_version >= "3.6"
 pathspec==0.9.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
-pillow==8.4.0; python_version >= "3.7"
+pillow==9.0.1; python_version >= "3.7"
 plotly==4.14.3
 pluggy==1.0.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 protobuf==3.19.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6"
